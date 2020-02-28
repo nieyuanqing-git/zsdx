@@ -1,0 +1,17 @@
+.main-box-inner{padding-bottom:10px;}
+.main-box-left{margin-left:10px;}
+.main-box-center{padding:10px 20px 0;}
+.main-box-right-l{padding:10px 0 0 10px;width:750px;margin-right:auto;}
+
+.quick-link-box{background: url("images/bg-biue-box.gif") no-repeat scroll left top transparent;}
+.quick-link-box .quick-link li a{color:#333}
+.quick-link-box .quick-link li.current a{color:#000}
+.quick-link-box .quick-link li.quick-link-sample{background: none;}
+.quick-link-box .quick-link li.quick-link-appointment{background: none;}
+.quick-link-box .quick-link li.quick-link-userhome{background: none;}
+.quick-link-box .quick-link li.quick-link-equipment{background: none;}
+.quick-link-box .quick-link li.quick-link-sample-current{background: none;}
+.quick-link-box .quick-link li.quick-link-appointment-current{background: none;}
+.quick-link-box .quick-link li.quick-link-userhome-current{background: none;}
+.quick-link-box .quick-link li.quick-link-equipment-current{background: none;}
+.quick-link-box h2.title{background: none;text-shadow:0px 0px 0px #fff;padding-left:25px;font-weight:normal; line-height: 32px;}

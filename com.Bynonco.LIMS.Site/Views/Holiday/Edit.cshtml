@@ -1,0 +1,94 @@
+﻿@model com.Bynonco.LIMS.Model.PublicHolidays
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.JTab("divHolidayEdit").SetBorder(false).SetWidth(620).ToMvcString() 
+<div id="divHolidayEdit" style="width:680px;overflow:hidden">
+    <div id="divHoliday" title="节假日信息">
+        <form id="frmHolidayEdit" action="#" >
+        @Html.Hidden("PublicHolidaysId", Model == null ? "" : Model.Id.ToString())
+        @Html.Hidden("IncludedEquipmentIds", Model == null || Model.Includes == null || Model.Includes.Count == 0 ? "" : string.Join(",", Model.Includes.Select(p=>p.EquipmentId)))
+        @Html.Hidden("ExceptedEquipmentIds", Model == null || Model.Excludes == null || Model.Excludes.Count == 0 ? "" : string.Join(",", Model.Excludes.Select(p => p.EquipmentId)))
+        <table class="edit-table">
+            <tr>
+                <th>名称</th>
+                <td>
+                     @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(258).ToMvcString()
+                     <span>必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>开始时间</th>
+                <td>
+                    @Html.JDateTimePicker("StartAt").SetWidth(155).SetValue(Model == null ? "" :  Model.StartAt.ToString("yyyy-MM-dd")).ToMvcString()
+                    @Html.JComboBox("StartAtHour").SetData(ViewData["StartAtHourJson"]).SetWidth(50).ToMvcString()
+                    @Html.JComboBox("StartAtMinute").SetData(ViewData["StartAtMinuteJson"]).SetWidth(50).ToMvcString()
+                    <span>必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>结束时间</th>
+                <td>
+                    @Html.JDateTimePicker("EndAt").SetWidth(155).SetValue(Model == null ? "" : Model.EndAt.ToString("yyyy-MM-dd")).ToMvcString()
+                    @Html.JComboBox("EndAtHour").SetData(ViewData["EndAtHourJson"]).SetWidth(50).ToMvcString()
+                    @Html.JComboBox("EndAtMinute").SetData(ViewData["EndAtMinuteJson"]).SetWidth(50).ToMvcString()
+                    <span>必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>调休日</th>
+                <td>
+                    <p>(日期格式：年/月/日，如2010/1/1,各日期按半角逗号：“,”分隔) </p>
+                    @Html.JValidateBox("WorkDays").SetValue(Model == null ? "" : Model.WorkDays).SetWidth(495).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>同时对送样生效</th>
+                <td>
+                    @Html.CheckBox("IsEffectOnSample")
+                </td>
+            </tr>
+            <tr>
+                <th>说明</th>
+                <td>
+                    @Html.TextArea("Description", Model == null ? "" : Model.Description, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:495px;margin-right:5px;" })
+                </td>
+            </tr>
+        </table>
+        </form>
+    </div>
+    <div title="包含的设备" style="width:680px;overflow:hidden"> @Html.Partial("IncludeEquipmentList")</div>
+    <div title="例外的设备" style="width:680px;overflow:hidden"> @Html.Partial("ExpectedEquipmentList")</div>
+</div>
+
+<script type="text/javascript">
+    var isSelectIncludeEquipment = false;
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+        var elementId = isSelectIncludeEquipment ? "tbHolidayIncludeEquipmentList" : "tbHolidayExpectedEquipmentList";
+        var length = selectedEquipmentJsonArray.length;
+        if (selectedEquipmentJsonArray && selectedEquipmentJsonArray.length > 0) {
+            for (var i = 0; i < length; i++) {
+                $('#' + elementId).datagrid("appendRow", selectedEquipmentJsonArray[i]);
+            }
+        }
+        if (isSelectIncludeEquipment) $("#IncludedEquipmentIds").val(selectedEquipmentIds);
+        if (!isSelectIncludeEquipment) $("#ExceptedEquipmentIds").val(selectedEquipmentIds);
+    }
+    function doDeletequipment(elementId,idsEelementId) {
+        var selectedRows = $('#' + elementId).datagrid("getSelections");
+        if (selectedRows && selectedRows.length > 0) {
+            for (var i =0; i < selectedRows.length; i++) {
+                var rowIndex = $('#' + elementId).datagrid("getRowIndex", selectedRows[i]);
+                $('#' + elementId).datagrid("deleteRow", rowIndex);
+            }
+        }
+        var rows = $('#' + elementId).datagrid("getRows");
+        if (!rows || rows.length == 0) {
+            $("#" + idsEelementId).val("");
+            return;
+        }
+        var selectedEquipmentIds = "";
+        for (var j = 0; j < rows.length; j++) {
+            selectedEquipmentIds += selectedEquipmentIds == "" ? rows[j].Id.toString() : "," + rows[j].Id.toString();
+        }
+        $("#" + idsEelementId).val(selectedEquipmentIds);
+    }
+</script>

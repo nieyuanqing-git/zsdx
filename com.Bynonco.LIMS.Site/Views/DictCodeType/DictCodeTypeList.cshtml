@@ -1,0 +1,32 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dictCodeTypePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDictCodeTypePrivilige(User.Identity.Name);
+    var dataGrid = Html.JTreeGrid("tbDictCodeTypeList")
+    .SetTreeGrid("Id", "Name", Url.Action("GetTreeGridDictCodeTypeList", "DictCodeType", new { time = DateTime.Now.Millisecond.ToString() }), "", false)
+    .SetHeight(650)
+    .SetShowAddButton(false)
+    .SetShowDeleteButton(false)
+    .SetShowEditButton(false)
+    .SetShowRefreshButton(false)
+    .SetShowPrintButton(false)
+    .SetMutiSelect(false)
+    .SetSingleSelect(true)
+    .SetPagination(false);
+    if(dictCodeTypePrivilige.IsEnableEdit)
+    {
+        dataGrid.SetOnSelect("doOnDictCodeTypeSelected(rowData);");
+    }
+    if(dictCodeTypePrivilige.IsEnableEdit)
+    {
+        dataGrid.SetOnDblClickRow("doEditDictCodeType(row.Id);");
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = !dictCodeTypePrivilige.IsEnableAdd, Handler = "doAddDictCodeType('');", IconCls = "icon-add", Id = "btnAddDictCodeType", Text = "增加" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = !dictCodeTypePrivilige.IsEnableEdit, Handler = "doEditDictCodeType();", IconCls = "icon-edit", Id = "btnEditDictCodeTypeEdit", Text = "编辑" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = !dictCodeTypePrivilige.IsEnableDelete, Handler = "doDictCodeTypeDelete();", IconCls = "icon-cancel", Id = "btnDeleteDictCodeTypeEdit", Text = "删除" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDictCodeTypeSearch();", IconCls = "icon-reload", Id = "btnDeleteDictCodeTypRefresh", Text = "刷新" });
+    dataGrid.SetSortName("Name");
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(250).SetAlign(Align.left).SetSortable(false));
+  }
+@(dataGrid.ToMvcString())
+

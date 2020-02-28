@@ -1,0 +1,128 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSJ6Dialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSJ6Search() {
+        var sJ6StatisticsId = doGetSJ6StatisticsSelected('');
+        var queryExpression = generateSJ6QueryExpress();
+        if (sJ6StatisticsId && sJ6StatisticsId != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "SJ6StatisticsId=\"" + sJ6StatisticsId + "\"";
+            $("#tbSJ6List").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbSJ6List").datagrid("load", { "queryExpression": queryExpression });
+        }
+        else {
+            $("#tbSJ6List").datagrid('loadData', { total: 0, rows: [] });
+        }
+    }
+    function generateSJ6SelectedIds() {
+        var ids = [];
+        var rows = $("#tbSJ6List").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    var sJ6Dialog;
+    function doSJ6Dialog() {
+        if (sJ6Dialog) {
+            sJ6Dialog.dialog("destroy");
+        }
+        sJ6Dialog =  @Html.JDialog("divSJ6Edit").SetTitle("实验室基本情况表(SJ6)").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("sJ6Dialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveSJ6();").ToMvcString();
+    }
+    function doAddSJ6() {
+        var id = doGetSJ6StatisticsSelected('');
+         if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择SJ6统计报表", showType: 'show' });
+            return false;
+        }
+        doAddOrEditSJ6('');
+    }
+    function doEditSJ6(id) {
+       if (!id || id.trim() == "") {
+            id = generateSJ6SelectedIds();
+            if (!id || id.length == 0) {
+                $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+                return false;
+            }
+            if (id && id.length > 1) {
+                $.messager.show({ title: '提示', msg: "不能多项编辑", showType: 'show' });
+                return false;
+            }
+            id = id.toString();
+        }
+        doAddOrEditSJ6(id);
+    }
+    function doAddOrEditSJ6(id){
+        var url = '@Url.Action("SJ6Edit","Statistics")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSJ6Dialog").load(url,function(){
+            doSJ6Dialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveSJ6(){
+        if($("#frmSJ6Edit").find("#SJ6StatisticsId").val() == "")
+            $("#frmSJ6Edit").find("#SJ6StatisticsId").val(doGetSJ6StatisticsSelected(''));
+        
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SJ6Save","Statistics")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmSJ6Edit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                sJ6Dialog.dialog('close');
+                doSJ6Search();
+            }
+        });
+   }
+   function doOperateSJ6(ids, url, operateName) {
+        if(!url || url=="") return;
+        if(!operateName || operateName=="") operateName = "操作";
+        var opeIds = ids == null || ids.trim() == "" ? generateSJ6SelectedIds().toString() : ids;
+        if (opeIds == null || opeIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要" + operateName + "的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认' + operateName + '?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                url: url,
+                data: { "ids": opeIds },
+                success: function (msg) {
+                $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ6Search();
+                }
+            });
+        });
+        return false;
+    }
+    function doDeleteSJ6(ids){
+        var url = '@Url.Action("SJ6Delete", "Statistics")'
+        doOperateSJ6(ids,url,"删除");
+    }
+    function doAuditPassSJ6(ids){
+        var url = '@Url.Action("SJ6AuditPass", "Statistics")'
+        doOperateSJ6(ids,url,"审核通过");
+    }
+    function doAuditRejectSJ6(ids){
+        var url = '@Url.Action("SJ6AuditReject", "Statistics")'
+        doOperateSJ6(ids,url,"审核不通过");
+    }
+    function doAuditWaittingSJ6(ids){
+        var url = '@Url.Action("SJ6AuditWaitting", "Statistics")'
+        doOperateSJ6(ids,url,"置为待审");
+    }
+    
+</script>

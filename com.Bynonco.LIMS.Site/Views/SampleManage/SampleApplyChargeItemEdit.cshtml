@@ -1,0 +1,88 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleApplyChargeItem
+@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    var isLoading = true;
+    function doOnChargeItemChanged() {
+        var chargeItemName = $("#tdSampleChargeItemId ul.token-input-list-facebook li.token-input-token-facebook p").text().trim();
+        var chargeItemId = $("#SampleChargeItemId").val().trim();
+        if (chargeItemName!= "" && chargeItemId != "" && chargeItemName.length>=2 && chargeItemName.substring(0, 2) == "其他") {
+            $("#Other").attr("disabled", false);
+        }
+        else {
+            $("#Other").val("").attr("disabled", true);
+        }
+        if (chargeItemId.trim() == "" || isLoading) return;
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSampleChargeItemById","SampleChargeItem")' + "?time=" + new Date().getMilliseconds(),
+            data: { "id": chargeItemId },
+            complete: function (data) {
+                $.messager.progress('close');
+                if (data && data != "") {
+                    var jsonData = eval("(" + data.responseText + ")");
+                    $("#Price").val(jsonData.UnitPrice);
+                }
+            }
+        });
+        return true;
+    }
+</script>
+
+<div id="divSampleApplyChargeItemEdit">
+<form id="frmSampleApplyCharge" action="#">
+    @Html.Hidden("SampleApplyChargeItemId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table">
+        <tr>
+            <th>项目</th>
+            <td id="tdSampleChargeItemId">
+                @(Html.TokenInput("SampleChargeItemId").SetWidth(200).SetPrePopulate(ViewData["SampleChargeItemJson"] == null || string.IsNullOrWhiteSpace(ViewData["SampleChargeItemJson"].ToString()) ? null : ViewData["SampleChargeItemJson"].ToString()).SetUrl(Url.Action("GetSampleChargeItemListByKeyWord", "SampleChargeItem", new { time = DateTime.Now.Millisecond.ToString() })).SetOnChange("doOnChargeItemChanged();").SetOnReady("doOnChargeItemChanged();").ToMvcString())
+            </td>
+        </tr>
+         <tr>
+            <th>其他</th>
+            <td>@Html.TextBox("Other", Model == null ? "" : Model.Other, new { style = "width:200px;height:18px;", disabled = true })</td> 
+        </tr>
+        @if (Model != null && Model.IsOpenFundCostDeduct)
+        {
+            <tr>
+                <th>是否开放基金扣费</th>
+                <td style="color:Red;">
+                   @Model.IsOpenFundCostDeductStr
+                </td>
+            </tr>
+            <tr style="color:Red;">
+                <th>补贴币</th>
+                <td>
+                   @(Model.OpenFundDiscount)
+                </td>
+            </tr>
+            <tr style="color:Red;">
+                <th>普通币</th>
+                <td>
+                   @(Model.TotalFee)
+                </td>
+            </tr>
+        }
+        <tr>
+            <th>数量</th>
+            <td>@Html.JValidateBox("Quantity").SetValue(Model == null ? "1" : Model.Quantity.ToString()).SetWidth(200).SetValidateType(ValidateType.intNumber).SetInvalidMessage("请输入项目的数量").ToMvcString() </td>
+        </tr>
+         <tr>
+            <th>金额</th>
+            <td>@Html.JValidateBox("Price").SetValue(Model == null ? "" : Model.CalFee.ToString()).SetWidth(200).SetValidateType(ValidateType.number).SetInvalidMessage("请输入金额").ToMvcString() </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>@Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:280px;height:60px;font-size:12px;font-weight:normal" })</td> 
+        </tr>
+    </table>
+</form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdSampleChargeItemId ul.token-input-list-facebook").css("width", "205px");
+        isLoading = false;
+    });
+</script>
+

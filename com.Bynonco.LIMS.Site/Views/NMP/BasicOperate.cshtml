@@ -1,0 +1,31 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div class="edit-operate">
+    @{
+       
+        var nmpPrivilige = Model != null ?
+                com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.Id) :
+                com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name);
+     }
+    @Html.JLinkButton("btnSaveBasic", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveNMPBasic();return false;").SetVisible(nmpPrivilige.IsEnableSaveBasic).ToMvcString()
+    @Html.JLinkButton("btnDeleteBasic", "删除").SetIconCls("icon-cancel").SetPlain(true).SetVisible(nmpPrivilige.IsEnableDelete && Model != null).SetOnclick(string.Format("doDeleteNMP('{0}');return false;", Model == null ? "" : Model.Id.ToString())).ToMvcString()
+    @Html.JLinkButton("btnBackBasic", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doNMPBack();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSaveNMPBasic() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBasic","NMP")',
+            data: $("#frmNMPEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                doNMPReload(msg);
+            }
+        });
+    }
+</script>

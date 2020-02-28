@@ -1,0 +1,142 @@
+﻿@model com.Bynonco.LIMS.Model.ExperimenterSubject
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var subject = ViewData["Subject"] == null ? null : (com.Bynonco.LIMS.Model.Subject)ViewData["Subject"];
+    var IsCooperative = Convert.ToBoolean(ViewData["IsCooperative"]);
+ }
+<script type="text/javascript">
+    function doOnExperimenterSubjectTypeChanged(newValue, oldValue) {
+        $("#divStudentId").css("display", "none");
+        $("#divTutorId").css("display", "none");
+        switch (newValue.toString()) {
+            case "0":
+                $("#divStudentId").css("display", "block");
+                break;
+            case "1":
+                $("#divTutorId").css("display", "block");
+                break;
+        }
+    }
+</script>
+<div id="divExperimenterSubjectEdit">
+ <form id="frmExperimenterSubjectEdit" action="#">
+    @Html.Hidden("ExperimenterSubjectId", Model == null ? "" : Model.Id.ToString())
+    <table id="tdExperimenterSubjectEdit" class="edit-table"  style="width:435px;">
+        <tr>
+            <th>课题组名称</th>
+            <td style="padding-left:10px;">@(subject.Name)</td>
+        </tr>
+        <tr>
+            <th>负责人</th>
+            <td style="padding-left:10px;">@(subject.Director.Name)</td>
+        </tr>
+         <tr>
+            <th>帐户信息</th>
+            <td style="padding-left:10px;"><span style="font-weight:bold">帐户余额:</span><span>@(double.Parse(ViewData["TotalCurrency"].ToString()).ToString("0.###"))</span>&nbsp;&nbsp;
+                <span style="font-weight:bold">可分配金额:</span><span>@(double.Parse(ViewData["RestOdd"].ToString()).ToString("0.###"))</span>&nbsp;&nbsp;
+            </td>
+        </tr>
+        <tr>
+            <th>类型</th>
+            <td id="tdType">
+                @(Html.JComboBox("ExperimenterSubjectType")
+                .SetData(ViewData["ExperimenterSubjectTypeJson"])
+                .SetOnChange("doOnExperimenterSubjectTypeChanged(newValue, oldValue);")
+                .SetWidth(265).ToMvcString())
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>姓名</th>
+            <td>
+                <div id="divTutorId"style="display:none">
+                    @(Html.TokenInput("TutorId")
+                    .SetUrl(Url.Action("GetTutorListByKeyWord", "User") + string.Format("?ExpecteTutorIds={0}", Model == null || Model.GetSubject() == null ? "" : Model.GetSubject().SubjectDirectorId.Value.ToString()))
+                    .SetPrePopulate(ViewData["TutorJson"] == null || string.IsNullOrWhiteSpace(ViewData["TutorJson"].ToString()) ? null : ViewData["TutorJson"].ToString())
+                    .SetSingle(true)
+                    .SetPreventDuplicates(true)
+                    .SetWidth(260)
+                    .ToMvcString())
+                </div>
+                <div id="divStudentId"style="display:none">
+                    @(Html.TokenInput("StudentId")
+                    .SetUrl(Url.Action("GetStudentListByKeyWord", "User") + string.Format("?TutorIds={0}", !IsCooperative ? subject.SubjectDirectorId.Value.ToString() : ViewData["LoginUserId"].ToString()))
+                    .SetPrePopulate(ViewData["StudentJson"] == null || string.IsNullOrWhiteSpace(ViewData["StudentJson"].ToString()) ? null : ViewData["StudentJson"].ToString())
+                    .SetSingle(true)
+                    .SetPreventDuplicates(true)
+                    .SetWidth(260)
+                    .ToMvcString())
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>总额度</th>
+            <td>
+                 @Html.JValidateBox("TotalSum").SetValue(Model == null ? "0.0" : Model.TotalSum.ToString("0.0")).SetDisabled(true).SetWidth(260).ToMvcString()
+                 <span>(元)</span>
+            </td>
+        </tr>
+        <tr>
+            <th>剩余额度</th>
+            <td>
+                @Html.JValidateBox("OddSum").SetValue(Model == null ? "0.0" : Model.OddSum.ToString("0.0")).SetWidth(260).ToMvcString()
+                <span>(元)</span>
+            </td>
+        </tr>
+         <tr>
+            <th>预警值</th>
+            <td>
+                @Html.JValidateBox("PreAlert").SetValue(Model == null || !Model.PreAlert.HasValue ? "0.0" : Model.PreAlert.Value.ToString("0.0")).SetWidth(260).ToMvcString()
+                <span>(元)</span>
+            </td>
+        </tr>
+         <tr>
+            <th>不可预约值</th>
+            <td>
+                @Html.JValidateBox("Unappointment").SetValue(Model == null || !Model.Unappointment.HasValue ? "0.0" : Model.Unappointment.Value.ToString("0.0")).SetWidth(260).ToMvcString()
+                <span>(元)</span>
+            </td>
+        </tr>
+        <tr>
+            <th>不可使用值</th>
+            <td>
+                @Html.JValidateBox("UnUseable").SetValue(Model == null || !Model.UnUseable.HasValue ? "0.0" : Model.UnUseable.Value.ToString("0.0")).SetWidth(260).ToMvcString()
+                <span>(元)</span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否授权管理</th>
+            <td>
+               @(Html.JComboBox("IsAdmin")
+                .SetData(ViewData["IsAminJson"])
+                .SetWidth(265).ToMvcString())
+                <span class="icon icon-info-blue" title="是否允许该课题组成员对代课题组负责人对课题组进行管理"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>状态</th>
+            <td>
+               @(Html.JComboBox("Status")
+                .SetData(ViewData["StatusJson"])
+                .SetWidth(265).ToMvcString())
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>付费方式</th>
+            <td>
+               @(Html.JComboBox("UseMoneyType")
+                .SetData(ViewData["UseMoneyTypeJson"])
+                .SetWidth(265).ToMvcString())
+                <span class="required">必填</span>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#divTutorId ul.token-input-list-facebook").css("width", "265px");
+        $("#divStudentId ul.token-input-list-facebook").css("width", "265px");
+    });
+</script>

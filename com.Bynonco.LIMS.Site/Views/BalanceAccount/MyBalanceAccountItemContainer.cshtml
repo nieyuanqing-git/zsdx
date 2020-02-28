@@ -1,0 +1,16 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div>@Html.Partial("MyBalanceAccountItemList")</div>
+<div id="divBalanceAccountItemDetailDialog" style="display:none"></div>
+<script type="text/javascript">
+    var balanceAccountItemDetailDialog;
+    function doViewBalanceAccountItemDetail(id) {
+        if (balanceAccountItemDetailDialog) {
+            balanceAccountItemDetailDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divBalanceAccountItemDetailDialog").load('@Url.Action("ViewBalanceAccountItemDetail", "BalanceAccount")',{"id":id,"time":new Date().getMilliseconds()},function(data){
+            $.messager.progress('close');
+            balanceAccountItemDetailDialog = @(Html.JDialog("divBalanceAccountItemDetail").SetTitle("付费人扣费列表").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("balanceAccountItemDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("balanceAccountItemDetailDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+</script>

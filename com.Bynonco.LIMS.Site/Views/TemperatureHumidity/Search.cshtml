@@ -1,0 +1,48 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateTemperatureHumidityQueryExpress() {
+        var queryExpression = "";
+        var Name = $("#SearchName").val().trim();
+        if (Name != "") {
+            queryExpression = "(Name∽\"" + Name.trim() + "\")";
+        }
+        var Label = $("#SearchLabel").val().trim();
+        if (Label != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(Label∽\"" + Label.trim() + "\")";
+        }
+        var Model = $("#SearchModel").val().trim();
+        if (Model != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(Model∽\"" + Model.trim() + "\")";
+        }
+        
+        return queryExpression;
+    }
+    function doReset() {
+        $("#SearchName").val("");
+        $("#SearchLabel").val("");
+        $("#SearchModel").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>资产编号</label>
+        @Html.JValidateBox("SearchLabel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>型号</label>
+        @Html.JValidateBox("SearchModel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnCountrySearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnCountryReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnCountryClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

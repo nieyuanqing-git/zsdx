@@ -1,0 +1,14 @@
+﻿@model List<com.Bynonco.LIMS.Model.View.ViewEquipmentCategoryBind>
+@using com.Bynonco.LIMS.Utility;
+@if (Model != null && Model.Count() > 0)
+{
+    var list = Model.Select(p => new { p.EquipmentId, p.EquipmenName }).Distinct().OrderBy(p => p.EquipmenName);
+    <ul class="news-list list-xs" style="padding-left:30px;margin-bottom: 10px;">
+    @foreach (var item in list)
+    {
+        var cutName = ShortcutStringUtility.GetSubString(item.EquipmenName, 20, "..");
+        <li><a href="@(Url.Action("Show", "Equipment", new { id = item.EquipmentId }))" title='@(item.EquipmenName)' >@(cutName)</a></li>
+    }
+    <div class="clear-both"></div>
+    </ul>
+}

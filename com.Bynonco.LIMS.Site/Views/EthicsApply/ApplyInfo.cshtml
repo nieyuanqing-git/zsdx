@@ -1,0 +1,140 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEthicsApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var applicant = ViewData["Applicant"] != null ? (com.Bynonco.LIMS.Model.User)ViewData["Applicant"] : null;
+    var ethicsSetting = (com.Bynonco.LIMS.Model.Business.EthicsSetting)ViewData["EthicsSetting"];
+}
+@if(!(bool)ViewData["IsPassTranning"])
+{
+   <div class="notification error">
+	    <div>@ViewData["NotPassTranningTip"]</div>
+   </div>
+}
+@Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+@if (ethicsSetting.ShowLinksWhenApplyPass != null && ethicsSetting.ShowLinksWhenApplyPass.Count > 0)
+{
+    <h5>入室规章制度,请认真查阅</h5>
+    <ul>
+        @foreach (var showLinkWhenApplyPass in ethicsSetting.ShowLinksWhenApplyPass)
+        {
+               <div class="notification attention">
+	                <div><a target="_blank" href='@(showLinkWhenApplyPass.Value)'>@(showLinkWhenApplyPass.Key)</a></div>
+               </div>
+        }
+    </ul>
+}
+<p>1.项目信息</p>
+<table class="edit-info">
+     <tr style="display:none;">
+            <th><span class="required">*</span>课题组</th>
+            <td>
+                @Html.JComboBox("SubjectId").SetEditable(false).SetWidth(235).SetData(ViewData["SubjectJson"]).SetMutiSelect(false).ToMvcString()
+            </td>
+        </tr>
+    <tr>
+        <th>
+            <span class="required">*</span>实验名称
+        </th>
+        <td>
+            @Html.JValidateBox("ProjectName").SetValue(Model == null ? "" : Model.ProjectName).SetWidth(300).SetValidateType(ValidateType.required).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <span class="required">*</span>项目来源
+        </th>
+        <td>
+            @Html.JComboBox("ProjectSourceId").SetData(ViewData["ProjectSourceJson"]).SetWidth(305).ToMvcString()
+            <span>可手工填写</span>
+        </td>
+    </tr>
+</table>
+<p>2.项目负责人情况</p>
+<table class="edit-info">
+    <tr>
+        <th>
+            <span class="required">*</span>姓名
+        </th>
+        <td>
+            @Html.Hidden("ApplicantId", Model == null ? applicant.Id.ToString() : Model.ApplicantId.ToString())
+            @applicant.Name
+        </td>
+    </tr>
+    <tr>
+        <th>
+            技术职称
+        </th>
+        <td>
+           @Html.JValidateBox("ApplicantTitle").SetValue(Model == null ? applicant.Jobtitle : !string.IsNullOrWhiteSpace(Model.ApplicantTitle) ? Model.ApplicantTitle : applicant.Jobtitle).SetWidth(300).SetValidateType(ValidateType.required).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <span class="required">*</span>电话
+        </th>
+        <td>
+           @Html.JValidateBox("ApplicantTelNo").SetValue(Model == null ? applicant.PhoneNumber : !string.IsNullOrWhiteSpace(Model.ApplicantTelNo) ? Model.ApplicantTelNo : applicant.PhoneNumber).SetWidth(300).SetValidateType(ValidateType.required).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <span class="required">*</span>Email
+        </th>
+        <td>
+           @Html.JValidateBox("ApplicantEmail").SetValue(Model == null ? applicant.Email : !string.IsNullOrWhiteSpace(Model.ApplicantEmail) ? Model.ApplicantEmail : applicant.Email).SetWidth(300).SetValidateType(ValidateType.required).ToMvcString()
+        </td>
+    </tr>
+</table>
+<p>3.环境设施许可证号</p>
+<table class="edit-info">
+    <tr>
+        <th>
+            <span class="required">*</span>环境设施许可证号
+        </th>
+        <td>
+            @Html.JValidateBox("EnviromentAllowedNo").SetValue(Model == null ? com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer().GetDefaultAnimalEnviromentQuatityNo() : Model.EnviromentAllowedNo).SetWidth(300).SetValidateType(ValidateType.required).ToMvcString()
+        </td>
+    </tr>
+</table>
+<p>4.拟进动物情况</p>
+@Html.Partial("AnimalDataContainer", Model != null && Model.EthicsApply != null ? Model.EthicsApply.EthicsApplyAnimalDatas : null)
+<table class="edit-info">
+    <tr>
+        <th>
+            <span class="required">*</span>申请日期
+        </th>
+        <td>
+            @Html.JDateTimePicker("ApplyTime").SetWidth(305).SetValue(Model == null ? DateTime.Now.AddDays(7).ToString("yyyy-MM-dd") : Model.ApplyTimeStr).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <span class="required">*</span>进驻日期
+        </th>
+        <td>
+            @Html.JDateTimePicker("EnteringDate").SetWidth(305).SetValue(Model == null ? DateTime.Now.AddDays(30).ToString("yyyy-MM-dd") : Model.EnteringDateStr).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+         <th>
+            <span class="required">*</span>结束日期
+        </th>
+        <td>
+            @Html.JDateTimePicker("EndingDate").SetWidth(305).SetValue(Model == null ? DateTime.Now.AddDays(30).ToString("yyyy-MM-dd") : Model.EndingDateStr).ToMvcString()
+        </td>
+    </tr>
+</table>
+<p>5.实验目的要点,包括实验方法、观测指标、实验结束后处死动物的方法等</p>
+<div style="padding-left:10px">
+    @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:675px; height:200px;" })
+</div>
+<p>6.动物实验人员信息</p>
+<div style="padding-left:10px">@Html.Partial("EthicsApplyAnimalExperimenterList")</div>
+<p>7.入室规章制度 </p>
+<table class="edit-info">
+    <tr>
+        <th>
+           @Html.CheckBox("HasReadTheNotice") 我已认真阅读入室规章制度,并同意遵守其内容 
+        </th>
+    </tr>
+</table>

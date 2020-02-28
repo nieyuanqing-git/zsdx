@@ -1,0 +1,101 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    @Html.Partial("../Equipment/HotList")
+</div>
+<div id="divHotEquipmentDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearchHotEquipment() {
+        var queryExpression = "";
+        $("#tbHotEquipmentList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbHotEquipmentList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var hotEquipmentDialog;
+    function doHotEquipmentDialog() {
+        if (hotEquipmentDialog) {
+            hotEquipmentDialog.dialog("destroy");
+        }
+        hotEquipmentDialog =  @Html.JDialog("divHotEquipmentEdit").SetTitle("仪器热门推荐信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("hotEquipmentDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveHotEquipment();").ToMvcString();
+    }
+    function doAddHotEquipment(id) {
+       doAddOrEditHotEquipment(id);
+    }
+    function doEditHotEquipment(id) {
+       if(!id || id.trim()==""){
+           var selectedHotEquipment = $("#tbHotEquipmentList").datagrid("getSelected");
+           if(!selectedHotEquipment || selectedHotEquipment.Id=="" || selectedHotEquipment.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择仪器热门推荐", showType: 'show' });
+              return false;
+           }
+           id = selectedHotEquipment.Id;
+       }
+       doAddOrEditHotEquipment(id);
+    }
+    function doAddOrEditHotEquipment(id){
+        var url = '@Url.Action("HotEdit","Equipment")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divHotEquipmentDialog").load(url,function(){
+            doHotEquipmentDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveHotEquipment(){
+        var id = $("#EquipmentId").val().trim();
+        var hotDegree = $("#HotDegree").val().trim()
+        if(id == ""){
+          $.messager.show({ title: '提示', msg: "仪器设备为空", showType: 'show' });
+          return false;
+        }
+        if(hotDegree == "" || !hotDegree.isPositiveInt()){
+          $.messager.show({ title: '提示', msg: "热门推荐度不正确，请输入大于0的整数", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("HotSave","Equipment")',
+            data: "id=" + id + "&HotDegree=" + hotDegree,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                hotEquipmentDialog.dialog('close');
+                doSearchHotEquipment();
+            }
+        });
+   }
+   function doDeleteHotEquipment(id){
+        if(!id || id.trim() == ""){
+              var selectedHotEquipment = $("#tbHotEquipmentList").datagrid("getSelected");
+                if(!selectedHotEquipment || selectedHotEquipment.Id.trim() == "" || selectedHotEquipment.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedHotEquipment.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("HotDelete", "Equipment")',
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchHotEquipment();
+                }
+            });
+        });
+        return false;
+   }
+</script>

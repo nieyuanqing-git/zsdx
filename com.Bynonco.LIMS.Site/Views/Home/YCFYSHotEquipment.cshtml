@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@{
+    var hotEquipmentList = ViewData["HotEquipmentList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewEquipmentTotal>)ViewData["HotEquipmentList"];
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+}
+<h2 class='title'>
+    <span>热门仪器</span>
+    <a href='@Url.Action("ShowList", "Equipment",routeCurrentXPathValue)' class='more'>更多>></a>
+</h2>
+<div class="content-box content-box-186">
+@if (hotEquipmentList != null && hotEquipmentList.Count() > 0)
+{
+    <ul class="news-list">
+    @for (int i =0 ;i <hotEquipmentList.Count(); i++)
+    {
+        var item = hotEquipmentList[i];
+        var url = Url.Action("Show", "Equipment", new { Id = item.Id, XPath = orgXPath });
+        var cutName = ShortcutStringUtility.GetSubString(item.EquipmentName, 30, "..");
+        <li class='li-num li-@(i+1)' style='line-height:25px;'>
+            <a href='@url' title='@item.EquipmentName'>@cutName</a>
+        </li>
+    }
+    </ul>
+}
+</div>

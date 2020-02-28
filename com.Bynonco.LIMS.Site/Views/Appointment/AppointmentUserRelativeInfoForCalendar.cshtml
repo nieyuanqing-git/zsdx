@@ -1,0 +1,8 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var equipmentTimeAppointmemtMode = (com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode)ViewData["EquipmentTimeAppointmemtMode"];}
+<div id="divLoadUserRelativeInfoForCalendar" style="width:520px;overflow:hidden">
+    <div style="display:none;">@Html.CheckBox("IsSelectTimeScope", true)</div>
+    <div style="display:none;">@Html.CheckBox("HasReadTheNotice", true)</div>
+    @Html.Partial("../Equipment/AppointmentTimeScopeContainer")
+    @Html.Partial("../Appointment/AppointmentUserRelativeInfo")
+</div>

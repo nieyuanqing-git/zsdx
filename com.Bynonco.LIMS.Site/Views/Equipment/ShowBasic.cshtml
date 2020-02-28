@@ -1,0 +1,61 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.LIMS.Model.Enum;
+<div class="info-gray-box">
+    <ul class="info-float clearfix">
+        <li><span class="title">名称</span><span class="info">@(Model == null ? "" : Model.Name)</span></li>
+        <li><span class="title">资产编号</span><span class="info">@(Model == null ? "" : Model.Label)</span></li>
+        <li><span class="title">型号</span><span class="info">@(Model == null ? "" : Model.Model)</span></li>
+        <li><span class="title">规格</span><span class="info">@(Model == null ? "" : Model.Specifications)</span></li>
+        <li><span class="title">产地</span><span class="info">@(Model == null ? "" : Model.ProductionArea)</span></li>
+        <li><span class="title">厂家</span><span class="info">@(Model == null ? "" : Model.Factory)</span></li>
+        <li><span class="title">所属品牌</span><span class="info">@(Model == null ? "" : Model.Brand)</span></li>
+        @*<li><span class="title">出产编号</span><span class="info">@(Model == null ? "" : Model.ProductionNo)</span></li>*@
+        <li><span class="title">出产日期</span><span class="info">@(Model == null || Model.ProductionDate == null ? "" : Model.ProductionDate.Value.ToString("yyyy-MM-dd"))</span></li>
+        @*<li><span class="title">供应商</span><span class="info">@(Model == null ? "" : Model.Supplier)</span></li>
+        <li><span class="title">价格</span><span class="info">@(Model == null || !Model.UnitPrice.HasValue ? "" : Math.Round(Model.UnitPrice.Value,2).ToString())</span></li>*@
+        <li><span class="title">购买日期</span><span class="info">@(Model == null || !Model.BuyDate.HasValue ? "" : Model.BuyDate.Value.ToString("yyyy-MM-dd"))</span></li>
+        <li><span class="title">所属单位</span><span class="info">@(Model == null ? "" : Model.OrgName)</span></li>
+        <li><span class="title">使用性质</span><span class="info">@(Model == null || Model.UseDirection == null ? "" : Model.UseDirectionEnum.ToCnName())</span></li>
+        @*<li><span class="title">大型设备</span><span class="info">@(Model == null || !Model.IsLargeScaleEquipment.HasValue? "" : Model.IsLargeScaleEquipment.Value ? "是" : "否")</span></li>*@
+        <li><span class="title">所属分类</span><span class="info">@(Model == null || Model.Equipment == null ? "" : Model.Equipment.CategoryNames)</span></li>
+        <li><span class="title">联系人</span><span class="info">@(Model == null || Model.Equipment == null ? "" : Model.Equipment.LinkManNames)</span></li>
+        <li><span class="title">联系电话</span><span class="info">@(Model == null ? "" : Model.LinkTelNo)</span></li>
+        <li><span class="title">联系邮箱</span><span class="info">@(Model == null ? "" : Model.AdminEmail)</span></li>
+        <li><span class="title">放置地点</span><span class="info">@(Model == null ? "" : Model.RoomName)</span></li>
+    </ul>
+</div>
+@if (Model != null && !string.IsNullOrEmpty(Model.Qualification))
+{
+    <div class="info-gray-box">
+        <h2 class="title">主要规格及技术指标</h2>
+        @System.Web.Mvc.MvcHtmlString.Create((Model == null ? "" : Model.Qualification.Replace("\r\n", "<br />")))
+    </div>
+}
+@if (Model != null && !string.IsNullOrEmpty(Model.ScopeOfApplication))
+{
+    <div class="info-gray-box">
+        <h2 class="title">主要功能及特色</h2>
+        @System.Web.Mvc.MvcHtmlString.Create((Model == null ? "" : Model.ScopeOfApplication.Replace("\r\n", "<br />")))
+    </div>
+}
+@if (Model != null && !string.IsNullOrEmpty(Model.SpecimenNotice))
+{
+    <div class="info-gray-box">
+        <h2 class="title">样本检测注意事项</h2>
+        @System.Web.Mvc.MvcHtmlString.Create((Model == null ? "" : Model.SpecimenNotice.Replace("\r\n", "<br />")))
+    </div>
+}
+@if (Model != null && !string.IsNullOrEmpty(Model.UseNotice))
+{
+    <div class="info-gray-box">
+        <h2 class="title">设备使用相关说明</h2>
+        @System.Web.Mvc.MvcHtmlString.Create((Model == null ? "" : Model.UseNotice.Replace("\r\n", "<br />")))
+    </div>
+}
+@if (Model != null && !string.IsNullOrWhiteSpace(Model.Remark))
+{
+    <div class="info-gray-box">
+        <h2 class="title">备注</h2>
+        @System.Web.Mvc.MvcHtmlString.Create((Model == null ? "" : Model.Remark.Replace("\r\n", "<br />")))
+    </div>
+}

@@ -1,0 +1,123 @@
+﻿<link rel="stylesheet" href="@Url.Content("~/Content/book.css")" type="text/css" media="screen" />
+@{
+    var appointmentStep = ViewData["AppointmentTimeStep"] == null ? 30 : int.Parse(ViewData["AppointmentTimeStep"].ToString());
+    var beingHour = 0;
+    var endHour = 24;
+    var day = DateTime.Today;
+    var beginHourTime = day.AddHours(beingHour);
+    var mid = beingHour + (int)((endHour - beingHour) / 2);
+    var endHourTime = day.AddHours(mid);
+    var workTimes = ViewData["WorkTimes"] == null ? "" : ViewData["WorkTimes"];
+    var count = appointmentStep < 1440 ? 2 : 1;
+
+<div id="divSelectWorkTimes" style="overflow:auto; width:600px"   >
+    <input id="chxAll" type="checkbox" /><label for="chxAll">全选</label>        
+    <table class="book" cellspacing="0" cellpadding="0">
+        @for (int t = 0; t < count; t++)
+        {
+            <tr>
+            @for (var i = beginHourTime; i <= endHourTime; i = i.AddMinutes(appointmentStep * 2))
+            {
+               <td colspan='2' style='text-align:left;font-size:10px;font-weight:lighter'>@(i.ToShortTimeString())</td>
+            }
+            <td></td>
+            </tr>
+            <tr>
+            @{
+            int split = 1;
+            for (var i = beginHourTime; i < endHourTime; i = i.AddMinutes(appointmentStep * 2))
+            {
+                if (split % 2 == 0)
+                {
+                    if (i.AddMinutes(appointmentStep * 2) < endHourTime)
+                    {
+                        <td colspan='2'><img src='@Url.Content("~/Content/images/book-top-scale-white.gif")' /></td>
+                    }
+                    else
+                    {
+                        <td colspan='2'><img src='@Url.Content("~/Content/images/book-top-scale-white-last.gif")' /></td>
+                    }
+                }
+                else
+                {
+                    if (i.AddMinutes(appointmentStep * 2) < endHourTime)
+                    {
+                        <td colspan='2'><img src='@Url.Content("~/Content/images/book-top-scale-black.gif")' /></td>
+                    }
+                    else
+                    {
+                        <td colspan='2'><img src='@Url.Content("~/Content/images/book-top-scale-black-last.gif")' /></td>
+                    }
+                }
+                ++split;
+            }
+            }
+            </tr>
+            <tr>
+            @{
+            var time = new DateTime(beginHourTime.Year, beginHourTime.Month, beginHourTime.Day, beginHourTime.Hour, beginHourTime.Minute, beginHourTime.Second);
+            for (var currentTime = beginHourTime; currentTime < endHourTime; currentTime = currentTime.AddMinutes(appointmentStep))
+            {
+                <td class="valid" id='@(currentTime.ToString("yyyy-MM-dd HH:mm:ss"))'></td>
+            }
+            }
+            </tr>
+            beginHourTime = endHourTime;
+            endHourTime = day.AddHours(endHour);
+        }
+    </table>
+</div>
+    
+<script type="text/javascript">
+    function getSelectedWorkTimeIds() {
+        var workTimes = "";
+        var seletedWorkTimeElements = $("#divSelectWorkTimes table.book tr td.booking");
+        if (seletedWorkTimeElements && seletedWorkTimeElements.length > 0) {
+            seletedWorkTimeElements.each(function () { workTimes += workTimes == "" ? $(this).attr("id") : "," + $(this).attr("id") });
+        }
+        return workTimes;
+    }
+
+    function doAppointmentTimeStepChanged(appointmentTimeStepElementName, divWorkHoursElementName) {
+        var appointmentTimeStep = document.getElementById(appointmentTimeStepElementName).value.trim();
+        var appointmentTimeStepNum = 30;
+        var isPass = true;
+        if (appointmentTimeStep != "") {
+            if (!appointmentTimeStep.isPositiveInt()) {
+                $.messager.show({ title: '提示', msg: "预约时间段必须是正整数", showType: 'show' });
+                isPass = false;
+            }
+            if (Number(appointmentTimeStep) <= 0 && isPass) {
+                $.messager.show({ title: '提示', msg: "预约时间段必须是正整数", showType: 'show' });
+                isPass = false;
+            }
+            if (isPass && ((1440 / appointmentTimeStep) % 4) != 0 && appointmentTimeStep != 720 && appointmentTimeStep != 1440) {
+                alert("时间间隔不符合【((1440 / 时间间隔) % 4)= 0 or 时间间隔=720】");
+                isPass = false;
+            }
+        }
+        if (isPass) appointmentTimeStepNum = parseInt(appointmentTimeStep);
+        else document.getElementById(appointmentTimeStepElementName).value = "30";
+        $.messager.progress({ title: '提示', msg: '正在请求预约时间段数据,请稍候……' });
+        $("#" + divWorkHoursElementName).load('@Url.Action("GetAppointmentTimesOfDay","Equipment")', { "time": new Date().getMilliseconds(), "AppointmentTimeStep": appointmentTimeStepNum }, function (data) { $.messager.progress('close'); })
+    }
+
+    $(function () {
+        $("td.valid", $("#divSelectWorkTimes")).live("click", function () { $(this).attr("class", "booking"); });
+        $("td.booking", $("#divSelectWorkTimes")).live("click", function () { $(this).attr("class", "valid"); });
+        $("#chxAll").click(function () {
+            if ($(this).attr("checked"))
+                $("td.valid").attr("class", "booking");
+            else
+                $("td.booking").attr("class", "valid");
+        });
+        var selectedWorkTimes = "@workTimes";
+        if (selectedWorkTimes != "") {
+            var selectedWorkTimeArray = selectedWorkTimes.split(",");
+            if (selectedWorkTimeArray && selectedWorkTimeArray.length > 0)
+                $.each(selectedWorkTimeArray, function (i, id) { document.getElementById(id).setAttribute("class", "booking"); });
+        }
+    });
+</script>
+
+}

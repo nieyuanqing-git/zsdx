@@ -1,0 +1,21 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@if (Model != null && Model.Equipment.AdditionChargeItems != null && Model.Equipment.AdditionChargeItems.Count > 0)
+{
+    var additionChargeItems = Model.Equipment.AdditionChargeItems.Where(p=>!p.IsStop);
+     <table class="edit-info">
+        @if (additionChargeItems != null && additionChargeItems.Count() > 0)
+        {
+            foreach (var additionChargeItem in additionChargeItems)
+            {
+                if (additionChargeItem.IsStop) { continue; }
+                <tr>
+                    <th>@(additionChargeItem.Name)</th>
+                    <td>
+                        @(Html.JValidateBox(string.Format("BasicAdditionChargeItem_{0}_StandardPrice", additionChargeItem.Id.ToString())).SetWidth(300).SetValidateType(ValidateType.number).SetValue(additionChargeItem.StandardPrice.ToString()).AddClass("additionChargeItem").ToMvcString()) (元)
+                    </td>
+                </tr>
+            }
+        }
+     </table>
+}

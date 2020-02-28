@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var sampleChargeItemPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSampleChargeItemPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSampleChargeItemList")
+    .SetUrl(Url.Action("GetGridSampleChargeItemList", "SampleChargeItem", new { time = DateTime.Now.Millisecond.ToString() }))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetShowAddButton(sampleChargeItemPrivilige.IsEnableAdd);
+    if (sampleChargeItemPrivilige.IsEnableBatchStart)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStart();return false;", IconCls = "icon-play", Id = "btnBatchStart", Text = "启用" });
+    }
+    if (sampleChargeItemPrivilige.IsEnableBatchStop)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStop();return false;", IconCls = "icon-stop", Id = "btnBatchStop", Text = "停用" });
+    }
+    if(sampleChargeItemPrivilige.IsEnableAdd)
+    {
+        dataGrid.SetAddScript("doAddOrEdit('');");
+    }
+    if(sampleChargeItemPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDelete('');");
+    }
+    if(sampleChargeItemPrivilige.IsEnableEdit)
+    {
+        dataGrid.SetOnDblClickRow("doAddOrEdit(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(sampleChargeItemPrivilige.IsEnableDelete);
+    dataGrid.SetShowPrintButton(true)
+    .SetSortName("OrderNo")
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+    if (sampleChargeItemPrivilige.IsEnableEdit)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetWidth(60).SetAlign(Align.center));
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "Name").SetWidth(250).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("价格", "UnitPrice").SetWidth(60).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("排序号", "OrderNo").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("助记符", "InputStr").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否默认", "IsDefaultStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left));
+}
+@(dataGrid.ToMvcString())

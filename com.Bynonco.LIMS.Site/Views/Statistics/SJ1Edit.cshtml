@@ -1,0 +1,139 @@
+﻿@model com.Bynonco.LIMS.Model.SJ1
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+.edit-table td {border: 0;}
+.edit-table td.tdInfo {width:30px;}
+.edit-table .icon {
+    height: 16px;
+    line-height: 16px;
+    margin-right: 5px;
+    padding-bottom: 2px;
+    padding-right: 16px;
+    width: 16px;
+}
+</style>
+<div id="divSJ1Edit">
+ <form id="frmSJ1Edit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("SJ1StatisticsId", Model == null ? "" : Model.SJ1StatisticsId.ToString())
+    @Html.Hidden("EquipmentId", Model == null ? "" : Model.EquipmentId.ToString())
+    <table id="tdSJ1Edit" class="edit-table"  style="width:485px;">
+        <tr>
+            <th>学校代码</th>
+            <td>
+                @Html.JValidateBox("SchoolCode").SetValue(Model == null ? "" : Model.SchoolCode.Trim()).SetWidth(50).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="学校代码: 数据格式为字符型，长度为5"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>仪器编号</th>
+            <td>
+                @Html.JValidateBox("Label").SetValue(Model == null ? "" : Model.Label.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="仪器编号: 数据格式为字符型，长度为8。指学校内部使用的仪器设备编号，在本校内具有唯一性"></span>
+            </td>
+            <th>分类号</th>
+            <td>
+                @Html.JValidateBox("CategoryCode").SetValue(Model == null ? "" : Model.CategoryCode.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="分类号: 数据格式为字符型，长度为8。指对仪器设备进行统一分类的编码，按教育部高教司颁发的《高等学校固定资产分类及编码》填写，不得自行增加。若无对应编码，填上一级编码，编码末位填“00”补齐8位。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>仪器名称</th>
+            <td colspan='3'>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name.Trim()).SetWidth(250).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="仪器名称: 数据格式为字符型，长度为30。用汉字表示，不能为空，与《高等学校固定资产分类及编码》中的分类号所对应的名称一致，若无对应名称，则填写仪器设备标牌的汉字名称或规范的中文翻译名称。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>型号</th>
+            <td>
+                @Html.JValidateBox("Model").SetValue(Model == null ? "" : Model.Model.Trim()).SetWidth(100).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="型号: 数据格式为字符型，长度为20。按仪器设备标牌或说明书标示填写，型号不清的仪器设备，经学校管理部门核实后，填“*”，超出字段长度应截取主要部分填写。"></span>
+            </td>
+            <th>国别码</th>
+            <td>
+                @Html.JValidateBox("CountryCode").SetValue(Model == null ? "" : Model.CountryCode.Trim()).SetWidth(30).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="数据格式为字符型，长度为3。指仪器设备的生产国家代码，以产品标牌标示的产地为准，按《世界各国和地区名称代码》（GB/T 2659-2000）填写，国别码不清的填“000”"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>规格</th>
+            <td colspan='3'>
+                @Html.JValidateBox("Specifications").SetValue(Model == null ? "" : Model.Specifications.Trim()).SetWidth(250).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="规格: 数据格式为字符型，长度为200。指仪器设备的规格和主要技术指标。超出字段长度应截取主要部分填写。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>仪器来源</th>
+            <td>
+                @Html.JValidateBox("ComeFrom").SetValue(Model == null ? "" : Model.ComeFrom.Trim()).SetWidth(15).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="仪器来源：数据格式为字符型，长度为1。按代码填写：1．购置；2．捐赠：指自然人、法人或者其他组织自愿无偿向学校捐赠的仪器设备；3．自制：主要部分是自行设计、加工、制造的仪器设备；4．校外调入：除前三项外的其他来源。"></span>
+            </td>
+            <th>单价</th>
+            <td>
+                @Html.JValidateBox("UnitPrice").SetValue(Model == null ? "" : Model.UnitPrice.Trim()).SetWidth(100).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="单价: 数据格式为数值型，长度为12。指仪器设备包括附件在内的总价格。以元为单位，保留两位小数。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>购买日期</th>
+            <td>
+                @Html.JValidateBox("BuyDate").SetValue(Model == null ? "" : Model.BuyDate.Trim()).SetWidth(50).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="购置日期：数据格式为字符型，长度为6。指仪器设备到校验收日期。前四位表示年，后两位表示月。"></span>
+            </td>
+            <th>现状码</th>
+            <td>
+                @Html.JValidateBox("Status").SetValue(Model == null ? "" : Model.Status.Trim()).SetWidth(15).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="现状码：数据格式为字符型，长度为1。指仪器设备使用的状态，按代码填写： 1．在用——正在使用的仪器设备；2．多余——具有使用价值而未使用的仪器设备；3．待修——待修或正在修理的仪器设备；4．待报废 ——已经失去使用价值，而未履行正式报废手续的仪器设备； 8．降档——经学校批准允许降档次使用、管理的仪器设备；9．其它——现状不详的仪器设备。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>使用方向</th>
+            <td>
+                @Html.JValidateBox("UseDirection").SetValue(Model == null ? "" : Model.UseDirection.Trim()).SetWidth(15).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="使用方向：数据格式为字符型，长度为1。指仪器设备的使用性质，按代码填写：1．教学为主；2．科研为主。若某台仪器设备教学与科研使用机时各占一半，填代码“2”。"></span>
+            </td>
+            <th>单位编号</th>
+            <td>
+                @Html.JValidateBox("OrgCode").SetValue(Model == null ? "" : Model.OrgCode.Trim()).SetWidth(90).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="单位编号：数据格式为字符型，长度为10。指学校自编的仪器设备所在单位编号，校内具有唯一性。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>单位名称</th>
+            <td colspan='3'>
+                @Html.JValidateBox("OrgName").SetValue(Model == null ? "" : Model.OrgName.Trim()).SetWidth(250).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="单位名称：数据格式为字符型，长度为50。指仪器设备所在单位名称。"></span>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

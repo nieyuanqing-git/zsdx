@@ -1,0 +1,67 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateDeductSynQueryExpression() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+        
+        var payerName = $("#SearchPayerName").val().trim();
+        if (payerName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "PayerName∽\"" + payerName + "\"";
+        }
+        var isSyned = $("#IsSyned").combobox("getValue").trim();
+        if (isSyned != "-1" && isSyned != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "IsSyned=" + (isSyned == "1" ? "true" : "false");
+        }
+        var beginAtStart = $("#SearchBeginAtStart").datebox("getValue").trim();
+        if (beginAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime>\"" + beginAtStart + " 00:00:00" + "\"";
+        }
+        var beginAtEnd = $("#SearchBeginAtEnd").datebox("getValue").trim();
+        if (beginAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime<\"" + beginAtEnd + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doDeductSynReset() {
+        $("#SearchUserName").val("");
+        $("#SearchPayerName").val("");
+        $("#IsSyned").combobox("setValue", "");
+        $("#SearchBeginAtStart").datebox("setValue", "");
+        $("#SearchBeginAtEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="width:60px;">已同步</label>
+        @Html.JComboBox("IsSyned").SetData(ViewData["IsSyned"]).SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">使用者</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">付费人</label>
+        @Html.JValidateBox("SearchPayerName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">开始时间</label>
+        @Html.JDateTimePicker("SearchBeginAtStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">结束时间</label>
+        @Html.JDateTimePicker("SearchBeginAtEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnDeductSynSearch", "查询").SetOnclick("doDeductSynSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnDeductSynReset", "清空").SetOnclick("doDeductSynReset();").ToMvcString()
+        @Html.JLinkButton("btnDeductSynClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

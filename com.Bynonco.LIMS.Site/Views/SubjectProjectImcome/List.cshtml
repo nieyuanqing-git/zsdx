@@ -1,0 +1,29 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var subjectProjectImcomePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectProjectImcomePrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSubjectProjectImcomeList")
+       .SetUrl(Url.Action("GetGridViewSubjectProjectImcomeLogList", "SubjectProjectImcome"))
+       .SetHeight(650)
+       .SetSortName("CreateAt")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowAddButton(false)
+       .SetShowEditButton(false)
+       .SetShowDeleteButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+       
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("流水号", "ProjectImcomeId").SetWidth(60).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("金额", "ImcomeSum").SetWidth(100).SetAlign(Align.right));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("职工号", "ProjectAdminUserNum").SetWidth(80).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户名称", "UserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目编号", "ProjectNum").SetWidth(80).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "ProjecName").SetWidth(250).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("课题名称", "SubjectName").SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(400).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

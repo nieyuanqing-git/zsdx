@@ -1,0 +1,28 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@{var entity = ViewData["ViewNMPUsedConfirmFeedBack"] != null ? (com.Bynonco.LIMS.Model.View.ViewNMPUsedConfirmFeedBack)ViewData["ViewNMPUsedConfirmFeedBack"] : null;}
+<tr>
+    <th>使用前状态</th>
+    <td>
+        @Html.JComboBox("BeforeUseStatus").SetData(ViewData["BeforeUseStatusJson"]).SetWidth(235).ToMvcString()
+    </td>
+</tr>
+<tr>
+    <th>使用后状态</th>
+    <td>
+        @Html.JComboBox("Status").SetData(ViewData["StatusJson"]).SetWidth(235).ToMvcString()
+    </td>
+</tr>
+<tr>
+    <th>使用前描述</th>
+    <td>
+        @Html.TextArea("BeforeUseRemark", entity == null ? "" : entity.BeforeUseRemark, 3, 48, null)
+    </td>
+</tr>
+<tr>
+    <th>使用后描述</th>
+    <td>
+        @Html.TextArea("AfterUseRemark", entity == null ? "" : entity.Remark, 3, 48, null)
+    </td>
+</tr>

@@ -1,0 +1,111 @@
+﻿@model com.Bynonco.LIMS.Model.DictCode
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divDictCodeEdit" style="width:450px;"> 
+<form id="frmDictCodeEdit" action="#" >
+    @Html.Hidden("Id_DictCode", Model == null ? "" : Model.Id.ToString())
+    <table id="tbDictCodeEdit" class="edit-table" style="width:100%">
+        <tr>
+            <th>代码</th>
+            <td>
+                @Html.JValidateBox("Code_DictCode").SetValue(Model == null ? "" : Model.Code).SetWidth(260).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>名称</th>
+            <td>
+                @Html.JValidateBox("Name_DictCode").SetValue(Model == null ? "" : Model.Name).SetWidth(260).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+          <tr>
+            <th>辅助分类</th>
+            <td>
+                @Html.JValidateBox("DictCodeTypeName").SetValue(ViewData["DictCodeTypeName"] == null ? "" : ViewData["DictCodeTypeName"].ToString()).SetWidth(260).SetDisabled(true).ToMvcString()
+                @Html.Hidden("DictCodeTypeId", Model == null ? "" : Model.DictCodeTypeId.ToString())
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>键值</th>
+            <td>
+                @Html.JValidateBox("Value_DictCode").SetValue(Model == null ? "" : Model.Value).SetWidth(260).SetRequired(true).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>是否停用</th>
+           <td>
+                @Html.CheckBox("IsStop_DictCode", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+        <tr>
+            <th>扩展字段1:</th>
+            <td>
+                @Html.JValidateBox("Ext1").SetValue(Model == null ? "" : Model.Ext1).SetWidth(260).ToMvcString()
+            </td>
+        </tr>
+       <tr>
+            <th>扩展字段2</th>
+            <td>
+                @Html.JValidateBox("Ext2").SetValue(Model == null ? "" : Model.Ext2).SetWidth(260).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>扩展字段3</th>
+            <td>
+                @Html.JValidateBox("Ext3").SetValue(Model == null ? "" : Model.Ext3).SetWidth(260).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>扩展字段4</th>
+            <td>
+                @Html.JValidateBox("Ext4").SetValue(Model == null ? "" : Model.Ext4).SetWidth(260).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>扩展字段5</th>
+            <td>
+                @Html.JValidateBox("Ext5").SetValue(Model == null ? "" : Model.Ext5).SetWidth(260).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>扩展字段6</th>
+            <td>
+                @Html.JValidateBox("Ext6").SetValue(Model == null ? "" : Model.Ext6).SetWidth(260).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>扩展字段7</th>
+            <td>
+                @Html.JValidateBox("Ext7").SetValue(Model == null ? "" : Model.Ext7).SetWidth(260).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>扩展字段8</th>
+            <td>
+                @Html.JValidateBox("Ext8").SetValue(Model == null ? "" : Model.Ext8).SetWidth(260).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark_DictCode", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:60px;width:325px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        if($("#Id_DictCode").val().trim()=="")
+        {
+            var selectedDictCodeType = $("#tbDictCodeTypeList").treegrid("getSelected");
+            if(selectedDictCodeType && selectedDictCodeType.Id && !selectedDictCodeType.Id.trim() == "" && !selectedDictCodeType.Id.isDefaultGuid()) 
+            {
+                $("#DictCodeTypeId").val(selectedDictCodeType.Id);
+                $("#DictCodeTypeName").val(selectedDictCodeType.Name);
+            }
+        }
+    });
+</script>

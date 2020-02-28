@@ -1,0 +1,96 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var recordNum = $("#SearchRecordNum").val().trim();
+        if (recordNum != "") {
+            queryExpression = "RecordNum∽\"" + recordNum.trim() + "\"";
+        }
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+        var equipmentModel = $("#SearchEquipmentModel").val().trim();
+        if (equipmentModel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentModel∽\"" + equipmentModel.trim() + "\"";
+        }
+        var equipmentLabel = $("#SearchEquipmentLabel").val().trim();
+        if (equipmentLabel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentLabel∽\"" + equipmentLabel.trim() + "\"";
+        }
+        var organizationXPath = $("#SearchOrganizationXPath").val().trim();
+        if (organizationXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentOrgXPath→\"" + organizationXPath + "\"";
+        }
+        var judgeTimeBegin = $("#SearchJudgeTimeBegin").datebox("getValue").trim();
+        if (judgeTimeBegin != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "JudgeTime>\"" + judgeTimeBegin + " 00:00:00" + "\"";
+        }
+        var judgeTimeEnd = $("#SearchJudgeTimeEnd").datebox("getValue").trim();
+        if (judgeTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "JudgeTime<\"" + judgeTimeEnd + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+    function getSearchOrganizationXPath(element) {
+        $("#SearchOrganizationXPath").val("");
+        var organizationId = element.value;
+        if (organizationId != "" && !organizationId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: organizationId }, function (data) {
+                if (data && data != "")
+                    $("#SearchOrganizationXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    function doReset() {
+        $("#SearchRecordNum").val("");
+        $("#SearchEquipmentName").val("");
+        $("#SearchEquipmentModel").val("");
+        $("#SearchEquipmentLabel").val("");
+        $("#SearchOrganizationId").val('@Guid.Empty.ToString()');
+        $("#SearchOrganizationXPath").val("");
+        $("#SearchJudgeTimeBegin").datebox("setValue", "");
+        $("#SearchJudgeTimeEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>评价编号</label>
+        @Html.JValidateBox("SearchRecordNum").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>设备型号</label>
+        @Html.JValidateBox("SearchEquipmentModel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>资产编号</label>
+        @Html.JValidateBox("SearchEquipmentLabel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>所属机构</label>
+        @Html.DropDownList("SearchOrganizationId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:155px;", onchange = "getSearchOrganizationXPath(this);" })
+        @Html.Hidden("SearchOrganizationXPath")
+    </li>
+    <li>
+        <label>评价时间</label>
+        @Html.JDateTimePicker("SearchJudgeTimeBegin").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchJudgeTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

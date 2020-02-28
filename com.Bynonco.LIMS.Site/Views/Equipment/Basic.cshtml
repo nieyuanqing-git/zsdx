@@ -1,0 +1,631 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.LIMS.Utility;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsBindEquipmentAdminUser = customer == null ? true : customer.GetIsBindEquipmentAdminUser();
+    var customerIsBindEquipmentLinkUser = customer.GetIsBindEquipmentLinkUser();
+    var customerDirectorName = customer == null ? "负责人" : customer.GetEquipmentDirectorName();
+    var customerLinkMenName = customer == null ? "联系" : customer.GetEquipmentLinkMenName();
+    var customerLabelShowName = customer == null ? "资产编号" : customer.GetLabelShowName();
+    var isShowBJJTDXCol = customer.GetIsShowDutyFreeEquipment();
+    var isShowEquipmentPriceUnit = customer == null ? true : customer.GetIsShowEquipmentPriceUnit();
+    var isShowDutyFree = customer == null ? false : customer.GetIsShowDutyFreeEquipment();
+    var editEquipmentNotNull  = ViewData["EditEquipmentNotNull"] != null ? ViewData["EditEquipmentNotNull"] : "";
+}
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <p><span class="icon icon-equipmentinfo"></span>基本信息</p>
+    <table class="edit-info">
+        <tr>
+            <th>
+                设备名称
+            </th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(300).SetValidateType(ValidateType.required).SetInvalidMessage("请输入设备名称").ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+          <tr>
+            <th>
+                助记符
+            </th>
+            <td>
+                @Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(300).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @customerLabelShowName
+            </th>
+            <td>
+                @Html.JValidateBox("Label").SetValue(Model == null ? "" : Model.Label).SetWidth(300).SetValidateType(ValidateType.required).SetInvalidMessage("请输入固定资产编号").ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        
+        <tr>
+             <th>
+                型号
+            </th>
+            <td>
+                @Html.JValidateBox("Model").SetValue(Model == null ? "" : Model.Model).SetWidth(300).ToMvcString()
+                <span class="required @(editEquipmentNotNull.ToString().Contains("型号") ? "" : "hide")">必填</span>
+            </td>
+        </tr>
+        <tr>
+             <th>
+                规格
+            </th>
+            <td>
+                @Html.JValidateBox("Specifications").SetValue(Model == null ? "" : Model.Specifications).SetWidth(300).ToMvcString()
+                <span class="required @(editEquipmentNotNull.ToString().Contains("规格") ? "" : "hide")">必填</span>
+            </td>
+        </tr>
+        <tr>
+             <th>
+                产地
+            </th>
+            <div>
+            <td id="tdCountry">
+                @(Html.TokenInput("ProductionArea")
+                .SetUrl(Url.Action("GetCountryListByKeyWord", "Country"))
+                .SetPrePopulate(ViewData["CountryJson"] == null || string.IsNullOrWhiteSpace(ViewData["CountryJson"].ToString()) ? null : ViewData["CountryJson"].ToString())
+                .SetTokenValue("text")
+                .SetSingle(false)
+                .SetWidth(300)
+                .ToMvcString())
+                <span class="required @(editEquipmentNotNull.ToString().Contains("产地") ? "" : "hide")">必填</span>
+            </td></div>
+        </tr>
+        <tr>
+             <th>
+                厂家
+            </th>
+            <td>
+                @Html.JValidateBox("Factory").SetValue(Model == null ? "" : Model.Factory).SetWidth(300).ToMvcString()
+                <span class="required @(editEquipmentNotNull.ToString().Contains("厂家") ? "" : "hide")">必填</span>
+            </td>
+        </tr>
+        <tr>
+             <th>
+                所属品牌
+            </th>
+            <td>
+                @Html.JValidateBox("Brand").SetValue(Model == null ? "" : Model.Brand).SetWidth(300).ToMvcString()
+                <span class="required @(editEquipmentNotNull.ToString().Contains("所属品牌") ? "" : "hide")">必填</span>
+            </td>
+        </tr>
+        <tr>
+             <th>
+                出产编号
+            </th>
+            <td>
+                @Html.JValidateBox("ProductionNo").SetValue(Model == null ? "" : Model.ProductionNo).SetWidth(300).ToMvcString()
+                <span class="required @(editEquipmentNotNull.ToString().Contains("出产编号") ? "" : "hide")">必填</span>
+            </td>
+        </tr>
+        <tr>
+             <th>
+                出产日期
+            </th>
+            <td>
+                @Html.JDateTimePicker("ProductionDate").SetValue(Model == null ? "" : Model.ProductionDate.HasValue ? Model.ProductionDate.Value.ToString("yyyy-MM-dd") : "").SetWidth(305).ToMvcString()
+                <span class="required @(editEquipmentNotNull.ToString().Contains("出产日期") ? "" : "hide")">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>设备来源</th>
+            <td>
+                @(Html.JComboBox("ComeFrom")
+                .SetEditable(false)
+                .SetData(ViewData["ComeFromJson"])
+                .SetWidth(305)
+                .ToMvcString())
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        @if (isShowBJJTDXCol)
+        {
+            <tr>
+            <th>购置经费来源</th>
+            <td>
+                @(Html.JComboBox("FeeComeFrom")
+                .SetEditable(false)
+                .SetData(ViewData["FeeComeFromJson"])
+                .SetWidth(305)
+                .ToMvcString())
+            </td>
+            </tr>
+            
+            <tr>
+                <th>是否免税</th>
+                    <td class="clear-both">
+                        <div class="float_l">
+                                @(Html.CheckBox("IsDutyFree", new { onchange = "doIsDutyFreeChanged();" }))<label for="IsDutyFree"></label>
+                        </div>
+                        <div class="float_l margin-l-10" id="divDutyFreeYear" style='display: @(Model == null || Model.IsDutyFree == null || !Model.IsDutyFree ? "none" : "block")'>
+                            免税年限@(Html.JValidateBox("DutyFreeYear").SetValue(Model == null || !Model.DutyFreeYear.HasValue ? "" : Model.DutyFreeYear.Value.ToString()).SetWidth(30).SetValidateType(ValidateType.positiveIntNumber).ToMvcString())
+                            <span>(年)</span>
+                        </div>                           
+                    </td>
+            </tr>
+            <tr>
+                <th>是否对外开放</th>
+                    <td class="clear-both">
+                        <div class="float_l">
+                                @Html.JComboBox("IsOpenToOut").SetWidth(305).SetData(ViewData["IsOpenToOutJson"]).ToMvcString()
+                        </div>                                              
+                    </td>
+            </tr>
+            <tr>
+                <th>
+                开放时间
+            </th>
+                <td>
+                    @Html.JValidateBox("OutPentTimeMemo").SetValue(Model == null ? "" : Model.OutPentTimeMemo).SetWidth(300).ToMvcString()
+                </td>
+            </tr>
+            
+            <tr>
+             <th>
+                对外开放拟收费标准
+            </th>
+            <td>
+                @Html.JValidateBox("OutCharge").SetValue(Model == null ? "" : Model.OutCharge.HasValue ? Model.OutCharge.Value.ToString("0.00") : "").SetWidth(300).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的价格").ToMvcString()
+            </td>
+        </tr>
+        }
+    </table>
+    <p><span class="icon icon-shop"></span>详细信息</p>
+    <table class="edit-info">
+        <tr>
+             <th>
+                供应商
+            </th>
+            <td>
+                @Html.JValidateBox("Supplier").SetValue(Model == null ? "" : Model.Supplier).SetWidth(300).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>
+                价格
+            </th>
+            @if (isShowEquipmentPriceUnit)
+            {
+                <td>
+                    @Html.JValidateBox("UnitPrice").SetValue(Model == null ? "" : Model.UnitPrice.HasValue ? Model.UnitPrice.Value.ToString("0.00") : "").SetWidth(250).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的价格").ToMvcString()
+                    @Html.JComboBox("Unit").SetWidth(38).SetData(ViewData["Unit"]).ToMvcString()
+                    <span class="required @(editEquipmentNotNull.ToString().Contains("价格") ? "" : "hide")">必填</span>
+                </td>
+            }
+            else
+            { 
+                <td>
+                    @Html.JValidateBox("UnitPrice").SetValue(Model == null ? "" : Model.UnitPrice.HasValue ? Model.UnitPrice.Value.ToString("0.00") : "").SetWidth(300).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的价格").ToMvcString()
+                    <span class="required @(editEquipmentNotNull.ToString().Contains("价格") ? "" : "hide")">必填</span>
+                </td>
+            }
+        </tr>
+        <tr>
+             <th>
+                购买日期
+            </th>
+            <td>
+                @Html.JDateTimePicker("BuyDate").SetValue(Model == null ? "" : Model.BuyDate.HasValue ? Model.BuyDate.Value.ToString("yyyy-MM-dd") : "").SetWidth(305).ToMvcString()
+                <span class="required @(editEquipmentNotNull.ToString().Contains("购买日期") ? "" : "hide")">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                所属单位
+            </th>
+            <td id="tdOrgId">
+                @Html.DropDownList("OrgId", (IEnumerable<SelectListItem>)ViewData["OrganizationSelectListItem"], new { style = "width:305px", onchange = "doOnOranizationChanged(this);" })
+                <span class="required">必填</span>
+            </td>
+       </tr>
+        <tr>
+            <th>
+                所在校区
+            </th>
+            <td>
+                @Html.DropDownList("Campus", (IEnumerable<SelectListItem>)ViewData["CampusSelectItem"], new { style = "width:305px"})
+                <span class="required">必填</span>
+            </td>
+       </tr>
+       <tr>
+             <th>
+                放置地点
+            </th>
+            <td id="tdRoomId">
+                @Html.DropDownList("RoomId", ViewData["LabRoomSelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["LabRoomSelectListItem"], new { style = "width:305px", onchange = "doOnRoomChanged(this);" })
+                @Html.TextBox("OtherRoomName", "", new { style = "display;none;width:108px" })
+                <span class="required">必填</span>
+            </td>
+       </tr>
+        <tr>
+            <th>关联单位</th>
+            <td id="tdRelationOrg">
+                 @(Html.TokenInput("RelationOrgId")
+                    .SetUrl(Url.Action("GetLabOrganizationListByKeyWord", "LabOrganization"))
+                    .SetWidth(405)
+                    .SetSingle(false)
+                    .SetPrePopulate(ViewData["RelationOrgJson"] == null || string.IsNullOrWhiteSpace(ViewData["RelationOrgJson"].ToString()) ? null : ViewData["RelationOrgJson"].ToString())
+                    .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+             <th>
+                使用性质
+            </th>
+            <td>
+                @Html.JComboBox("UseDirection").SetData(ViewData["UseDirectionJson"]).SetEditable(false).SetValue(Model == null ? "" : (Model.UseDirection ?? 0).ToString()).SetWidth(305).ToMvcString()
+                <span class="required @(editEquipmentNotNull.ToString().Contains("使用性质") ? "" : "hide")">必填</span>
+            </td>
+       </tr>
+       <tr>
+           <th>是否停用</th>
+           <td>
+               @Html.JComboBox("IsStop").SetWidth(305).SetData(ViewData["IsStopJson"]).ToMvcString()
+           </td>
+       </tr>
+       <tr>
+            <th>
+                是否纳入管理系统
+            </th>
+            <td>
+               @Html.JComboBox("IsOpen").SetData(ViewData["IsOpenJson"]).SetEditable(false).SetValue(Model == null || !Model.IsOpen ? "0" : "1").SetWidth(305).ToMvcString()
+            </td>
+       </tr>
+       <tr>
+             <th>
+                是否CMA/CNAS
+            </th>
+            <td>
+               @Html.JComboBox("IsCMACNAS").SetData(ViewData["IsCMACNASJson"]).SetEditable(false).SetValue(Model == null || !Model.IsCMACNAS.HasValue || !Model.IsCMACNAS.Value ? "0" : "1").SetWidth(305).ToMvcString()
+            </td>
+       </tr>
+       <tr>
+             <th>
+                是否大型设备
+            </th>
+            <td>
+               @Html.JComboBox("IsLargeScaleEquipment").SetData(ViewData["IsLargeScaleEquipmentJson"]).SetEditable(false).SetValue(Model == null || !Model.IsLargeScaleEquipment.HasValue ? "0" : (Model.IsLargeScaleEquipment.Value ? "1" : "0")).SetWidth(305).ToMvcString()
+            </td>
+       </tr>
+        <tr>
+            <th>
+                所属分类
+            </th>
+            <td id="tdCategory">
+                @(Html.TokenInput("Categories")
+                .SetUrl(Url.Action("GetEquipmentCategoryListByKeyWord", "EquipmentCategory"))
+                .SetPrePopulate(ViewData["CategoriesJson"] == null || string.IsNullOrWhiteSpace(ViewData["CategoriesJson"].ToString()) ? null : ViewData["CategoriesJson"].ToString())
+                .SetSingle(false).SetWidth(239)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>@customerDirectorName</th>
+            <td id="tdDirectors">
+            @if (customerIsBindEquipmentAdminUser)
+            {
+                @(Html.TokenInput("Directors")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["DirectorsJson"] == null || string.IsNullOrWhiteSpace(ViewData["DirectorsJson"].ToString()) ? null : ViewData["DirectorsJson"].ToString())
+                .SetSingle(false).SetWidth(239)
+                .SetSingle(false)
+                .SetWidth(239)
+                .ToMvcString())
+                <span class="required @(editEquipmentNotNull.ToString().Contains("负责人") ? "" : "hide")">必填</span>
+            }
+            else
+            {
+                @Html.JValidateBox("AdminUserName").SetValue(Model == null ? "" : Model.AdminUserName).SetWidth(300).ToMvcString()
+                <span class="required @(editEquipmentNotNull.ToString().Contains("负责人") ? "" : "hide")">必填</span>
+            }
+            </td>
+        </tr>
+        <tr>
+            <th>@customerLinkMenName</th>
+            <td id="tdLinkmen">
+            @if (customerIsBindEquipmentLinkUser)
+            {
+                @(Html.TokenInput("Linkmen")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["LinkmenJson"] == null || string.IsNullOrWhiteSpace(ViewData["LinkmenJson"].ToString()) ? null : ViewData["LinkmenJson"].ToString())
+                .SetSingle(false)
+                .SetWidth(239)
+                .ToMvcString())
+                <span class="required @(editEquipmentNotNull.ToString().Contains("联系人") ? "" : "hide")">必填</span>
+            }
+            else
+            {
+                @Html.JValidateBox("LinkUserName").SetValue(Model == null ? "" : Model.LinkUserName).SetWidth(300).ToMvcString()
+                <span class="required @(editEquipmentNotNull.ToString().Contains("联系人") ? "" : "hide")">必填</span>
+            }
+            </td>
+        </tr>
+         <tr>
+             <th>
+                联系电话
+            </th>
+            <td>
+                @Html.JValidateBox("LinkTelNo").SetValue(Model == null ? "" : Model.LinkTelNo).SetValidateType(ValidateType.none).SetWidth(300).ToMvcString()
+                <span class="required">多个联系电话中间逗号分隔</span>
+                <span class="required @(editEquipmentNotNull.ToString().Contains("联系电话") ? "" : "hide")">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                联系邮箱
+            </th>
+            <td>
+                @Html.JValidateBox("AdminEmail").SetValue(Model == null ? "" : Model.AdminEmail).SetValidateType(ValidateType.email).SetWidth(300).ToMvcString()
+                <span class="required">多个联系邮箱中间逗号分隔</span>
+            </td>
+        </tr>
+        @if (isShowBJJTDXCol)
+        {
+            <tr>
+                <th>
+                    实验室主任
+                </th>
+                <td id="tdRoomDirectorName">
+                    @(Html.TokenInput("RoomDirectorName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                        .SetPrePopulate(ViewData["RoomDirectorJson"] == null || string.IsNullOrWhiteSpace(ViewData["RoomDirectorJson"].ToString()) ? null : ViewData["RoomDirectorJson"].ToString())
+                        .SetSingle(true).SetWidth(239)
+                        .SetSingle(false)
+                        .SetTokenValue("text")
+                        .SetOnAdd("doRoomDirectorChange();")
+                        .SetOnDelete("doRoomDirectorChange();")
+                        .SetWidth(239)
+                        .ToMvcString())
+                    @Html.Hidden("RoomDirectorId", ViewData["RoomDirectorId"] == null ? "" : ViewData["RoomDirectorId"].ToString())
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    负责教授
+                </th>
+                <td id="tdProfessorName">
+                    @(Html.TokenInput("ProfessorName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                        .SetPrePopulate(ViewData["ProfessorJson"] == null || string.IsNullOrWhiteSpace(ViewData["ProfessorJson"].ToString()) ? null : ViewData["ProfessorJson"].ToString())
+                        .SetSingle(true).SetWidth(239)
+                        .SetSingle(false)
+                        .SetTokenValue("text")
+                        .SetOnAdd("doProfessorChange();")
+                        .SetOnDelete("doProfessorChange();")
+                        .SetWidth(239)
+                        .ToMvcString())
+                    @Html.Hidden("ProfessorId", ViewData["ProfessorId"] == null ? "" : ViewData["ProfessorId"].ToString())
+                </td>
+            </tr>
+            
+            <tr>
+             <th>
+                联系电话
+            </th>
+            <td>
+                @Html.JValidateBox("ProfessorPhoneNumber").SetValue(Model == null ? "" : Model.ProfessorPhoneNumber).SetValidateType(ValidateType.none).SetWidth(300).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>
+                联系邮箱
+            </th>
+            <td>
+                @Html.JValidateBox("ProfessorEmail").SetValue(Model == null ? "" : Model.ProfessorEmail).SetValidateType(ValidateType.email).SetWidth(300).ToMvcString()
+            </td>
+        </tr>
+        }
+        
+    </table>
+    <p><span class="icon icon-detail"></span>参数信息</p>
+    <table class="edit-info">
+        @if (isShowBJJTDXCol)
+        {
+            <tr>
+                <th>主要研究方向</th>
+                <td>
+                    @Html.TextArea("ResearchArea", Model == null || string.IsNullOrWhiteSpace(Model.ResearchArea) ? "" : Model.ResearchArea.ToNoHTML(), new { style = "width:430px;height:60px;" })                   
+                </td>
+            </tr>
+            @*<tr>
+                <th>在研或曾经承担<br />重大项目</th>
+                <td>
+                    @Html.TextArea("Project", Model == null || string.IsNullOrWhiteSpace(Model.Project) ? "" : Model.Project.ToNoHTML(), new { style = "width:430px;height:60px;" })                   
+                </td>
+            </tr>
+            <tr>
+                <th>获奖专利</th>
+                <td>
+                    @Html.TextArea("Patent", Model == null || string.IsNullOrWhiteSpace(Model.Patent) ? "" : Model.Patent.ToNoHTML(), new { style = "width:430px;height:60px;" })                   
+                </td>
+            </tr>           *@              
+        }
+        <tr>
+            <th>主要规格及技术指标</th>
+            <td>
+                @Html.TextArea("Qualification", Model == null || string.IsNullOrWhiteSpace(Model.Qualification) ? "" : Model.Qualification.ToNoHTML(), new { style = "width:430px;height:60px;" })
+                @Html.Hidden("QualificationNoHTML", Model == null ? "" : Model.QualificationNoHTML)
+                <span class="required @(editEquipmentNotNull.ToString().Contains("主要规格及技术指标") ? "" : "hide")">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>主要功能及特色<br />(应用范围)</th>
+            <td>
+                @Html.TextArea("ScopeOfApplication", Model == null || string.IsNullOrWhiteSpace(Model.ScopeOfApplication) ? "" : Model.ScopeOfApplication.ToNoHTML(), new { style = "width:430px;height:60px;" })
+                @Html.Hidden("ScopeOfApplicationNoHTML", Model == null ? "" : Model.ScopeOfApplicationNoHTML)
+                <span class="required @(editEquipmentNotNull.ToString().Contains("主要功能及特色") ? "" : "hide")">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>样本检测注意事项</th>
+            <td>
+                @Html.TextArea("SpecimenNotice", Model == null || string.IsNullOrWhiteSpace(Model.SpecimenNotice) ? "" : Model.SpecimenNotice.ToNoHTML(), new { style = "width:430px;height:60px;" })
+                @Html.Hidden("SpecimenNoticeNoHTML", Model == null ? "" : Model.SpecimenNoticeNoHTML)
+            </td>
+        </tr>
+        <tr>
+             <th>设备使用相关说明<br />(如:&nbsp;收费标准)</th>
+            <td>
+                @Html.TextArea("UseNotice", Model == null || string.IsNullOrWhiteSpace(Model.UseNotice) ? "" : Model.UseNotice.ToNoHTML(), new { style = "width:430px;height:60px;" })
+                @Html.Hidden("UseNoticeNoHTML", Model == null ? "" : Model.UseNoticeNoHTML)
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:430px;height:60px;" })
+            </td>
+        </tr>
+    </table>
+    @if (isShowBJJTDXCol)
+    {
+    <table class="edit-table"  style="width:600px;" id='tbAchievementStudentList'>
+        <td>
+            <tr>
+                <th colspan='5' style='text-align:left;padding-left:10px;'><span class="icon icon-equipment"></span>人才培养</th>
+                <th style='text-align:right;'>
+                    @Html.JLinkButton("btnSelectAchievementStudent", "新增").SetIconCls("icon-add").SetPlain(false).SetOnclick("doAddAchievementStudent();return false;").ToMvcString()
+                </th>
+            </tr>
+            <tr>
+                <th style='width:40px;'>操作</th>
+                <th style='width:100px;'>姓名</th>
+                <th style='width:100px'>学号</th>
+                <th style='width:80px'>学位</th>
+                <th style='width:8px'>在读情况</th>
+            </tr>
+            @if (Model != null && Model.ViewAchievementStudentList != null && Model.ViewAchievementStudentList.Count() > 0)
+            {
+                foreach (var item in Model.ViewAchievementStudentList)
+                {
+                    @Html.Partial("../Equipment/AchievementStudentEdit", item)
+                }
+            }
+            </td>
+        </table>
+        
+        @*<table class="edit-table"  style="width:600px;" id='tbAchievementStudentList'>
+        <td>
+            <tr>
+                <th colspan='5' style='text-align:left;padding-left:10px;'><span class="icon icon-equipment"></span> 学术论文</th>
+                <th style='text-align:right;'>
+                    @Html.JLinkButton("btnSelectAchievementStudent", "新增").SetIconCls("icon-add").SetPlain(false).SetOnclick("doAddAchievementStudent();return false;").ToMvcString()
+                </th>
+            </tr>
+            <tr>
+                <th style='width:40px;'>操作</th>
+                <th style='width:100px;'>作者</th>
+                <th style='width:100px'>论文题目</th>
+                <th style='width:80px'>期刊号</th>
+                <th style='width:8px'>年</th>
+                <th style='width:8px'>卷(期)</th>
+                <th style='width:8px'>起止页码</th>
+            </tr>
+            @if (Model != null && Model.ViewAchievementStudentList != null && Model.ViewAchievementStudentList.Count() > 0)
+            {
+                foreach (var item in Model.ViewAchievementStudentList)
+                {
+                    @Html.Partial("../Equipment/AchievementStudentEdit", item)
+                }
+            }
+            </td>
+        </table>*@
+    }
+<script type="text/javascript">
+    $(function () {
+        $("#tdDirectors ul.token-input-list-facebook").css("width", "300px");
+        $("#tdLinkmen ul.token-input-list-facebook").css("width", "300px");
+        $("#tdRoomDirectorName ul.token-input-list-facebook").css("width", "300px");
+        $("#tdProfessorName ul.token-input-list-facebook").css("width", "300px");
+        $("#tdCategory ul.token-input-list-facebook").css("width", "300px");
+        $("#tdCountry ul.token-input-list-facebook").css("width", "300px");
+        $("#tdRelationOrg ul.token-input-list-facebook").css("width", "300px");
+        document.getElementById("OtherRoomName").style.display = "none";
+    });
+    function doIsDutyFreeChanged() {
+        var isDutyFree = $("#IsDutyFree").attr("checked");
+        var isDutyFree2 = isDutyFree ? true : false;
+        if (isDutyFree2) $("#divDutyFreeYear").fadeIn(500);
+        else $("#divDutyFreeYear").fadeOut(500);
+    }
+    function doOnRoomChanged(element) {
+        var roomId = element.value;
+        document.getElementById("OtherRoomName").style.display = roomId != "OtherRoomName" ? "none" : "";
+    }
+    function doRoomDirectorChange() {
+        $("#RoomDirectorId").val("");
+        var roomDirectorList = $("#RoomDirectorName").tokenInput("get");
+        if (roomDirectorList && roomDirectorList.length > 0) {
+            var roomDirectorIds = "";
+            for (var i = 0; i < roomDirectorList.length; i++) {
+                if (roomDirectorIds != "") roomDirectorIds += ",";
+                roomDirectorIds += roomDirectorList[i].id;
+            }
+            $("#RoomDirectorId").val(roomDirectorIds);
+        }
+    }
+    function doProfessorChange() {
+        $("#ProfessorId").val("");
+        var professorList = $("#ProfessorName").tokenInput("get");
+        if (professorList && professorList.length > 0) {
+            var professorIds = "";
+            for (var i = 0; i < professorList.length; i++) {
+                if (professorIds != "") professorIds += ",";
+                professorIds += professorList[i].id;
+            }
+            $("#ProfessorId").val(professorIds);
+        }
+    }
+    function doOnOranizationChanged(element) {
+        var orgId = element.value;
+        var roomElement =  document.getElementById("RoomId");
+        if (orgId != '@Guid.Empty.ToString()') {
+            roomElement.options.length = 0;
+            document.getElementById("OtherRoomName").style.display = "none";
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetLabRoomListByOrgId", "LabOrganization")',
+            data: { "orgId": orgId, "time": new Date().getMilliseconds() },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg != "") {
+                    var rooms = eval(msg);
+                    if (rooms.length == 0) return;
+                    for (var i = 0; i < rooms.length; i++) {
+                        var option = document.createElement("OPTION");
+                        roomElement.options.add(option);
+                        option.text = rooms[i].Text;
+                        option.value = rooms[i].Value;
+                    }
+                }
+            }
+        });
+        return false;
+    }
+
+    function doAddAchievementStudent() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("AchievementStudentEdit", "Equipment")',
+            success: function (data) {
+                $("#tbAchievementStudentList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+
+    function doRemoveItem(infoId) {
+        if (!infoId || infoId == "") return;
+        $("#tr_" + infoId).remove();
+    }
+</script>

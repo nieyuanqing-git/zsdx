@@ -1,0 +1,42 @@
+﻿@{
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+}
+<script type="text/javascript">
+    function request(paras){ 
+        var url = location.href;  
+        var paraString = url.substring(url.indexOf("?")+1,url.length).split("&");  
+        var paraObj = {}  
+        for (i=0; j=paraString[i]; i++){  
+            paraObj[j.substring(0,j.indexOf("=")).toLowerCase()] = j.substring(j.indexOf("=")+1,j.length);  
+        }  
+        var returnValue = paraObj[paras.toLowerCase()];  
+        if(typeof(returnValue)=="undefined"){  
+            return "";  
+        }
+        else{  
+            return returnValue; 
+        }
+    }
+    $(function () {
+        var tagAction = "";
+        var tagController ="";
+        if (isAjax)
+        {
+            tagAction = '@(ViewData["TagActionName"] == null ? "" : ViewData["TagActionName"].ToString().Trim())';
+            tagController = '@(ViewData["TagControllerName"] == null ? "" : ViewData["TagControllerName"].ToString().Trim())';
+        }
+        else
+        {
+            tagAction = request("TagAction");
+            tagController = request("TagController");
+        }
+        var para = "";
+        if(tagAction != "" && tagController != "")
+            para = "&TagAction=" + tagAction + "&TagController=" + tagController;
+        var url = '@Url.Action("LayoutCenterBox","Admin")' + "?ControllerName=@(ViewContext.RouteData.Values["controller"].ToString())&ActionName=@(ViewContext.RouteData.Values["action"].ToString())&date=" + new Date().getMilliseconds();
+        url += para;
+        $("#layoutCenterBox").load(url, function () {
+            ajaxloadsuccess();
+        });
+    });
+</script>

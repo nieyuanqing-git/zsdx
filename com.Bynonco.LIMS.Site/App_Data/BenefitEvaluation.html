@@ -1,0 +1,97 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title></title>
+    <style>
+        * {
+            border: 0px;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        body {
+            margin: 0px auto;
+        }
+
+        table {
+            width: 650px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+            table th {
+                text-align: center;
+                border: 1px solid black;
+                padding: 10px;
+                font-weight: normal;
+            }
+
+            table td {
+                text-align: left;
+                border: 1px solid black;
+                padding: 10px;
+                font-weight: normal;
+            }
+
+        p {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .sencondCol {
+            width: 170px;
+        }
+
+        .firstCol, .thirdCol {
+            width: 120px;
+        }
+
+        .secondColContent {
+            width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <p>
+        $Title$
+    </p>
+    <table class="EvaluationTable">
+        <tbody>
+            <tr>
+                <td>自评单位（盖章）</td>
+                <td colspan="3">$OrganizationName$</td>
+                <td colspan="2">自评填表人</td>
+                <td colspan="2">$FillerName$</td>
+                <td rowspan="3">自评得分</td>
+                <td rowspan="3">$TotalScore$</td>
+            </tr>
+            <tr>
+                <td>设备编号</td>
+                <td colspan="3">$EquipmentLabel$</td>
+                <td colspan="2">入库时间</td>
+                <td colspan="2">$FillDate$</td>
+            </tr>
+            <tr>
+                <td>设备名称</td>
+                <td colspan="3">$EquipmentName$</td>
+                <td colspan="2">自评时间</td>
+                <td colspan="2">$RatingDate$</td>
+            </tr>
+            <tr>
+                <td style="width: 160px;">项目</td>
+                <td style="width: 80px;">权重</td>
+                <td style="width: 160px;" colspan="2">内容</td>
+                <td style="width: 80px;">数量</td>
+                <td style="width: 160px;" colspan="2">评分标准</td>
+                <td style="width: 80px;">分项得分</td>
+                <td style="width: 160px;">小计（满分100）</td>
+                <td style="width: 80px;">加权得分</td>
+            </tr>
+            <!--GenerateDynamicContent-->
+        </tbody>
+    </table>
+</body>
+</html>

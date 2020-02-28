@@ -1,0 +1,118 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Layout = ViewBag.Layout;
+    var equipmentPrivilige = Model == null ?
+    com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+    com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.Id);
+}
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+<div> @Html.Partial("../Equipment/BlackList")</div>
+<div id="divEquipmentBlackListDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditEquipmentBlackList(){
+        var selectedRow = $("#tbEquipmentBlackList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditEquipmentBlackList(selectedRow.Id);
+    }
+    function doAddOrEditEquipmentBlackList(id) {
+        var equipmentId= $("#EquipmentId").val();
+        var url = '@Url.Action("EditBlackList","Equipment")' + "?id=" + id + "&date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId;
+        $("#divEquipmentBlackListDialog").load(url, function (data) {
+            doEquipmentBlackListDialog();
+        })
+        return false;
+    }
+    var equipmentBlackListDialog;
+    function doEquipmentBlackListDialog() {
+        if (equipmentBlackListDialog) {
+            equipmentBlackListDialog.dialog("destroy");
+        }
+        equipmentBlackListDialog =  @Html.JDialog("divEquipmentBlackListEdit").SetTitle("黑名单信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentBlackListDialog.dialog('close');return false;").SetModal(true).SetOkScript(equipmentPrivilige.IsEnableSaveBlackList ? "doSaveEuipmentBlackList();return false;":"alert('无操作权限');").ToMvcString();
+    }
+    function doSaveEuipmentBlackList() {
+        var equipmentId= $("#EquipmentId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBlackList","Equipment")',
+            data: $("#frmEquipmentBlackListEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentBlackListDialog.dialog('close');
+                doSearch();
+            }
+        });
+    }
+    function doDeleteEuipmentBlackList(){
+        var selectedRows = $('#tbEquipmentBlackList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteBlackList","Equipment")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doSearch();
+                    }
+                });
+             });
+        }
+    }
+    function doSearch() {
+        $("#tbEquipmentBlackList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentBlackList").datagrid("reload");
+        return false;
+    }
+
+    function doSetMessageTemplate() {
+         var equipmentId= $("#EquipmentId").val();
+        var url = '@Url.Action("EditBlackListMessageTemplate","Equipment")' + "?EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds();
+        $("#divEquipmentBlackListDialog").load(url, function (data) {
+            doEquipmentBlackListMessageTemplateDialog();
+        })
+        return false;
+    }
+    var equipmentBlackListMessageTemplateDialog;
+    function doEquipmentBlackListMessageTemplateDialog() {
+        if (equipmentBlackListMessageTemplateDialog) {
+            equipmentBlackListMessageTemplateDialog.dialog("destroy");
+        }
+        equipmentBlackListMessageTemplateDialog =  @Html.JDialog("divBlackListMessageTemplateEdit").SetTitle("黑名单消息模板").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentBlackListMessageTemplateDialog.dialog('close');return false;").SetModal(true).SetOkScript(equipmentPrivilige.IsEnableEditBlackListMessageTemplate ? "doSaveEuipmentBlackListMessageTemplate();return false;" : "alert('无操作权限');").ToMvcString();
+    }
+    function doSaveEuipmentBlackListMessageTemplate(){
+        var equipmentId= $("#EquipmentId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBlackListMessageTemplate","Equipment")',
+            data: $("#frmBlackListMessageTemplateEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentBlackListMessageTemplateDialog.dialog('close');
+            }
+        });
+    }
+</script>

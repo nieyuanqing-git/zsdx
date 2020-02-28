@@ -1,0 +1,63 @@
+﻿@model com.Bynonco.LIMS.Model.Business.StatisticsInfo
+@if (Model != null && (Model.IsShowManageAuditWaittingUserEquipment
+                    || Model.IsShowManageUnAppointmentEquipment
+                    || Model.IsShowManageBrokenEquipment
+                    || Model.IsShowManageAlarmEquipment
+                    || Model.IsShowPersonalAuditWaittingUserEquipment
+                ))
+            {
+    <p><span class="icon icon-equipment">&nbsp;</span>设备</p>
+    <table class="edit-info admin-statistics">
+        @if (Model.IsShowManageAuditWaittingUserEquipment || Model.IsShowAppliedEquipmentTrainning || Model.IsShowManageUnAppointmentEquipment || Model.IsShowManageBrokenEquipment || Model.IsShowManageAlarmEquipment)
+        {
+            <tr>
+                <td class='col-first'><span class="icon icon-globe" title='管理相关' style='margin-right: 0;'>&nbsp;</span></td>
+                @if (Model.IsShowManageAuditWaittingUserEquipment)
+                {
+                    <th><a href="#" onclick="doLoadAuditWaittingUserEquipment();return false;">用户使用设备申请</a></th>
+                    <td class='@(Model.IsShowAppliedEquipmentTrainning || Model.IsShowManageUnAppointmentEquipment || Model.IsShowManageBrokenEquipment || Model.IsShowManageAlarmEquipment ? "" : "col-last")'>
+                        <a href="#" onclick="doLoadAuditWaittingUserEquipment();return false;">@Model.AuditWaittingUserEquipment</a>
+                    </td>
+                }
+                @if (Model.IsShowAppliedEquipmentTrainning)
+                {
+                    <th><a href="#" onclick="doLoadAppliedEquipmentTrainning();return false;">未完成设备培训</a></th>
+                    <td class='@(Model.IsShowManageUnAppointmentEquipment || Model.IsShowManageBrokenEquipment || Model.IsShowManageAlarmEquipment ? "" : "col-last")'>
+                        <a href="#" onclick="doLoadAppliedEquipmentTrainning();return false;">@Model.AppliedEquipmentTrainning</a>
+                    </td>
+                }
+                @if (Model.IsShowManageUnAppointmentEquipment)
+                {
+                    <th><a href="#" onclick="doLoadUnAppointmentEquipment();return false;">临时改动设备</a></th>
+                    <td class='@(Model.IsShowManageBrokenEquipment || Model.IsShowManageAlarmEquipment ? "" : "col-last")'>
+                        <a href="#" onclick="doLoadUnAppointmentEquipment();return false;">@Model.UnAppointmentEquipment</a>
+                    </td>
+                }
+                @if (Model.IsShowManageBrokenEquipment)
+                {
+                    <th><a href="#" onclick="doLoadBrokenEquipment();return false;">有故障的设备</a></th>
+                    <td class='@(Model.IsShowManageAlarmEquipment ? "" : "col-last")'>
+                        <a href="#" onclick="doLoadBrokenEquipment();return false;">@Model.BrokenEquipment</a>
+                    </td>
+                }
+                @if (Model.IsShowManageAlarmEquipment)
+                {
+                    <th><a href="#" onclick="doLoadAlarmEquipment();return false;">长时间开机警告</a></th>
+                    <td class='col-last'>
+                        <a href="#" onclick="doLoadAlarmEquipment();return false;">@Model.AlarmEquipment</a>
+                    </td>
+                }
+            </tr>
+        }
+        @if (Model.IsShowPersonalAuditWaittingUserEquipment)
+        {
+            <tr class='@(Model.IsShowManageAuditWaittingUserEquipment || Model.IsShowManageUnAppointmentEquipment || Model.IsShowManageBrokenEquipment ? "nofirst" : "")'>
+                <td class='col-first'><span class="icon icon-user" title='个人相关' style='margin-right: 0;'>&nbsp;</span></td>
+                <th><a href="#" onclick="doLoadPersonalAuditWaittingUserEquipment();return false;">个人使用设备申请</a></th>
+                <td class='col-last'>
+                    <a href="#" onclick="doLoadPersonalAuditWaittingUserEquipment();return false;">@Model.PersonalAuditWaittingUserEquipment</a>
+                </td>
+            </tr>
+        }
+    </table>
+}

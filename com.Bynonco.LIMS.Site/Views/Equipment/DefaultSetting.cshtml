@@ -1,0 +1,152 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<form id="frmDefaultSettingEdit" action="#">
+    <p><span class="icon icon-calendar"></span>预约时间设置</p>
+    <div class="edit-info">
+        <div style="padding:5px;">
+            <span style="width:80px;display:inline-block;">每周工作日</span>
+            @Html.Partial("WorkDays")
+        </div>
+        <div style="padding:5px;">
+            <span style="width:80px;display:inline-block;">预约时间单位</span>
+            @(Html.JValidateBox("AppointmentTimeStep").SetValue(ViewData["AppointmentTimeStep"].ToString()).SetWidth(80).SetOnChange("doAppointmentTimeStepChanged('AppointmentTimeStep','divWorkTimes');").SetValidateType(ValidateType.intNumber).ToMvcString())
+            <span>(分钟)</span>
+            &nbsp;<span class="icon icon-info-blue" title="((1440 / 时间间隔) % 4)= 0 or 时间间隔=720 or 时间间隔=1440"></span>
+        </div>
+        <div style="padding:5px;">
+            <div id="divWorkTimes">@Html.Partial("AppointmentTimesOfDay")</div>
+        </div>
+    </div>
+    <p><span class="icon icon-setting"></span>其它默认设置</p>
+    <table id="tbAppointmentSetting" class="edit-info">
+        <tr>
+            <th>最大可预约天数</th>
+            <td>
+                @(Html.JValidateBox("AppointmentDays").SetValue(ViewData["AppointmentDays"].ToString()).SetWidth(80).SetValidateType(ValidateType.intNumber).ToMvcString())
+                <span>(天)</span>
+             </td>
+        </tr>
+        <tr>
+            <th>提前开放预约时间</th>
+            <td>
+                 @(Html.JValidateBox("OpenAdvanceTime").SetValue(ViewData["OpenAdvanceTime"].ToString()).SetWidth(80).SetValidateType(ValidateType.intNumber).ToMvcString())
+                 <span>(分钟)</span>
+             </td>
+        </tr>
+        <tr>
+            <th>最大提前预约时间</th>
+            <td>
+                 @(Html.JValidateBox("MaxAppointmentAdvanceTime").SetValue(ViewData["MaxAppointmentAdvanceTime"].ToString()).SetWidth(80).SetValidateType(ValidateType.intNumber).ToMvcString())
+                 <span>(分钟)</span>
+             </td>
+        </tr>
+        <tr>
+            <th>是否需要完成培训才能使用</th>
+            <td>
+                @Html.CheckBox("IsNeedTranningBeforeUse")
+            </td>
+        </tr>
+        <tr style="display:none;">
+            <th>是否可以取消<span style="color:Red;font-weight:bold;">已结束</span>的预约</th>
+            <td>
+                @Html.CheckBox("IsEnableCancelOverAppointment", new { onclick="doOnCancelAppointmentSettingChanged();"})
+            </td>
+        </tr>
+        <tr id="trIsEnableCancelNotOverAppointment">
+            <th>是否可以取消<span style="color:Red;font-weight:bold;">未结束</span>的预约</th>
+            <td>
+                @Html.CheckBox("IsEnableCancelNotOverAppointment", new { onclick = "doOnCancelAppointmentSettingChanged();" })
+            </td>
+        </tr>
+        <tr>
+            <th>是否可以取消<span style="color:Red;font-weight:bold;">已审核</span>的预约</th>
+            <td>
+                @Html.CheckBox("IsEnableCancelCheckedAppointment")
+            </td>
+        </tr>
+        <tr id="trMinAppointmentCancelTime">
+            <th>最小提前改约时间</th>
+            <td>
+                @(Html.JValidateBox("MinAppointmentCancelTime").SetValue(ViewData["MinAppointmentCancelTime"].ToString()).SetWidth(80).SetValidateType(ValidateType.intNumber).ToMvcString())
+                <span>(分钟)</span>
+             </td>
+        </tr>
+        <tr>
+            <th>最小不扣费时间间隔</th>
+            <td>
+                @(Html.JValidateBox("MinUnchangeMinutes").SetValue(ViewData["MinUnchangeMinutes"].ToString()).SetWidth(80).SetValidateType(ValidateType.intNumber).ToMvcString())
+                <span>(分钟)</span>
+                &nbsp;<span class="icon icon-info-blue" title="当设备的使用记录小于该时间间隔的时候不进行扣费"></span>
+             </td>
+        </tr>
+        <tr>
+            <th>预约是否需要审核生效</th>
+            <td>
+                @Html.CheckBox("IsAppointmentNeedAudit")
+            </td>
+        </tr>
+        <tr>
+            <th>是否需要完成培训才能使用</th>
+            <td>
+                @Html.CheckBox("IsNeedTranningBeforeUse")
+            </td>
+        </tr>
+        <tr>
+            <th>是否需要完成培训才能预约</th>
+            <td>
+                @Html.CheckBox("IsNeedTranningBeforeAppointment")
+            </td>
+        </tr>
+        <tr>
+            <th>是否接收送样</th>
+            <td>
+                @Html.CheckBox("IsAcceptSampleTest")
+            </td>
+        </tr>
+        <tr style="display:none">
+            <th>是否同一预约的不同使用记录分开扣费</th>
+            <td>
+                @(Html.CheckBox("IsPeriodCharge"))
+                <span class="icon icon-info-blue" title="赴约使用设备可能多次的刷卡上机下机, 如果是同一预约的不同使用记录分开扣费的话则每次使用记录都分开扣费"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否预扣费模式</th>
+            <td>
+                @(Html.CheckBox("IsPredictCharge"))
+                <span class="icon icon-info-blue" title="预约设备成功后过了取消预约时间立即扣费"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否需要填写使用反馈才可进行预约</th>
+            <td>
+                @(Html.CheckBox("IsEnableAppoitmentWithFeedBack"))
+                <span class="icon icon-info-blue" title="如果有未填写使用反馈的使用记录则不能预约该设备"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否允许对扣费记录进行申诉</th>
+            <td>
+                @(Html.CheckBox("IsAllowUserDoubt"))
+                <span class="icon icon-info-blue" title="用户对扣费记录进行申诉"></span>
+            </td>
+        </tr>
+        @Html.Hidden("MinuteOfAppointment", ViewData["MinuteOfAppointment"])
+        @Html.Hidden("IsCloseAppointment", ViewData["IsCloseAppointment"])
+        @Html.Hidden("MoneyWarning", ViewData["MoneyWarning"])
+        @Html.Hidden("ToPrompt", ViewData["ToPrompt"])
+        @Html.Hidden("EndColseTime", ViewData["EndColseTime"])
+        @Html.Hidden("CanMutiAppointAtOneTime", ViewData["CanMutiAppointAtOneTime"])
+        @Html.Hidden("WhyCloseAppointment", ViewData["WhyCloseAppointment"])
+    </table>
+</form>
+<script type="text/javascript">
+    function doOnCancelAppointmentSettingChanged() {
+        var isEnableCancelOverAppointment = $("#IsEnableCancelOverAppointment").attr("checked");
+        var isEnableCancelNotOverAppointment = $("#IsEnableCancelNotOverAppointment").attr("checked");
+        $("#trIsEnableCancelNotOverAppointment").css("display", isEnableCancelOverAppointment ? "none" : "");
+        $("#trMinAppointmentCancelTime").css("display", isEnableCancelOverAppointment || isEnableCancelNotOverAppointment ? "none" : "");
+    }
+    $(function () {
+        doOnCancelAppointmentSettingChanged();
+    });
+</script>

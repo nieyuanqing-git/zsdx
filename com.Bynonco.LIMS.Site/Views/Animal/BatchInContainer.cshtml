@@ -1,0 +1,20 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divBatchInAnimal">
+    <form id="frmBatchInAnimal" action="#">
+        <table class="edit-table">
+            
+            <tr>
+                <th><span class="required">*</span>笼位</th>
+                <td>
+                    @Html.TokenInput("AnimalCageId").SetSingle(true).SetUrl(Url.Action("GetViewAnimalCageListByKeyWord", "AnimalCage")).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>入库备注</th>
+                <td>
+                    @Html.TextArea("InRemark","", 3, 70, null)
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>

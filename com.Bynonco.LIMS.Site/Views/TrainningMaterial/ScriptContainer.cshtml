@@ -1,0 +1,160 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+<div id="divTrainningMaterialDialog" style="display:none"></div>
+<div id="divTrainningMaterialViewDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearchTrainningMaterial(xpath) {
+        doClearTrainningMaterial();
+        if(!xpath || xpath.trim()==""){
+           var selectedTrainningType = $("#tbTrainningTypeList").treegrid("getSelected");
+           if(!selectedTrainningType || selectedTrainningType.Id=="" || selectedTrainningType.Id.isDefaultGuid()) {
+              xpath = "";
+           }
+           else xpath = selectedTrainningType.XPath;
+       }
+       var queryExpression = "";
+       if(xpath && xpath != "") queryExpression  += (queryExpression == "" ? "" : "*") + "(TrainningTypeXPath→\"" + xpath  + "\")";
+       $("#tbTrainningMaterialList").datagrid("options").url = '@(Url.Action("GetGridViewTrainningMaterialList", "TrainningMaterial"))';
+       $("#tbTrainningMaterialList").datagrid("load", { "queryExpression": queryExpression});
+       return false;
+    }
+    function doClearTrainningMaterial() {
+        $("#tbTrainningMaterialList").datagrid('loadData', { total: 0, rows: [] });
+    }
+    function doOnTrainningTypeSelected(rowData){
+        if(rowData.IsEnableSelect.toString() != "true") {
+            doClearTrainningMaterial();
+            return;
+        }
+        doSearchTrainningMaterial(rowData.XPath);
+    }
+    var trainningMaterialViewDialog;
+    function doTrainningMaterialViewDialog() {
+        if (trainningMaterialViewDialog) {
+            trainningMaterialViewDialog.dialog("destroy");
+        }
+        trainningMaterialViewDialog =  @Html.JDialog("divTrainningMaterialView").SetTitle("查看培训资料").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("trainningMaterialViewDialog.dialog('close');return false;").SetModal(true).SetOkScript("trainningMaterialViewDialog.dialog('close');return false;").ToMvcString();
+    }
+    function doViewMaterial() {
+        var selectedTrainningMaterial = $("#tbTrainningMaterialList").datagrid("getSelected");
+        if(!selectedTrainningMaterial || selectedTrainningMaterial.Id=="" || selectedTrainningMaterial.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择培训资料", showType: 'show' });
+            return false;
+        }
+        var id = selectedTrainningMaterial.Id;
+        var url = '@Url.Action("ViewMaterial", "TrainningMaterial")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divTrainningMaterialViewDialog").load(url,function(){
+            doTrainningMaterialViewDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    var trainningMaterialDialog;
+    function doTrainningMaterialDialog() {
+        if (trainningMaterialDialog) {
+            trainningMaterialDialog.dialog("destroy");
+        }
+        trainningMaterialDialog =  @Html.JDialog("divTrainningMaterialEdit").SetTitle("培训资料信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("trainningMaterialDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveTrainningMaterial();").ToMvcString();
+    }
+    function doAddTrainningMaterial(id) {
+       doAddOrEditTrainningMaterial(id);
+    }
+    function doEditTrainningMaterial(id) {
+       if(!id || id.trim()==""){
+           var selectedTrainningMaterial = $("#tbTrainningMaterialList").datagrid("getSelected");
+           if(!selectedTrainningMaterial || selectedTrainningMaterial.Id=="" || selectedTrainningMaterial.Id.isDefaultGuid() ) {
+              $.messager.show({ title: '提示', msg: "请选择培训资料", showType: 'show' });
+              return false;
+           }
+           id = selectedTrainningMaterial.Id;
+       }
+       doAddOrEditTrainningMaterial(id);
+    }
+    function doAddOrEditTrainningMaterial(id){
+        var selectedTrainningTypeId = "";
+        var selectedTrainningType = $("#tbTrainningTypeList").treegrid("getSelected");
+        if(!selectedTrainningType || selectedTrainningType.Id=="" || selectedTrainningType.Id.isDefaultGuid() || selectedTrainningType.IsEnableSelect!="true") { }
+        else selectedTrainningTypeId = selectedTrainningType.Id;
+        var url = '@Url.Action("Edit", "TrainningMaterial")'+ "?id=" + id + "&TrainningTypeId=" + selectedTrainningTypeId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divTrainningMaterialDialog").load(url,function(){
+            doTrainningMaterialDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveTrainningMaterial(){
+        if($("#frmTrainningMaterialEdit").find("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        var contentHTML = CKEDITOR.instances.ContentHTML.getData();
+        var contentNotHTML = CKEDITOR.instances.ContentHTML.document.getBody().getText();
+        $("#frmTrainningMaterialEdit").find("#ContentHTML").val(contentHTML);
+        $("#frmTrainningMaterialEdit").find("#ContentNotHTML").val(contentNotHTML);
+
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("Save", "TrainningMaterial")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmTrainningMaterialEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                trainningMaterialDialog.dialog('close');
+                doSearchTrainningMaterial();
+            }
+        });
+   }
+   function doDeleteTrainningMaterial(id){
+        if(!id || id.trim() == ""){
+              var selectedTrainningMaterial = $("#tbTrainningMaterialList").datagrid("getSelected");
+                if(!selectedTrainningMaterial || selectedTrainningMaterial.Id.trim() == "" || selectedTrainningMaterial.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedTrainningMaterial.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "TrainningMaterial")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchTrainningMaterial();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpathTrainningMaterial(xPath,compareTarget,trainningTypeId){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "TrainningMaterial")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget,"TrainningTypeId":trainningTypeId},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearchTrainningMaterial();
+            }
+        });
+        return false;
+   }
+</script>

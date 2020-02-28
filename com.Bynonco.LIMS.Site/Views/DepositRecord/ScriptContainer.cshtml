@@ -1,0 +1,537 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsDepositPhotoRequired = customer != null && customer.GetIsDepositPhotoRequired();
+    var customerIsDepositAutoPrintDoc = customer != null && customer.GetIsDepositAutoPrintDoc();
+    var isDepositRecordNeedPreAudit = BLLFactory.CreateDictCodeBLL().GetDictCodeBoolValueByCode("DepositRecord", "IsDepositRecordNeedPreAudit");
+}
+<div id="divDepositRecordDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbDepositRecordList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbDepositRecordList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+
+    var depositRecordDialog;
+    function doDepositRecordDialog(isNeedPrint) {
+        if (depositRecordDialog) {
+            depositRecordDialog.dialog("destroy");
+        }
+        @* 2015.11.3 添加提交申请按钮 *@
+        depositRecordDialog =  @(isDepositRecordNeedPreAudit.HasValue && isDepositRecordNeedPreAudit.Value
+            ? Html.JDialog("divDepositRecordEdit")
+                .SetTitle("存款信息").SetIconCls("icon-save").SetAutoDialog(false).SetModal(true)
+                .SetCancelScript("depositRecordDialog.dialog('destroy');return false;")
+                .SetOnClose("depositRecordDialog.dialog('destroy');return false;")
+                .SetOkScript("doSaveDepositRecord(isNeedPrint);")
+                .AddButton(new ToolBarButton() { Handler = "doSubmitAuditDepositRecord();return false;", Id = "btnSubmitAuditDepositRecord", Text = "提交预审" })
+                .ToMvcString()
+            : Html.JDialog("divDepositRecordEdit")
+                .SetTitle("存款信息").SetIconCls("icon-save").SetAutoDialog(false).SetModal(true)
+                .SetCancelScript("depositRecordDialog.dialog('destroy');return false;")
+                .SetOnClose("depositRecordDialog.dialog('destroy');return false;")
+                .SetOkScript("doSaveDepositRecord(isNeedPrint);")
+                .ToMvcString());
+    }
+    function doDepositRecordUploadDialog() {
+        if (depositRecordDialog) {
+            depositRecordDialog.dialog("destroy");
+        }
+        @* 2015.11.3 上传凭证 *@
+        depositRecordDialog =  @(customerIsDepositPhotoRequired 
+            ? Html.JDialog("divDepositRecordEdit")
+                .SetTitle("存款信息").SetIconCls("icon-save").SetAutoDialog(false).SetModal(true)
+                .SetCancelScript("depositRecordDialog.dialog('destroy');return false;")
+                .SetOnClose("depositRecordDialog.dialog('destroy');return false;")
+                .SetShowOkButton(false)
+                .AddButton(new ToolBarButton() { Handler = "doSubmitAuditDepositRecord();return false;", Id = "btnSubmitAuditDepositRecord", Text = "提交审核" })
+                .ToMvcString()
+            : Html.JDialog("divDepositRecordEdit")
+                .SetTitle("存款信息").SetIconCls("icon-save").SetAutoDialog(false).SetModal(true)
+                .SetCancelScript("depositRecordDialog.dialog('destroy');return false;")
+                .SetOnClose("depositRecordDialog.dialog('destroy');return false;")
+                .SetShowOkButton(false)
+                .ToMvcString());
+    }
+    function doRealAddDepositRecord() {
+       doAddOrEditDepositRecord('','@((int)DepositCurencyType.RealCurency)');
+    }
+    function doVirtualAddDepositRecord() {
+       doAddOrEditDepositRecord('','@((int)DepositCurencyType.VirtualCurency)');
+    }
+    function doMyAddDepositRecord()
+    {
+        var url = '@Url.Action("MyAdd", "DepositRecord")'+ "?date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divDepositRecordDialog").load(url,function(){
+            doDepositRecordDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doMyEditDepositRecord(id,hasChecked) {
+        if(checkHasChecked(id,hasChecked,false)) 
+        {
+            var url = '@Url.Action("MyEdit", "DepositRecord")'+ "?date=" + new Date().getMilliseconds();
+            if(id && id.trim() != "") url += "&id=" + id;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divDepositRecordDialog").load(url,function(){
+                doDepositRecordDialog();
+                $.messager.progress('close');
+            })
+        }
+        return false;
+    }
+    
+    @* 2015.11.3 上传凭证 *@
+    function doEditDepositRecord(id,hasChecked,isNeedPrint, upload) {
+        if(checkHasChecked(id,hasChecked,false)) doAddOrEditDepositRecord(getSingleSelectId(id),undefined,undefined,undefined,undefined,undefined,isNeedPrint, upload);
+        return false;
+    }
+    function doAddOrEditDepositRecord(id,curencyType,curency,sampleNo,invoiceNo,depositUserId,isNeedPrint,upload){
+        var url = '@Url.Action("Edit", "DepositRecord")'+ "?date=" + new Date().getMilliseconds();
+        if(id && id.trim() != "") url += "&id=" + id;
+        if(curencyType && curencyType.trim() != "") url += "&curencyType=" + curencyType;
+        if(curency && curency.trim() != "") url += "&Curency=" + curency;
+        if(sampleNo && sampleNo.trim() != "") url += "&SampleNo=" + sampleNo;
+        if(invoiceNo && invoiceNo.trim() != "") url += "&InvoiceNo=" + invoiceNo;
+        if(depositUserId && depositUserId.trim() != "") url += "&DepositUserId=" + depositUserId;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divDepositRecordDialog").load(url, function() {
+            if (upload) {
+                doDepositRecordUploadDialog();
+            } else {
+                doDepositRecordDialog(isNeedPrint);
+            }
+            $.messager.progress('close');
+        });
+        return false;
+    }
+    @* 2015.11.3 添加提交申请函数及处理 *@
+    function doSubmitAuditDepositRecord() {
+        doSaveDepositRecord(false, true);
+    }
+    @* 2015.11.3 添加提交申请函数及处理 *@
+    function doSaveDepositRecord(isNeedPrint, isSubmitAudit){
+        if($("#TutorId").val().trim() == ""){
+            $.messager.show({ title: '提示', msg: "导师为空", showType: 'show' });
+            return false;
+        }
+        if(!$("#DepositSum").validatebox("isValid")){
+            $.messager.show({ title: '提示', msg: "存款金额不正确", showType: 'show' });
+            return false;
+        }
+        if ($("#CurencyType").combobox("getValue").trim() == "") {
+            $.messager.show({ title: '提示', msg: '币种为空', showType: 'show' });
+            return false;
+        }
+        if('@(customerIsDepositPhotoRequired.ToString().ToLower())' == 'true' && $("#Status").val() == '@((int)DepositRecordStatus.AuditPass)' && $("#CertificateNum").length > 0 && $("#CertificateNum").val() == "")
+        {
+            $.messager.show({ title: '提示', msg: "凭证号为空", showType: 'show' });
+            return false;
+        }
+        @*if('@(customerIsDepositPhotoRequired.ToString().ToLower())' == 'true' && $("#Status").val() == '@((int)DepositRecordStatus.AuditPass)' && $("#DepositRecordPhoto").length > 0 && $("#DepositRecordPhoto").val() == "")
+        {
+            $.messager.show({ title: '提示', msg: "存款验证图为空", showType: 'show' });
+            return false;
+        }*@
+        var depositRecordEquipmentIds = '';
+        $("#tbEquipmentList").find('.item-Id').find('input:hidden').each(function () {
+            depositRecordEquipmentIds += (depositRecordEquipmentIds == "" ? "" : ",") + $(this).val();
+        });
+        var data;
+        if (isSubmitAudit) {
+            var inputSubmit = $('<input type="hidden" name="IsSubmitAudit" value="true" />');
+            $('#frmDepositRecordEdit').append(inputSubmit);
+            data = $("#frmDepositRecordEdit").serialize();
+            inputSubmit.remove();
+        } else {
+            data = $("#frmDepositRecordEdit").serialize();
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save", "DepositRecord")' +  "?DepositRecordEquipmentIds=" + depositRecordEquipmentIds + "&date=" + new Date().getMilliseconds(),
+            data: data, //$("#frmDepositRecordEdit").serialize();
+            dataType: 'json',
+            success: function (data) {
+                $.messager.progress('close');
+                if (data && data.msg.indexOf("出错,") != -1) {
+                    $.messager.show({ title: '提示', msg:data.msg, showType: 'show' });
+                    return false;
+                }
+                depositRecordDialog.dialog('destroy');
+                if(typeof(depositCallBack)=='function'){
+                    depositCallBack();
+                }
+                else if('@(customerIsDepositAutoPrintDoc.ToString().ToLower())' == 'true' && isNeedPrint)
+                {
+                    $.messager.confirm('提示', '是否打印缴款单? ', function (r) {
+                        if (!r)
+                        {
+                            doSearch();
+                            return false;
+                        }
+                        doExportDoc(data.id);
+                        doSearch();
+                    });
+                }
+                else{
+                    doSearch();
+                }
+            }
+        });
+    }
+
+    var depositRecordAuditDialog;
+    function doDepositRecordAuditDialog() {
+        if (depositRecordAuditDialog) {
+            depositRecordAuditDialog.dialog("destroy");
+        }
+        depositRecordAuditDialog =  @(Html.JDialog("divDepositRecordAudit")
+        .SetTitle("存款审核")
+        .SetIconCls("icon-save")
+        .SetAutoDialog(false)
+        .SetCancelScript("depositRecordAuditDialog.dialog('destroy');return false;")
+        .SetOnClose("depositRecordAuditDialog.dialog('destroy');return false;")
+        .SetModal(true)
+        .SetShowOkButton(false)
+        .AddButton(new ToolBarButton() { Handler = "doSaveAuditDepositRecord();return false;", Id = "btnAuditPassDepositRecord", Text = "审核确认", IconCls = "icon-pass" })
+        .AddButton(new ToolBarButton() { Handler = "doSaveAuditRejectDepositRecord();return false;", Id = "btnAuditRejectDepositRecord", Text = "审核不通过", IconCls = "icon-reject" })
+        .ToMvcString());
+    }
+    function doShowAuditDepositRecordDialog(id){
+        var url = '@Url.Action("Audit", "DepositRecord")'+ "?date=" + new Date().getMilliseconds();
+        if(id && id.trim() != "") url += "&id=" + id;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divDepositRecordDialog").load(url,function(){
+            doDepositRecordAuditDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAuditDepositRecord(id,hasChecked) {
+        if(checkHasChecked(id, hasChecked, false)) doShowAuditDepositRecordDialog(getSingleSelectId(id));
+    }
+    function doSaveAuditDepositRecord() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AuditPass", "DepositRecord")',
+            data: $("#frmDepositRecordAudit").serialize() +  "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                depositRecordAuditDialog.dialog('destroy');
+                doSearch();
+            }
+        });
+    }
+    function doSaveAuditRejectDepositRecord() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AuditReject", "DepositRecord")',
+            data: $("#frmDepositRecordAudit").serialize() +  "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                depositRecordAuditDialog.dialog('destroy');
+                doSearch();
+            }
+        });
+    }
+    function doUnAuditDepositRecord(id,hasChecked) {
+        if(checkHasChecked(id, hasChecked, true))
+        {
+             $.messager.confirm('提示', '是否确认重置该存款信息为未审核状态?', function (r) {
+                if (!r) return false;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("NoAudit", "DepositRecord")',
+                    data: "id=" + getSingleSelectId(id) + "&date=" + new Date().getMilliseconds(),
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                            return false;
+                        }
+                        doSearch();
+                    }
+                });
+            });
+        }
+    }
+    function doDeleteDepositRecord(id, hasChecked) {
+        if(checkHasChecked(id, hasChecked, false)) 
+        {
+            $.messager.confirm('提示', '是否确认删除该存款信息?', function (r) {
+                if (!r) return false;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Delete", "DepositRecord")',
+                    data: "id=" + getSingleSelectId(id) + "&date=" + new Date().getMilliseconds(),
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                            return false;
+                        }
+                        doSearch();
+                    }
+                });
+            });
+        }
+        return false;
+    }
+    function getSingleSelectId(id)
+    {
+        if(!id || id.trim()==""){
+            var selectedDepositRecord = $("#tbDepositRecordList").datagrid("getSelected");
+            if(!selectedDepositRecord || selectedDepositRecord.Id=="" || selectedDepositRecord.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择存款信息", showType: 'show' });
+                return false;
+            }
+            id = selectedDepositRecord.Id;
+        }
+        return id;
+    }
+    function checkHasChecked(id, hasChecked, isCheckedTrue)
+    {
+        if(!id || id.trim()==""){
+            var selectedDepositRecord = $("#tbDepositRecordList").datagrid("getSelected");
+            if(!selectedDepositRecord || selectedDepositRecord.Id=="" || selectedDepositRecord.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择存款信息", showType: 'show' });
+                return false;
+            }
+            id = selectedDepositRecord.Id;
+            hasChecked = selectedDepositRecord.HasChecked;
+        }
+        if(hasChecked.toString() == 'true' && isCheckedTrue.toString() != hasChecked.toString())
+        {
+            $.messager.show({ title: '提示', msg: "该存款信息已审核，无法进行编辑/删除操作.", showType: 'show' });
+            return false;
+        }
+        if(hasChecked.toString() != 'true' && isCheckedTrue.toString() != hasChecked.toString())
+        {
+            $.messager.show({ title: '提示', msg: "该存款信息未审核，无法进行编辑/删除操作.", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    
+    function doAddSubjectProject() {
+        var tutorId = $("#TutorId").val();
+        if(tutorId == "")
+        {
+            $.messager.show({ title: '提示', msg:"请选择存款导师", showType: 'show' });
+            return false;
+        }
+        doShowAddSubjectProjectDialogByTutorId(tutorId);
+    }
+
+    function ajaxFileUploadDepositRecordPhoto() {
+        var file = $("#fileDepositRecordPhoto").val();
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        $("#fileDepositRecordPhoto").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadDepositRecordPhoto", "DepositRecord")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileDepositRecordPhoto',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.filePath) {
+                    $("#DepositRecordPhoto").val(data.filePath);
+                    $("#DepositRecordPhotoName").val(data.fileName);
+                    $("#fileDepositRecordPhotoPath").attr("href",'@Url.Content("~/")' + data.filePath);
+                    $("#fileDepositRecordPhotoPath").html(data.fileName);
+                    $("#fileDepositRecordPhotoPath").removeClass("hide");
+                }
+                else if (data && (data.indexOf("出错") != -1)) {
+                    $("#DepositRecordPhoto").val("");
+                    $("#DepositRecordPhotoName").val("");
+                    $("#fileDepositRecordPhotoPath").attr("href","javascript:;");
+                    $("#fileDepositRecordPhotoPath").html("");
+                    $("#fileDepositRecordPhotoPath").addClass("hide");
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    var depositRecordViewInfoDialog;
+    function doDepositRecordViewInfoDialog() {
+        if (depositRecordViewInfoDialog) {
+            depositRecordViewInfoDialog.dialog("destroy");
+        }
+        depositRecordViewInfoDialog =  @Html.JDialog("divDepositRecordViewInfo").SetTitle("查看存款").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("depositRecordViewInfoDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doShowDepositRecordInfo(id){
+        if(!id || id.trim()==""){
+            var selectedDepositRecord = $("#tbDepositRecordList").datagrid("getSelected");
+            if(!selectedDepositRecord || selectedDepositRecord.Id=="" || selectedDepositRecord.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择存款信息", showType: 'show' });
+                return false;
+            }
+            id = selectedDepositRecord.Id;
+        }
+        var url = '@Url.Action("ViewInfo", "DepositRecord")'+ "?id=" + id;;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divDepositRecordDialog").load(url,function(){
+            doDepositRecordViewInfoDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    function doExportExcel() 
+    {
+        var url = '@Url.Action("ExportExcel","DepositRecord")' + doGetQueryUrl();
+        window.open(url, '_blank');
+    }
+    function doTesterExportExcel() 
+    {
+        var url = '@Url.Action("TesterExportExcel","DepositRecord")' + doGetQueryUrl();
+        window.open(url, '_blank');
+    }
+    function doGetQueryUrl()
+    {
+        var queryUrl = "";
+        var exportTutorId = $("#SearchTutorId").val().trim();
+        if (exportTutorId != "") {
+            queryUrl = (queryUrl == "" ? "?" : "&") + "TutorId=" + exportTutorId.trim();
+        }
+        var applyDateStart = $("#SearchApplyDateStart").datebox("getValue").trim();
+        if (applyDateStart != "") {
+            queryUrl += (queryUrl == "" ? "?" : "&") + "ApplyDateStart=" + applyDateStart;
+        }
+        var applyDateEnd = $("#SearchApplyDateEnd").datebox("getValue").trim();
+        if (applyDateEnd != "") {
+            queryUrl += (queryUrl == "" ? "?" : "&") + "ApplyDateEnd=" + applyDateEnd;
+        }
+        var hasChecked = $("#SearchHasChecked").combobox("getValue");
+        if (hasChecked == "0" || hasChecked == "1")
+            queryUrl += (queryUrl == "" ? "?" : "&") + "HasChecked=" + hasChecked;
+        return queryUrl;
+    }
+    var depositRecordPreAuditDialog;
+    function doDepositRecordPreAuditDialog() {
+        if (depositRecordPreAuditDialog) {
+            depositRecordPreAuditDialog.dialog("destroy");
+        }
+        depositRecordPreAuditDialog =  @(Html.JDialog("divDepositRecordAudit")
+                    .SetTitle("存款预审核")
+                    .SetIconCls("icon-save")
+                    .SetAutoDialog(false)
+                    .SetModal(true)
+                    .SetCancelScript("depositRecordPreAuditDialog.dialog('destroy');return false;")
+                    .SetShowOkButton(false)
+                    .AddButton(new ToolBarButton() { Handler = "doDepositRecordPreAuditPass();return false;", Id = "btnDepositRecordPreAuditPass", Text = "预审通过", IconCls = "icon-pass"})
+                    .AddButton(new ToolBarButton() { Handler = "doDepositRecordPreAuditReject();return false;", Id = "btnDepositRecordPreAuditReject", Text = "预审不通过", IconCls = "icon-reject"})
+                    .ToMvcString());
+    }
+    function doShowPreAuditDepositRecordDialog(id){
+        var url = '@Url.Action("PreAudit", "DepositRecord")'+ "?date=" + new Date().getMilliseconds();
+        if(id && id.trim() != "") url += "&id=" + id;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divDepositRecordDialog").load(url,function(){
+            doDepositRecordPreAuditDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doPreAuditDepositRecord(id) {
+        doShowPreAuditDepositRecordDialog(getSingleSelectId(id));
+    }
+    function doDepositRecordPreAuditPass()
+    {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("PreAuditPass", "DepositRecord")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmDepositRecordAudit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                depositRecordPreAuditDialog.dialog('destroy');
+                doSearch();
+            }
+        });
+    }
+    function doDepositRecordPreAuditReject()
+    {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("PreAuditReject", "DepositRecord")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmDepositRecordAudit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                depositRecordPreAuditDialog.dialog('destroy');
+                doSearch();
+            }
+        });
+    }
+    function doExportDoc(id) 
+    {
+        if(!id || id.trim()==""){
+            var selectedDepositRecord = $("#tbDepositRecordList").datagrid("getSelected");
+            if(!selectedDepositRecord || selectedDepositRecord.Id=="" || selectedDepositRecord.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择存款信息", showType: 'show' });
+                return false;
+            }
+            id = selectedDepositRecord.Id;
+        }
+        var url = '@Url.Action("ExportDoc","DepositRecord")' +  "?Id=" + id;
+        window.open(url, '_blank');
+    }
+    function doResetPreAuditDepositRecord(id) {
+        $.messager.confirm('提示', '是否确认重新申请审核信息?', function (r) {
+            if (!r) return false;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ResetPreAudit", "DepositRecord")',
+                data: "id=" + getSingleSelectId(id) + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+</script>
+@Html.Partial("../Subject/ProjectScriptContainer")
+

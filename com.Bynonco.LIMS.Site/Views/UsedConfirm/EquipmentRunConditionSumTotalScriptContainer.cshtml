@@ -1,0 +1,172 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isManageList = ViewData["IsManageList"] == null ? true : bool.Parse(ViewData["IsManageList"].ToString());
+}
+<div id="divEquipmentRunConditionSumTotalDetailDialog" style="display:none;"></div>
+<div id="divEquipmentSubjectRunConditionSumTotalDetailDialog" style="display:none;"></div>
+<div id="divEquipmentRunChartColumnDialog" style="display:none;"></div>
+<div id="divEquipmentSubjectRunChartColumnDialog" style="display:none;"></div>
+<div id="divEquipmentRunChartPieDialog" style="display:none;"></div>
+<div id="divEquipmentSubjectRunChartPieDialog" style="display:none;"></div>
+<script type="text/javascript">
+     function changeTag(obj, tagId) {
+        $(".RunTag").addClass("hide");
+        $(".tabs li").removeClass("tabs-selected");
+        $(obj).parent().addClass("tabs-selected");
+        $("#" + tagId).removeClass("hide");
+        doEquipmentRunConditionSumTotalSearch();
+        return false;
+    }
+    function doEquipmentRunConditionSumTotalSearch() {
+        var queryExpression = generateEquipmentRunConditionSumTotalQueryExpression();
+        $("#tbEquipmentRunConditionSumTotal").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentRunConditionSumTotal").datagrid("load", { "queryExpression": queryExpression.trim() });
+
+        $("#tbEquipmentSubjectRunConditionSumTotal").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentSubjectRunConditionSumTotal").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    var equipmentRunConditionSumTotalDetailDialog;
+    function ShowEquipmentRunConditionSumTotalDetailDialog()
+    {
+        if(equipmentRunConditionSumTotalDetailDialog)
+            equipmentRunConditionSumTotalDetailDialog.dialog("destroy");
+        equipmentRunConditionSumTotalDetailDialog = @(Html.JDialog("divEquipmentRunConditionDetail").SetTitle("使用记录信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentRunConditionSumTotalDetailDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("equipmentRunConditionSumTotalDetailDialog.dialog('destroy');return false;").ToMvcString());
+    }
+    function doShowEquipmentRunConditionSumTotalDetail(equipmentId)
+    {
+        if(equipmentRunConditionSumTotalDetailDialog) equipmentRunConditionSumTotalDetailDialog.dialog('destroy');
+        var queryExpression = generateEquipmentRunConditionSumTotalQueryExpression();
+        var url = '@Url.Action("EquipmentRunConditionDetailContainer", "UsedConfirm")';
+        $("#divEquipmentRunConditionSumTotalDetailDialog").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: {"queryExpression" : queryExpression, "equipmentId" : equipmentId},
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divEquipmentRunConditionSumTotalDetailDialog").html(data);
+                ShowEquipmentRunConditionSumTotalDetailDialog();
+                return false;
+            }
+        });
+    }
+    function doExpertEquipmentRunConditionSumTotal() {
+        var queryExpression = generateEquipmentRunConditionSumTotalQueryExpression();
+        var url = '@Url.Action("ExpertEquipmentRunConditionSumTotal", "UsedConfirm")' + "?queryExpression=" + queryExpression.trim() + "&time=" + new Date().getMilliseconds();
+        window.open(url,"_blank");
+    }
+    var equipmentSubjectRunConditionSumTotalDetailDialog;
+    function doShowEquipmentSubjectRunConditionSumTotalDetail(subjectId) {
+        if(equipmentSubjectRunConditionSumTotalDetailDialog) equipmentSubjectRunConditionSumTotalDetailDialog.dialog('destroy');
+        var queryExpression = generateEquipmentRunConditionSumTotalQueryExpression();
+        var url = '@Url.Action("EquipmentSubjectRunConditionDetailContainer", "UsedConfirm")' +  "?queryExpression=" + queryExpression.trim() + "&subjectId=" + subjectId + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentSubjectRunConditionSumTotalDetailDialog").load(url, function () {
+            $.messager.progress('close');
+            equipmentSubjectRunConditionSumTotalDetailDialog = @(Html.JDialog("divEquipmentSubjectRunConditionDetail").SetTitle("使用记录信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentSubjectRunConditionSumTotalDetailDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("equipmentSubjectRunConditionSumTotalDetailDialog.dialog('destroy');return false;").ToMvcString());
+        });
+    }
+    function doExpertSubjectEquipmentRunConditionSumTotal() {
+        var queryExpression = generateEquipmentRunConditionSumTotalQueryExpression();
+        var url = '@Url.Action("ExpertEquipmentSubjectRunConditionSumTotal", "UsedConfirm")' + "?queryExpression=" + queryExpression.trim() + "&time=" + new Date().getMilliseconds();
+        window.open(url,"_blank");
+    }
+
+
+    var equipmentRunChartPieDialog;
+    function doShowEquipmentRunChartColumn(equipmentId)
+    {
+        var queryExpression = generateEquipmentRunConditionSumTotalQueryExpression();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("GetEquipmentSubjectRunChartColumn","UsedConfirm")',
+            data: {"queryExpression":queryExpression, "IsManageList": '@(isManageList.ToString().ToLower())',"equipmentId": equipmentId},
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divEquipmentRunChartColumnDialog").html(data);
+                ShowEquipmentRunChartColumnDialog();
+                return false;
+            }
+        });
+    }
+    function ShowEquipmentRunChartColumnDialog()
+    {
+        if(equipmentRunChartPieDialog)
+            equipmentRunChartPieDialog.dialog("destroy");
+        equipmentRunChartPieDialog = @(Html.JDialog("divChartFlashBox").SetTitle("仪器运行情况柱图").SetIconCls("icon-statistics").SetAutoDialog(false).SetCancelScript("equipmentRunChartPieDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString())
+    }
+
+    var equipmentSubjectRunChartColumnDialog;
+    function doShowEquipmentSubjectRunChartColumn(subjectId)
+    {
+        var queryExpression = generateEquipmentRunConditionSumTotalQueryExpression();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("GetEquipmentRunChartColumn","UsedConfirm")',
+            data: {"queryExpression":queryExpression, "IsManageList": '@(isManageList.ToString().ToLower())',"subjectId": subjectId},
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divEquipmentSubjectRunChartColumnDialog").html(data);
+                ShowEquipmentSubjectRunChartColumnDialog();
+                return false;
+            }
+        });
+    }
+    function ShowEquipmentSubjectRunChartColumnDialog()
+    {
+        if(equipmentSubjectRunChartColumnDialog)
+            equipmentSubjectRunChartColumnDialog.dialog("destroy");
+        equipmentSubjectRunChartColumnDialog = @(Html.JDialog("divChartFlashBox").SetTitle("仪器课题组运行情况柱图").SetIconCls("icon-statistics").SetAutoDialog(false).SetCancelScript("equipmentSubjectRunChartColumnDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString())
+    }
+
+    var equipmentRunChartPieDialog;
+    function doShowEquipmentRunChartPie(equipmentId)
+    {
+        var queryExpression = generateEquipmentRunConditionSumTotalQueryExpression();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("GetEquipmentSubjectRunChartPie","UsedConfirm")',
+            data: {"queryExpression":queryExpression, "IsManageList": '@(isManageList.ToString().ToLower())',"equipmentId": equipmentId},
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divEquipmentRunChartPieDialog").html(data);
+                ShowEquipmentRunChartPieDialog();
+                return false;
+            }
+        });
+    }
+    function ShowEquipmentRunChartPieDialog()
+    {
+        if(equipmentRunChartPieDialog)
+            equipmentRunChartPieDialog.dialog("destroy");
+        equipmentRunChartPieDialog = @(Html.JDialog("divChartFlashBox").SetTitle("仪器运行情况饼图").SetIconCls("icon-statistics").SetAutoDialog(false).SetCancelScript("equipmentRunChartPieDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString())
+    }
+
+    var equipmentSubjectRunChartPieDialog;
+    function doShowEquipmentSubjectRunChartPie(subjectId)
+    {
+        var queryExpression = generateEquipmentRunConditionSumTotalQueryExpression();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("GetEquipmentRunChartPie","UsedConfirm")',
+            data: {"queryExpression":queryExpression, "IsManageList": '@(isManageList.ToString().ToLower())',"subjectId": subjectId},
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divEquipmentSubjectRunChartPieDialog").html(data);
+                ShowEquipmentSubjectRunChartPieDialog();
+                return false;
+            }
+        });
+    }
+    function ShowEquipmentSubjectRunChartPieDialog()
+    {
+        if(equipmentSubjectRunChartPieDialog)
+            equipmentSubjectRunChartPieDialog.dialog("destroy");
+        equipmentSubjectRunChartPieDialog = @(Html.JDialog("divChartFlashBox").SetTitle("仪器课题组运行情况饼图").SetIconCls("icon-statistics").SetAutoDialog(false).SetCancelScript("equipmentSubjectRunChartPieDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString())
+    }
+</script>

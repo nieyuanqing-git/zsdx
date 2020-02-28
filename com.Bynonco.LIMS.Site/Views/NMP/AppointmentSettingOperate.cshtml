@@ -1,0 +1,33 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@model com.Bynonco.LIMS.Model.View.ViewNMP
+<div class="edit-operate">
+    @{
+        var nmpPrivilige = Model != null ?
+                com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+                com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.Id);
+    }
+    @Html.JLinkButton("btnSaveAppointmentSetting", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveNMPAppointmentSetting();return false;").SetVisible(nmpPrivilige.IsEnableSaveAppointmentSetting).ToMvcString()
+
+    @Html.JLinkButton("btnBack", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doNMPBack();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSaveNMPAppointmentSetting() {
+        var workDays = getWorkDays();
+        var workTimes = getSelectedWorkTimeIds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveAppointmentSetting","NMP")' + "?date=" + new Date().getMilliseconds(),
+            data: $("#frmNMPEdit").serialize() + "&WorkDays=" + workDays + "&WorkTimes=" + workTimes,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+</script>

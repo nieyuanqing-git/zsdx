@@ -1,0 +1,27 @@
+﻿@model com.Bynonco.LIMS.Model.LabOrganization
+@using com.Bynonco.LIMS.Utility;
+@{var user = ViewData["LoginUser"] != null ? (com.Bynonco.LIMS.Model.User)ViewData["LoginUser"] : null;}
+@if(Model != null)
+{
+    <div class='examniation-box-inner'>
+        <h4>
+            @Model.Name
+            @if (user != null && user.OrganizationId.HasValue && user.OrganizationId.Value == Model.Id)
+            {
+                <span style="color:red;">(本学院)</span>
+            }
+        </h4>
+        <div class='examniation-content-box' id='divExamniation_@(Model.Id)'></div>
+        
+        <div class='examniation-button examniation-button-left'>
+            <a href="#" onclick="doExamination('@(Model.Id)');return false;">学&nbsp;习</a>
+        </div>
+        <div class='examniation-button examniation-button-right'>
+            <a href="#" onclick="doExamination('@(Model.Id)');return false;">考&nbsp;试</a>
+        </div>
+        <div class="clear-both"></div>
+    </div>
+    <script type="text/javascript">
+        $(function(){doLoadExaminationPaperList('@(Model.Id)');});
+    </script>
+}

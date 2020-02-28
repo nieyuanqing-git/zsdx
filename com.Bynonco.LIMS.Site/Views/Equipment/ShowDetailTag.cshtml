@@ -1,0 +1,65 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var isZDYXY = customer.GetSchoolName() == "中大药学院";
+    var customerShowBasic = customer == null ? "" : customer.GetEquipmentShowBasic();
+    customerShowBasic = "../Equipment/" + (customerShowBasic == "" ? "ShowBasic" : customerShowBasic);
+    bool isShowAppointmentTimes = Model.UseTypeEnum != com.Bynonco.LIMS.Model.Enum.EquipmentUseType.None;
+    bool isAcceptSampleTest = Model.IsAcceptSampleTest.HasValue ? Model.IsAcceptSampleTest.Value:false ;
+}
+<ul style="border-bottom:0;" class="tabs">
+    <li class="tabs-selected"><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divShowBasic')"><span class="tabs-title">信息</span><span class="tabs-icon"></span></a></li>
+    @if (isShowAppointmentTimes)
+    {
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divAppointmentTimesContainer')"><span class="tabs-title" id="ShowAppointmentTime">预约资源</span><span class="tabs-icon"></span></a></li>
+    }
+    @if (isAcceptSampleTest)
+    {
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divSampleItems')"><span class="tabs-title" id="ShowSampleItems">检测项目</span><span class="tabs-icon"></span></a></li>
+    }
+    @if (!isZDYXY)
+    {  
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divShowMarking')"><span class="tabs-title" id="ShowMarkingTitle">评论</span><span class="tabs-icon"></span></a></li>
+    }
+     <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divShowAttachment')"><span class="tabs-title" id="ShowAttachmentTitle">附件下载</span><span class="tabs-icon"></span></a></li>
+    @if (!isZDYXY)
+    {
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divShowNotice')"><span class="tabs-title" id="ShowNoticeTitle">公告</span><span class="tabs-icon"></span></a></li>
+    }
+    @if (!isZDYXY)
+    {
+    <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divShowSameEquipment')"><span class="tabs-title" id="ShowSameEquipment">同类仪器</span><span class="tabs-icon"></span></a></li>
+    }
+</ul>
+<div id="divShowBasic" class="detail-info">
+    @Html.Partial(customerShowBasic)
+</div>
+<div id="divAppointmentTimesContainer" class="detail-info hide">
+    正在加载预约资源……
+</div>
+<div id="divSampleItems" class="detail-info hide">
+    正在加载检测项目……
+</div>
+<div id="divShowMarking" class="detail-info hide">
+    正在加载评论……
+</div>
+<div id="divShowAttachment" class="detail-info hide">
+    正在加载附件下载……
+</div>
+<div id="divShowNotice" class="detail-info hide">
+    正在加载公告……
+</div>
+<div id="divShowSameEquipment" class="detail-info hide">
+    正在加载同类设备……
+</div>
+
+<script type="text/javascript">
+    function changeTag(obj, tagId) {
+        $(".detail-info").addClass("hide");
+        $(".tabs li").removeClass("tabs-selected");
+        $(obj).parent().addClass("tabs-selected");
+        $("#" + tagId).removeClass("hide");
+        return false;
+    }
+</script>

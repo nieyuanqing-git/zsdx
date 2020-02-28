@@ -1,0 +1,154 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentNotice
+@using com.Bynonco.JqueryEasyUI.Core;
+@{var equipmentPrivilige = Model == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.EquipmentId);}
+<div id="divEquipmentNoticeEdit">
+    <form id="frmEquipmentNoticeEdit" action="#"  style="width:600px;">
+    @Html.Hidden("EquipmentNoticeId", Model == null ? "" : Model.Id.ToString())
+    @Html.JTab("divNoticeTabs").SetBorder(false).ToMvcString()
+    <div id="divNoticeTabs"  style="width:600px;">
+        <div id="divNoticeInfo" title="公告信息">
+            <table  class="edit-table" style="width:100%">
+                <tr>
+                    <th>
+                        标题 <span class="required">*</span>
+                    </th>
+                    <td>
+                        @Html.JValidateBox("Title").SetValue(Model == null ? "" : Model.Title).SetWidth(485).SetValidateType(ValidateType.required).ToMvcString()
+                       
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        内容<span class="required">*</span>
+                    </th>
+                    <td>
+                        @Html.TextArea("Content", Model == null ? "" : Model.Content, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:150px;width:485px;" })
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        是否置顶
+                    </th>
+                    <td>@Html.CheckBox("IsTop")
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        完成阅读才可预约
+                    </th>
+                    <td>@Html.CheckBox("IsMustReadBeforeAppointment")
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="divNoticeAttachment" title="附件信息"  style="background-color:White">
+            <div>@Html.Partial("NoticeAttachmentList")</div>
+            <div>
+                <span style="padding-left: 80px"><b>附件文件</b>
+                    <input id="fileToUpload" type="file" name="fileToUpload" />
+                    </span><span style="padding-left: 15px">
+                    @Html.JLinkButton("btnUpLoad", "上传附件").SetPlain(true).SetDisabled(!equipmentPrivilige.IsEnableUploadNoticeAttachment).SetIconCls("icon-upload").SetOnclick("ajaxFileUpload();return false;").ToMvcString()
+                </span>
+            </div>
+            <div style="font-weight: bold; text-align: center;">@ViewData["FileUploadTip"]</div>
+        </div>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+    function generateAttachmentFiles() {
+        var rows = $('#tbEquipmentNoticeAttachmentList').datagrid("getRows");
+        if (!rows || rows == "") return "";
+        var files = new Array();
+        for (var i = 0; i < rows.length; i++) {
+            files.push(rows[i].Id + "∽" + rows[i].FileName + "∽" + rows[i].FileSizeStr + "∽" + rows[i].FlleExtension);
+        }
+        return files;
+    }
+    function generateAttachmentFileIds() {
+        var rows = $('#tbEquipmentNoticeAttachmentList').datagrid("getRows");
+        if (!rows || rows == "") return "";
+        var fileIds = "";
+        for (var i = 0; i < rows.length; i++) {
+            fileIds += i == 0 ? rows[i].Id : "," + rows[i].Id;
+        }
+        return fileIds;
+    }
+
+    function doValidates(file) {
+        if (file == "") {
+            $.messager.alert('提示', "请选择要上传的文件", 'warning');
+            return false;
+        }
+        var fileName = file.getFileName().trim();
+        if (fileName.indexOf("∽") != -1) {
+            $.messager.alert('提示', "包含非法字符∽", 'warning');
+            return false;
+        }
+        var rows = $("#tbEquipmentNoticeAttachmentList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].FileName.trim() + "." + rows[i].FlleExtension.trim() == fileName) {
+                    $.messager.alert('提示', "文件名" + fileName + "已经存在", 'warning');
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    function InsertAttachmentToList(file, data) {
+        $('#tbEquipmentNoticeAttachmentList').datagrid('appendRow', {
+            Id: data.FileId,
+            FileName: data.FileName,
+            FileSizeStr: data.FileSizeStr,
+            FlleExtension: data.FileExt
+        });
+    }
+    function doDeleteAttachment() {
+        var rows = $('#tbEquipmentNoticeAttachmentList').datagrid("getSelections");
+        if (!rows || rows == "") {
+            $.messager.alert('提示', "请选择要删除的附件", 'warning');
+            return false;
+        }
+        var fileIds = "";
+        for (var i = 0; i < rows.length; i++) {
+            fileIds += i == 0 ? rows[i].Id : "," + rows[i].Id;
+        }
+        $.messager.progress({ title: '提示', msg: '正在删除附件,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteNoticeAttachment", "Equipment")' + "?time=" + new Date().getMilliseconds(),
+            data: { "FileIds": fileIds },
+            complete: function (data, status) {
+                $.messager.progress('close');
+                doAttachmentSearch();
+                return false;
+            }
+        });
+    }
+    function ajaxFileUpload() {
+        var file = $("#fileToUpload").val();
+        if (!doValidates(file)) return false;
+        $("#fileToUpload").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadNoticeAttachment", "Equipment")' + "?time=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileToUpload',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.FileId) InsertAttachmentToList(file, data);
+                else $.messager.alert('提示', data, 'warning');
+            }
+        })
+        return false;
+    }
+    function doAttachmentSearch() {
+        $("#tbEquipmentNoticeAttachmentList").datagrid("reload");
+        return false;
+    }
+</script>

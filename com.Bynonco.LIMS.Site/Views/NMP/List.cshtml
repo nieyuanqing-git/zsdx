@@ -1,0 +1,34 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var nmpPrivilige = ViewData["NMPId"] == null ?
+         com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+         com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, new Guid(ViewData["NMPId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbNMPList")
+            .SetUrl(Url.Action("GetGridViewNMPList", "NMP", new { time = DateTime.Now.Millisecond.ToString() }))
+            .SetHeight(500)
+            .SetPageSize(15)
+            .SetSortName("Name")
+            .SetShowAddButton(nmpPrivilige.IsEnableAdd);
+            if (nmpPrivilige.IsEnableAdd)
+            {
+                dataGrid.SetAddScript("doAddOrEdit('');");
+            }
+            if (nmpPrivilige.IsEnableDelete)
+            {
+                dataGrid.SetDeleteScript("doDelete('');");
+            }
+            dataGrid.SetShowDeleteButton(nmpPrivilige.IsEnableDelete)
+            .SetShowPrintButton(true);
+            dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+            .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("工位名称", "NameStr").SetWidth(223).SetAlign(Align.left))
+            .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("IP地址", "IP").SetWidth(100).SetAlign(Align.center))
+            .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("位置", "RoomName").SetWidth(150).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("门禁", "DoorName").SetWidth(120).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("Get共同体", "GetCommunity").SetWidth(100).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("Set共同体", "SetCommunity").SetWidth(100).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("Trap共同体", "TrapCommunity").SetWidth(100).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left))
+            .SetShowSearchButton(true)
+            .SetSearchScript("doShowSearch()");
+  }
+  @(dataGrid.ToMvcString())    

@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@model com.Bynonco.LIMS.Model.View.ViewEquipment
+<div class="edit-operate">
+    @{
+        var equipmentPrivilige = Model == null ?
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, Model.Id);
+     }
+    @Html.JLinkButton("btnSaveBasic", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveBasic();return false;").SetVisible(equipmentPrivilige.IsEnableSaveBasic).ToMvcString()
+    @Html.JLinkButton("btnDeleteBasic", "删除").SetIconCls("icon-cancel").SetPlain(true).SetVisible(equipmentPrivilige.IsEnableDelete && Model != null).SetOnclick("doDelete();return false;").ToMvcString()
+    @Html.JLinkButton("btnBackBasic", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doBack();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSaveBasic() {
+        var achievementStudentIds = '';
+        $("#tbAchievementStudentList").find('.item-Id').find('input:hidden').each(function () {
+            achievementStudentIds += (achievementStudentIds == "" ? "" : ",") + $(this).val();
+        }); 
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBasic","Equipment")' + "?AchievementStudentIds=" + achievementStudentIds,
+            data: $("#frmEquipmentEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                doReload(msg);
+            }
+        });
+        return false;
+    }
+</script>

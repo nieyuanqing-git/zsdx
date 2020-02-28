@@ -1,0 +1,34 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var delinquencyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDelinquencyPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbDelinquencyConfirmList")
+    .SetUrl(ViewData["Url"] == null ? Url.Action("GetGridViewDelinquencyConfirmList", "Delinquency") : ViewData["Url"].ToString())
+    .SetHeight(550)
+    .SetPageSize(10)
+    .SetSortName("CreateAt")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowPrintButton(false)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(45).SetAlign(Align.center).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("姓名", "PunisherNameStr").SetWidth(260).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("时间", "DelinquencyAtStr").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("不良行为种类", "DelinquencyName").SetWidth(120).SetAlign(Align.center))
+     .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("不良行为仪器名称", "DelinquencyEquipmentName").SetWidth(200).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("严重程度", "SeverityValue").SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("当前状态", "HasRepealStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("行为描述", "Cause").SetWidth(200).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作人", "CreatorName").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作时间", "CreateAtStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.SetShowAddButton(delinquencyPrivilige.IsEnableAddDelinquencyConfirm);
+    if (delinquencyPrivilige.IsEnableAddDelinquencyConfirm)
+    {
+        dataGrid.SetAddScript("doAddOrEditDelinquencyConfirm('');");
+    }
+    if (delinquencyPrivilige.IsEnableDeleteDelinquencyConfirm)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doBatchDeleteDelinquencyConfirm();", IconCls = "icon-cancel", Id = "btnBatchDeleteDelinquencyConfirm", Text = "撤销" });
+    }    
+}
+@(dataGrid.ToMvcString()) 

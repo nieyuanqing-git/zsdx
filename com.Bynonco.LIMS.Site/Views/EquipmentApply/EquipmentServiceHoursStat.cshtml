@@ -1,0 +1,122 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEquipmentServiceHoursStatDialog" style="display:none"></div>
+<div style="position:relative; height:380px;margin-top:20px">
+    <div style="position:absolute; top:10; left:15px">@Html.Partial("../EquipmentApply/EquipmentServiceHoursStatList")</div>
+</div>
+<script type="text/javascript">
+    var equipmentServiceHoursStatDialog;
+    function showEditEquipmentServiceHoursStatDialog(){
+        if (equipmentServiceHoursStatDialog) equipmentServiceHoursStatDialog.dialog("destroy");
+        equipmentServiceHoursStatDialog = @Html.JDialog("divEquipmentServiceHoursStatEdit").SetTitle("开放服务机时统计").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentServiceHoursStatDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEquipmentServiceHoursStat();").ToMvcString();
+    }
+    function doEditEquipmentServiceHoursStat(id) {
+        var equipmentApplyId = $("#Id").val();
+        var url = '@Url.Action("EditEquipmentServiceHoursStat", "EquipmentApply")';
+        var year="";
+        var type="";
+        var hours = "";
+        var rows = $("#tbEquipmentServiceHoursStatList").datagrid("getRows");
+        if(rows.length > 0){
+            for(var i=0;i<rows.length;i++){
+                if(rows[i].Id==id){
+                    year =  rows[i].Year;
+                    type = rows[i].EquipmentServiceHoursStatTypeType;
+                    hours = rows[i].Hours;
+                }
+            }
+        }
+        $("#divEquipmentServiceHoursStatDialog").load(url, {"year":year,"type":type,"hours":hours,"equipmentServiceHoursStatId":id,"equipmentApplyId":equipmentApplyId,"time": new Date() }, function () {
+           showEditEquipmentServiceHoursStatDialog(); 
+        });
+        return false;
+    }
+    function doAddEquipmentServiceHoursStat() {
+        var equipmentApplyId = $("#Id").val();
+        var url = '@Url.Action("AddEquipmentServiceHoursStat", "EquipmentApply")';
+        $("#divEquipmentServiceHoursStatDialog").load(url, {"equipmentApplyId":equipmentApplyId,"time": new Date() }, function () {
+           showEditEquipmentServiceHoursStatDialog();
+        });
+        return false;
+    }
+    function doSaveEquipmentServiceHoursStat(){
+        var equipmentApplyId = $("#Id").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveEquipmentServiceHoursStat","EquipmentApply")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmEquipmentServiceHoursStatEdit").serialize()+ "&equipmentApplyId=" + equipmentApplyId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                equipmentServiceHoursStatDialog.dialog('close');
+                var equipmentServiceHoursStat = eval(msg)[0];
+                var rows = $("#tbEquipmentServiceHoursStatList").datagrid("getRows");
+                if(rows.length > 0){
+                    for(var i=0;i<rows.length;i++){
+                        if(rows[i].Id == equipmentServiceHoursStat.Id){
+                            $("#tbEquipmentServiceHoursStatList").datagrid("updateRow",{index:i,row:equipmentServiceHoursStat});
+                            return;
+                        }
+                    }
+                }
+                $("#tbEquipmentServiceHoursStatList").datagrid("appendRow", equipmentServiceHoursStat);
+            }
+        });
+    }
+     function generateSelectedEquipmentServiceHoursStatIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentServiceHoursStatList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    function doDeleteEquipmentServiceHoursStat(){
+         var ids  = generateSelectedEquipmentServiceHoursStatIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteEquipmentServiceHoursStat","EquipmentApply")' +  "?date=" + new Date().getMilliseconds(),
+                data: {"ids":ids},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    var rows = $("#tbEquipmentServiceHoursStatList").datagrid("getRows");
+                    if(rows.length > 0){
+                        for(var i=rows.length-1;i>=0;i--){
+                            if(ids.indexOf(rows[i].Id)!=-1){
+                                $("#tbEquipmentServiceHoursStatList").datagrid("deleteRow",i);
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    }
+    function getEquipmentServiceHoursStats() {
+        var equipmentServiceHoursStats = "";
+        var rows = $("#tbEquipmentServiceHoursStatList").datagrid("getRows");
+        if (rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var equipmentServiceHoursStat = rows[i].Year + "~" + rows[i].EquipmentServiceHoursStatType + "~"  + rows[i].Hours;
+                equipmentServiceHoursStats += equipmentServiceHoursStats == "" ? equipmentServiceHoursStat : "#" + equipmentServiceHoursStat;
+            }
+        }
+        return equipmentServiceHoursStats;
+    }
+</script>

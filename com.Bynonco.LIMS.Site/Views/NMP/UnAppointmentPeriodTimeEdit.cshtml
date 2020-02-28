@@ -1,0 +1,37 @@
+﻿@model com.Bynonco.LIMS.Model.NMPUnAppointmentPeriodTime
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divUnAppointmentPeriodTimeEdit">
+    <form id="frmUnAppointmentPeriodTimeEdit" action="#">
+    @Html.Hidden("NMPUnAppointmentPeriodTimeId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style="width:420px;">
+        <tr>
+            <th>名称<span class="required">*</span></th>
+            <td>
+                @Html.JValidateBox("Name").SetWidth(260).SetValue(Model == null ? "" : Model.Name).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>开始时间<span class="required">*</span></th>
+            <td>
+                @Html.JDateTimePicker("BeginTime").SetWidth(155).SetValue(Model == null ? "" : Model.BeginTime.ToString("yyyy-MM-dd")).ToMvcString()
+                @Html.JComboBox("BeginTimeHour").SetData(ViewData["BeginTimeHourJson"]).SetWidth(50).ToMvcString()
+                @Html.JComboBox("BeginTimeMinute").SetData(ViewData["BeginTimeMinuteJson"]).SetWidth(50).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>结束时间<span class="required">*</span></th>
+            <td>
+                @Html.JDateTimePicker("EndTime").SetWidth(155).SetValue(Model == null ? "" : Model.EndTime.ToString("yyyy-MM-dd")).ToMvcString()
+                @Html.JComboBox("EndTimeHour").SetData(ViewData["EndTimeHourJson"]).SetWidth(50).ToMvcString()
+                @Html.JComboBox("EndTimeMinute").SetData(ViewData["EndTimeMinuteJson"]).SetWidth(50).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Description", Model == null ? "" : Model.Description, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:320px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>

@@ -1,0 +1,14 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAchievementStudent
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var infoId = Model == null ? Guid.NewGuid() : Model.Id;
+    var degree = Model == null ? "" : Model.DegreeId.ToString();
+    var studyType = Model == null ? "" : Model.StudyTypeId.ToString();
+}
+<tr id='@("tr_" + infoId)'>
+    
+    <td>@Html.JValidateBox("StudentName_" + infoId).SetValue(Model == null ? "" : Model.StudentName).SetWidth(100).ToMvcString()</td>
+    <td>@Html.JValidateBox("StudentNumber_" + infoId).SetValue(Model == null ? "" : Model.StudentNumber).SetWidth(100).ToMvcString()</td>    
+    <td>@Html.JValidateBox("StudentNumber_" + infoId).SetValue(Model == null ? "" : Model.DegreeName).SetWidth(100).ToMvcString()</td>    
+    <td>@Html.JValidateBox("StudentNumber_" + infoId).SetValue(Model == null ? "" : Model.StudyTypeName).SetWidth(100).ToMvcString()</td>    
+</tr>

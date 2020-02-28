@@ -1,0 +1,23 @@
+﻿ <div class="search-grid hide">
+    <div class="search-inner-box" >
+        @Html.Partial("../UsedConfirm/UnDeductUsedConfirmSearch")
+    </div>
+</div>
+<div>@Html.Partial("../UsedConfirm/UnDeductUsedConfirmList")</div>
+<script type="text/javascript">
+    function doUnDeductUsedConfirmSearch(isPosCurPage) {
+        var queryExpression = generateUnDeductUsedConfirmQueryExpression();
+        if (isPosCurPage) {
+            $("#tbUnDedcutViewUsedConfirmList").datagrid("reload", { "queryExpression": queryExpression.trim() });
+        }
+        else {
+            $("#tbUnDedcutViewUsedConfirmList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbUnDedcutViewUsedConfirmList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        }
+    }
+    function doExportUnDeductUsedConfirmList() {
+        var newQueryExpression = generateUnDeductUsedConfirmQueryExpression();
+        var url = '@Url.Action("ExportUnDeductUsedConfirmList", "UsedConfirm")' + "?userId=" + '@(ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "")' + "&queryExpression=" + newQueryExpression.trim() + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+</script>

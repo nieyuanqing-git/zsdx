@@ -1,0 +1,13 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../EquipmentRelation/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../EquipmentRelation/List")
+</div>
+@Html.Partial("../EquipmentRelation/ScriptContainer")

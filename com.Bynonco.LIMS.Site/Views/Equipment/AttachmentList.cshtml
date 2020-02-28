@@ -1,0 +1,35 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbEquipmentAttachmentList")
+    .SetUrl(Url.Action("GetGridEquipmentAttachmentList", "Equipment"))
+    .AddQueryParam("queryExpression", string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("FileName")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件名", "FileNameStr").SetWidth(220).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所占容量", "FileSizeStr").SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件类型", "FlleExtension").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件分类", "FileCategoryStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddAttachment);
+    if (equipmentPrivilige.IsEnableAddAttachment)
+    {
+        dataGrid.SetAddScript("doAddOrEditEquipmentAttachment('');");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditAttachment);
+    if (equipmentPrivilige.IsEnableEditAttachment)
+    {
+        dataGrid.SetEditScript("doEditEquipmentAttachment();");
+        dataGrid.SetOnDblClickRow("doAddOrEditEquipmentAttachment(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteAttachment);
+    if (equipmentPrivilige.IsEnableDeleteAttachment)
+    {
+        dataGrid.SetDeleteScript("doDeleteEuipmentAttachment();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

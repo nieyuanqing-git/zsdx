@@ -1,0 +1,228 @@
+﻿@model IEnumerable<com.Bynonco.LIMS.Model.ExchangeFairylandComment>
+@{
+    ViewBag.Title = "交流天地--评论";
+    Layout = "~/Views/Shared/_TwoColumnLayout.cshtml";
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    var isManageLabOrganization = ViewData["IsManageLabOrganization"] == null ? false : bool.Parse(ViewData["IsManageLabOrganization"].ToString());
+    var loginUser = ViewData["LoginUser"] == null ? null : (com.Bynonco.LIMS.Model.User)ViewData["LoginUser"];
+}
+@section ImportCssAndJs{
+
+    <!--CKEditor-->
+    <script src="@Url.Content("~/JqueryPlugin/Ckeditor/ckeditor.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/JqueryPlugin/Ckfinder/ckfinder.js")" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        var isLogin = false;    //是否登录
+        $(function () {
+            if ("@(User.Identity.IsAuthenticated)" == "True") {
+                isLogin = true;
+            }
+        });
+        function judgeSubmit(objId) {
+            if(objIdId == "publishComment")
+            {
+                var publishCommentHTML = CKEDITOR.instances.publishComment.getData();
+                var publishCommentNotHTML = CKEDITOR.instances.publishComment.document.getBody().getText();
+                $("#publishComment").val(publishCommentHTML);
+                $("#commentNoHTML").val(publishCommentNotHTML);
+            }
+            if ($.trim($("#"+objId).val()) == "") {
+                $.messager.show({ title: '提示', msg: "评论内容不能为空", showType: 'show' });
+                return false;
+            }
+            if ($.trim($("#"+objId).val()).length < 2) {
+                $.messager.show({ title: '提示', msg: "至少输入2个字符", showType: 'show' });
+                return false;
+            }
+            if (!isLogin) {
+                $.messager.show({ title: '提示', msg: "请登录再发贴", showType: 'show' });
+                return false;
+            }
+        }
+        var recordId = "";
+        function showLogin(rId) {
+            $("#publishReply").val("");
+            $("#replyLogin .userName").val("");
+            $("#replyLogin .password").val("");
+            $("#replyLogin .ShowInfor").text("");
+
+            $("#v_" + rId).replaceWith($("#replyLoginDiv"));
+            $("#replyLoginDiv").wrap("<span id='v_" + rId + "'></span>");
+            if (recordId == "" || recordId == rId) {
+                $("#replyLoginDiv").toggle();
+            }
+            else {
+                $("#replyLoginDiv").css("display", "block");
+            }
+            recordId = rId;
+            $("#referenceId").val(rId);
+        }
+        function closeReply() {
+            $("#replyLoginDiv").css("display", "none");
+            $("#publishReply").val("");
+            $("#replyLogin .userName").val("");
+            $("#replyLogin .password").val("");
+            $("#replyLogin .ShowInfor").text("");
+        }
+
+        var index = 0;
+        function showMoreReattachment() {
+            index = index + 1;
+            $.ajax({
+                url: '@Url.Action("ShowMoreReattachment","ExchangeFairyland")'+ "?date=" + new Date().getMilliseconds().toString(),
+                data: { "index":index,"oldReattachmentCount":@(ViewBag.reattachmentInOriginalList==null?0:(ViewBag.reattachmentInOriginalList as List<com.Bynonco.LIMS.Model.ExchangeFairylandComment>).Count),"originalId":"@((ViewBag.ExchangeFairyland as com.Bynonco.LIMS.Model.ExchangeFairyland).id)"},
+                type: "Post",
+                success: function (data) {
+                    $("#commentHolder").append(data);
+                },
+                error: function () {
+                    $.messager.show({ title: '提示', msg: "请求出错", showType: 'show' });
+                }
+            });
+        };
+
+        function doDeleteReattachment(url)
+        {
+            $.messager.confirm('提示', '确认删除该回复记录以及关于此记录的所有回复?', function (r) {
+                if (!r) return;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        location.reload();
+                    }
+                });
+            });
+        }
+    </script>
+}
+@section MainLeft
+{
+    @Html.Partial("../ArticleCategory/HomeShowList")
+    @Html.Partial("../Home/FriendLink")
+}
+@section MainRight{
+    @{ var exchangeFairyland = ViewBag.ExchangeFairyland as com.Bynonco.LIMS.Model.ExchangeFairyland;}
+    <h2 class="title clear-both">
+        <a href='@Url.Action("Original", "ExchangeFairyland", routeCurrentXPathValue)' style="float:left;font-weight:bold;font-size:13px;">交流园地</a>
+        <span style="float:left;">&nbsp;@(" >> " + exchangeFairyland.Title)</span>
+        <span style="float:right;">
+            (共有<span style="color: #b82e2e;float:none;"> @(exchangeFairyland.ExchangeFairylandCommentList == null ? 0 : exchangeFairyland.ExchangeFairylandCommentList.Count) </span>篇回复)
+        </span>
+    </h2>
+    <div class="content-box">
+        <div class="coment-foot">
+            <ul>
+                <li><img src="@Url.Content("~/" + exchangeFairyland.Creator.RelativePic)" class="pic" /></li>
+                <li><strong>@exchangeFairyland.Creator.Name</strong></li>
+                <li style='color:#ccc;'> ( @(exchangeFairyland.CreateTime.ToString("yyyy.MM.dd HH:mm")) )</li>
+                <li class="right">
+                @if(loginUser != null)
+                {
+                    <a href="#publishComment" class="fastre">回复</a>
+                }
+                </li>
+            </ul>
+            <div class="clear-both"></div>
+            <p style='padding-left:60px;'>@Html.Raw(exchangeFairyland.Contents)</p>
+            <div class='clear-both'></div>
+        </div>
+        <!--显示回贴_start-->
+        <div id="commentHolder">
+            @if (Model != null && Model.Count() > 0)
+            {
+                @Html.Partial("GetReattachment", Model)
+            }
+        </div>
+        <!--显示回贴_end-->
+        @if (Model != null && Model.Count() > 0)
+        {
+        <div class="notification green-box" style="margin-top:20px;" id="showMoreDiv">
+			<div style="text-align:center;">
+                <a href="javascript:void(0);" id="showMoreInfor" onclick="showMoreReattachment();"><span>显示更多...</span></a>
+			</div>
+		</div>
+        }
+    </div>
+    
+        <h2 class="title"  style="margin-top:20px;">
+            <span>文明上网,登录回复</span>
+        </h2>
+        <div class="content-box">
+        @using (Html.BeginForm("PublishReattachment", "ExchangeFairyland", new { exchangeFairylandId = exchangeFairyland.id }, FormMethod.Post, new { id = "CommentFrm" }))
+        {
+            if (loginUser == null)
+            {
+                <div style="margin-top:10px;" class="notification error">
+			        <div>您还没有登录系统, 请 <a href='#' style='text-decoration:underline;' onclick="backToLogin();return false;">登录</a> 后进行发言</div>
+		        </div>
+            }
+            else
+            {
+                <div class="edit-box">
+                    <div class="edit-info">
+                        <div class="bdmain">
+                            <textarea id="publishComment" name="comment" class="ckeditor" rows="8" cols="80"></textarea>
+                            @Html.Hidden("commentNoHTML")
+                        </div>
+                    </div>
+                    <div class="clear-both"></div>
+                    <div class="edit-info" style="margin-left:500px;">
+                        <input class="botton" type="submit" onclick="return judgeSubmit('publishComment');" value="回 复"/>
+                    </div>
+                    <div class="clear-both"></div>
+                </div>
+            }
+        }
+             <div class="notification attention" style="margin-top:10px;">
+			    <div>网友评论仅供网友表达个人看法,并不表明本网站同意其观点或证实其描述</div>
+		    </div>
+            <!--某评论的登录回复-->
+            <div class="reply-box" id="replyLoginDiv" style="display:none;">
+                @using (Html.BeginForm("PublishReattachment", "ExchangeFairyland", new { exchangeFairylandId = exchangeFairyland.id }, FormMethod.Post, new { id = "ReplyFrm" }))
+                {
+                    if (loginUser == null)
+                    {
+                        <div style="margin-top:10px;" class="notification error">
+			                <div>您还没有登录系统, 请 <a href='#' style='text-decoration:underline;' onclick="backToLogin();;return false;">登录</a> 后进行发言</div>
+		                </div>
+                    }
+                    else
+                    {
+                        <div class="edit-box">
+                            <div class="edit-info">
+                                <div class="bdmain">
+                                    <div class="textare-box">
+                                        <strong>
+                                            <textarea id="publishReply" name="comment" class="textareinp" rows="8" cols="80"></textarea>
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-info" style="margin-top:110px;">
+                                <input class="botton" type="submit" onclick="return judgeSubmit('publishReply');" value="回 复"/>
+                                @Html.Hidden("referenceId")
+                            </div>
+                        
+                            <div class="clear-both"></div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        <script type="text/javascript">
+            function objfocus(obj) {
+                $(".text-over").removeClass('text-over');
+                $(".textare-over").removeClass('textare-over');
+                $(obj).parents(".text-box").addClass('text-over');
+                $(obj).parents(".textare-box").addClass('textare-over');
+            }
+            $(function () {
+                $(".edit-info .textareinp").focus(function () { objfocus(this); });
+            })
+        </script>
+}

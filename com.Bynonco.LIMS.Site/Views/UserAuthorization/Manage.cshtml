@@ -1,0 +1,187 @@
+﻿W@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../User/Search")
+    </div>
+</div>
+<div class="layout-center-left"  style="overflow: hidden; height: 550px;">
+    @Html.Partial("../LabOrganizationAdmin/List")
+    @{
+        if (Request.Browser.Type.StartsWith("Firefox"))
+        {
+            <embed type="application/BynonUsbICReader-plugin" width="27" height="25" pluginspage="@Url.Content("~/npBUICR.xpi")"></embed>
+        }
+        else
+        {
+            <object id="UsbICReader" classid="CLSID:AD2E79EA-80BC-4AFA-8DDA-DD7E5A1A48D7" style="width: 27px;height: 25px; display: inline;"></object>
+        }
+    }
+</div>
+<div class="layout-center-right">
+    @Html.Partial("../UserAuthorization/List")
+</div>
+@*<div class="clear-both"></div>*@
+<div id="divUserAuthorizationDialog" style="display:none"></div>
+@Html.Partial("../User/ScriptContainer")
+
+<script type="text/javascript">
+
+    var userAuthorizationDialog;
+    function doUserAuthorizationDialog() {
+        if (userAuthorizationDialog) {
+            userAuthorizationDialog.dialog("destroy");
+        }
+        userAuthorizationDialog =  @Html.JDialog("divUserAuthorization").SetTitle("授权用户信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("userAuthorizationDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveUserAuthorization();").ToMvcString();
+    }
+
+    function doAddAuthorizationUser(id)
+    {
+        doAddOrEditAuthorizationUser(id);
+    }
+    function doEditAuthorizationUser(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedAuthorizationUser = $("#tbUserList").datagrid("getSelected");
+           if(!selectedAuthorizationUser || selectedAuthorizationUser.Id=="" || selectedAuthorizationUser.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择用户", showType: 'show' });
+              return false;
+           }
+           id = selectedAuthorizationUser.Id;
+       }
+       doAddOrEditAuthorizationUser(id);
+    }
+    function doAddOrEditAuthorizationUser(id){
+        var url = '@Url.Action("EditAuthorizationUser","UserAuthorization")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divUserAuthorizationDialog").load(url,function(){
+            doUserAuthorizationDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doIsShowAllUser()
+    {
+        var obj_unchecked = $("#btnIsShowAllUser").find(".icon-unchecked");
+        var obj_checked = $("#btnIsShowAllUser").find(".icon-checked");
+        if(obj_unchecked.length > 0) 
+        {
+            obj_unchecked.addClass("icon-checked")
+            obj_unchecked.removeClass("icon-unchecked")
+            obj_unchecked.empty();
+            obj_unchecked.append("点击隐藏非审核通过的用户");
+        }
+        else if(obj_checked.length > 0)
+        {
+            obj_checked.addClass("icon-unchecked")
+            obj_checked.removeClass("icon-checked")
+            obj_checked.empty();
+            obj_checked.append("点击显示全部状态的用户");
+        }
+        doSearch();
+    }
+     function getIsShowAllUser() {
+        var isShowAllUser = false;
+        var obj_checked = $("#btnIsShowAllUser").find(".icon-checked");
+        if (obj_checked.length > 0) isShowAllUser = true;
+        return isShowAllUser;
+    }
+    function doSearch(xpath) {       
+        if(!xpath || xpath.trim()==""){
+           var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+           if(!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id=="" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+              return false;
+           }
+           xpath = selectedLabOrganizationAdmin.XPath;
+       }
+       var queryExpression = generateQueryExpress();
+       queryExpression  += (queryExpression == "" ? "" : "*") + "OrganizationXPath→\"" + xpath  + "\"*IsDel=false";
+       //if(!getIsShowAllUser())  queryExpression  += (queryExpression == "" ? "" : "*")+ "\"";
+       $("#tbUserList").datagrid('loadData', { total: 0, rows: [] });
+       $("#tbUserList").datagrid("load", { "queryExpression": queryExpression});
+    }
+    function doOnLabOrganizationAdminSelected(rowData){
+        if(typeof(doReset) == 'function') doReset();
+        doSearch(rowData.XPath);
+    }
+
+    var userAuthorizationContainerDialog;
+    function doUserAuthorizationContainerDialog() {
+        if (userAuthorizationContainerDialog) {
+            userAuthorizationContainerDialog.dialog("destroy");
+        }
+        userAuthorizationContainerDialog =  @Html.JDialog("divUserAuthorizationContainer").SetTitle("用户授权管理").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("userAuthorizationContainerDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    
+    function doUserAuthorizationContainer(id) {
+       if(!id || id.trim()==""){
+           var selectedUser = $("#tbUserList").datagrid("getSelected");
+           if(!selectedUser || selectedUser.Id=="" || selectedUser.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedUser.Id;
+       }
+        var url = '@Url.Action("UserAuthorizationContainer", "UserAuthorization")';
+        $("#divUserAuthorizationDialog").load(url,{"Id":id,"IsPopDialog":true,"date":new Date().getMilliseconds()},function(){  
+            doUserAuthorizationContainerDialog();              
+        })
+        return false;
+    }
+    function checkIsNull()
+    {
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        if($("#Card").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "卡号为空", showType: 'show' });
+          return false;
+        }
+        if($("#Label").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "帐号为空", showType: 'show' });
+          return false;
+        }
+        if($("#IdentityCardNo").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "证件号码为空", showType: 'show' });
+          return false;
+        }
+        if($("#PhoneNumber").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "手机号码为空", showType: 'show' });
+          return false;
+        }
+    }
+    function doSaveUserAuthorization()
+    {        
+        checkIsNull();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveAuthorizationUser","UserAuthorization")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmUserAuthorization").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                userAuthorizationDialog.dialog('close');
+                doSearch();
+            }
+        });
+    }
+
+    function doOnOrganizationChange(element) {
+        var organizationId = element.value;
+        if (organizationId != "" && !organizationId.isDefaultGuid()) {
+            var urlCheckIsAllowAutoAddLabOrganization = '@Url.Action("CheckIsAllowAutoAddLabOrganization", "LabOrganization")';
+            $.post(urlCheckIsAllowAutoAddLabOrganization, { id: organizationId }, function (data) {
+                if (data == null) return;
+            });
+        }
+    }
+</script>

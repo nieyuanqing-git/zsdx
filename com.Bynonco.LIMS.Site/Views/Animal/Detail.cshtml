@@ -1,0 +1,46 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimal
+<table class="edit-table">
+    <tr>
+        <th colspan="4">实验动物信息</th>
+    </tr>
+    <tr>
+        <th>动物名称</th>
+        <td>@Model.Name</td>
+        <th>性别</th>
+        <td>@Model.SexStr</td>
+    </tr>
+    <tr>
+        <th>当前状态</th>
+        <td>@(System.Web.Mvc.MvcHtmlString.Create(Model.StatusStr))</td>
+        <th>批次编号</th>
+        <td>@Model.Code</td>
+    </tr>
+    <tr>
+        <th>所属品系</th>
+        <td>@Model.AnimalCategoryName</td>
+        <th>所属级别</th>
+        <td>@Model.GradeName</td>
+    </tr>
+    <tr>
+        <th>购置人</th>
+        <td>@Model.OwnerName</td>
+        <th>伦理号</th>
+        <td>@Model.EthicsNo</td>
+    </tr>
+    <tr>
+        <th>批次编号</th>
+        <td>@Model.Code</td>
+        <th>质量合格证号</th>
+        <td>@Model.QualifiedNo</td>
+    </tr>
+     <tr>
+        <th>库存状态</th>
+        <td>@(System.Web.Mvc.MvcHtmlString.Create(Model.StoreStatusStr))</td>
+        <th>体重</th>
+        <td>@Model.WeightStr @Model.WeightUnitName</td>
+    </tr>
+    <tr>
+        <th>所在笼子</th>
+        <td colspan="3">@Model.AnimalPos</td>
+    </tr>
+</table>

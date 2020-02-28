@@ -1,0 +1,295 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimal
+@using com.Bynonco.JqueryEasyUI.Core; 
+@Html.Hidden("Id",Model == null ? "" : Model.Id.ToString())
+<p>1.基本信息</p>
+<table id="tbAnimalEdit" class="edit-info">
+    <tr>
+        <th><span class="required">*</span>动物名称</th>
+        <td>
+            @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(300).SetInvalidMessage("请输入动物名称").SetValidateType(ValidateType.required).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>助记符</th>
+        <td>
+            @Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(300).SetValidateType(ValidateType.none).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th><span class="required">*</span>性别</th>
+        <td>
+            @Html.JComboBox("Sex").SetData(ViewData["SexJson"]).SetWidth(305).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th><span class="required">*</span>是否停用</th>
+        <td>
+            @Html.JComboBox("IsStop").SetData(ViewData["IsStopJson"]).SetWidth(305).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th><span class="required">*</span>购置人</th>
+        <td id="tbOwnerId">
+            @(Html.TokenInput("OwnerId")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["OwnerJson"] == null || string.IsNullOrWhiteSpace(ViewData["OwnerJson"].ToString()) ? null : ViewData["OwnerJson"].ToString())
+                .SetSingle(true)
+                .SetPreventDuplicates(true)
+                .SetWidth(200)
+                .SetOnAdd("doOnOwnerChanged();")
+                .SetOnDelete("doOnOwnerChanged();")
+                .ToMvcString())
+        </td>
+    </tr>
+    <tr>
+        <th><span class="required">*</span>批次编号</th>
+        <td>
+            @Html.JValidateBox("Code").SetValue(Model == null ? "" : Model.Code).SetWidth(300).SetValidateType(ValidateType.none).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th><span class="required">*</span>伦理编号</th>
+        <td>
+            @Html.JComboBox("EthicsNo").SetData(ViewData["EthicsNoJson"]).SetDisabled(Model != null).SetWidth(305).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th><span class="required">*</span>质量合格证号</th>
+        <td>
+            @Html.JValidateBox("QualifiedNo").SetValue(Model == null ? "" : Model.QualifiedNo).SetWidth(300).SetValidateType(ValidateType.none).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th><span class="required">*</span>库存状态</th>
+        <td> @Html.JComboBox("StoreStatus").SetData(ViewData["StoreStatusJson"]).SetDisabled(true).SetWidth(305).ToMvcString()</td>
+    </tr>
+    <tr>
+        <th><span class="required">*</span>所属品系</th>
+        <td>
+            @Html.DropDownList("AnimalCategoryId", (IEnumerable<SelectListItem>)ViewData["AnimalCategorySelectListItem"], new { style = "width:305px" })
+        </td>
+    </tr>
+    <tr>
+        <th><span class="required">*</span>所属级别</th>
+        <td>
+            @Html.JComboBox("GradeId").SetData(ViewData["GradeJson"]).SetWidth(305).ToMvcString()
+        </td>
+    </tr>
+     <tr>
+        <th><span class="required">*</span>动物来源</th>
+        <td>
+            @Html.JComboBox("SourceId").SetData(ViewData["SourceJson"]).SetWidth(305).ToMvcString()
+            <span>可手工输入</span>
+        </td>
+    </tr>
+    <tr>
+        <th>体重</th>
+        <td>
+            @Html.JValidateBox("Weight").SetValue(Model == null ? "" : Model.WeightStr).SetWidth(200).SetValidateType(ValidateType.none).ToMvcString()
+            @Html.JComboBox("WeightUnitId").AddClass("weightUint").SetData(ViewData["WeightUnitJson"]).SetWidth(95).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>出生日期</th>
+        <td>
+            @Html.JDateTimePicker("Birthday").SetValue(Model == null ? "" : Model.BirthdayStr).SetWidth(305).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>周龄</th>
+        <td>
+            @(Model == null ? "" : Model.WeekAge.ToString())
+        </td>
+    </tr>
+    <tr>
+        <th>繁殖批准批号</th>
+        <td>
+            @Html.JValidateBox("BreedId").SetValue(Model == null || !Model.BreedId.HasValue ? "" : Model.BreedId.Value.ToString()).SetWidth(300).SetValidateType(ValidateType.none).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>父ID</th>
+        <td id="tbFatherId">
+            @(Html.TokenInput("FatherId")
+            .SetUrl(Url.Action("GetAnimalListByKeyWord", "Animal", new { queryExpression = string.Format(string.Format("Sex=true*Id=-\"{0}\"", Model == null ? Guid.Empty : Model.Id)) }))
+            .SetPrePopulate(ViewData["FatherJson"] == null || string.IsNullOrWhiteSpace(ViewData["FatherJson"].ToString()) ? null : ViewData["FatherJson"].ToString())
+            .SetSingle(true)
+            .SetPreventDuplicates(true)
+            .SetWidth(305)
+            .ToMvcString())
+        </td>
+    </tr>
+    <tr>
+        <th>母ID</th>
+        <td id="tbMotherId">
+            @(Html.TokenInput("MotherId")
+            .SetUrl(Url.Action("GetAnimalListByKeyWord", "Animal", new { queryExpression = string.Format(string.Format("Sex=false*Id=-\"{0}\"", Model == null ? Guid.Empty : Model.Id)) }))
+            .SetPrePopulate(ViewData["MotherJson"] == null || string.IsNullOrWhiteSpace(ViewData["MotherJson"].ToString()) ? null : ViewData["MotherJson"].ToString())
+            .SetSingle(true)
+            .SetPreventDuplicates(true)
+            .SetWidth(305)
+            .ToMvcString())
+        </td>
+    </tr>
+    <tr>
+        <th>代数</th>
+        <td>
+            @Html.JComboBox("GernationId").SetData(ViewData["GernationJson"]).SetWidth(305).ToMvcString()
+            <span>可手工填写</span>
+        </td>
+    </tr>
+    <tr>
+        <th>毛色</th>
+        <td>
+            @Html.JComboBox("HairColorId").SetData(ViewData["HairColorJson"]).SetWidth(305).ToMvcString()
+             <span>可手工填写</span>
+        </td>
+    </tr>
+    <tr>
+        <th>鉴定</th>
+        <td>
+            @Html.JComboBox("IdentifyId").SetData(ViewData["IdentifyJson"]).SetWidth(305).ToMvcString()
+            <span>可手工填写</span>
+        </td>
+    </tr> 
+    <tr>
+        <th>按品系计费标准</th>
+        <td>@Html.CheckBox("IsUseAnimalCategoryChargeStandard", Model == null || Model.IsUseAnimalCategoryChargeStandard ? true : false, new { onclick = "doOnIsUseAnimalCategoryChargeStandardChanged(this);" })</td>
+    </tr>
+    <tr class="chargeRelative" style="display:@(Model != null && !Model.IsUseAnimalCategoryChargeStandard?"":"none");">
+        <th><span class="required">*</span>计费方式</th>
+        <td>
+            @Html.JComboBox("ChargeType").SetData(ViewData["ChargeTypeJson"]).SetWidth(305).ToMvcString()
+        </td>
+    </tr>
+    <tr class="chargeRelative" style="display:@(Model != null && !Model.IsUseAnimalCategoryChargeStandard?"":"none");">
+        <th><span class="required">*</span>价格(元)</th>
+        <td>
+            @Html.JValidateBox("UnitPrice").SetValue(Model == null ? "" : Model.UnitPriceStr).SetWidth(300).SetValidateType(ValidateType.none).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>联系人</th>
+        <td>
+            @Html.JValidateBox("LinkMan").SetValue(Model == null ? "" : Model.LinkMan).SetWidth(300).SetValidateType(ValidateType.none).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>联系电话</th>
+        <td>
+            @Html.JValidateBox("LinkTelNo").SetValue(Model == null ? "" : Model.LinkTelNo).SetWidth(300).SetValidateType(ValidateType.none).ToMvcString()
+        </td>
+    </tr>
+    <tr class="chargeRelative" style="display:@(Model != null && !Model.IsUseAnimalCategoryChargeStandard?"":"none");">
+        <th>计费表达式</th>
+        <td colspan="3">
+            @Html.TextArea("ChargeExpression", Model == null ? "" : Model.ChargeExpression, new { style = "width:300px;height:60px;" })
+        </td>
+    </tr>
+    <tr>
+        <th>描述</th>
+        <td colspan="3">
+            @Html.TextArea("Description", Model == null ? "" : Model.Remark, new { style = "width:300px;height:60px;" })
+        </td>
+    </tr>
+    <tr>
+        <th>备注</th>
+        <td colspan="3">
+            @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:300px;height:60px;" })
+        </td>
+        
+    </tr>
+</table>
+<p>2.分笼信息</p>
+<table class="edit-info">
+    <tr>
+        <th>入笼日期</th>
+        <td>@Html.JDateTimePicker("EnterCageTime").SetValue(Model == null ? "" : Model.EnterCageTimeStr).SetWidth(305).ToMvcString()</td>
+    </tr>
+    <tr>
+        <th>笼子编号</th>
+        <td>
+            @Html.Hidden("AnimalCageId", Model == null || !Model.AnimalCageId.HasValue ? "" : Model.AnimalCageId.Value.ToString())
+            @Html.JValidateBox("AnimalCageName").SetReadOnly(true).SetValue(Model == null ? "" : Model.AnimalCageName).SetWidth(300).SetValidateType(ValidateType.none).ToMvcString()
+            @(Html.JLinkButton("btnSelectAnimalCage", "选择").SetVisible((bool)ViewData["IsEnableIn"]).SetIconCls("icon-ok").SetOnclick(string.Format("doSelectAnimalCage('{0}','AnimalCageId','AnimalCageRowNo','AnimalCageColNo');", Model != null ? Model.Id.ToString() : "")).SetPlain(true).ToMvcString())
+        </td>
+    </tr>
+    <tr>
+        <th>位置信息</th>
+        <td>
+            <span id="spanAnimalCagePosition">@(Model == null ? "" : Model.AnimalPos)</span>
+            @Html.Hidden("AnimalCageRowNo", Model == null || !Model.AnimalCageRowNo.HasValue ? "" : Model.AnimalCageRowNo.Value.ToString())
+            @Html.Hidden("AnimalCageColNo", Model == null || !Model.AnimalCageColNo.HasValue ? "" : Model.AnimalCageColNo.Value.ToString())
+        </td>
+    </tr>
+    <tr>
+        <th>入笼天数</th>
+        <td>@(Model != null ? Model.EnterCageAge.ToString() + "天" : "")</td>
+    </tr>
+    <tr>
+        <th>入笼体重</th>
+        <td>
+            @Html.JValidateBox("EnterCageWeigh").SetValue(Model == null ? "" : Model.EnterCageWeightStr).SetWidth(200).SetValidateType(ValidateType.none).ToMvcString()
+            @Html.JComboBox("EnterCageWeightUnitId").AddClass("weightUint").SetData(ViewData["EnterCageWeightUnitJson"]).SetWidth(95).ToMvcString()
+        </td>
+    </tr>
+</table>
+<p>3.状态信息</p>
+<table class="edit-info">
+    <tr>
+        <th>用途</th>
+        <td>
+            @Html.JComboBox("UseId").SetData(ViewData["UseJson"]).SetWidth(305).ToMvcString()
+            <span>可手工填写</span>
+        </td>
+    </tr>
+</table>
+<p>4.死亡信息</p>
+<table class="edit-info">
+    <tr>
+        <th><span class="required">*</span>当前状态</th>
+        <td>@Html.JComboBox("Status").SetData(ViewData["StatusJson"]).SetDisabled(true).SetWidth(305).ToMvcString()</td>
+    </tr>
+    <tr>
+        <th>死亡日期</th>
+        <td>@Html.JDateTimePicker("DieTime").SetValue(Model == null ? "" : Model.DieTimeStr).SetDisabled(true).SetWidth(305).ToMvcString()</td>
+    </tr>
+    <tr>
+        <th>死亡体重</th>
+        <td id="tdDieWeight">
+            @Html.JValidateBox("DieWeight").SetValue(Model == null ? "" : Model.DieWeightStr).SetReadOnly(true).SetWidth(200).SetValidateType(ValidateType.none).ToMvcString()
+            @Html.JComboBox("DieWeightUnitId").SetData(ViewData["DieWeightUnitJson"]).SetDisabled(true).AddClass("weightUint").SetWidth(95).ToMvcString()
+        </td>
+    </tr>
+</table>
+<p>5.操作信息</p>
+<table class="edit-info">
+    <tr>
+        <th>操作人</th>
+        <td>@(Model == null ? "" : Model.OperatorName)</td>
+    </tr>
+     <tr>
+        <th>操作时间</th>
+        <td>@(Model == null ? "" : Model.OperatorTimeStr)</td>
+    </tr>
+</table>
+
+<script type="text/javascript">
+    $(function () {
+        $("#tbFatherId ul.token-input-list-facebook").css("width", "305px");
+        $("#tbMotherId ul.token-input-list-facebook").css("width", "305px");
+        $("#tbOwnerId ul.token-input-list-facebook").css("width", "305px");
+    });
+    function doOnIsUseAnimalCategoryChargeStandardChanged(element) {
+        var isUseAnimalCategoryChargeStandard = $("#IsUseAnimalCategoryChargeStandard").attr("checked");
+        $("#tbAnimalEdit tr.chargeRelative").css("display", isUseAnimalCategoryChargeStandard ? "none" : "");
+    }
+    function doOnOwnerChanged() {
+        var userId = $("#OwnerId").val();
+        $("#EthicsNo").combobox("clear");
+        $("#EthicsNo").combobox("loadData",[]);
+        if (userId != "") {
+            $("#EthicsNo").combobox("reload", '@Url.Action("GetUserEthicsJson", "EthicsApply")' + "?userId=" + userId + "&time=" + new Date().getMilliseconds());
+        }
+    }
+</script>

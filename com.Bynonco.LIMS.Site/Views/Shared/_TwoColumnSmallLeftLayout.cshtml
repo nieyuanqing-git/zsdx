@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    @{
+        var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString() + "-";
+        var title = orgName + (ViewBag.Title == null ? "" : ViewBag.Title);
+    }
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <title>@title</title>
+    <link type="text/css" rel="stylesheet" href="@Url.Content("~/Content/home.css")" />
+    <link type="text/css" href="@Url.Content("~/JqueryPlugin/JqueryMenu/fg.menu.css")"  media="screen" rel="stylesheet" />
+    <link type="text/css" href="@Url.Content("~/JqueryPlugin/JqueryMenu/theme/black/css.css")" media="screen" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="@Url.Content("~/Content/newPagination.css")" />
+	<script src="@Url.Content("~/Scripts/jquery-1.7.2.min.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryMenu/fg.menu.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/Scripts/home.js")" type="text/javascript"></script>
+    @Html.Partial("GetIsAjax")
+    @RenderSection("ImportCssAndJs", false)
+</head>
+<body>
+    <div class="top">
+        <div class="top-box">
+            @Html.Partial("HomeMenu")
+        </div>
+    </div>
+    <div class='top-login-box'>
+        
+    </div>
+    <div class="main-box">
+        <div class="main-box-inner">
+            <div class="main-box-left main-box-left-s">
+                @RenderSection("MainLeft", true)
+            </div>
+            <div class="main-box-right main-box-right-l">
+                @RenderSection("MainRight", true)
+            </div>
+        </div>
+    </div>
+    @RenderSection("BottomBox", false)
+    <div class="footer">
+        @Html.Partial("Footer")
+    </div>
+</body>
+</html>

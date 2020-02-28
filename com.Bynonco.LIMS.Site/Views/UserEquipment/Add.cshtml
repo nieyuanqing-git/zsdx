@@ -1,0 +1,74 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+    ul.token-input-list-facebook{width:150px;}
+    ul.search li ul.token-input-list-facebook li{padding:0;}
+</style>
+@Html.Hidden("EquipmentIds",ViewData["EquipmentIds"] == null ? "" : ViewData["EquipmentIds"].ToString())
+<ul class="search">
+    <li>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td style="width:50px;text-align:right;">用户名称</td>
+                <td style="padding-left:9px;">
+                    @(Html.TokenInput("UserId")
+                        .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                        .SetSingle(true)
+                        .SetWidth(150)
+                        .SetOnChange("doOnUserChange();")
+                        .SetPrePopulate(ViewData["UserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserJson"].ToString()) ? null : ViewData["UserJson"].ToString())
+                        .ToMvcString())
+                </td>
+            </tr>
+                
+        </table>
+    </li>
+    <li>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td style="width:50px;text-align:right;">导师</td>
+                <td style="padding-left:9px;">
+                    @Html.JValidateBox("TutorName").SetValue(ViewData["TutorName"] == null ? "" : ViewData["TutorName"].ToString()).SetWidth(150).SetDisabled(true).ToMvcString()
+                    @Html.Hidden("TutorId",ViewData["TutorId"] == null ? "" : ViewData["TutorId"].ToString())
+                </td>
+            </tr>
+        </table>
+    </li>
+    <li id="liUserType">
+        <label>用户类型</label>
+        @(Html.JComboTree("UserTypeId")
+            .SetData(ViewData["UserTypeJson"])
+            .SetValue(ViewData["UserTypeId"] == null ? "" : ViewData["UserTypeId"].ToString())
+            .SetOnLoadSuccess("setTimeout('doOnUserTypeLoadSuccess();', 500);")
+            .SetMultiple(false)
+            .SetDisabled(false)
+            .SetWidth(155)
+            .SetExpandAll(true)
+            .ToMvcString())
+    </li>
+    <li class="button" style="padding:5px 0 5px 20px;">
+        @Html.JLinkButton("btnSelectEquipment", "选择设备").SetOnclick("doSelectEquipmentCheck();").ToMvcString()
+        @Html.JLinkButton("btnResetAddPanel", "清空").SetOnclick("doResetAddPanel();").ToMvcString()
+        @Html.JLinkButton("btnCloseAddPanel", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+<script type="text/javascript">
+    function doOnUserTypeLoadSuccess() {
+        $("#UserTypeId").combotree("setValue", '@(ViewData["UserTypeId"] == null ? "" :ViewData["UserTypeId"].ToString())');
+        $("#liUserType span input.combo-text.validatebox-text").val('@(ViewData["UserTypeName"] == null ? "" :ViewData["UserTypeName"].ToString())');
+    }
+    function doSelectEquipmentCheck() {
+        if ($("#UserId").val() != "" && $("#UserTypeId").combotree("getValue") != "") {
+            var userTypeId = $("#UserTypeId").combotree("getValue");
+            var tutorId = $("#TutorId").val();
+            var selectEquipmentMode = $("#SelectEquipmentMode").val();
+            doSelectEquipmentDialog('EquipmentIds', { "UserTypeId": userTypeId, "TutorId": tutorId, "SelectEquipmentMode": selectEquipmentMode });
+            doCloseSearch();
+        }
+        else {
+            $.messager.show({ title: '选择设备失败', msg: "请输入用户和用户类型", showType: 'show' });
+        }
+    }
+</script>

@@ -1,0 +1,44 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewDelinquencyConfirm
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divDelinquencyConfirmEdit">
+<form id="frmDelinquencyConfirmEdit" action="#">
+    @Html.Hidden("DelinquencyConfirmId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style="width:470px">
+        <tr>
+            <th>姓名</th>
+            <td id="tdPunisherId" style="padding-left:3px">
+               @(Html.TokenInput("PunisherId")
+                .SetUrl(Url.Action("GetManageUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["PunisherJson"] == null || string.IsNullOrWhiteSpace(ViewData["PunisherJson"].ToString()) ? null : ViewData["PunisherJson"].ToString())
+                .SetSingle(true)
+                .SetPreventDuplicates(true)
+                .SetWidth(280)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>时间</th>
+            <td>
+                @Html.JDateTimePicker("DelinquencyAt").SetWidth(280).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.CreateAtStr).ToMvcString()
+                <span>必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>不良行为种类</th>
+            <td>
+                @Html.JComboBox("DelinquencyId").SetWidth(280).SetData(ViewData["DelinquencyCategoryJson"]).ToMvcString()
+                <span>必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>行为描述</th>
+            <td>@(Html.TextArea("Cause", Model == null ? "" : Model.Cause, new { style = "font-size:12px;height:60px;font-weight:normal;width:365px;overflow-y:auto" }))</td>
+        </tr>  
+    </table>
+ </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdPunisherId ul.token-input-list-facebook").css("width", "278px");
+    });
+</script>

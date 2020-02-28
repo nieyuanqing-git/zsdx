@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Layout = ViewBag.Layout;
+    var delinquencyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDelinquencyPrivilige(User.Identity.Name);
+}
+<div class="layout-center-full">
+    <div class="search-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../Delinquency/PunishTotalSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../Delinquency/PunishTotalList")</div>
+</div>
+<div id="divPunishSearDialog"  style="display:none;"></div>
+<div style="display:none">@Html.Partial("../Delinquency/DelinquencyScriptContainer")</div>
+<div style="display:none">@Html.Partial("../Delinquency/PunishActionScriptContainer")</div>
+<script type="text/javascript">
+    var punishSearchDialog;
+    function doShowSearchPunishDialog() {
+        if (punishSearchDialog) {
+            punishSearchDialog.dialog("destroy");
+        }
+        punishSearchDialog =  @Html.JDialog("divPunishSearch").SetTitle(ViewData["Title"] == null ? "" : ViewData["Title"].ToString()).SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("punishSearchDialog.dialog('close');return false;").SetModal(true).SetOkScript("punishSearchDialog.dialog('close');return false;").ToMvcString();
+    }
+    function doSearchPunishByTotalType(userId, totalType,totalTypeName) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divPunishSearDialog").load('@Url.Action("PunishSearch", "Delinquency")',{"userId":userId,"totalType":totalType},function () {
+            $.messager.progress('close');
+            doShowSearchPunishDialog();
+        });
+    }
+
+    function doPunishTotalSearch() {
+        $("#tbPunishTotalList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbPunishTotalList").datagrid("load", { "userName": getUserName() });
+        return false
+    }
+</script>

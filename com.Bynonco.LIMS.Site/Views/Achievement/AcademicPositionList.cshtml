@@ -1,0 +1,50 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var achievementPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAchievementPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbAcademicPositionList")
+        .SetUrl(Url.Action("GetAcademicPositionList", "Achievement"))
+        .SetHeight(650)
+        .SetSortName("StartTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("任职人员", "UserName").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学术组织名称", "AcademicName").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("职位", "Position").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("杂志名称", "MagazineName").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "StartTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(80).SetAlign(Align.center));
+    
+    dataGrid.SetShowAddButton(achievementPrivilige.IsEnableAcademicPositionAdd);
+    if (achievementPrivilige.IsEnableAcademicPositionAdd)
+    {
+        dataGrid.SetAddScript("doAddAcademicPosition()");
+    }
+    dataGrid.SetShowEditButton(achievementPrivilige.IsEnableAcademicPositionEdit);
+    if (achievementPrivilige.IsEnableAcademicPositionEdit)
+    {
+        dataGrid.SetEditScript("doEditAcademicPosition('')");
+        dataGrid.SetOnDblClickRow("doEditAcademicPosition(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(achievementPrivilige.IsEnableAcademicPositionDelete);
+    if (achievementPrivilige.IsEnableAcademicPositionDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteAcademicPosition('');");
+    }
+    dataGrid.SetShowExpertButton(achievementPrivilige.IsEnableAcademicPositionExpert);
+    if (achievementPrivilige.IsEnableAcademicPositionExpert)
+    {
+        dataGrid.SetExpertScript("doAcademicPositionExportExcel();");
+    }
+}
+@(dataGrid.ToMvcString())

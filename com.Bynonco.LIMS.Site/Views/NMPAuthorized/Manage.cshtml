@@ -1,0 +1,124 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../NMP/Search")
+    </div>
+</div>
+<div class="layout-center-left">
+    @Html.Partial("../LabOrganizationAdmin/List")
+</div>
+<div class="layout-center-center">
+    @Html.Partial("../NMP/NMPAuthorizedList")
+</div>
+<div class="layout-center-right-l">
+    @Html.Partial("../NMPAuthorized/List")
+@*</div>*@
+<div class="clear-both"></div>
+<div id="divUserNMPAuthorizationManageDialog" style="display:none"></div>
+<div id="divUserNMPContinuedAuthorizationManageDialog" style="display:none"></div>
+@Html.Partial("../NMP/ScriptContainer")
+
+<script type="text/javascript">
+    function doNMPSearch(xpath) {
+        if(!xpath || xpath.trim()==""){            
+            var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+            if(!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id=="" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+                return false;
+            }
+           xpath = selectedLabOrganizationAdmin.XPath;
+        }        
+        var queryExpression = generateNMPQueryExpression();
+        queryExpression  += (queryExpression == "" ? "" : "*") + "(OrgXPath→\"" + xpath  + "\"+RoomXPath→\"" + xpath  + "\")";
+        $("#tbViewNMPList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbViewNMPList").datagrid("load", { "queryExpression": queryExpression});
+    }
+    function doOnLabOrganizationAdminSelected(rowData){
+        if(typeof(doEquipmentQueryReset) == 'function') 
+        {
+            doEquipmentQueryReset();
+        }
+        doNMPSearch(rowData.XPath);
+    }
+
+    function doOnNMPSelected(rowData)
+    {
+        var queryExpression ="NMPId=\""+ rowData.Id+ "\"";
+        $("#tbNMPEquipmentList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbNMPEquipmentList").datagrid("load", { "queryExpression": queryExpression});
+
+    }
+
+    var userNMPAuthorizationManageDialog;
+    function douserNMPAuthorizationManageDialog() {
+        if (userNMPAuthorizationManageDialog) {
+            userNMPAuthorizationManageDialog.dialog("destroy");
+        }
+        userNMPAuthorizationManageDialog =  @Html.JDialog("divUserNMPEquipmentAuthorizationManage").SetTitle("工位授权管理").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("userNMPAuthorizationManageDialog.dialog('destroy');return false;").SetCancelScript("userNMPAuthorizationManageDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    
+    function doUserNMPAuthorizationManage(id) {
+       if(!id || id.trim()==""){
+           var selectedEquipment = $("#tbNMPEquipmentList").datagrid("getSelected");
+           if(!selectedEquipment || selectedEquipment.Id=="" || selectedEquipment.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedEquipment.Id;
+       }
+        var url = '@Url.Action("UserNMPEquipmentAuthorizationManage", "NMPAuthorized")';
+        $("#divUserNMPAuthorizationManageDialog").load(url,{"NMPEquipmentId":id,"IsPopDialog":true,"date":new Date().getMilliseconds()},function(){
+            douserNMPAuthorizationManageDialog();
+        })
+        return false;
+    }
+
+    var userNMPContinuedAuthorizationManageDialog;
+    function douserNMPContinuedAuthorizationManageDialog() {
+        if (userNMPContinuedAuthorizationManageDialog) {
+            userNMPContinuedAuthorizationManageDialog.dialog("destroy");
+        }
+        userNMPContinuedAuthorizationManageDialog =  @Html.JDialog("divUserNMPContinuedAuthorizationManage").SetTitle("设备周期性授权管理").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("userNMPContinuedAuthorizationManageDialog.dialog('destroy');return false;").SetCancelScript("userNMPContinuedAuthorizationManageDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    
+    function doUserNMPContinuedAuthorizationManage(id) {
+       if(!id || id.trim()==""){
+           var selectedEquipment = $("#tbEquipmentList").datagrid("getSelected");
+           if(!selectedEquipment || selectedEquipment.Id=="" || selectedEquipment.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedEquipment.Id;
+       }
+        var url = '@Url.Action("UserNMPContinuedAuthorizationManage", "EquipmentAuthorization")';
+        $("#divuserNMPContinuedAuthorizationManageDialog").load(url,{"EquipmentId":id,"IsPopDialog":true,"date":new Date().getMilliseconds()},function(){
+            douserNMPContinuedAuthorizationManageDialog();
+        })
+        return false;
+    }
+    function doUpdateOfflineRecord() {
+        var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+        if (!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id == "" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+            return false;
+        }
+        var id = selectedLabOrganizationAdmin.Id;
+        $.messager.confirm('提示', '是否确认通知服务器更新离线记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateOfflineRecord", "UserAuthorization")',
+                data: "LabOrganizationId=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+            });
+        });
+    }
+</script>

@@ -1,0 +1,21 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Hidden("hidRemark","")
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../SampleManage/SampleApplySearch")</div>
+</div>
+<div>@Html.Partial("../SampleManage/SampleApplyUnAuditList")</div>
+<div>@Html.Partial("../SampleManage/SampleApplyScriptContainer")</div>
+<div style="display:none">@Html.Partial("../SampleManage/SampleAuditScriptContainer")</div>
+<div style="display:none">@Html.Partial("../SampleManage/SelectSampleType")</div>
+<script type="text/javascript">
+    function generateSelectedSampleApplyIds() {
+        return generateSelectedSampleApplyIdsByDataGridId("tbSampleUnAutitList");
+    }
+    $(function () {
+        var queryExpression = generateQueryExpress();
+        $("#tbSampleUnAutitList").datagrid({ queryParams: { "queryExpression": queryExpression.trim()} });
+    });
+</script>

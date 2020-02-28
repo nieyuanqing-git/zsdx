@@ -1,0 +1,81 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divWorkGroupModule" style="width:300px;height:450px;"> 
+    @(Html.JTree("ulWorkGroupModuleList")
+        .SetUrl(Url.Action("GetTreeGridCurrentModuleFunctionList", "ModuleFunction"))
+        .SetCheckBox(true)
+        .SetExpandAll(true)
+        .ToMvcString()
+    )
+    @Html.Hidden("WorkGroupId")
+
+    <script type="text/javascript">
+        function doPowerReset() {
+            $('#ulWorkGroupModuleList').tree('reload');
+            return true;
+        }
+
+        function doPowerSetValue(id) {
+            if (id != null && id.trim() != "") {
+                $("#WorkGroupId").val(id);
+                $.ajax({
+                    url: '@Url.Action("GetWorkGroupModuleByWorkGroupId","WorkGroup")',
+                    data: "id=" + id,
+                    cache: false,
+                    success: function (data) {
+                        var array = data.split(','); 
+                        for (var i = 0; i < array.length; i++) {
+                            var node = $('#ulWorkGroupModuleList').tree('find', array[i]);
+
+                            if (node) {
+                                if ($('#ulWorkGroupModuleList').tree('isLeaf', node.target))
+                                    $('#ulWorkGroupModuleList').tree('check', node.target);
+                            }
+                        }
+                    }
+                });
+            }
+            else {
+                $("#WorkGroupId").val("");
+            }
+            return true;
+        }
+
+        function doWorkGroupModuleSave() {
+            var nodes = [];
+            $("#ulWorkGroupModuleList").find('.tree-checkbox2').each(function () {
+                var node = $(this).parent();
+                nodes.push($.extend({}, $.data(node[0], 'tree-node'), {
+                    target: node[0],
+                    checked: node.find('.tree-checkbox').hasClass('tree-checkbox2')
+                }));
+            });
+            var ids = '';
+            var nodesCheck = $('#ulWorkGroupModuleList').tree('getChecked');
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].id != "00000000-0000-0000-0000-000000000000") {
+                    if (ids != '') ids += ',';
+                    ids += nodes[i].id;
+                }
+            }
+            for (var i = 0; i < nodesCheck.length; i++) {
+                if (nodesCheck[i].id != "00000000-0000-0000-0000-000000000000") {
+                    if (ids != '') ids += ',';
+                    ids += nodesCheck[i].id;
+                }
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveWorkGroupModule","WorkGroup")',
+                data: "ids=" + ids + "&WorkGroupId=" + $("#WorkGroupId").val() + "&date=" + new Date(),
+                success: function (msg) {
+                    workGroupModuleDialog.dialog('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.alert('提示', msg, 'warning');
+                        return false;
+                    }
+                }
+            });
+            return false;
+        }
+    </script>
+</div>

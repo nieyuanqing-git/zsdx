@@ -1,0 +1,11 @@
+﻿@{
+    Layout = ViewBag.Layout;
+    var equipmmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var sampleItemName = ViewData["SampleItemName"] == null ? "" : ViewData["SampleItemName"].ToString();
+    var sampleStatusId = ViewData["SampleStatusId"] == null ? "" : ViewData["SampleStatusId"].ToString();
+}
+<script type="text/javascript">
+    var equipmentId = "@equipmmentId";
+    var sampleItemName = "@sampleItemName";
+    var sampleStatusId = "@sampleStatusId";
+ </script>

@@ -1,0 +1,17 @@
+﻿@{
+    Layout = ViewBag.Layout;
+}
+
+<div class="layout-center-left">
+    @Html.Partial("../TrainningType/UserAutherOrgTrainningTypeList")
+</div>
+<div class="layout-center-right">
+    <div class="layout-center-full">
+        @Html.Partial("../TrainningQuestion/List")
+    </div>
+    <div class="layout-center-full">
+        @Html.Partial("../TrainningQuestion/ListItem")
+    </div>
+</div>
+<div class="clear-both"></div>
+@Html.Partial("../TrainningQuestion/ScriptContainer")

@@ -1,0 +1,69 @@
+﻿@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var orgLogo = ViewData["OrgLogo"];
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    var hotEquipmentList = ViewData["HotEquipmentList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewEquipmentTotal>)ViewData["HotEquipmentList"];
+    var categoryName = ViewData["CategoryName"] == null ? "" : ViewData["CategoryName"].ToString().ToLower();
+}
+<div class='banner-box'>
+    <div class='logo-box'>
+        <a href='@Url.Action("Index", "Home", routeCurrentXPathValue)' class='logo'>
+            <img src="@Url.Content("~/" + orgLogo)" alt='@(orgName + "首页")'/>
+        </a>
+    </div>
+    <div class='top-search-box'>
+        <div class='search-input-box'>
+            <input type="text" id='topSearchEquipmentName' />
+            <a href="#" onclick='doTopSearchEquipment();return false;'>&nbsp;</a>
+        </div>
+    </div>
+    <div class='clear-both'></div>
+    <div class='menu-rolling'>
+        <div style='float:left;margin-right:10px;'>
+            <a href='@Url.Action("Index","Home",routeCurrentXPathValue)' class='menu-title'>首 页</a>
+            <span class='menu-title'>热门仪器:</span>
+        </div>
+        <div id="scroller_container" style='float:left;'>
+            <div class="jscroller2_left jscroller2_speed-50 jscroller2_mousemove ">
+                @if (hotEquipmentList != null && hotEquipmentList.Count() > 0)
+                {
+                    for (int i =0 ;i <hotEquipmentList.Count(); i++)
+                    {
+                        var item = hotEquipmentList[i];
+                        var url = Url.Action("Show", "Equipment", new { Id = item.Id, XPath = orgXPath });
+                        <a href='#' title='@item.EquipmentName' class='scroller' onclick="doZJDXAppointment('@item.Id','@(item.EquipmentName.Replace('\'','＇'))');return false;">@item.EquipmentName</a>
+                        <span class='scroller'>|</span>
+                    }
+                }
+             </div>
+        </div>
+    </div>
+    <div class='quick-link-box-top'>
+        <a href='#' class='quick-link'>&nbsp;</a>
+        <a href='@Url.Action("Index","Home",routeCurrentXPathValue)' class='appointment-link'>&nbsp;</a>
+        <a href='#' onclick='doHomeSearchEquipment();' class='button-top @(categoryName == "全部仪器" ? "current" : "")'>全部仪器</a>
+        <a href='#' onclick='doHomeSearchEquipment("","","生化平台");' class='button-top @(categoryName == "生化平台" ? "current" : "")'>生化平台</a>
+        <a href='#' onclick='doHomeSearchEquipment("","","成像平台");' class='button-top @(categoryName == "成像平台" ? "current" : "")'>成像平台</a>
+        <a href='#' onclick='doHomeSearchEquipment("","","转基因平台");' class='button-top @(categoryName == "转基因平台" ? "current" : "")'>转基因平台</a>
+        <a href='#' onclick='doHomeSearchEquipment("","","PI托管");' class='button-top @(categoryName == "pi托管" ? "current" : "")'>PI托管</a>
+        <a href='#' onclick='doHomeSearchEquipment("","","DEMO机");' class='button-top @(categoryName == "demo机" ? "current" : "")'>DEMO机</a>
+
+    </div>
+</div>
+<script type="text/javascript">
+    function doTopSearchEquipment() {
+        if ($("#topSearchEquipmentName").val().trim() != "") {
+            doHomeSearchEquipment($("#topSearchEquipmentName").val().trim());
+        }
+    }
+    function doHomeSearchEquipment(equipmentName, roomName, categoryName) {
+        var url = '@Url.Action("SearchResultPage", "Equipment", new { XPath = orgXPath })';
+        if (equipmentName && equipmentName != "") url += "&EquipmentName=" + equipmentName;
+        if (roomName && roomName != "") url += "&RoomName=" + roomName;
+        if (categoryName && categoryName != "") url += "&CategoryName=" + categoryName;
+        url = encodeURI(url);
+        location.href = url;
+        return false;
+    }
+</script>

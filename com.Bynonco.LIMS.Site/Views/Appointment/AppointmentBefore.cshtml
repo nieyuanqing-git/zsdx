@@ -1,0 +1,156 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    AppointmentBeforeValidate appointmentBeforeValidate = ViewData["AppointmentBeforeValidate"] == null ?
+        new AppointmentBeforeValidate() :
+        (AppointmentBeforeValidate)ViewData["AppointmentBeforeValidate"];
+    var user = (User)ViewData["User"];
+    var loginUser = (User)ViewData["LoginUser"];
+}
+<p>
+    @("[" + user.UserName + "] 预约\"" + (Model == null ? "" : Model.Name) + "\" 的资格检查")
+</p>
+
+<table cellpadding="5" cellspacing="0" border="0" style="width:500px;">
+    <thead>
+        <tr style="">
+            <td style="width:120px;border-bottom:1px solid #ccc;">检查项目</td>
+            <td style="border-bottom:1px solid #ccc;">项目值</td>
+            <td style="width:30px;border-bottom:1px solid #ccc;">结果</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>1. 用户状态</th>
+            <td>@appointmentBeforeValidate.MessageUserStatusValidate</td>
+            <td>
+                <img src='/JqueryPlugin/JqueryEasyUI/themes/icons/@(appointmentBeforeValidate.IsUserStatusValidate ? "icon-ok.png" : "icon-cancel.png")'>
+            </td>
+        </tr>
+        <tr>
+            <th>2. 不良行为</th>
+            <td>@appointmentBeforeValidate.MessageDelinquencyValidate</td>
+            <td>
+                <img src='/JqueryPlugin/JqueryEasyUI/themes/icons/@(appointmentBeforeValidate.IsDelinquencyValidate ? "icon-ok.png" : "icon-cancel.png")'>
+            </td>
+        </tr>
+        <tr>
+            <th>3. 设备黑名单</th>
+            <td>@appointmentBeforeValidate.MessageEquipmentBlackListValidate</td>
+            <td>
+                <img src='/JqueryPlugin/JqueryEasyUI/themes/icons/@(appointmentBeforeValidate.IsEquipmentBlackListValidate ? "icon-ok.png" : "icon-cancel.png")'>
+            </td>
+        </tr>
+        <tr>
+            <th>4. 公告阅读</th>
+            <td id="lbEquipmentNoticMsg">@appointmentBeforeValidate.MessageEquipmentNoticValidate</td>
+            <td >
+                <img id="lbEquipmentNoticCheckImg" src='/JqueryPlugin/JqueryEasyUI/themes/icons/@(appointmentBeforeValidate.IsEquipmentNoticValidate ? "icon-ok.png" : "icon-cancel.png")'>
+            </td>
+        </tr>
+        @if (Model != null && Model.Equipment != null && Model.Equipment.Notices != null && Model.Equipment.Notices.Count() > 0)
+        {
+            <tr>
+                <td colspan="3">
+                    <div id="divEquipmentNoticList" style="padding-left:20px"></div>
+                    <script type="text/javascript">
+                        function doLoadReadNoticeList() {
+                            var appointmentUserId = $("#AppointmentUserId").val();
+                            var url = '@Url.Action("ReadNoticeList", "Equipment", new { id = Model.Id, userParameters = "" })' + "?AppointmentUserId=" + appointmentUserId + "&date=" + new Date().getMilliseconds();
+                            $("#divEquipmentNoticList").load(url, null)
+                        }
+                        function doReLoadReadNoticeList() {
+                            doLoadReadNoticeList();
+                            var appointmentUserId = $("#AppointmentUserId").val();
+                            var urlCheckUserEquipmentNoticRead = '@Url.Action("CheckUserEquipmentNoticRead", "Equipment")';
+                            $.post(urlCheckUserEquipmentNoticRead, { id: "@(Model.Id)", userParameters: "", AppointmentUserId: appointmentUserId }, function (data) {
+                                if (data == null) return;
+                                if (data && data.indexOf("出错") != -1) {
+                                    $("#lbEquipmentNoticMsg").html(data.replace("出错,", ""));
+                                    $("#lbEquipmentNoticCheckImg").attr("src", "/JqueryPlugin/JqueryEasyUI/themes/icons/icon-cancel.png");
+                                }
+                                else {
+                                    $("#lbEquipmentNoticMsg").html(data);
+                                    $("#lbEquipmentNoticCheckImg").attr("src", "/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png");
+                                }
+                            });
+                        }
+                        $(function(){
+                            doLoadReadNoticeList();
+                        });
+                    </script>
+                </td>
+            </tr>
+        }
+        <tr>
+            <th>5. 培训申请</th>
+            <td>
+                @appointmentBeforeValidate.MessageTranningValidate
+                @if (!appointmentBeforeValidate.IsTranningValidate && Model.IsNeedTranningBeforeAppointment.Value && !string.IsNullOrWhiteSpace(Model.TranningApplyOperate))
+                {
+                    @System.Web.Mvc.MvcHtmlString.Create(Model.TranningApplyOperate)
+                }
+            </td>
+            <td>
+                <img src='/JqueryPlugin/JqueryEasyUI/themes/icons/@(appointmentBeforeValidate.IsTranningValidate ? "icon-ok.png" : "icon-cancel.png")'>
+            </td>
+        </tr>
+        <tr>
+            <th>6. 使用设备权限</th>
+            <td>@appointmentBeforeValidate.MessageUserEquipmentValidate</td>
+            <td>
+                <img src='/JqueryPlugin/JqueryEasyUI/themes/icons/@(appointmentBeforeValidate.IsUserEquipmentValidate ? "icon-ok.png" : "icon-cancel.png")'>
+            </td>
+        </tr>
+        <tr>
+            <th>7. 使用反馈</th>
+            <td>@appointmentBeforeValidate.MessageUsedConfirmFeedBackValidate</td>
+            <td>
+                <img src='/JqueryPlugin/JqueryEasyUI/themes/icons/@(appointmentBeforeValidate.IsUsedConfirmFeedBackValidate ? "icon-ok.png" : "icon-cancel.png")'>
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>8. 仪器设备在线考试</th>
+            <td>
+                @if (loginUser.Id == user.Id && !appointmentBeforeValidate.IsEquipmentUserExaminationValidate)
+                {
+                    <div style='margin-bottom:5px;'><a href='javascript:void(0)' onclick="doUserExamination('@((int)TrainningExaminationBusinessType.Equipment)','@(Model.Id)');return false;" title='仪器设备在线考试' class='l-btn-color l-btn-color-green'>以下试卷未通过, 点击进行设备相关考试</a></div>
+                }
+                @System.Web.Mvc.MvcHtmlString.Create(appointmentBeforeValidate.MessageEquipmentUserExaminationValidate)
+            </td>
+            <td style='vertical-align:top;'>
+                <img src='/JqueryPlugin/JqueryEasyUI/themes/icons/@(appointmentBeforeValidate.IsEquipmentUserExaminationValidate ? "icon-ok.png" : "icon-cancel.png")'>
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>9. 所属机构在线考试</th>
+            <td>
+                @if (loginUser.Id == user.Id && !appointmentBeforeValidate.IsOrgUserExaminationValidate
+                     && Model.OrgId.HasValue)
+                {
+                    <div style='margin-bottom:5px;'><a href='javascript:void(0)' onclick="doUserExamination('@((int)TrainningExaminationBusinessType.LabOrganization)','@(Model.OrgId.Value)');return false;" title='所属机构在线考试' class='l-btn-color l-btn-color-green'>以下试卷未通过, 点击进行机构相关考试</a></div>
+                }
+                @System.Web.Mvc.MvcHtmlString.Create(appointmentBeforeValidate.MessageOrgUserExaminationValidate)
+            </td>
+            <td style='vertical-align:top;'>
+                <img src='/JqueryPlugin/JqueryEasyUI/themes/icons/@(appointmentBeforeValidate.IsOrgUserExaminationValidate ? "icon-ok.png" : "icon-cancel.png")'>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align:center;">
+                @if (loginUser.Id != user.Id)
+                {
+                    @Html.JLinkButton("btnStartAppointmentWithoutCheck", "忽略检查,开始预约").SetOnclick("doStartAppointmentWithoutCheck();return false;").SetDisabled(false).ToMvcString()
+                    <p style='font-size:12px;font-weight:normal;color:Red;'>注：部分审核项目忽略将导致预约时间的不可选, 建议预约人通过资格检查.</p>
+                }
+                else
+                {
+                    @Html.JLinkButton("btnStartAppointment", "开始预约").SetOnclick("doStartAppointment();return false;").SetDisabled(false).ToMvcString()
+                }
+            </td>
+        </tr>
+    </tbody>
+</table>
+

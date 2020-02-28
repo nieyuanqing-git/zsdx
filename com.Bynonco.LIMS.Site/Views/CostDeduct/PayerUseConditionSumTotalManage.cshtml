@@ -1,0 +1,61 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div id="divPayerUseConditionSumTotalDetailDialog" style="display:none;"></div>
+<div id="divPayerDepositDetailDialog" style="display:none;"></div>
+<div class="search-grid hide usedConfirm-search">
+    <div class="search-inner-box">
+       @Html.Partial("../CostDeduct/PayerUseConditionSumTotalSearch")
+    </div>
+</div>
+<div>
+    @Html.Partial("../CostDeduct/PayerUseConditionSumTotal")
+</div>
+<script type="text/javascript">
+    var payerUseConditionSumTotalDetailDialog;
+    function doShowPayerUseConditionSumTotalDetail(payerId,costDeductType) {
+        if(payerUseConditionSumTotalDetailDialog) payerUseConditionSumTotalDetailDialog.dialog('destroy');
+        var url = '@Url.Action("PayerUseConditionSumTotalDetailContainer","CostDeduct")' +  "?payerId=" + payerId + "&costDeductType=" + costDeductType  + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divPayerUseConditionSumTotalDetailDialog").load(url, function () {
+            $.messager.progress('close');
+            switch(costDeductType){
+                case '@((int)com.Bynonco.LIMS.Model.Enum.CostDeductType.AppointmentPredictCostDeduct)':
+                     payerUseConditionSumTotalDetailDialog = @(Html.JDialog("divAppointmentPredictCostDeduct").SetTitle("预约预扣费记录信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("payerUseConditionSumTotalDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("payerUseConditionSumTotalDetailDialog.dialog('close');return false;").ToMvcString());
+                     break;
+                case '@((int)com.Bynonco.LIMS.Model.Enum.CostDeductType.ManualCostDeduct)':
+                     payerUseConditionSumTotalDetailDialog = @(Html.JDialog("divManualCostDeduct").SetTitle("手工扣费记录信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("payerUseConditionSumTotalDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("payerUseConditionSumTotalDetailDialog.dialog('close');return false;").ToMvcString());
+                     break;
+                case '@((int)com.Bynonco.LIMS.Model.Enum.CostDeductType.SampleCostDeduct)':
+                     payerUseConditionSumTotalDetailDialog = @(Html.JDialog("divSampleCostDeduct").SetTitle("送样扣费记录信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("payerUseConditionSumTotalDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("payerUseConditionSumTotalDetailDialog.dialog('close');return false;").ToMvcString());
+                     break;
+                case '@((int)com.Bynonco.LIMS.Model.Enum.CostDeductType.UsedCostDeduct)':
+                     payerUseConditionSumTotalDetailDialog = @(Html.JDialog("divUsedCostDeduct").SetTitle("机时扣费记录信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("payerUseConditionSumTotalDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("payerUseConditionSumTotalDetailDialog.dialog('close');return false;").ToMvcString());
+                     break;
+            }
+        });
+    }
+    var payerDepositDetailDialog;
+    function doShowPayerDepositDetail(payerId){
+        if(payerDepositDetailDialog) payerDepositDetailDialog.dialog('destroy');
+        var url = '@Url.Action("PayerDepositManage","DepositRecord")' +  "?payerId=" + payerId + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divPayerDepositDetailDialog").load(url, function () {
+            $.messager.progress('close');
+            payerDepositDetailDialog = @(Html.JDialog("divPayerDepositManage").SetTitle("存款信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("payerDepositDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("payerDepositDetailDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    function doPayerUseConditionSumTotalSearch() {
+        var queryExpression = generatePayerUseConditionSumTotalQueryExpression();
+        $("#tbPayerUseConditionSumTotal").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbPayerUseConditionSumTotal").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doExpertPayerUseConditionSumTotal() {
+        var queryExpression = generatePayerUseConditionSumTotalQueryExpression();
+        var sortColumn = $("#tbPayerUseConditionSumTotal").datagrid("options").sortName;
+        var sortOrder = $("#tbPayerUseConditionSumTotal").datagrid("options").sortOrder;
+        var url = '@Url.Action("ExpertPayerUseConditionSumTotal", "CostDeduct")' + "?queryExpression=" + queryExpression.trim() + "&sort=" + sortColumn + "&order=" + sortOrder + "&time=" + new Date().getMilliseconds();
+        window.location.href = url;
+    }
+</script>

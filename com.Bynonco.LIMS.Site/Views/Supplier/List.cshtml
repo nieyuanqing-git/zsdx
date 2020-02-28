@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var supplierPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSupplierPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSupplierList")
+       .SetUrl(Url.Action("GetGridSupplierList", "Supplier"))
+       .SetHeight(650)
+       .SetSortName("Name")
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.SetShowAddButton(supplierPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(supplierPrivilige.IsEnableEdit);
+    if (supplierPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddSupplier('');");
+       dataGrid.SetEditScript("doEditSupplier('');");
+       dataGrid.SetOnDblClickRow("doEditSupplier(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(supplierPrivilige.IsEnableDelete);
+    if (supplierPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteSupplier('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系人", "Linkman").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("手机", "MobilePhone").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("固话", "Telephone").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("传真", "Fax").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("邮箱", "Email").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("地址", "Address").SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("邮编", "Postcode").SetWidth(50).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

@@ -1,0 +1,78 @@
+﻿@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+    var LoginUser = ViewData["LoginUser"] == null ? null : (User)ViewData["LoginUser"];
+    bool isShowUserStatus = LoginUser == null || !LoginUser.UserStatus.HasValue ? false : LoginUser.UserStatus.Value == (int)UserStatus.AuditPass ? false : true;
+}
+<link rel="stylesheet" href="@Url.Content("~/Content/equipment.css")" type="text/css" media="screen" />
+<style type="text/css">
+    #EquipmentList{border:1px solid #CCC;border-top:0;overflow-x: auto;}
+</style>
+@if (isShowUserStatus)
+{
+    <div style="padding:10px;">
+        @if (LoginUser != null && LoginUser.UserStatus.HasValue)
+        {
+            switch (LoginUser.UserStatus.Value)
+            {
+                case (int)UserStatus.AuditPass:
+                    <div class="notification pass" style="margin:0;">
+			            <div>您好,@(LoginUser.UserName)!  您当前的用户状态为@(UserStatus.AuditPass.ToCnName()), 状态正常. </div>
+		            </div>
+                    break;
+                case (int)UserStatus.AuditWaitting:
+                    <div class="notification attention">
+			            <div>注意: 您的注册信息还在等待管理员审核. 请
+                            @Html.ActionLink("点击这里", "DownUserDoc", "Home", null, new { target = "_blank", style = "text-decoration:underline;" })
+                            打印申请表,签名后找管理员审核. 现在您还不能预约设备
+                        </div>
+		            </div>
+                        break;
+                case (int)UserStatus.InBlackList:
+                    <div class="notification error">
+			            <div>注意： 您目前处于黑名单状态中,现在您不能预约设备.</div>
+		            </div>
+                        break;
+                case (int)UserStatus.Invalid:
+                    <div class="notification error">
+			            <div>注意： 您目前处于禁止登录状态中,系统将于 <span id='logOffTime' style="color:Green;">5</span> 秒后自动退出.</div>
+                        <script type="text/javascript">
+                            var cnt = 5;
+                            function logoff() {
+                                if (cnt == 0) {
+                                    location.href = '@(Url.Action("LogOff", "Account"))';
+                                }
+                                else if (cnt > 0) {
+                                    $("#logOffTime").html(cnt);
+                                }
+                                cnt--;
+                                setTimeout("logoff()", 1000);
+                            }
+                            logoff();
+                        </script>
+		            </div>
+                    break;
+                case (int)UserStatus.AuditReject:
+                    <div class="notification error">
+			            <div>注意： 您目前处于审核拒绝状态中,现在您不能预约设备.</div>
+		            </div>
+                    break;
+            }
+        }
+    </div>
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Equipment/PaginationSearch")
+    </div>
+</div>
+@Html.Partial("../Equipment/PaginationListHeader")
+<div id="EquipmentList"></div>
+@Html.Partial("../UserEquipment/ShowAttentionScripts")
+@Html.Partial("../Equipment/ScriptContainer")
+@Html.Partial("../Equipment/TipAppointmentTimesScripts")
+
+<div id="divEquipmentReviewDialog" style="display:none"></div>
+<div id="divEquipmentMarkingDialog" style="display:none"></div>
+<div id="divEquipmentBrokenReportDialog" style="display:none"></div>

@@ -1,0 +1,220 @@
+﻿@model com.Bynonco.LIMS.Model.ManualCostDeduct
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Privilige;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var isManualCostDeductByCard = customer == null ? false : customer.IsManualCostDeductByCard();
+    var onChangedScript = Model == null ? "getManualCostDeductRelativeData();" : "";
+    var selectSubjectProjectId = Model == null || !Model.SubjectProjectId.HasValue ? "" : Model.SubjectProjectId.Value.ToString();
+    var isIE11Browser = Request.Browser.Type.ToString().ToLower().IndexOf("mozilla") >= 0; //处理兼容
+    var is360Browser = Request.Browser.Type.IndexOf("Chrome") >= 0;//处理兼容
+ }
+ <script type="text/javascript">
+     function getSelectedSubjectProjectId() {
+         return '@selectSubjectProjectId';
+     }
+</script>
+@Html.Partial("../Subject/LoadSubjectProjectScript")
+<div id="divManualCostDeductEdit" style="overflow:hidden">
+    <form id="frmManualCostDeductEdit" action="#">
+        @Html.Hidden("IsAllowAccountMinuse", false)  
+        @Html.Hidden("ManualCostDeductId", Model == null ? "" : Model.Id.ToString())
+        <table class="edit-table" style='width:400px;'>
+            <tr>
+                <th>名目</th>
+                <td>
+                    @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>使用者</th>
+                <td id="tdUserId">
+                   <div style="padding-left:2px">
+                       @(Html.TokenInput("UserId")
+                            .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                            .SetSingle(true)
+                            .SetWidth(200)
+                            .SetOnChange(onChangedScript)
+                            .SetPrePopulate(ViewData["UserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserJson"].ToString()) ? null : ViewData["UserJson"].ToString())
+                            .ToMvcString())
+                   </div>
+                </td>
+            </tr>
+            <tr>
+                <th>课题组</th>
+                <td>
+                    @Html.JComboBox("SubjectId").SetData(ViewData["SubjectJson"]).SetOnChange("doOnSubjectChanged(newValue, oldValue);").SetWidth(205).SetDisabled(Model != null).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    项目名称
+                 </th>
+                <td>@Html.JComboBox("SubjectProjectId").SetWidth(205).ToMvcString()</td>
+            </tr>
+            <tr>
+                <th>扣费时间</th>
+                <td>
+                    @Html.JDateTimePicker("DeductTime").SetWidth(205).SetValue(Model == null || !Model.DeductTime.HasValue ? DateTime.Now.ToString("yyyy-MM-dd") : Model.DeductTime.Value.ToString("yyyy-MM-dd")).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>金额</th>
+                <td>
+                    @Html.JValidateBox("Money").SetValue(Model == null ? "0" : Model.Money.ToString("0.00")).SetWidth(200).SetValidateType(ValidateType.number).ToMvcString()
+                    <span>元</span>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    备注
+                </th>
+                <td>
+                    @Html.TextArea("Remark", Model == null ? "" : Model.Remark, 3, 50, null)
+                </td>
+            </tr>
+        </table>
+        @if (isManualCostDeductByCard && Model == null)
+        {
+        <table class='edit-table' style='width:400px;'>
+            <tr>
+                <th colspan='2' style='font-weight:bold;'>卡号核查用户信息</th>
+            </tr>    
+            <tr>
+                <th>卡号</th>
+                <td>
+                    @(Html.JValidateBox("Card")
+                    .SetWidth(200)
+                    .SetValidateType(ValidateType.intNumber)
+                    .SetOnChange("doCardChange();return false;")
+                    .ToMvcString())
+                    @Html.Hidden("CardUserId", "")
+                    @{
+               if (Request.Browser.Type.StartsWith("Firefox"))
+               {
+                            <embed type="application/BynonUsbICReader-plugin" width="27" height="25" pluginspage="@Url.Content("~/npBUICR.xpi")"></embed>
+               }
+               else
+               {
+                            <object id="UsbICReader" classid="CLSID:AD2E79EA-80BC-4AFA-8DDA-DD7E5A1A48D7" style="width: 27px;height: 25px; display: inline;"></object>
+               }
+                    }
+                </td>
+            </tr>    
+            <tr>
+                <th>卡号用户</th>
+                <td id='tdCardUserName'></td>
+            </tr>    
+        </table>
+        }
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdUserId ul.token-input-list-facebook").css("width", "203px");
+    });
+    function CardReaded(card) {
+        $("#Card").val(card);
+        doCardChange();
+        return 1;
+    }
+    function DeviceChanged(isConnected) {
+        if (isConnected == 0) $.messager.show({ title: '提示', msg: '读卡器已拔出', showType: 'show' });
+        else $.messager.show({ title: '提示', msg: '读卡器已连接', showType: 'show' });
+        return 1;
+    }
+    $(function () {
+        if (document.UsbICReader != undefined) {
+           if ("@(isIE11Browser.ToString().ToLower())" == "true") {
+               $("#UsbICReader").bind("CardReaded", CardReaded); //支持ie11 mozilla
+               $("#UsbICReader").bind("DeviceChanged", DeviceChanged);
+            }
+            else if ("@(is360Browser.ToString().ToLower())" == "true") {
+                $("#UsbICReader").bind("CardReaded", CardReaded); //支持360
+                $("#UsbICReader").bind("DeviceChanged", DeviceChanged);
+            } else {
+                document.UsbICReader.attachEvent("CardReaded", CardReaded);
+                document.UsbICReader.attachEvent("DeviceChanged", DeviceChanged);
+            }
+        }
+    });
+    function doCardChange() {
+        $("#CardUserId").val("");
+        $("#tdCardUserName").empty();
+        if ($("#Card").length > 0 && $("#Card").val() != "") {
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetUserJsonInfoByRealCard", "User")',
+                data: { "RealCard": $("#Card").val(), "time": new Date().getMilliseconds() },
+                dataType: 'json',
+                success: function (data) {
+                    $.messager.progress('close');
+                    if (data.ErrorMessage && (data.ErrorMessage.indexOf("出错,") == 0)) {
+                        $.messager.show({ title: '提示', msg: data.ErrorMessage, showType: 'show' });
+                        return false;
+                    }
+                    $("#CardUserId").val(data.UserId);
+                    $("#tdCardUserName").append(data.UserName);
+                }
+            });
+        }
+    }
+   
+    function getManualCostDeductRelativeData() {
+        var selectedUser = $("#UserId").tokenInput("get");
+        if (!selectedUser || selectedUser == "") return;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetManualCostDeductRelativeData", "CostDeduct")',
+            data: $("#frmManualCostDeductEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                var data = eval("(" + msg + ")");
+                if (msg.ErrorMessage && (msg.ErrorMessage.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg.ErrorMessage, showType: 'show' });
+                }
+                $("#SubjectId").combobox("loadData", data.Subjects ? data.Subjects : null);
+            }
+        });
+    }
+    function doSaveManualCostDeduct() {
+        if ($("#CardUserId").length > 0) {
+            if ($("#CardUserId").val() != $("#UserId").val()) {
+                $.messager.show({ title: '提示', msg: "出错, 使用者卡号验证不正确", showType: 'show' });
+                return false;
+            }
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveManualCostDeduct","CostDeduct")',
+            data: $("#frmManualCostDeductEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                var data = eval("(" + msg + ")");
+                if (data.IsCheckMoneyNotPass != true) {
+                    if (data.ErrorMessage != "") {
+                        $.messager.show({ title: '提示', msg: data.ErrorMessage, showType: 'show' });
+                        return false;
+                    }
+                    else if (typeof (doSaveManualCostDeductCallBack) == 'function') doSaveManualCostDeductCallBack(); 
+                }
+                else {
+                    $.messager.confirm('提示', data.ErrorMessage + ",是否继续扣费?", function (r) {
+                        if (!r) return;
+                        $("#IsAllowAccountMinuse").val(true);
+                        return doSaveManualCostDeduct();
+                    });
+                }
+            }
+        });
+    }
+</script>

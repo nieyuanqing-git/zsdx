@@ -1,0 +1,180 @@
+﻿@model com.Bynonco.LIMS.Model.DepositRecordOpenFund
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var isMyOperate = ViewData["IsMyOperate"] == null ? false : (bool)ViewData["IsMyOperate"];
+    var discount = 0.5;//com.Bynonco.LIMS.BLL.BLLFactory.CreateDictCodeTypeBLL().GetEquipmentOpenFundDiscount();
+}
+<div id="divDepositRecordOpenFundEdit">
+ <form id="frmDepositRecordOpenFundEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("Status", Model == null ? "0" : Model.Status.ToString())
+    <table id="tdDepositRecordOpenFundEdit" class="edit-table"  style="width:600px;">
+         <tr>
+            <th><span class="required">* </span>导师</th>
+            <td id='tdTutor' colspan='3'>
+                @{
+                    var hasTutor = ViewData["TutorJson"] != null && !string.IsNullOrWhiteSpace(ViewData["TutorJson"].ToString());
+                    if (!hasTutor)
+                    {
+                        <div style='float:left;'>
+                        @(Html.TokenInput("TutorId")
+                            .SetUrl(Url.Action("GetManageTutorListByKeyWord", "User"))
+                            .SetSingle(true)
+                            .SetWidth(200)
+                            .ToMvcString())
+                        </div>
+                        <div style='float:left;'>
+                        @Html.JLinkButton("btnClearTutorId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#TutorId').tokenInput('clear');return false;").ToMvcString()
+                        </div>
+                        <div class='clear-both'></div>
+                    }
+                    else
+                    {
+                        <b style="padding:2px">
+                        @(ViewData["TutorName"] == null ? "" : ViewData["TutorName"].ToString())
+                        @(ViewData["TutorPhoneNumber"] == null ? "" : "电话: " + ViewData["TutorPhoneNumber"].ToString())
+                        </b>
+                        @Html.Hidden("TutorId", ViewData["TutorId"] == null ? "" : ViewData["TutorId"].ToString())
+                    }
+                }
+            </td>
+            
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:30px;width:96%;margin-right:5px;" })
+            </td>
+        </tr>
+        @if (Model != null && (Model.StatusEnum == OpenFundDepositRecordStatus.AuditPass || Model.StatusEnum == OpenFundDepositRecordStatus.AuditReject))
+        {
+        <tr>
+            <th>预审信息</th>
+            <td colspan='3'>@(string.Format("[{0}]({1}){2}:{3}", Model.StatusEnum.ToCnName(), !Model.PreAuditTime.HasValue ? "" : Model.PreAuditTime.Value.ToString(), Model.PreAuditUser == null ? "" : Model.PreAuditUser.UserName, Model.PreAuditRemark))</td>
+        </tr>
+        }
+    </table>
+    @if (Model == null || Model.StatusEnum == OpenFundDepositRecordStatus.AuditWaitting)
+    {
+    <table class="edit-table"  style="width:600px;" id='tbEquipmentList'>
+        <tr>
+            <th colspan='6' style='text-align:left;padding-left:10px;'><span class="icon icon-equipment"></span>相关仪器设备</th>
+            <th style='text-align:right;'>
+                @Html.JLinkButton("btnSelectEquipment", "新增").SetIconCls("icon-add").SetPlain(false).SetOnclick("doAddEquipment();return false;").ToMvcString()
+            </th>
+        </tr>
+        <tr>
+            <th style='width:40px;' rowspan='2'>操作</th>
+            <th style='width:150px;' rowspan='2'>申请使用仪器</th>
+            <th style='width:100px;' rowspan='2'>样品名称</th>
+            <th style='width:60px' rowspan='2'>样品数量</th>
+            <th style='width:60px' rowspan='2'>单价</th>
+            <th colspan='2'>预计收费</th>
+        </tr>
+        <tr>
+            <th style='width:60px'>自付</th>
+            <th style='width:60px'>补贴</th>
+        </tr>
+        @if (Model != null && Model.DepositRecordOpenFundEquipmentList != null && Model.DepositRecordOpenFundEquipmentList.Count() > 0)
+        {
+            foreach (var item in Model.DepositRecordOpenFundEquipmentList)
+            {
+                @Html.Partial("../DepositRecordOpenFund/EquipmentEdit", item)
+            }
+        }
+    </table>
+    }
+    else
+    {
+    <table class="edit-table"  style="width:600px;" id='tbEquipmentList'>
+        <tr>
+            <th colspan='7' style='text-align:left;padding-left:10px;'><span class="icon icon-equipment"></span>相关仪器设备</th>
+        </tr>
+        <tr>
+            <th style='width:120px;' rowspan='2'>仪器所在单位</th>
+            <th style='width:150px;' rowspan='2'>申请使用仪器</th>
+            <th style='width:100px;' rowspan='2'>样品名称</th>
+            <th style='width:60px' rowspan='2'>样品数量</th>
+            <th style='width:50px' rowspan='2'>单价</th>
+            <th colspan='2'>预计收费</th>
+        </tr>
+        <tr>
+            <th style='width:50px'>自付</th>
+            <th style='width:50px'>补贴币</th>
+        </tr>
+        @if (Model != null && Model.DepositRecordOpenFundEquipmentList != null && Model.DepositRecordOpenFundEquipmentList.Count() > 0)
+        {
+            foreach (var item in Model.DepositRecordOpenFundEquipmentList)
+            {
+                @Html.Partial("../DepositRecordOpenFund/EquipmentInfo", item)
+            }
+        }
+    </table>
+    }
+    <table class="edit-table"  style="width:600px;" >
+        <tr>
+            <th style='text-align:right;'>合计测试总金额 <span id='spTotalOpenFundSum' style='font-weight:bold'>@(Model != null && Model.OpenFundSum.HasValue ? Math.Round(Model.OpenFundSum.Value,2).ToString() : "-")</span> 元，自付 @(discount*100)% 共计 <span id='spTotalDepositSum' style='font-weight:bold'>@(Model != null && Model.DepositSum.HasValue ? Math.Round(Model.DepositSum.Value,2).ToString() : "-")</span> 元</th>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdTutor ul.token-input-list-facebook").css("width", "150px");
+    });
+    function doAddEquipment() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("EquipmentEdit", "DepositRecordOpenFund")',
+            success: function (data) {
+                $("#tbEquipmentList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemoveItem(infoId) {
+        if (!infoId || infoId == "") return;
+        $("#tr_" + infoId).remove();
+    }
+    function doChangeDepositSumMoney(id) {
+        if (!id || id == "") return;
+        var unitPrice = $("#UnitPrice_" + id);
+        var sampleCount = $("#SampleCount_" + id);
+        var amount = $("#DepositSum_" + id);
+        var depositSum = $("#tdDepositSum_" + id);
+        var openFundSum = $("#tdOpenFundSum_" + id);
+        if (unitPrice.length == 0 || sampleCount.length == 0 || amount.length == 0) return;
+        if (unitPrice.val().trim() == "" || sampleCount.val().trim() == "") return;
+        //var amountVal = parseFloat(unitPrice.val().trim()) * sampleCount.val().trim() * 0.5;
+        var total =  parseFloat(unitPrice.val().trim()) * parseFloat(sampleCount.val().trim())
+        var amountVal = total * @(discount);
+        var openFund = total - amountVal;
+        amount.val(amountVal);
+        depositSum.empty();
+        depositSum.append(amountVal);
+        openFundSum.empty();
+        openFundSum.append(openFund);
+        doTotalDepositSumMoney();
+    }
+    function doTotalDepositSumMoney() {
+        var amount = 0;
+        var openFund = 0;
+        $(".item-depositsum").each(function () {
+            if ($(this).html() != "") {
+                amount += parseFloat($(this).html().trim());
+            }
+        });
+        $(".item-depositsum").next().each(function () {
+            if ($(this).html() != "") {
+                openFund += parseFloat($(this).html().trim());
+            }
+        });
+        $("#spTotalOpenFundSum").empty();
+        $("#spTotalOpenFundSum").html(amount+openFund);
+        $("#spTotalDepositSum").empty();
+        $("#spTotalDepositSum").html(amount);
+    }
+   
+</script>

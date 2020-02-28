@@ -1,0 +1,68 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var costDeductPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCostDeductPrivilige(User.Identity.Name);}
+<div id="divWaterControlCostDeductDialog" style=" display:none"></div>
+<div id="divWaterControlCostDeductInfoDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doWaterControlDeductSearch(isPosCurPage) {
+        var queryExpression = generateWaterControlDeductQueryExpression();
+        if(isPosCurPage){
+            $("#tbViewWaterControlCostDeductList").datagrid("reload", { "queryExpression": queryExpression.trim() });
+        }
+        else{
+            $("#tbViewWaterControlCostDeductList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbViewWaterControlCostDeductList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        } 
+    }
+    function doExportWaterControlCostDeductList(payerId) {
+        var newQueryExpression = generateWaterControlDeductQueryExpression();
+        var url = '@Url.Action("ExportWaterControlCostDeductList", "CostDeduct")'+ "?userId=" + '@(ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "")'+ "&isManage=" + '@(ViewData["IsManage"]== null ? "": ViewData["IsManage"].ToString().ToLower())' + "&queryExpression=" + newQueryExpression.trim() + "&payerId=" + payerId +  "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    var WaterControlCostDeductDialog;
+    function doAddOrEditWaterControlCostDeduct(id) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if(WaterControlCostDeductDialog){
+            WaterControlCostDeductDialog.dialog("destroy");
+        }
+        var url = (id!=""?'@Url.Action("EditWaterControlCostDeduct","CostDeduct")':'@Url.Action("AddWaterControlCostDeduct","CostDeduct")');
+        $("#divWaterControlCostDeductDialog").load(url, { "id": id, time: new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            WaterControlCostDeductDialog = @Html.JDialog("divWaterControlCostDeductEdit").SetTitle("编辑水控扣费信息").AddButton(new ToolBarButton() { Handler = "doSaveWaterControlCostDeduct();return false;", Id = "btnWaterControlCostDeduct", Text = "扣费", IconCls = "icon-yen",Disabled = !costDeductPrivilige.IsEnableSaveWaterControlCostDeduct }).SetIconCls("icon-save").SetAutoDialog(false).SetShowOkButton(false).SetCancelScript("WaterControlCostDeductDialog.dialog('close');return false;").SetModal(true).ToMvcString()
+        });
+    }
+    var WaterControlCostDeductInfoDialog;
+    function doViewWaterControlCostDeductInfo(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if(WaterControlCostDeductInfoDialog){
+            WaterControlCostDeductInfoDialog.dialog("destroy");
+        }
+        var url = '@Url.Action("ViewWaterControlCostDeduct","CostDeduct")';
+        $("#divWaterControlCostDeductInfoDialog").load(url, { "id": id, time: new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            WaterControlCostDeductInfoDialog = @Html.JDialog("divWaterControlCostDeductDetail").SetTitle("水控扣费信息").SetIconCls("icon-save").SetAutoDialog(false).SetOkScript("WaterControlCostDeductInfoDialog.dialog('close');return false;").SetCancelScript("WaterControlCostDeductInfoDialog.dialog('close');return false;").SetModal(true).ToMvcString()
+        });
+    }
+    function doDeleteWaterControlCostDeduct(id){
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteWaterControlCostDeduct", "CostDeduct")',
+                data: { "id": id },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doWaterControlDeductSearch(true);
+                }
+            });
+        });
+    }
+    function doSaveWaterControlCostDeductCallBack(){
+         WaterControlCostDeductDialog.dialog("close")
+         doWaterControlDeductSearch(true);
+    }
+</script>

@@ -1,0 +1,120 @@
+﻿@{
+    var listType = ViewData["ListType"] == null ? "" : ViewData["ListType"].ToString().Trim().ToLower();
+    var isTurtor = ViewData["IsTurtor"] != null && (bool)ViewData["IsTurtor"] ? true : false;
+    var isUserWorkScope = ViewData["IsUserWorkScope"] != null && (bool)ViewData["IsUserWorkScope"] ? true : false;
+}
+<script type="text/javascript">
+    function doClosePopSearch() {
+        doCloseSearch();
+    }
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            doNMPAppointmentTagSearch();
+        });
+    });
+    function GetTotalType() {
+        if ($(".tabs .tabs-selected")) {
+            var tabId = $(".tabs .tabs-selected").attr("id");
+            var totalType = "";
+            switch (tabId) {
+                case "liDoingTotal":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoingTotal)';
+                    break;
+                case "liDoneTotal":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoneTotal)';
+                    break;
+                case "liMissTotal":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.MissTotal)';
+                    break;
+                case "liCancelTotal":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.CancelTotal)';
+                    break;
+                case "liWaitingAudit":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.WaitingAudit)';
+                    break;
+                case "liAudited":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.Audited)';
+                    break;
+            }
+            return totalType;
+        }
+    }
+    function doNMPAppointmentTagSearch() {
+        var hasListTypeUser = ($(".panel-header .icon-user").length > 0);
+        var hasListTypeTurtor = ($(".panel-header .icon-subject").length > 0);
+        var hasListTypeEquipment = ($(".panel-header .icon-globe").length > 0);
+
+        var isListTypeUser = ($(".panel-header .icon-user-unselect").length == 0 && $(".panel-header .icon-user").length > 0);
+        var isListTypeTurtor = ($(".panel-header .icon-subject-unselect").length == 0 && $(".panel-header .icon-subject").length > 0);
+        var isListTypeEquipment = ($(".panel-header .icon-globe-unselect").length == 0 && $(".panel-header .icon-globe").length > 0);
+
+        if (isListTypeEquipment) doShowNMPEquipmentNMPAppointment();
+        else if (isListTypeTurtor) doShowTurtorNMPAppointment();
+        else if (isListTypeUser) doShowPersonalNMPAppointment();
+        else if (hasListTypeEquipment) doShowNMPEquipmentNMPAppointment();
+        else if (hasListTypeTurtor) doShowTurtorNMPAppointment();
+        else doShowPersonalNMPAppointment();
+    }
+    function doNMPAppointmentSearch() {
+        var queryExpression = generateAppointmentTotalQueryExpression();
+        $("#tbNMPAppointmentTodayList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbNMPAppointmentTodayList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doShowPersonalNMPAppointment() {
+        $(".panel-header .icon-user").removeClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action("AppointmentTodayList", "NMPAppointment")' + "?ListType=User&date= " + new Date().getMilliseconds();
+        doLoadNMPAppointmentRecordList(url);
+    }
+    function doShowTurtorNMPAppointment() {
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").removeClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action("AppointmentTodayList", "NMPAppointment")' + "?ListType=Subject&date= " + new Date().getMilliseconds();
+        doLoadNMPAppointmentRecordList(url);
+    }
+    function doShowNMPEquipmentNMPAppointment() {
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").removeClass("icon-globe-unselect");
+        var url = '@Url.Action("AppointmentTodayList", "NMPAppointment")' + "?ListType=Equipment&date= " + new Date().getMilliseconds();
+        doLoadNMPAppointmentRecordList(url);
+    }
+
+    function doLoadNMPAppointmentRecordList(url) {
+        totalType = GetTotalType();
+        if (totalType != "") url += "&TotalType=" + totalType;
+        $("#divAppointmentRecordList").empty();
+        $.ajax({
+            type: "Post",
+            url: url,
+            success: function (data) {
+                $("#divAppointmentRecordList").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        switch ('@listType') {
+            case 'user':
+                doShowPersonalNMPAppointment();
+                break;
+            case 'subject':
+                doShowTurtorNMPAppointment();
+                break;
+            case 'equipment':
+                doShowNMPEquipmentNMPAppointment();
+                break;
+            default:
+                if ('@(isUserWorkScope.ToString().ToLower())' == 'true') doShowNMPEquipmentNMPAppointment();
+                else if ('@(isTurtor.ToString().ToLower())' == 'true') doShowTurtorNMPAppointment();
+                else doShowPersonalNMPAppointment();
+                break;
+        }
+    });
+</script>
+        

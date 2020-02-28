@@ -1,0 +1,15 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Partial("../UserExamination/ExaminationHeader")
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../UserExamination/EquipmentExaminationSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    <div id="divExaminationRecordList"></div>
+</div>
+@Html.Partial("../UserExamination/ScriptContainer")
+@Html.Partial("../UserExamination/EquipmentExaminationHeaderScript")

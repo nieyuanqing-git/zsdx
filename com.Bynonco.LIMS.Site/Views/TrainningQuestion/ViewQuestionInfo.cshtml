@@ -1,0 +1,64 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewTrainningQuestion
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+
+@if(Model != null)
+{
+    var id = Model.Id.ToString();
+    var name = (Model.Name == "" ? ((QuestionType)Model.QuestionType) .ToCnName() : Model.Name) +  "   [" + Model.Score + "分, 答题时间:" + Model.TimeSpend + "分钟]";
+    var contentHtml = Model.ContentHTML;
+    var questionNo = ViewData["QuestionNo"] == null ? "" : ViewData["QuestionNo"].ToString() + ". ";
+    bool isShowAnswer = ViewData["IsShowAnswer"] == null ? false : (bool)ViewData["IsShowAnswer"];
+    <p>@(questionNo + name)</p>
+    @System.Web.Mvc.MvcHtmlString.Create(contentHtml)
+if (Model.TrainningQuestionItemList != null && Model.TrainningQuestionItemList.Count() > 0)
+{
+        <table cellpadding="0" cellspacing="0" border="0"  style="margin-left:20px;">
+        @switch (Model.QuestionType)
+        {
+            case (int)QuestionType.Radio:
+                foreach (var itemRadio in Model.TrainningQuestionItemList)
+                {
+                    <tr>
+                        <td style="width:30px">
+                            @Html.RadioButton("question" + id, itemRadio.ItemValue, isShowAnswer && itemRadio.IsCorrect, new { @id = "item" + itemRadio.Id, @class = "Trainning-Question" })
+                        </td>
+                        <td>@itemRadio.ItemValue</td>
+                        <td>
+                            @System.Web.Mvc.MvcHtmlString.Create(itemRadio.ItemTextHTML)
+                        </td>
+                    </tr>
+                }
+                break;
+            case (int)QuestionType.CheckBox:
+                foreach (var itemCheckBox in Model.TrainningQuestionItemList)
+                {
+                    <tr>
+                        <td style="width:30px">
+                            @Html.CheckBox("question" + id, isShowAnswer && itemCheckBox.IsCorrect, new { @id = "item" + itemCheckBox.Id, @value = itemCheckBox.ItemValue, @class = "Trainning-Question" })
+                        </td>
+                        <td>@itemCheckBox.ItemValue</td>
+                        <td>
+                            @System.Web.Mvc.MvcHtmlString.Create(itemCheckBox.ItemTextHTML)
+                        </td>
+                    </tr>
+                }
+                break;
+            case (int)QuestionType.YesNo:
+                foreach (var itemYesNo in Model.TrainningQuestionItemList)
+                {
+                    <tr>
+                        <td style="width:30px">
+                            @Html.RadioButton("question" + id, itemYesNo.ItemValue, isShowAnswer && itemYesNo.IsCorrect, new { @id = "item" + itemYesNo.Id, @class = "Trainning-Question" })
+                        </td>
+                        <td>
+                            @itemYesNo.ItemValue
+                        </td>
+                    </tr>
+                }
+                break;
+        }
+        </table>
+    }
+}

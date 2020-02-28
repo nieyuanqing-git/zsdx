@@ -1,0 +1,69 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+    var customerIsDepositPhoto = customer == null ? false : customer.GetIsDepositPhoto();
+    var customerIsDepositPhotoAutoPreAuditPass = customer == null ? false : customer.GetIsDepositPhotoAutoPreAuditPass();
+    var depositRecordPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDepositRecordPrivilige(User.Identity.Name);
+    var customerIsDepositTesterRequired = customer == null ? false : customer.GetIsDepositTesterRequired();
+    var isDepositRecordNeedPreAudit = ViewData["IsDepositRecordNeedPreAudit"] == null ? false : bool.Parse(ViewData["IsDepositRecordNeedPreAudit"].ToString());
+    var customerDepositSamplyNoDisplayName = customer == null ? "样品编号" : customer.GetDepositSamplyNoDisplayName();
+    var dataGrid = Html.JDataGrid("tbDepositRecordList")
+       .SetUrl(Url.Action("GetGridViewDepositRecordList", "DepositRecord"))
+       .SetHeight(550)
+       .SetSortName("HasChecked A,ApplyDate")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(10)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowAddButton(false)
+       .SetShowEditButton(false)
+       .SetShowDeleteButton(false)
+       .SetShowRefreshButton(false)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+
+    if (depositRecordPrivilige.IsEnableRealEdit)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doRealAddDepositRecord();", IconCls = "icon-yen", Id = "btnRealAddDepositRecord", Text = "存款" });
+    }
+    if (depositRecordPrivilige.IsEnableVirtualEdit)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doVirtualAddDepositRecord();", IconCls = "icon-yen-virtual", Id = "btnVirtualAddDepositRecord", Text = "发奖金" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowDepositRecordInfo('');", IconCls = "icon-eye", Id = "btnShowDepositRecordInfo", Text = "查看" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearch();", IconCls = "icon-reload", Id = "btnReload", Text = "刷新" });
+    if (depositRecordPrivilige.IsEnableDoc)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportDoc();", IconCls = "icon-word", Id = "btnExportDoc", Text = "打印缴款单" });
+    }
+    if (depositRecordPrivilige.IsEnableExportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportExcel();", IconCls = "icon-export", Id = "btnExportExcel", Text = "导出" });
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(45).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("存款人", "UserNameStr").SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "UserPhoneNumber").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerOrgName, "UserOrgName").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerDepositSamplyNoDisplayName, "SampleNo").SetHidden(true).SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发票号", "InvoiceNo").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("金额", "DepositSum").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("币种", "CurencyTypeStr").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预审状态", "DepositRecordStatusNickName").SetHidden(!isDepositRecordNeedPreAudit || customerIsDepositPhotoAutoPreAuditPass).SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "HasCheckedNickName").SetWidth(70).SetAlign(Align.center));
+    if(customerIsDepositPhoto)
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("凭证号", "CertificateNum").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("附件", "DepositRecordPhotoStr").SetWidth(180).SetAlign(Align.center));
+    }
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "ApplyDateStr").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("检测人", "TesterName").SetHidden(!customerIsDepositTesterRequired).SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "CheckerName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核时间", "CheckTimeStr").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核备注", "CheckRemark").SetWidth(200).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(300).SetAlign(Align.left).SetSortable(false));
+}
+@(dataGrid.ToMvcString())

@@ -1,0 +1,192 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    ViewBag.Title = "仪器设备";
+    Layout = "~/Views/Shared/_OneColumnLayout.cshtml";
+}
+@section ImportCssAndJs
+{
+    <script type="text/javascript">
+        var perPageSize = 10;
+        function doSetCondition() {
+            var searchEquipmentName = $("#SearchEquipmentName").val().trim();
+            if (searchEquipmentName == "") {
+                SetCondition($("#ConditionEquipmentName"), "", "");
+            }
+            else {
+                SetCondition($("#ConditionEquipmentName"), searchEquipmentName, searchEquipmentName);
+            }
+            var searchScopeOfApplication = $("#SearchScopeOfApplication").val().trim();
+            if (searchScopeOfApplication == "") {
+                SetCondition($("#ConditionScopeOfApplication"), "", "");
+            }
+            else {
+                SetCondition($("#ConditionScopeOfApplication"), searchScopeOfApplication, searchScopeOfApplication);
+            }
+            var searchQualification = $("#SearchQualification").val().trim();
+            if (searchQualification == "") {
+                SetCondition($("#ConditionQualification"), "", "");
+            }
+            else {
+                SetCondition($("#ConditionQualification"), searchQualification, searchQualification);
+            }
+            var searchOrganizationId = $("#SearchOrganizationId").val();
+            var searchOrganizationName = $("#SearchOrganizationId").find("option:selected").text();
+            if (searchOrganizationId.trim() == "" || searchOrganizationId=='@Guid.Empty.ToString()') {
+                SetCondition($("#ConditionOrg"), "", "");
+            }
+            else {
+                SetCondition($("#ConditionOrg"), searchOrganizationName, searchOrganizationId);
+            }
+            var searchRoomId = $("#SearchRoomId").val();
+            var searchRoomName = $("#SearchRoomId").find("option:selected").text();
+            if (searchRoomId.trim() == "" || searchRoomId == '@Guid.Empty.ToString()') {
+                SetCondition($("#ConditionRoom"), "", "");
+            }
+            else {
+                SetCondition($("#ConditionRoom"), searchRoomName, searchRoomId);
+            }
+            var searchEquipmentCategoryId = $("#SearchEquipmentCategoryId").val();
+            var searchEquipmentCategoryName = $("#SearchEquipmentCategoryId").find("option:selected").text();
+            if (searchEquipmentCategoryId.trim() == "" || searchEquipmentCategoryId=='@Guid.Empty.ToString()') {
+                SetCondition($("#ConditionEquipmentCategory"), "", "");
+            }
+            else {
+                SetCondition($("#ConditionEquipmentCategory"), searchEquipmentCategoryName, searchEquipmentCategoryId);
+            }
+            var searchEquipmentControllerType = $("#SearchEquipmentControllerType").combobox("getValue");
+            var datalist = $("#SearchEquipmentControllerType").combobox("getData");
+            SetCondition($("#ConditionControllerType"), "", "");
+            if (datalist.length > 0 && searchEquipmentControllerType != "-1") {
+                for (var i = 0; i < datalist.length; i++) {
+                    var item = datalist[i];
+                    if (item.id == searchEquipmentControllerType) {
+                        SetCondition($("#ConditionControllerType"), item.text, item.id);
+                        break;
+                    }
+                }
+            }
+            var searchEquipmentLabel = $("#SearchEquipmentLabel").val().trim();
+            if (searchEquipmentLabel == "") {
+                SetCondition($("#ConditionEquipmentLabel"), "", "");
+            }
+            else {
+                SetCondition($("#ConditionEquipmentLabel"), searchEquipmentLabel, searchEquipmentLabel);
+            }
+            doLoadEquipmentList(1, perPageSize);
+        }
+        function doSearch() {
+            doSetCondition();
+        }
+
+        function doClearSearch() {
+            $("#SearchEquipmentName").val("");
+            $("#SearchEquipmentLabel").val("");
+            $("#SearchScopeOfApplication").val("");
+            $("#SearchQualification").val("");
+            $("#SearchOrganizationId").val('@Guid.Empty.ToString()');
+            $("#SearchRoomId").val('@Guid.Empty.ToString()');
+            $("#SearchEquipmentCategoryId").val('@Guid.Empty.ToString()');
+            $("#SearchEquipmentControllerType").combobox("clear");
+            doSearch();
+        }
+    </script>
+}
+@section MainFull
+{
+<h2 class="title">
+    <span>高级查询</span>
+    <a href="#" onclick="doClearSearch();return false;">清空</a>
+</h2>
+<div class="content-box ">
+    <div class="search-advanced-box">
+        <div class="edit-info">
+            <div class="tit">设备名称</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                        @Html.JValidateBox("SearchEquipmentName").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+                    </strong>
+                </div>
+            </div>
+            <div class="tit">资产编号</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                        @Html.JValidateBox("SearchEquipmentLabel").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="edit-info">
+            <div class="tit">设备功能</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                        @Html.JValidateBox("SearchScopeOfApplication").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+                    </strong>
+                </div>
+            </div>
+            <div class="tit">设备分类</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                         @Html.DropDownList("SearchEquipmentCategoryId", (IEnumerable<SelectListItem>)ViewData["SearchEquipmentCategorySelectListItem"], new { style = "width:233px", @class = "textinp" })
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="edit-info hide">
+           
+            <div class="tit">控制方式</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                        @(Html.JComboBox("SearchEquipmentControllerType")
+                        .SetEditable(true)
+                        .SetData(ViewData["SearchEquipmentControllerTypeJson"])
+                        .SetWidth(233)
+                        .AddClass("textinp")
+                        .ToMvcString())
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="edit-info hide">
+            <div class="tit">技术指标</div>
+                <div class="bdmain">
+                    <div class="text-box">
+                        <strong>
+                            @Html.JValidateBox("SearchQualification").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        <div class="edit-info">
+            <div class="tit">组织机构</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                        @Html.DropDownList("SearchOrganizationId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:233px", @class = "textinp" })
+                    </strong>
+                </div>
+            </div>
+            <div class="tit">放置地点</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                       @Html.DropDownList("SearchRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:233px", @class = "textinp" })
+                    </strong>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+        <div class="search-advanced-button-box">
+            <a onclick="doSearch();return false;" href="#" title="点击搜索">&nbsp;</a>
+        </div>
+    <div class="clear-both"></div>
+</div>
+<div class="content-box" style="background:none;padding:25px 25px 0">
+    @Html.Partial("../Equipment/PaginationListContainer")
+</div>
+}

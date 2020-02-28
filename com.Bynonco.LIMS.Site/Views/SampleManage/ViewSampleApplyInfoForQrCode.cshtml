@@ -1,0 +1,39 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleApply
+@{
+    ViewBag.Title = Model.SampleNo + "的详细信息";
+}
+<!-- CSS -->
+<link rel="stylesheet" href="@Url.Content("~/Content/main3.0.2.4.css")" type="text/css" media="screen" />
+<link rel="stylesheet" href="@Url.Content("~/Content/admin3.0.2.4.css")" type="text/css" media="screen" />
+<!--[if IE 6]>
+<link rel="stylesheet" href="@Url.Content("~/Content/ie6.css")" type="text/css" media="screen" />
+<![endif]-->
+<!--[if IE 7]>
+<link rel="stylesheet" href="@Url.Content("~/Content/ie7.css")" type="text/css" media="screen" />
+<![endif]-->
+<script src="@Url.Content("~/Scripts/jquery-1.7.2.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/MicrosoftAjax.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/MicrosoftMvcAjax.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/commond.js")" type="text/javascript"></script>
+<!-- JqueryEasyUI -->
+<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/easyui3.1.0.3.css")" type="text/css" media="screen" />
+<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/icon.css")" type="text/css" media="screen" />
+<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/jquery.easyui.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/locale/easyui-lang-zh_CN.js")" type="text/javascript"></script>
+
+<!--[if lte IE 6]>
+    <script src="@Url.Content("~/Scripts/DD_belatedPNG_0.0.8a.js")" type="text/javascript" ></script>
+    <script type="text/javascript">
+            DD_belatedPNG.fix('.inner-right, .icon, .tree-folder');
+    </script>
+<![endif]-->
+<style type="text/css">
+    table tr th,table tr td {font-size:13px}
+</style>
+<div style="margin:0; padding:0; width:1000px">
+    <div style="margin-left:50px; margin-top:50px;">
+         @Html.Partial("ViewSampleApplyInfo")
+    </div>
+</div>
+
+

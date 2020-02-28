@@ -1,0 +1,102 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Equipment/AlarmSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../Equipment/AlarmList")
+</div>
+
+<script type="text/javascript">
+    function doEquipmentAlarmSearch() {
+       $("#tbEquipmentAlarmList").datagrid("options").url = "";
+       $("#tbEquipmentAlarmList").datagrid('loadData', { total: 0, rows: [] });
+       var queryExpression = generateEquipmentAlarmQueryExpress();
+       $("#tbEquipmentAlarmList").datagrid("options").url = '@Url.Action("GetGridViewEquipmentAlarmList", "Equipment")' + "?queryExpression=" + queryExpression + "&date=" + new Date().getMilliseconds();
+       $("#tbEquipmentAlarmList").datagrid("load");
+    }
+
+    function generateEquipmentAlarmSelectedIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentAlarmList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDeleteEquipmentAlarm(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateEquipmentAlarmSelectedIds().toString(): ids;
+        if (delIds == null) {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认删除?', function (r) {
+            if (!r) return;
+            $.ajax({
+                url: '@Url.Action("DeleteEquipmentAlarm", "Equipment")',
+                data: { "ids": delIds },
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doEquipmentAlarmSearch("");
+                }
+            });
+        });
+        return false;
+    }
+    function doSetEquipmentAlarmCloesd(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateEquipmentAlarmSelectedIds().toString() : ids;
+        if (delIds == null) {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否停止选中项的警告信息?', function (r) {
+            if (!r) return;
+            $.ajax({
+                url: '@Url.Action("SetEquipmentAlarmCloesd", "Equipment")',
+                data: { "ids": delIds },
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doEquipmentAlarmSearch("");
+                }
+            });
+        });
+        return false;
+    }
+    function doSetEquipmentAlarmOpen(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateEquipmentAlarmSelectedIds().toString() : ids;
+        if (delIds == null) {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否开启选中项的警告信息?', function (r) {
+            if (!r) return;
+            $.ajax({
+                url: '@Url.Action("SetEquipmentAlarmOpen", "Equipment")',
+                data: { "ids": delIds },
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doEquipmentAlarmSearch("");
+                }
+            });
+        });
+        return false;
+    }
+    $(function () {
+        doEquipmentAlarmSearch();
+    });
+</script>

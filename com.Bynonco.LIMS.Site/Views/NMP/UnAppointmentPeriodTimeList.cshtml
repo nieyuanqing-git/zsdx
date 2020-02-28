@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var nmpPrivilige = ViewData["NMPId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, new Guid(ViewData["NMPId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbUnAppointmentPeriodTimeList")
+    .SetUrl(Url.Action("GetGridUnAppointmentPeriodTimeList", "NMP"))
+    .AddQueryParam("queryExpression", string.Format("NMPId=\"{0}\"", ViewData["NMPId"] == null ? default(Guid).ToString() : ViewData["NMPId"].ToString()))
+    .SetSortName("BeginTime")
+    .SetSortOrder(SortOrder.desc)
+    .SetHeight(650)
+    .SetPageSize(20)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(280).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "BeginTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("同时对送样生效", "IsEffectOnSampleStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Description").SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(nmpPrivilige.IsEnableAddUnAppointmentPeriodTime);
+    if (nmpPrivilige.IsEnableAddUnAppointmentPeriodTime)
+    {
+        dataGrid.SetAddScript("doAddOrEditUnAppointmentPeriodTime('');");
+    }
+    dataGrid.SetShowEditButton(nmpPrivilige.IsEnableEditUnAppointmentPeriodTime);
+    if (nmpPrivilige.IsEnableEditUnAppointmentPeriodTime)
+    {
+        dataGrid.SetEditScript("doEditUnAppointmentPeriodTime();");
+        dataGrid.SetOnDblClickRow("doAddOrEditUnAppointmentPeriodTime(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(nmpPrivilige.IsEnableDeleteUnAppointmentPeriodTime);
+    if (nmpPrivilige.IsEnableDeleteUnAppointmentPeriodTime)
+    {
+        dataGrid.SetDeleteScript("doDeleteUnAppointmentPeriodTime();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

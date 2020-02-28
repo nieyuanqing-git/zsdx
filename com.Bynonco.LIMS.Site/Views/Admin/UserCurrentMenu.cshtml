@@ -1,0 +1,247 @@
+﻿@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var isShowEquipmentMenuRedirectToHome = customer == null ? false : customer.GetIsShowEquipmentMenuRedirectToHome();
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+    var controllerName = ViewData["MenuController"] == null ? "" : ViewData["MenuController"].ToString().ToLower();
+    var actionName = ViewData["MenuAction"] == null ? "" : ViewData["MenuAction"].ToString().ToLower();
+    if (ViewData["UserCurrentMenu"] != null)
+    {
+        IList<com.Bynonco.LIMS.Model.View.ViewWorkGroupModule> viewWorkGroupModuleList = (IList<com.Bynonco.LIMS.Model.View.ViewWorkGroupModule>)ViewData["UserCurrentMenu"];
+        if (viewWorkGroupModuleList != null && viewWorkGroupModuleList.Count > 0)
+        {
+            var menuType = ViewData["MenuType"] == null ? "List" : ViewData["MenuType"].ToString() == "Icon" ? "Icon" : "List";
+            var mainMenuList = viewWorkGroupModuleList.Where(m => m.ParentId == null);
+            <div class="main-menu-box">
+                <div class="box-middle">
+                    <div class="box-top">
+                        <div class="box-bottom">
+                            <div class="menu-type">
+                                <a href="javascript:;" id="iconmenu" class='@(menuType == "Icon" ? "icon-icon-menu-current" : "icon-icon-menu")'><span>&nbsp;</span></a>
+                                <a href="javascript:;" id="listmenu" class='@(menuType == "List" ? "icon-list-menu-current" : "icon-list-menu")'><span>&nbsp;</span></a>
+                            </div>
+                            <div id="divListMenu" class='@(menuType == "List" ? "" : "hide")'>
+                            <ul class='main-menu-list'>
+                            @{
+                                foreach (var item in mainMenuList)
+                                {          
+                                    var currentCss = controllerName == item.ControllerName.ToLower() && actionName == item.ActionName.ToLower() ? " current" : "";
+                                    if(!isAjax && item.Parent != null)
+                                    {
+                                        currentCss = controllerName == item.Parent.ControllerName.ToLower() && actionName == item.Parent.ActionName.ToLower() ? " current" : "";
+                                    }
+                                    string xpath = item.XPath;
+                                    var subMenuList = viewWorkGroupModuleList.Where(m => m.ParentId != null && m.XPath.StartsWith(xpath) && m.XPath.Length == xpath.Length + 3 && m.XPath != xpath).OrderBy(m => m.XPath);
+                                    if (subMenuList.Count() == 0)
+                                    {
+                                        if (isShowEquipmentMenuRedirectToHome && item.ControllerName.ToLower() == "equipment" && item.ActionName.ToLower() == "index")
+                                        {
+                                            <li>
+                                                @Html.HtmlIconActionLink("unicon " + item.IconCss, item.Name, item.Name, "Index", "Home", null, null, new { @id = "list" + item.XPath, @class = "no-submenu" + currentCss })
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                        <li>
+                                            @if (isAjax)
+                                            {
+                                                @Ajax.IconActionLink("unicon " + item.IconCss, item.Name, item.Name, item.ActionName, item.ControllerName, null, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess" }, new { @id = "list" + item.XPath, @class = "no-submenu" + currentCss })
+                                            }
+                                            else
+                                            {
+                                                @Html.HtmlIconActionLink("unicon " + item.IconCss, item.Name, item.Name, item.ActionName, item.ControllerName, null, null, new { @id = "list" + item.XPath, @class = "no-submenu" + currentCss })
+                                            }
+                                        </li>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <a href="#" class="nav-top-item" id='@("list" + item.XPath)' title='@item.Name'><span class="unicon @item.IconCss">&nbsp;</span><span>@item.Name</span></a>
+                                            <div class="main-submenu">
+                                                <div class="menu-middle">
+                                                    <div class="menu-bottom">
+                                                        <ul class="submenu">
+                                                            @{
+                                                                                                                                                                             foreach (var subItem in subMenuList)
+                                                                                                                                                                             {
+                                                                                                                                                                                 var subCurrentCss = controllerName == subItem.ControllerName.ToLower() && actionName == subItem.ActionName.ToLower() ? " current" : "";
+                                                                                                                                                                                 if (!isAjax && subItem.Parent != null)
+                                                                                                                                                                                 {
+                                                                                                                                                                                     subCurrentCss = controllerName == subItem.Parent.ControllerName.ToLower() && actionName == subItem.Parent.ActionName.ToLower() ? " current" : "";
+                                                                                                                                                                                 }
+                                                                                                                                                                                 string subXPath = subItem.XPath;
+						                                            <li>
+                                                                        @if (isAjax)
+                                                                        {
+                                                                            @Ajax.IconActionLink("unicon " + subItem.IconCss, subItem.Name, subItem.Name, subItem.ActionName, subItem.ControllerName, null, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess" }, new { @id = "list" + subXPath, @class = subCurrentCss })
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            @Html.HtmlIconActionLink("unicon " + subItem.IconCss, subItem.Name, subItem.Name, subItem.ActionName, subItem.ControllerName, null, null, new { @id = "list" + subXPath, @class = subCurrentCss })
+                                                                        }
+                                                                    </li>
+                                                                                                                                                                             }
+                                                            }
+					                                    </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+                            }
+                            </ul>
+                            </div>
+
+                            <div id="divIConMenu" class="icon-menu-box @(menuType == "Icon" ? "" : "hide")">
+
+                            @{
+                                                                   for (int i = 0; i < mainMenuList.Count(); )
+                                                                   {
+                                                                       List<com.Bynonco.LIMS.Model.View.ViewWorkGroupModule> tempList = new List<com.Bynonco.LIMS.Model.View.ViewWorkGroupModule>();
+                                                                       List<int> kList = new List<int>();
+                                                                       for (int j = 0, k = 0; k < 4 && i + j < mainMenuList.Count(); j++)
+                                                                       {
+                                                                           var item = mainMenuList.ElementAt(i + j);
+                                                                           var currentCss = controllerName == item.ControllerName.ToLower() && actionName == item.ActionName.ToLower() ? " current" : "";
+                                                                           if (!isAjax && item.Parent != null)
+                                                                           {
+                                                                               currentCss = controllerName == item.Parent.ControllerName.ToLower() && actionName == item.Parent.ActionName.ToLower() ? " current" : "";
+                                                                           }
+                                                                           string xpath = item.XPath;
+                                                                           k++;
+                                                                           tempList.Add(item);
+                                                                           kList.Add(k);
+                                                                           if (k == 1)
+                                                                           {
+                                            @:<ul class='main-menu-icon'>
+                                        }
+                                                                           var subMenuCount = viewWorkGroupModuleList.Count(m => m.ParentId != null && m.XPath.StartsWith(xpath) && m.XPath.Length == xpath.Length + 3 && m.XPath != xpath);
+                                                                           if (subMenuCount == 0)
+                                                                           {
+                                            <li>
+                                                @if (isAjax)
+                                                {
+                                                    @Ajax.IconActionLink(item.IconCssMiddle, item.Name, item.Name, item.ActionName, item.ControllerName, null, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess" }, new { @id = "icon" + item.XPath, @class = "no-submenu" + currentCss })
+                                                }
+                                                else
+                                                {
+                                                    @Html.HtmlIconActionLink(item.IconCssMiddle, item.Name, item.Name, item.ActionName, item.ControllerName, null, null, new { @id = "icon" + item.XPath, @class = "no-submenu" + currentCss })
+                                                }
+                                            </li> 
+                                                                           }
+                                                                           else
+                                                                           {
+                                            <li>
+                                                <a href="#" class="nav-top-item @currentCss" id='@("icon" + item.XPath)' title='@item.Name'><span class="icon @item.IconCssMiddle">&nbsp;</span><span>@item.Name</span></a>
+                                            </li>
+                                                                           }
+
+                                                                           if (k > 0 && (k == 4 || i + j == mainMenuList.Count() - 1))
+                                                                           {
+                                            <div class="clear-both"></div>
+                                            @:</ul>
+                                            for (int g = 0; g < tempList.Count(); g++)
+                                            {
+                                                var parentItem = tempList[g];
+                                                var parentXpath = parentItem.XPath;
+                                                var subMenuList = viewWorkGroupModuleList.Where(m => m.ParentId != null && m.XPath.StartsWith(parentXpath) && m.XPath.Length == parentXpath.Length + 3 && m.XPath != parentXpath).OrderBy(m => m.XPath);
+                                                if (subMenuList.Count() > 0)
+                                                {
+                                                    <div class="main-submenu-icon subiconmenu-box-middle" id='@("iconsubbox" + parentItem.XPath)'>
+                                                        <div class="subiconmenu-box-top-@kList[g]" >
+                                                            <div class="subiconmenu-box-bottom">
+                                                                <ul class="submenu-icon">
+                                                                @{
+                                                                                   foreach (var subItem in subMenuList)
+                                                                                   {
+                                                                                       var subCurrentCss = controllerName == subItem.ControllerName.ToLower() && actionName == subItem.ActionName.ToLower() ? " current" : "";
+                                                                                       if (!isAjax && subItem.Parent != null)
+                                                                                       {
+                                                                                           subCurrentCss = controllerName == subItem.Parent.ControllerName.ToLower() && actionName == subItem.Parent.ActionName.ToLower() ? " current" : "";
+                                                                                       }
+                                                                                       string subXPath = subItem.XPath;
+						                                                <li class='@(controllerName == subItem.ControllerName.ToLower() && actionName == subItem.ActionName.ToLower() ? "select" : "")'>
+                                                                            @if (isAjax)
+                                                                            {
+                                                                                @Ajax.IconActionLink(subItem.IconCssMiddle, subItem.Name, subItem.Name, subItem.ActionName, subItem.ControllerName, null, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess" }, new { @id = "icon" + subItem.XPath, @class = subCurrentCss })
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                @Html.HtmlIconActionLink(subItem.IconCssMiddle, subItem.Name, subItem.Name, subItem.ActionName, subItem.ControllerName, null, null, new { @id = "icon" + subItem.XPath, @class = subCurrentCss })
+                                                                            }
+                                                                        </li>
+                                                                                   }
+                                                                }
+                                                                <div class="clear-both"></div>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                            i = i + j + 1;
+                                            break;
+                                                                           }
+                                                                           else if (i + j == mainMenuList.Count() - 1)
+                                                                           {
+                                                                               i = i + j + 1;
+                                                                               break;
+                                                                           }
+                                                                       }
+                                                                   }
+                            }
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                $(function () {
+                    $("#iconmenu").click(function () {
+                        $("#listmenu").removeClass("icon-list-menu-current");
+                        $("#listmenu").addClass("icon-list-menu");
+                        $("#iconmenu").removeClass("icon-icon-menu");
+                        $("#iconmenu").addClass("icon-icon-menu-current");
+                        $("#divIConMenu").removeClass("hide");
+                        $("#divListMenu").addClass("hide");
+
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("SaveUserSystemSetting", "User")',
+                            data: "MenuType=Icon&time=" + new Date().getMilliseconds(),
+                            success: function (msg) {
+                                if (msg && msg.indexOf("出错") != -1) {
+                                    $.messager.alert('提示', msg, 'warning');
+                                    return false;
+                                }
+                            }
+                        });
+                    });
+
+                    $("#listmenu").click(function () {
+                        $("#listmenu").removeClass("icon-list-menu");
+                        $("#listmenu").addClass("icon-list-menu-current");
+                        $("#iconmenu").removeClass("icon-icon-menu-current");
+                        $("#iconmenu").addClass("icon-icon-menu");
+                        $("#divIConMenu").addClass("hide");
+                        $("#divListMenu").removeClass("hide");
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("SaveUserSystemSetting", "User")',
+                            data: "MenuType=List&date=" + new Date().getMilliseconds(),
+                            success: function (msg) {
+                                if (msg && msg.indexOf("出错") != -1) {
+                                    $.messager.alert('提示', msg, 'warning');
+                                    return false;
+                                }
+                            }
+                        });
+                    });
+                });
+            </script>
+        }
+    }
+}

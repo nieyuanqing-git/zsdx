@@ -1,0 +1,97 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{var equipmentApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentApplyPrivilige(User.Identity.Name);}
+<div style="position:relative; height:380px; margin-top:20px">
+    <div style="position:absolute; top:10; left:15px">@Html.Partial("EquipmentApplyIconList")</div>
+</div>
+<script type="text/javascript">
+    function doDeleteIcon() {
+        var rows = $('#tbEquipmentApplyIconList').datagrid("getSelections");
+        if (!rows || rows == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的设备图片", showType: 'show' });
+            return false;
+        }
+        var iconNames = "";
+        var id = $("#Id").val();
+        for (var i = 0; i < rows.length; i++) {
+            var iconName = rows[i].IconName + "." + rows[i].IconExt;
+            iconNames += i == 0 ? iconName : ";" + iconName;
+        }
+        $.messager.progress({ title: '提示', msg: '正在删除设备图片,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteIcon","EquipmentApply")' + "?time=" + new Date().getMilliseconds(),
+            data: { "id": id, "iconNames": encodeURI(iconNames) },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                for (var i = rows.length - 1; i >= 0; i--) {
+                    var iconName = rows[i].IconName;
+                    if (iconNames.indexOf(iconName) != -1) {
+                        $("#tbEquipmentApplyIconList").datagrid("deleteRow", i);
+                    }
+                }
+            }
+        });
+        return false;
+    }
+    function ajaxFileUpload() {
+        var file = $("#fileToUpload").val();
+        if (!doValidates(file)) return false;
+        var id = $("#Id").val();
+        var isDefault = $("#IsDefault").attr("checked");
+        $.ajaxFileUpload({
+            url: '@Url.Action("SaveIcon","EquipmentApply")' + "?time=" + new Date().getMilliseconds() + "&id=" + id + "&isDefault=" + (isDefault ? "true" : "false"),
+            secureuri: false,
+            dataType: "text",
+            fileElementId: 'fileToUpload',
+            success: function (data, status) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+                data = data.replace("<pre>", "").replace("</pre>", "").replace("\'", "").toJson();
+                var equipmentIcon = eval(data)[0];
+                equipmentIcon.Pic = "<img  src='" + equipmentIcon.FilePath + equipmentIcon.IconName + "." + equipmentIcon.IconExt + "' height='37px' width='37px' />";
+                $("#tbEquipmentApplyIconList").datagrid("insertRow", { row: equipmentIcon });
+            }
+        });
+        return false;
+    }
+    function doValidates(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        var fileName = file.getFileName().trim();
+        if (fileName.indexOf("\\") != -1 || fileName.indexOf("/") != -1 || fileName.indexOf("~") != -1 || fileName.indexOf("#") != -1) {
+            $.messager.show({ title: '提示', msg: "文件名包含非法字符【\\】【/】【~】【#】", showType: 'show' });
+            return false;
+        }
+        var rows = $("#tbEquipmentApplyIconList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if ((rows[i].IconName.trim() + "." + rows[i].IconExt.trim()) == fileName) {
+                    $.messager.show({ title: '提示', msg: "文件名【" + fileName + "】已经存在", showType: 'show' });
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    function getIcons() {
+        var icons = "";
+        var rows = $("#tbEquipmentApplyIconList").datagrid("getRows");
+        if (rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var icon = rows[i].IconName + "~" + rows[i].IconExt + "~" + rows[i].IsDefaultStr;
+                icons += icons == "" ? icon : "#" + icon;
+            }
+        }
+        return icons;
+    }
+
+</script>

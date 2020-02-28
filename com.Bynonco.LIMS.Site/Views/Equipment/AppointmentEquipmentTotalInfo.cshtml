@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.LIMS.Model.Business;
+@{var equipmentTotalInfo =(EquipmentTotalInfo) ViewData["EquipmentTotalInfo"];}
+<div id="divEquipmentTotalInfo">
+    <ul>
+        <li>
+            <div>
+                <span class="num">@equipmentTotalInfo.TotalFocus.ToString()</span>
+            </div>
+            <div>收藏者</div>
+        </li>
+        <li>
+            <div>
+                <span class="num">@equipmentTotalInfo.TotalUsers.ToString()</span>
+            </div>
+            <div>使用者</div>
+        </li>
+        <li>
+            <div>
+                <span class="num">@equipmentTotalInfo.TotalUsedTimes.ToString()</span>
+            </div>
+            <div>总次数</div>
+        </li>
+        <li>
+            <div>
+                <span class="num">@equipmentTotalInfo.TotalHour.ToString()</span>
+            </div>
+            <div>总时长</div>
+        </li>
+    </ul>
+    <div style="clear:both"></div>
+</div>

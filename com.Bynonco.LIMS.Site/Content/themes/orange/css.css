@@ -1,0 +1,58 @@
+﻿/* -- Layout ----------------------------------------------------------------- */
+.layout-top .box-middle{background: url("images/bg-top-box-middle.jpg") repeat-x scroll left top transparent;}
+.layout-top .box-left{background: url("images/bg-top-box-left.jpg") no-repeat scroll left top transparent;}
+.layout-top .box-right{background: url("images/bg-top-box-right.jpg") no-repeat scroll right top transparent;}
+
+.layout-body{ border-color:#7c3205;}
+.layout-body .body-inner {border-color: #f84e03; }
+.layout-body .body-inner-inner{border-color:#FFF;background: url("images/bg-center.jpg") repeat-x scroll left top #bb4d00;}
+
+.layout-foot{color:#fff;}
+/* --End  Layout ----------------------------------------------------------------- */
+
+/* --layout-Left -----------------------------------------------------------------------*/
+.layout-left .welcome{ background: url("images/bg-left-welcome.jpg") no-repeat scroll left top transparent; }
+.layout-left .welcome .left-subject a{color:#fff;}
+
+.role-menu li a.nav-top-item {background: url("images/bg-role-menu-item.jpg") no-repeat scroll left top transparent;color: #5e5e5e;}
+.role-menu .role-submenu .menu-middle{ background: url("images/bg-role-submenu-middle.jpg") repeat-y scroll left top transparent;}
+.role-menu .role-submenu .menu-top{background: url("images/bg-role-submenu-top.jpg") no-repeat scroll left top transparent;}
+.role-menu .role-submenu .menu-bottom{background: url("images/bg-role-submenu-bottom.jpg") no-repeat scroll left bottom transparent;}
+.role-menu ul.submenu li a{color: #555555;}
+
+.main-menu-box .box-middle{background: url("images/bg-menu-middle.jpg") repeat-y scroll left top transparent;}
+.main-menu-box .box-top{background: url("images/bg-menu-top.jpg") no-repeat scroll left top transparent;}
+.main-menu-box .box-bottom{background: url("images/bg-menu-bottom.jpg") no-repeat scroll left bottom transparent;}
+.main-menu-box .main-submenu .menu-bottom{background: url("images/bg-main-submenu-bottom.jpg") no-repeat scroll left bottom transparent;}
+.main-menu-box ul.submenu li a{color: #555555; }
+
+.main-menu-box ul.main-menu-icon li a.nav-top-item,
+.main-menu-box ul.main-menu-icon li a.no-submenu,
+.main-menu-box ul.submenu-icon li a{ color: #555555;}
+.main-menu-box .subiconmenu-box-top-1{background: url("images/bg-subiconmenu-box-top-1.jpg") no-repeat scroll left top transparent;}
+.main-menu-box .subiconmenu-box-top-2{background: url("images/bg-subiconmenu-box-top-2.jpg") no-repeat scroll left top transparent;}
+.main-menu-box .subiconmenu-box-top-3{background: url("images/bg-subiconmenu-box-top-3.jpg") no-repeat scroll left top transparent;}
+.main-menu-box .subiconmenu-box-top-4{background: url("images/bg-subiconmenu-box-top-4.jpg") no-repeat scroll left top transparent;}
+/* --end layout-Left -----------------------------------------------------------------------*/
+
+/* -- layout-center -----------------------------------------------------------------------*/
+.layout-center .nav-menu-current ul li .nav-right{background: url("images/bg-nav-right.jpg") no-repeat scroll right top transparent;}
+.layout-center .nav-menu-current ul li a:hover,
+.layout-center .nav-menu-current ul li a.current{color:Orange;}
+
+
+.layout-center .main-content-box{border-color:#7c3205; background-color:#ecedf1;}
+.layout-center .main-content{border-color:#d3d8de; background-color:#f0f4f6;}
+.layout-center .main-content .edit-box{border-color:#d3d8de; }
+.layout-center .main-content .edit-box p{border-color: #A0A0A0;}
+.layout-center .main-content .edit-box .edit-operate{border-color:#AAAAAA; }
+.layout-center .main-title li{background: url("images/bg-main-title-menu.jpg") repeat-x scroll right top transparent; border-color:#91c3e6;}
+.layout-center .main-title li.current{background: url("images/bg-main-title-menu-current.jpg") repeat-x scroll right top transparent; border-color:#d8d8d8;}
+.layout-center .main-title li span,
+.layout-center .main-title li a{color:#444444;}
+.layout-center .main-title li.current a{color:Orange; font-weight:bold;}
+.layout-center .main-content-submenu{border-color:#d3d8de;}
+.layout-center .main-content-submenu ul.submenu-icon li a{color:#666666;}
+.layout-center .main-content-submenu ul.submenu-icon li a:hover{color:#333333;}
+.layout-center .main-content-submenu ul.submenu-icon li a.icon{ color: #555555;}
+/* --end layout-center --------------------------------------------------------------------*/

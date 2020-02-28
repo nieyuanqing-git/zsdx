@@ -1,0 +1,142 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentId = ViewData["equipmentId"] == null || ViewData["equipmentId"] == "" ? "" : ViewData["equipmentId"].ToString();
+}
+<script src="../../Scripts/highcharts.js" type="text/javascript"></script>
+<form id="form1" runat="server">
+<div id="container" style="min-width: 280px; height: 400px; margin: 0 auto">
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $(document).ready(function () {
+
+            Highcharts.setOptions({
+                global: {
+                    useUTC: false
+                }
+            });
+
+            var yTemperature = 0, yHumidity = 0;
+            var chart;
+            $('#container').highcharts({
+                chart: {
+                    type: 'spline',
+                    animation: Highcharts.svg,            
+                    marginRight: 80,
+                    events: {
+                        load: function () {            
+                            var seriesTemperature = this.series[0];
+                            var seriesHumidity = this.series[1];
+                            setInterval(function () {
+                                var x = (new Date()).getTime();                             
+                                $.ajax({
+                                    url: '@Url.Action("GetTemperatureHumidity", "TemperatureHumidity", new { date = DateTime.Now.Millisecond })',
+                                    data: { "EquipmentId": '@equipmentId' },
+                                    dataType: "json",
+                                    success: function (data) {
+                                        seriesTemperature.addPoint([x, data[0].Temperature / 100], true, true);
+                                        seriesHumidity.addPoint([x, data[0].Humidity / 100], true, true);
+                                    },
+                                    error: function () {
+                                        $.messager.show({ title: '提示', msg: "请求出错", showType: 'show' });
+                                    }
+                                });
+
+                            }, 1000);
+                        }
+                    }
+                },
+                title: {
+                    text: '温湿度监控'
+                },
+                xAxis: {
+                    type: 'datetime',
+                    tickPixelInterval: 150
+                },
+                yAxis: [{ // Primary yAxis
+                    labels: {
+                        format: '{value}%',
+                        style: {
+                            color: '#89A54E'
+                        }
+                    },
+                    title: {
+                        text: '湿度',
+                        style: {
+                            color: '#89A54E'
+                        }
+                    }
+                }, { // Secondary yAxis
+                    title: {
+                        text: '温度',
+                        style: {
+                            color: '#4572A7'
+                        }
+                    },
+                    labels: {
+                        format: '{value}°C',
+                        style: {
+                            color: '#4572A7'
+                        }
+                    },
+                    opposite: true
+                }],
+                tooltip: {
+                    shared: true
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'left',
+                    x: 120,
+                    verticalAlign: 'top',
+                    y: 100,
+                    floating: true,
+                    backgroundColor: '#FFFFFF'
+                },
+                exporting: {
+                    enabled: true
+                },
+                series: [{
+                    name: '温度',
+                    yAxis: 1,
+                    data: (function () {
+                        // generate an array of random data                             
+                        var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+
+                        for (i = -19; i <= 0; i++) {
+
+                            data.push({
+                                x: time + i * 1000,
+                                y: yTemperature
+                            });
+                        }
+                        return data;
+                    })(), tooltip: {
+                        valueSuffix: ' °C'
+                    }
+                }, { name: '湿度',
+                    data: (function () {
+                        // generate an array of random data                             
+                        var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+
+                        for (i = -19; i <= 0; i++) {
+                            data.push({
+                                x: time + i * 1000,
+                                y: yHumidity
+                            });
+                        }
+                        return data;
+                    })(), tooltip: {
+                        valueSuffix: ' %'
+                    }
+                }]
+            });
+        });
+
+    });
+</script>

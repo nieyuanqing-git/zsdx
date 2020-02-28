@@ -1,0 +1,318 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum
+@model com.Bynonco.LIMS.Model.EquipmentOpenPractice
+<div class="edit-operate">
+    @{
+        var backUrl = Url.Action("Index", "EquipmentOpenPractice");
+        var reloadUrl = Url.Action("Edit", "EquipmentOpenPractice");
+        var action = ViewContext.RouteData.Values["action"].ToString();
+        if (action.StartsWith("Teacher", true, null)) { backUrl = Url.Action("TeacherIndex", "EquipmentOpenPractice"); reloadUrl = Url.Action("TeacherAudit", "EquipmentOpenPractice"); }
+        if (action.StartsWith("College", true, null)) { backUrl = Url.Action("CollegeIndex", "EquipmentOpenPractice"); reloadUrl = Url.Action("CollegeAudit", "EquipmentOpenPractice"); }
+        if (action.StartsWith("Manage", true, null)) { backUrl = Url.Action("AdminIndex", "EquipmentOpenPractice"); reloadUrl = Url.Action("ManageAudit", "EquipmentOpenPractice"); }
+        if (action.StartsWith("ManagePre", true, null)) { backUrl = Url.Action("AdminPreIndex", "EquipmentOpenPractice"); reloadUrl = Url.Action("ManagePreAudit", "EquipmentOpenPractice"); }
+        var isSave = ViewData["IsSave"] == null ? false : bool.Parse(ViewData["IsSave"].ToString());
+        var isManageAudit = ViewData["IsManageAudit"] == null ? false : bool.Parse(ViewData["IsManageAudit"].ToString());
+        var isManagePreAudit = ViewData["IsManagePreAudit"] == null ? false : bool.Parse(ViewData["IsManagePreAudit"].ToString());
+        var isAllocatingFund = ViewData["IsAllocatingFund"] == null ? false : bool.Parse(ViewData["IsAllocatingFund"].ToString());
+        var isCollegeAudit = ViewData["IsCollegeAudit"] == null ? false : bool.Parse(ViewData["IsCollegeAudit"].ToString());
+        var isTeacherAudit = ViewData["IsTeacherAudit"] == null ? false : bool.Parse(ViewData["IsTeacherAudit"].ToString());
+        var isDelete = ViewData["IsDelete"] == null ? false : bool.Parse(ViewData["IsDelete"].ToString());
+        var equipmentOpenPracticePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentOpenPracticePrivilige(User.Identity.Name);
+    }
+
+    @if (Model == null)
+    {
+        @Html.JLinkButton("btnSaveBasic", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveBasic();return false;").SetVisible(equipmentOpenPracticePrivilige.IsEnableSaveBasic).ToMvcString()
+    }
+    else
+    {
+        var auditRemark = "";
+        bool isShowRemark = false;
+        bool isShowSubmit = true;
+        if (isManageAudit && action.StartsWith("Manage", true, null)) { isShowRemark = true; auditRemark = Model.ManageAuditRemark; }
+        if (isManagePreAudit && action.StartsWith("ManagePre", true, null)) { isShowRemark = true; auditRemark = Model.ManagePreAuditRemark; }
+        if (isCollegeAudit && action.StartsWith("College", true, null)) { isShowRemark = true; auditRemark = Model.CollegeAuditRemark; }
+        if (isTeacherAudit && action.StartsWith("Teacher", true, null)) { isShowRemark = true; auditRemark = Model.TeacherAuditRemark; }
+        if (isShowRemark)
+        {   <table style='width: 500px;'>
+                <tr>
+                    <th style='width: 80px;'>审核备注</th>
+                    <td>
+                        @Html.TextArea("AuditRemark", auditRemark, new { style = "width:400px;height:60px;" })
+                    </td>
+                </tr>
+            </table>
+        }
+        if (isSave)
+        { 
+            @Html.JLinkButton("btnSaveBasic", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveBasic();return false;").ToMvcString()
+        }
+        if (isManageAudit && action.StartsWith("Manage", true, null))
+        {
+            isShowSubmit = false;
+            @Html.JLinkButton("btnManageAuditPass", "实管处审核通过").SetIconCls("icon-pass").SetPlain(true).SetOnclick("doManageAuditPass('" + Model.Id + "');return false;").ToMvcString()
+            @Html.JLinkButton("btnManageAuditReject", "实管处审核不通过").SetIconCls("icon-no").SetPlain(true).SetOnclick("doManageAuditReject('" + Model.Id + "');return false;").ToMvcString()
+        }
+        if (isManagePreAudit && action.StartsWith("ManagePre", true, null))
+        {
+            isShowSubmit = false;
+            @Html.JLinkButton("btnManagePreAuditPass", "实管处预审核通过").SetIconCls("icon-pass").SetPlain(true).SetOnclick("doManagePreAuditPass('" + Model.Id + "');return false;").ToMvcString()
+            @Html.JLinkButton("btnManagePreAuditReject", "实管处预审核不通过").SetIconCls("icon-no").SetPlain(true).SetOnclick("doManagePreAuditReject('" + Model.Id + "');return false;").ToMvcString()
+        }
+        if (isCollegeAudit && action.StartsWith("College", true, null))
+        {
+            isShowSubmit = false;
+            @Html.JLinkButton("btnCollegeAuditPass", "学院审核通过").SetIconCls("icon-pass").SetPlain(true).SetOnclick("doCollegeAuditPass('" + Model.Id + "');return false;").ToMvcString()
+            @Html.JLinkButton("btnCollegeAuditReject", "学院审核不通过").SetIconCls("icon-no").SetPlain(true).SetOnclick("doCollegeAuditReject('" + Model.Id + "');return false;").ToMvcString()
+        }
+        if (isTeacherAudit && action.StartsWith("Teacher", true, null))
+        {
+            isShowSubmit = false;
+            @Html.JLinkButton("btnTeacherAuditPass", "导师审核通过").SetIconCls("icon-pass").SetPlain(true).SetOnclick("doTeacherAuditPass('" + Model.Id + "');return false;").ToMvcString()
+            @Html.JLinkButton("btnTeacherAuditReject", "导师审核不通过").SetIconCls("icon-no").SetPlain(true).SetOnclick("doTeacherAuditReject('" + Model.Id + "');return false;").ToMvcString()
+        }
+        if (isAllocatingFund)
+        {
+            @Html.JLinkButton("btnAllocatingFundAudit", "提交资金方案").SetIconCls("icon-pass").SetPlain(true).SetOnclick("doAllocatingFundAudit('" + Model.Id + "');return false;").ToMvcString()
+            isShowSubmit = false;
+        }
+        if (isShowSubmit)
+        {
+            @Html.JLinkButton("btnSubmitBasic", "确认提交").SetIconCls("icon-up").SetPlain(true).SetOnclick("doSubmitBasic();return false;").SetVisible(equipmentOpenPracticePrivilige.IsEnableSaveBasic).ToMvcString()
+        }
+        if (isDelete)
+        { 
+            @Html.JLinkButton("btnDelete", "删除").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("doDeleteEquipmentOpenPractice('" + Model.Id + "');return false;").ToMvcString()
+        }
+    }
+    @Html.JLinkButton("btnBackBasic", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doBack();return false;").ToMvcString()
+
+</div>
+<div style="display:none;">
+    <div id="vaildDate-form"  style="width: 450px;" data-options="iconCls:'icon-save',resizable:false,modal:true,buttons:'#vaildDate-buttons'">
+        <label>开放基金有限日期</label>@Html.JDateTimePicker("vaildDate").SetValue(DateTime.Now.AddYears(1).ToString("yyyy-MM-dd")).ToMvcString()
+        <div id="vaildDate-buttons">
+             @Html.JLinkButton("v_ok", "确定").SetPlain(false).SetOnclick("doManageVaildDateAuditPass('" + Model.Id + "');return false;").ToMvcString()
+             @Html.JLinkButton("v_cancel", "关闭").SetPlain(false).SetOnclick("$('#vaildDate-form').dialog('close');").ToMvcString()
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function doBack() {
+        var url = '@backUrl';
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doSaveBasic() {
+        var url = '@Url.Action("SaveBasic", "EquipmentOpenPractice")';
+        doSaveAndAuditPassBasic(url);
+        return false;
+    }
+    function doSubmitBasic() {
+        var url = '@Url.Action("SaveBasic", "EquipmentOpenPractice")' + '?status=' + '@((int)EquipmentOpenPracticeStatus.WaitingAudit)';
+        doSaveAndAuditPassBasic(url);
+        return false;
+    }
+    function doTeacherAuditPass(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("TeacherAuditPass", "EquipmentOpenPractice")';
+        doSaveAndAuditPassBasic(url);
+        return false;
+    }
+    function doTeacherAuditReject(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核不通过的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("TeacherAuditReject", "EquipmentOpenPractice")' + "?Id=" + id;
+        doAuditRejectBasic(url);
+        return false;
+    }
+    function doCollegeAuditPass(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到审核的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("CollegeAuditPass", "EquipmentOpenPractice")';
+        doSaveAndAuditPassBasic(url);
+        return false;
+    }
+    function doCollegeAuditReject(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核不通过的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("CollegeAuditReject", "EquipmentOpenPractice")' + "?Id=" + id;
+        doAuditRejectBasic(url);
+        return false;
+    }
+    function doManageAuditPass(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核的项", showType: 'show' });
+            return false;
+        }
+        $('#vaildDate-form').dialog({
+            title: '开放基金有效期设置',
+            width: 350,
+            height: 150
+        });
+      @*  var url = '@Url.Action("ManageAuditPass", "EquipmentOpenPractice")';
+        doSaveAndAuditPassBasic(url);*@
+        return false;
+    }
+    function doManageVaildDateAuditPass(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ManageAuditPass", "EquipmentOpenPractice")';
+        doSaveAndAuditPassBasic(url);
+        return false;
+    }
+
+    function doManageAuditReject(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核不通过的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ManageAuditReject", "EquipmentOpenPractice")' + "?Id=" + id;
+        doAuditRejectBasic(url);
+        return false;
+    }
+    function doManagePreAuditPass(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ManagePreAuditPass", "EquipmentOpenPractice")';
+        doSaveAndAuditPassBasic(url);
+        return false;
+    }
+    function doManagePreAuditReject(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核不通过的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ManagePreAuditReject", "EquipmentOpenPractice")' + "?Id=" + id;
+        doAuditRejectBasic(url);
+        return false;
+    }
+    function doAllocatingFundAudit(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待提交的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("AllocatingFundAuditSubmit", "EquipmentOpenPractice")';
+        doSaveAndAuditPassBasic(url);
+        return false;
+    }
+    function doSaveAndAuditPassBasic(url) {
+        if ($("#Name").val() == "") {
+            $.messager.show({ title: '提示', msg: "项目名称为空", showType: 'show' });
+            return false;
+        }
+        if ($("#ApplyUserId").val() == "") {
+            $.messager.show({ title: '提示', msg: "申请人为空", showType: 'show' });
+            return false;
+        }
+        var equipmentOpenPracticeExperienceIds = '';
+        $("#tbExperienceList").find('.item-Id').find('input:hidden').each(function () {
+            equipmentOpenPracticeExperienceIds += (equipmentOpenPracticeExperienceIds == "" ? "" : ",") + $(this).val();
+        });
+        var equipmentOpenPracticeTeacherIds = '';
+        $("#tbTeacherList").find('.item-Id').find('input:hidden').each(function () {
+            equipmentOpenPracticeTeacherIds += (equipmentOpenPracticeTeacherIds == "" ? "" : ",") + $(this).val();
+        });
+        if (equipmentOpenPracticeTeacherIds == '') {
+            $.messager.show({ title: '提示', msg: "指导导师为空", showType: 'show' });
+            return false;
+        }
+        var equipmentOpenPracticeMemberIds = '';
+        $("#tbMemberList").find('.item-Id').find('input:hidden').each(function () {
+            equipmentOpenPracticeMemberIds += (equipmentOpenPracticeMemberIds == "" ? "" : ",") + $(this).val();
+        });
+        if (equipmentOpenPracticeMemberIds == '') {
+            $.messager.show({ title: '提示', msg: "项目组成员为空", showType: 'show' });
+            return false;
+        }
+        var equipmentOpenPracticeEquipmentIds = '';
+        $("#tbEquipmentList").find('.item-Id').find('input:hidden').each(function () {
+            equipmentOpenPracticeEquipmentIds += (equipmentOpenPracticeEquipmentIds == "" ? "" : ",") + $(this).val();
+        });
+        if (equipmentOpenPracticeEquipmentIds == '') {
+            $.messager.show({ title: '提示', msg: "仪器设备为空", showType: 'show' });
+            return false;
+        }
+        var equipmentOpenPracticeMaterialIds = '';
+        $("#tbMaterialList").find('.item-Id').find('input:hidden').each(function () {
+            equipmentOpenPracticeMaterialIds += (equipmentOpenPracticeMaterialIds == "" ? "" : ",") + $(this).val();
+        });
+        var applyScheme = CKEDITOR.instances.ApplyScheme.getData();
+        $("#ApplyScheme").val(applyScheme);
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmEquipmentOpenPracticeEdit").serialize() + "&EquipmentOpenPracticeTeacherIds=" + equipmentOpenPracticeTeacherIds + "&EquipmentOpenPracticeMemberIds=" + equipmentOpenPracticeMemberIds + "&EquipmentOpenPracticeEquipmentIds=" + equipmentOpenPracticeEquipmentIds + "&EquipmentOpenPracticeMaterialIds=" + equipmentOpenPracticeMaterialIds + "&EquipmentOpenPracticeExperienceIds=" + equipmentOpenPracticeExperienceIds + "&OpenFunVaildDate=" + $('#vaildDate').datebox('getValue'),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                doReload(msg);
+            }
+        });
+        return false;
+    }
+    function doAuditRejectBasic(url) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { AuditRemark: $('#AuditRemark').val() },
+            success: function(msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "审核不通过成功", showType: 'show' });
+                doReload(msg);
+            }
+        });
+    }
+    function doReload(id) {
+        var url = '@reloadUrl' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doDeleteEquipmentOpenPractice(id) {
+        if (id == null || id == "") {
+            $.messager.show({ title: '提示', msg: "删除项为空", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "EquipmentOpenPractice")' + "?date=" + new Date().getMilliseconds(),
+                data: { "id": id },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doBack();
+                }
+            });
+        });
+        return false;
+    }
+</script>

@@ -1,0 +1,40 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEthicsApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@{var ethicsApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEthicsApplyPrivilige(User.Identity.Name);}
+<div style="padding:0px;">
+    <div style="margin-left:210px;padding-bottom:10px;padding-top:10px;">
+        @Html.JLinkButton("btnSaveEthicsApply", "提交").SetIconCls("icon-save").SetOnclick("doSaveEthicsApply();").SetVisible(ethicsApplyPrivilige.IsEnableApply && (bool)ViewData["IsPassTranning"]).ToMvcString()
+        @Html.JLinkButton("btnPrintEthicsApply", "打印").SetIconCls("icon-print").SetOnclick(string.Format("doPrintEthicsApply('{0}');", Model != null ? Model.Id.ToString() : "")).SetVisible(ethicsApplyPrivilige.IsEnablePrint && Model != null).ToMvcString()
+        @Html.JLinkButton("btnBackEthicsApply", "返回").SetIconCls("icon-back").SetOnclick("doBack();").ToMvcString()
+    </div>
+</div>
+<script type="text/javascript">
+    function doBack() {
+        var url = '@Url.Action("Index", "EthicsApply")' + "?id=''" + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doSaveEthicsApply() {
+        if (!$("#HasReadTheNotice").attr("checked")) {
+            $.messager.alert('提示', "请勾选上我已认真阅读入室规章制度,并同意遵守其内容 ", 'warning');
+            return false;
+        }
+        var projectSourceName = $("#ProjectSourceId").combobox("getText");
+        var ethicsApplyAnimalExperimenters = generateEthicsApplyAnimalExperimenters();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Apply","EthicsApply")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#frmEthicsApplyEdit").serialize() + "&projectSourceName=" + projectSourceName + "&ethicsApplyAnimalExperimenters=" + ethicsApplyAnimalExperimenters,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doBack();
+            }
+        });
+        return false;
+    }
+</script>

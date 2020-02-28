@@ -1,0 +1,25 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSystemLog
+<div id="divSystemLogView" style="width:600px; height:450px;overflow-x:hidden; overflow-y:auto">
+    <table class="edit-table" style="width:100%; height:100%;">
+        <tr>
+            <th>记录类型</th>
+            <td>@Model.OperateEntityCnName</td>
+        </tr>
+        <tr>
+            <th>操作类型</th>
+            <td>@Model.OperateTypeStr</td>
+        </tr>
+        <tr>
+            <th>操作人</th>
+            <td>@Model.OperatorNameStr</td>
+        </tr>
+        <tr>
+            <th>操作时间</th>
+            <td>@Model.OperateTimeStr</td>
+        </tr>
+        <tr>
+            <th>日志内容</th>
+            <td>@(System.Web.Mvc.MvcHtmlString.Create(!string.IsNullOrWhiteSpace(Model.LogContentHTML) ? Model.LogContentHTML : ""))</td>
+        </tr>
+    </table>
+</div>

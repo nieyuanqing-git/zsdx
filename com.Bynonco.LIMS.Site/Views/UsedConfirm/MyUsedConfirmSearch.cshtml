@@ -1,0 +1,110 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateMyUsedConfirmQueryExpression() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+
+        var labRoomXPath = $("#SearchLabRoomXPath").val().trim();
+        if (labRoomXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "LabRoomXPath→\"" + labRoomXPath + "\"";
+        }
+
+        var subjectDirectorName = $("#SearchSubjectDirectorName").val().trim();
+        if (subjectDirectorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "TutorName∽\"" + subjectDirectorName + "\"";
+        }
+        var beginAtStart = $("#SearchBeginAtStart").datebox("getValue").trim();
+        if (beginAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt>\"" + beginAtStart + " 00:00:00" + "\"";
+        }
+        var beginAtEnd = $("#SearchBeginAtEnd").datebox("getValue").trim();
+        if (beginAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt<\"" + beginAtEnd + " 23:59:59" + "\"";
+        }
+        var endAtStart = $("#SearchEndAtStart").datebox("getValue").trim();
+        if (endAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EndAt>\"" + endAtStart + " 00:00:00" + "\"";
+        }
+        var endAtEnd = $("#SearchEndAtEnd").datebox("getValue").trim();
+        if (endAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EndAt<\"" + endAtEnd + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doMyUsedConfirmSearchReset() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchUserName").val("");
+        $("#SearchSubjectDirectorName").val("");
+        $("#SearchLabRoomXPath").val("");
+        $("#SearchLabRoomId").val('@Guid.Empty.ToString()');
+        $("#SearchBeginAtStart").datebox("setValue", "");
+        $("#SearchBeginAtEnd").datebox("setValue", "");
+        $("#SearchEndAtStart").datebox("setValue", "");
+        $("#SearchEndAtEnd").datebox("setValue", "");
+        return false;
+    }
+
+    function getMyUsedConfirmSearchLabRoomXPath(element) {
+        $("#SearchLabRoomXPath").val("");
+        var labRoomId = element.value;
+        if (labRoomId != "" && !labRoomId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labRoomId }, function (data) {
+                if (data && data != "")
+                    $("#SearchLabRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="width:60px">使用者</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">放置地点</label>
+        @Html.DropDownList("SearchLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px;", onchange = "getUnDeductUsedConfirmSearchLabRoomXPath(this);" })
+        @Html.Hidden("SearchLabRoomXPath")
+    </li>
+    <li>
+        <label style="width:60px">课题负责人</label>
+        @Html.JValidateBox("SearchSubjectDirectorName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px; margin-top:15px">开始时间</label>
+        @Html.JDateTimePicker("SearchBeginAtStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px"></label>
+        @Html.JDateTimePicker("SearchBeginAtEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px; margin-top:15px">结束时间</label>
+        @Html.JDateTimePicker("SearchEndAtStart").SetValue(ViewData["EndAtStart"]!=null?ViewData["EndAtStart"].ToString():"").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px"></label>
+        @Html.JDateTimePicker("SearchEndAtEnd").SetValue(ViewData["EndAtEnd"]!=null?ViewData["EndAtEnd"].ToString():"").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnCurUsingEquipmentSearch", "查询").SetOnclick("doMyUsedConfirmSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnCurUsingEquipmentReset", "清空").SetOnclick("doMyUsedConfirmSearchReset();").ToMvcString()
+        @Html.JLinkButton("btnCurUsingEquipmentClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

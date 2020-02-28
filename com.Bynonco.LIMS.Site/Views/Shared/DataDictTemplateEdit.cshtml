@@ -1,0 +1,123 @@
+﻿@model com.Bynonco.LIMS.Model.Business.IDataDictTemplate
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+<script type="text/javascript">
+    function doOnControlCategoryChanged(newValue, oldValue) {
+        switch (newValue.toString()) {
+            case '@((int)ControlType.TextBox)':
+            case '@((int)ControlType.TextArea)':
+                $("#trVals").css("display", "none");
+                $("#Vals").val("");
+                $("#trDataCategory").css("display", "");
+                $("#trControlHeight").css("display", "");
+                $("#trControlWidth").css("display", "");
+                $("#trValidateRegExpression").css("display", "");
+                break;
+            case '@((int)ControlType.RadioButtion)':
+            case '@((int)ControlType.CheckBox)':
+                $("#trVals").css("display", "");
+                $("#trDataCategory").css("display", "");
+                $("#trControlHeight").css("display", "none");
+                $("#trControlWidth").css("display", "none");
+                $("#trValidateRegExpression").css("display", "none");
+                $("#ControlWidth").val("");
+                $("#ControlHeight").val("");
+                $("#ValidateRegExpression").val("");
+                break;
+            case '@((int)ControlType.DateTimePicker)':
+                $("#trVals").css("display", "none");
+                $("#Vals").val("");
+                setTimeout("$('#DataCategory').combobox('setValue', '@((int)DataType.DateTime)');", 100);
+                $("#trDataCategory").css("display", "none");
+                $("#trControlHeight").css("display", "");
+                $("#trControlWidth").css("display", "");
+                $("#trValidateRegExpression").css("display", "");
+                break;
+            case '@((int)ControlType.ComboxBox)':
+                $("#trVals").css("display", "");
+                $("#trDataCategory").css("display", "");
+                $("#trControlHeight").css("display", "");
+                $("#trControlWidth").css("display", "");
+                $("#trValidateRegExpression").css("display", "");
+                break;
+
+        }
+    }
+    function doOnDataCategoryChanged(newValue, oldValue) {
+        switch (newValue.toString()) {
+            case '@((int)DataType.String)':
+                $("#trDataLength").css("display", "");
+                break;
+            default:
+                $("#trDataLength").css("display", "none");
+                $("#DataLength").val("");
+        }
+    }
+</script>
+<tr>
+    <th><span class="required">*</span>名称</th>
+    <td>
+        @Html.JValidateBox("Name").SetWidth(150).SetValue(Model != null ? Model.Name : "").ToMvcString()
+    </td>
+</tr>
+<tr>
+    <th><span class="required">*</span>控件类型</th>
+    <td>
+        @Html.JComboBox("ControlCategory").SetOnChange("doOnControlCategoryChanged(newValue, oldValue);").SetWidth(155).SetData(ViewData["ControlCategoryJson"]).ToMvcString()
+    </td>
+</tr>
+<tr id="trDataCategory">
+    <th><span class="required">*</span>数据类型</th>
+    <td>
+        @Html.JComboBox("DataCategory").SetOnChange("doOnDataCategoryChanged(newValue, oldValue);").SetWidth(155).SetData(ViewData["DataCategoryJson"]).ToMvcString()
+    </td>
+</tr>
+<tr id="trDataLength">
+    <th>数据项最大长度</th>
+    <td>
+        @Html.JValidateBox("DataLength").SetWidth(150).SetValue(Model != null && Model.DataLength.HasValue ? Model.DataLength.ToString() : "").ToMvcString()
+    </td>
+</tr>
+<tr id="trControlWidth">
+    <th>控件宽度</th>
+    <td>
+        @Html.JValidateBox("ControlWidth").SetWidth(150).SetValue(Model != null && Model.ControlWidth.HasValue ? Model.ControlWidth.ToString() : "").ToMvcString()
+    </td>
+</tr>
+<tr id="trControlHeight">
+    <th>控件高度</th>
+    <td>
+        @Html.JValidateBox("ControlHeight").SetWidth(150).SetValue(Model != null && Model.ControlHeight.HasValue ? Model.ControlHeight.ToString() : "").ToMvcString()
+    </td>
+</tr>
+<tr id="trVals" style="display:none">
+    <th>值域</th>
+    <td>
+        @Html.JValidateBox("Vals").SetWidth(150).SetValue(Model != null ? Model.Vals : "").ToMvcString()
+        <span>多个值,分隔</span>
+    </td>
+</tr>
+<tr>
+    <th><span class="required">*</span>是否必填</th>
+    <td>
+        @Html.JComboBox("IsRequired").SetWidth(155).SetData(ViewData["IsRequiredJson"]).ToMvcString()
+    </td>
+</tr>
+<tr>
+    <th>控件默认值</th>
+    <td>
+        @Html.JValidateBox("ControlDefaultValue").SetWidth(150).SetValue(Model != null ? Model.ControlDefaultValue : "").ToMvcString()
+    </td>
+</tr>
+<tr>
+    <th>排序号</th>
+    <td>
+        @Html.JValidateBox("OrderNo").SetWidth(150).SetValue(Model != null? Model.OrderNo.ToString() : "").ToMvcString()
+    </td>
+</tr>
+<tr id="trValidateRegExpression">
+    <th>校验正则表达式</th>
+    <td>
+        @Html.JValidateBox("ValidateRegExpression").SetWidth(150).SetValue(Model != null ? Model.ValidateRegExpression : "").ToMvcString()
+    </td>
+</tr>

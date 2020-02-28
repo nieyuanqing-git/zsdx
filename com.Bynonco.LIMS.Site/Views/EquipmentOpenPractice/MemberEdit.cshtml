@@ -1,0 +1,35 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPracticeMember
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var infoId = Model == null ? Guid.NewGuid() : Model.Id;
+    //var str = Model == null || Model.User == null ? "" : "[{\"id\":\"" + Model.User.Id + "\",\"text\":\"" + Model.User.UserName + (" (" + (Model.User.Speciality + "、" + Model.User.Grade).Trim('、') + ")").Replace(" ()","") + "\"}]";
+}
+<tr id='@("tr_" + infoId)'>
+    <td class='item-Id'>
+        <input id="Id_@(infoId)" type="hidden" value="@(infoId)" name="Id_@(infoId)"/>
+        @Html.JLinkButton("btnRemovePlan_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveItem('" + infoId + "');return false;").ToMvcString()
+        @*@Html.Hidden("MemberUserId_" + infoId, infoId.ToString())*@
+    </td>
+    @*<td id='td@(infoId)'>
+        <div style='float:left;'>
+            @(Html.TokenInput("MemberUserId_" + infoId)
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(string.IsNullOrWhiteSpace(str) ? null : str)
+                .SetSingle(true)
+                .SetWidth(400)
+                .ToMvcString())
+            </div>
+            <div style='float:left;'>
+                @Html.JLinkButton("btnClearMemberUserId_" + infoId, "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#MemberUserId_" + infoId + "').tokenInput('clear');;return false;").ToMvcString()
+            </div>
+            <div class='clear-both'></div>
+            <script type="text/javascript">
+                $(function () {
+                    $("#td@(infoId) ul.token-input-list-facebook").css("width", "220px");
+                });
+            </script>
+    </td>*@
+    <td>@Html.JValidateBox("StudentName_" + infoId).SetValue(Model == null ? "" : Model.StudentName).SetWidth(150).ToMvcString()</td>
+    <td>@Html.JValidateBox("StudentNumber_" + infoId).SetValue(Model == null ? "" : Model.StudentNumber).SetWidth(150).ToMvcString()</td>
+    <td>@Html.JValidateBox("PracticePosition_" + infoId).SetValue(Model == null ? "" : Model.PracticePosition).SetWidth(150).ToMvcString()</td>
+</tr>

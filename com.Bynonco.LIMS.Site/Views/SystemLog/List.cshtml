@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var queryExpression = ViewData["QueryExpression"] != null ? ViewData["QueryExpression"].ToString().Trim() : "";
+    var systemLogPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSystemLogPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbViewSystemLog")
+            .SetUrl(Url.Action("GetGridViewSystemLogList", "SystemLog", new { time = DateTime.Now.Millisecond.ToString() }))
+            .SetHeight(650)
+            .SetPageSize(20)
+            .SetSortName("OperateTime")
+            .SetSortOrder(SortOrder.desc);
+            dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+            if (systemLogPrivilige.IsEnableView)
+            {
+                dataGrid.SetOnDblClickRow("doView(rowData.Id);");
+                dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("查看", "ViewOperate").SetWidth(50).SetAlign(Align.center));
+            }
+            dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("记录类型", "OperateEntityCnName").SetWidth(120).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作类型", "OperateTypeStr").SetWidth(100).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作人", "OperatorNameStr").SetWidth(100).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作时间", "OperateTimeStr").SetWidth(130).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("日志内容", "LogContent").SetWidth(500).SetAlign(Align.left))
+            .SetShowSearchButton(ViewData["IsShowSearch"] == null ? true : (bool)ViewData["IsShowSearch"])
+            .SetSearchScript("doShowSearch()");
+            if (!string.IsNullOrWhiteSpace(queryExpression))
+            {
+                dataGrid.AddQueryParam("queryExpression", queryExpression);
+            }
+            if (ViewData["Width"]!=null)
+            {
+                dataGrid.SetWidth(int.Parse(ViewData["Width"].ToString()));
+            }
+            if (ViewData["Height"] != null)
+            {
+                dataGrid.SetHeight(int.Parse(ViewData["Height"].ToString()));
+            }
+  }
+  @(dataGrid.ToMvcString())    

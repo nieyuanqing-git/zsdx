@@ -1,0 +1,127 @@
+﻿@model com.Bynonco.LIMS.Model.SJ4
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+.edit-table td {border: 0;}
+.edit-table td.tdInfo {width:30px;}
+.edit-table .icon {
+    height: 16px;
+    line-height: 16px;
+    margin-right: 5px;
+    padding-bottom: 2px;
+    padding-right: 16px;
+    width: 16px;
+}
+</style>
+<div id="divSJ4Edit">
+ <form id="frmSJ4Edit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("SJ4StatisticsId", Model == null ? "" : Model.SJ4StatisticsId.ToString())
+    <table id="tdSJ4Edit" class="edit-table"  style="width:485px;">
+        <tr>
+            <th>学校代码</th>
+            <td>
+                @Html.JValidateBox("SchoolCode").SetValue(Model == null ? (ViewData["SchoolCode"] == null ? "" : ViewData["SchoolCode"].ToString().Trim()) : Model.SchoolCode.Trim()).SetWidth(50).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="学校代码: 数据格式为字符型，长度为5"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>实验编号</th>
+            <td>
+                @Html.JValidateBox("ExperimentNum").SetValue(Model == null ? "" : Model.ExperimentNum.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验编号：数据格式为字符型，长度为13。学校内部使用的编号，在本校内具有永久唯一性，不能为空。若实验撤消，该实验编号将不再使用。如果实验内容更新较大，则应另设新的实验编号及实验名称。独立设课的实验编号最后一位为“*”，例如：某实验编号为01002001，该实验又为独立设课实验，所以上报实验编号应为01002001*。"></span>
+            </td>
+            <th>实验名称</th>
+            <td>
+                @Html.JValidateBox("ExperimentName").SetValue(Model == null ? "" : Model.ExperimentName.Trim()).SetWidth(100).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验名称：数据格式为字符型，长度为50。填写汉字名称。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>实验类别</th>
+            <td>
+                @Html.JValidateBox("ExperimentType").SetValue(Model == null ? "" : Model.ExperimentType.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验类别：数据格式为字符型，长度为1。按代码填写：1．基础；2. 专业基础；3. 专业；4. 其它——除以上三种情况以外的实验类别。"></span>
+            </td>
+            <th>实验类型</th>
+            <td>
+                @Html.JValidateBox("ExperimentCategory").SetValue(Model == null ? "" : Model.ExperimentCategory.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验类型：数据格式为字符型，长度为2。按代码填写： 1．演示性；2．验证性；3．综合性；4．设计研究；5．其它。若为网络实验教学项目，取值后再加“*”，例如：某实验为验证性网络实验，取值应为“2*”。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>实验所属学科</th>
+            <td>
+                @Html.JValidateBox("ExperimentSubject").SetValue(Model == null ? "" : Model.ExperimentSubject.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验所属学科：数据格式为字符型，长度为4。按照最新版的《中国普通高等学校本科专业设置大全》填写二级类代码(前四位)。"></span>
+            </td>
+            <th>实验要求</th>
+            <td>
+                @Html.JValidateBox("ExperimentRequirements").SetValue(Model == null ? "" : Model.ExperimentRequirements.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验要求：数据格式为字符型，长度为1。按代码填写： 1．必修；2．选修；3．其它。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>实验者类别</th>
+            <td>
+                @Html.JValidateBox("ExperimentUserType").SetValue(Model == null ? "" : Model.ExperimentUserType.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验者类别：数据格式为字符型，长度为1。指参加本实验项目的人员类别。按代码填写：1．博士生；2．硕士生；3．本科生；4．专科生；5．其他。如果同一实验项目同时为多类人员开设，应分别填写多条记录，但“实验编号”、“实验名称”应相同。例如：某实验，同时为硕士生、本科生、专科生开设，上报数据应分别填报3条记录，每条记录的实验者类别等相关字段不同，但实验编号、实验名称要相同。"></span>
+            </td>
+            <th>实验者人数</th>
+            <td>
+                @Html.JValidateBox("ExperimentUserCount").SetValue(Model == null ? "" : Model.ExperimentUserCount.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验者人数：数据格式为数值型，长度为6。指参加本实验项目的总人数。一个实验项目无论分几次做完，参加这个实验项目的总人数不变。例如：某实验既为本专业学生开设，同时又为外专业学生开设，上报记录应为一条，实验者人数为两个专业学生人数相加。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>每组人数</th>
+            <td>
+                @Html.JValidateBox("ExperimentTeamCount").SetValue(Model == null ? "" : Model.ExperimentTeamCount.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="组人数：数据格式为数值型，长度为2。指教学实验项目中在每套仪器设备上同时完成本实验项目的人数。"></span>
+            </td>
+            <th>实验学时数</th>
+            <td>
+                @Html.JValidateBox("ExperimentHours").SetValue(Model == null ? "" : Model.ExperimentHours.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验学时数：数据格式为数值型，长度为4。指完成本实验项目的实际学时数，不包括实验准备时间。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>实验室编号</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomNum").SetValue(Model == null ? "" : Model.ExperimentRoomNum.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验室编号：数据格式为字符型，长度为10。学校自编的实验室编号，校内具有唯一性。"></span>
+            </td>
+            <th>实验室名称</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomName").SetValue(Model == null ? "" : Model.ExperimentRoomName.Trim()).SetWidth(100).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验室名称：数据格式为字符型，长度为50。完成本实验项目的实验室名称。"></span>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

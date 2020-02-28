@@ -1,0 +1,113 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentRepair
+<div id="divViewEquipmentRepair">
+@if (Model != null)
+{
+    <table class="edit-table"  style="width:600px;">
+        <tr>
+            <th colspan="4" style="text-align:center; font-size:14px;font-weight:bold">
+                @(Model == null ? "" : Model.EquipmentName)(维修记录单)
+            </th>
+        </tr>
+        <tr>
+            <th colspan="2" style="text-align:center;font-weight:bold">损坏或者故障情况记录</th>
+            <th colspan="2" style="text-align:center;font-weight:bold">维修记录</th>
+        </tr>
+        <tr>
+            <th>发生日期</th>
+            <td>
+                @(Model.HappendTime.HasValue ? Model.HappendTime.Value.ToString("yyyy-MM-dd") : "")
+            </td>
+            <th>修理时间 </th>
+            <td>
+                @(Model.RepairTime.HasValue ? Model.RepairTime.Value.ToString("yyyy-MM-dd") : "")
+            </td>
+        </tr>
+        <tr>
+            <th>主要负责人</th>
+            <td>@Model.ResponsiblePerson</td>
+            <th>维修单位</th>
+            <td>@Model.RepariUnit</td>
+        </tr>
+        <tr>
+            <th colspan="2" style="text-align:center;">损坏或故障情况描述</th>
+            <th>维修人员</th>
+            <td>@Model.RepairPenson</td>
+        </tr>
+        <tr>
+            <td colspan="2">@Model.Description</td>
+            <th>联系方式</th>
+            <td>@Model.ContactMethod</td>
+        </tr>
+        <tr>
+            <th colspan="2" style="text-align:center;">原因分析</th>
+            <th colspan="2" style="text-align:center;">修理内容</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                @System.Web.Mvc.MvcHtmlString.Create(Model.AnalysisReason.Replace("\r\n","<br />"))
+            </td>
+            <td colspan="2">
+                @System.Web.Mvc.MvcHtmlString.Create(Model.RepairContent.Replace("\r\n", "<br />"))
+            </td>
+        </tr>  
+        <tr>
+            <th colspan="2" style="text-align:center;">处理情况</th>
+            <th colspan="2" style="text-align:center;">验收</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                @System.Web.Mvc.MvcHtmlString.Create(Model.HandleCondition.Replace("\r\n", "<br />"))
+            </td>
+            <td colspan="2">
+                @System.Web.Mvc.MvcHtmlString.Create(Model.AcceptanceCheck.Replace("\r\n", "<br />"))
+            </td>
+        </tr>  
+        <tr>
+            <th>仪器操作人员</th>
+            <td>@Model.EquipmentOperator</td>
+            <th>验收人</th>
+            <td>@Model.AcceptanceCheckPerson</td>
+        </tr>
+        <tr>
+            <th>期间工作情况</th>
+            <td>
+                @Model.BeforeRepairStatusName
+                @Model.BeforeRepairUsableStatusName
+            </td>
+            <th>维修后仪器工作情况</th>
+            <td>
+                @Model.AfterRepairStatusName
+                @Model.AfterRepairUsableStatusName
+            </td>
+        </tr>
+        <tr>
+            <th>开始日期</th>
+            <td>
+                @(Model.RepairBeginTime.HasValue ? Model.RepairBeginTime.Value.ToString("yyyy-MM-dd") : "")
+            </td>
+            <th>创建日期</th>
+            <td>
+                @(Model.CreateTime.ToString("yyyy-MM-dd"))
+            </td>
+        </tr>
+        <tr>
+            <th>结束日期</th>
+            <td>
+                @(Model.RepairEndTime.HasValue ? Model.RepairEndTime.Value.ToString("yyyy-MM-dd") : "")
+            </td>
+            <th>维护费用</th>
+            <td>
+                @(Model.Fee.HasValue ? Model.Fee.Value.ToString() + "(元)" : "")
+            </td>
+        </tr>
+    </table>
+}
+else
+{
+    <table class="edit-table"  style="width:500px;">
+        <tr>
+            <th>没有找到相关维修记录单.</th>
+        </tr>
+    </table>
+}
+</div>

@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var materialInfoPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetMaterialBrokenPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbMaterialBrokenList")
+       .SetUrl(Url.Action("GetGridViewMaterialBrokenList", "MaterialBroken"))
+       .SetHeight(650)
+       .SetSortName("BrokenTime")
+       .SetPageSize(10)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.SetShowAddButton(materialInfoPrivilige.IsEnableAdd);
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    if (materialInfoPrivilige.IsEnableAdd)
+    {
+       dataGrid.SetAddScript("doAddMaterialBroken('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("报废人", "Icon").SetWidth(45).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("报废单号", "BrokenNumStr").SetWidth(320).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(80).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("报废明细", "ItemDetail").SetSortable(false).SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("报废人", "BrokenUserName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("报废时间", "BrokenTimeStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "AuditUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核时间", "AuditTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreaterName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(300).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

@@ -1,0 +1,113 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var feedBackAttachmentJson = ViewData["FeedBackAttachmentJson"] == null ? "null" : ViewData["FeedBackAttachmentJson"];
+    var dataGrid = Html.JDataGrid("tbFeedBackAttachmentList")
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false)
+        .SetSortName("FileName")
+        .SetPagination(false)
+        .SetMutiSelect(false)
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件名", "FileName").SetHidden(true))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件名", "FileNameStr").SetWidth(334).SetAlign(Align.left).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("大小", "FileSizeStr").SetWidth(100).SetAlign(Align.center).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "FlleExtension").SetWidth(57).SetAlign(Align.center).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作", "DeleteOperate").SetWidth(57).SetAlign(Align.center).SetSortable(false));
+ }
+@(dataGrid.ToMvcString())
+
+<script type="text/javascript">
+    var feedBackAttachmentJson = "@feedBackAttachmentJson".toJson();
+    $(function () {
+        $('#tbFeedBackAttachmentList').datagrid('loadData', { total: 0, rows: [] });
+        if (feedBackAttachmentJson && feedBackAttachmentJson != "null") {
+            $("#tbFeedBackAttachmentList").datagrid("loadData", eval(feedBackAttachmentJson));
+        }
+    });
+     function doUploadFeedBackAttachmentValidates(file) {
+         if (file == "") {
+             $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+             return false;
+         }
+         var fileName = file.getFileName().trim();
+         if (fileName.indexOf(",") != -1 || fileName.indexOf("#") != -1) {
+             $.messager.show({ title: '提示', msg: "文件名包含非法字符【#,】", showType: 'show' });
+             return false;
+         }
+         var rows = $("#tbFeedBackAttachmentList").datagrid("getRows");
+         if (rows && rows.length > 0) {
+             for (var i = 0; i < rows.length; i++) {
+                 if (rows[i].FileName.trim() + "." + rows[i].FlleExtension.trim() == fileName) {
+                     $.messager.show({ title: '提示', msg: "文件名" + fileName + "已经存在", showType: 'show' });
+                     return false;
+                 }
+             }
+         }
+         return true;
+     }
+     function InsertFeedBackAttachmentToList(file, data) {
+         $('#tbFeedBackAttachmentList').datagrid('appendRow', {
+             Id: data.Id,
+             FileName : data.FileName,
+             FileNameStr: "<a target=\"_blank\" style=\"text-decoration:none\" title=\"点击下载\" href=\"../../SampleFeedBackAttachements/Apply/" + data.EncryptFileName + "." + data.FlleExtension + "\">" + data.FileName + "</a>",
+             FileSizeStr: data.FileSizeStr,
+             FlleExtension: data.FlleExtension,
+             DeleteOperate: "<a href=\"#\" style=\"text-decoration:none\"  attachmentId='" + data.Id + "' sampleApplyId='" + data.SampleApplyId + "' onclick=\"doDeleteFeedBackAttachment(this);return false;\">" + "删除</a>"
+         });
+     }
+     function doDeleteFeedBackAttachment(element) {
+         var attchmentId = element.getAttribute("attachmentId");
+         var sampleApplyId = element.getAttribute("sampleApplyId");
+         $.messager.progress({ title: '提示', msg: '正在删除附件,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("DeleteFeedBackAttachment","SampleManage")' + "?time=" + new Date().getMilliseconds(),
+             data: { "fileIds": attchmentId, "sampleApplyId": sampleApplyId },
+             complete: function (data, status) {
+                 $.messager.progress('close');
+                 if (attchmentId && attchmentId != "") {
+                     var selectedRows = $('#tbFeedBackAttachmentList').datagrid('getSelections');
+                     if (selectedRows) {
+                         for (var j = 0; j < selectedRows.length; j++) {
+                             if (attchmentId == selectedRows[j].Id) {
+                                 var index = $('#tbFeedBackAttachmentList').datagrid('getRowIndex', selectedRows[j]);
+                                 $('#tbFeedBackAttachmentList').datagrid('deleteRow', index);
+                             }
+                         }
+                     }
+                     return true;
+                 }
+                 $.messager.show({ title: '提示', msg: "找不到要删除的文件信息", showType: 'show' });
+                 return false;
+             }
+         });
+     }
+     function ajaxFeedBackFileUpload() {
+         var file = $("#fileToUpload").val();
+         if (!doUploadFeedBackAttachmentValidates(file)) return false;
+         $("#fileToUpload").ajaxStart(function () { $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' }); });
+         $.ajaxFileUpload({
+             url: '@Url.Action("UploadFeedBackAttachment","SampleManage")' + "?time=" + new Date().getMilliseconds(),
+             secureuri: false,
+             fileElementId: 'fileToUpload',
+             complete: function (data) {
+                 var jsonData = eval("(" + data.responseText.trim() + ")");  
+                 $.messager.progress('close');
+                 if (jsonData.Id) InsertFeedBackAttachmentToList(file, jsonData);
+                 else  $.messager.show({ title: '提示', msg: data.responseText, showType: 'show' });
+             }
+         });
+         return false;
+     }
+     function generateFeedBackAttachmentFiles() {
+         var rows = $('#tbFeedBackAttachmentList').datagrid("getRows");
+         if (!rows || rows == "") return "";
+         var files = new Array();
+         for (var i = 0; i < rows.length; i++) {
+             files.push(rows[i].Id + "∽" + rows[i].FileName + "∽" + rows[i].FlleExtension + "∽" + rows[i].FileSizeStr);
+         }
+         return files;
+     }
+ </script>
+ 
+

@@ -1,0 +1,85 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var sampleRoleStr = ViewData["SampleRoleStr"];
+    var userEquipmentPrivilige = (UserEquipmentPrivilige)ViewData["UserPriviliges"];
+    var messageTitle = ViewData["MessageTitle"].ToString();
+    var emailAddress = ViewData["EmailAddress"].ToString();
+    var sampleApplyId = ViewData["SampleApplyId"];
+    var sampleApply =  (SampleApply)ViewData["SampleApply"];
+    var loginUserId = ViewData["LoginUserId"].ToString();
+    var messageContent = sampleApply.Notice.ToString();
+}
+<script type="text/javascript">
+    var sampleApplyId = "@sampleApplyId";
+    var sampleRoleStr = "@sampleRoleStr";
+    function doSendEmail() {
+        var sendMode = $("#SendMode").combobox("getValue");
+        var address = $("#EmailAddress").val();
+        if (sendMode == "@((int)SendMode.Email)" || sendMode == "@((int)SendMode.EmailAndPhoneMessage)" || sendMode == "@((int)SendMode.All)") {
+            if (address.trim() == "" || !$("#EmailAddress").validatebox("isValid")) {
+                $.messager.show({ title: '提示', msg: '请输入有效的邮箱地址', showType: 'show' });
+                return false;
+            }
+        }
+        var title = $("#MessageTitle").val();
+        if (title.trim() == "") {
+            $.messager.show({ title: '提示', msg: '请输入消息的标题', showType: 'show' });
+            return false;
+        }
+        var content = $("#MessageContent").val();
+        if (content.trim() == "") {
+            $.messager.show({ title: '提示', msg: '请输入消息的内容', showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在发送信息,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SendMessage")' + "?time=" + new Date().getMilliseconds(),
+            data: { "sampleRoleStr": sampleRoleStr, "id": sampleApplyId, "sendMode": sendMode, "address": address, "title": title, "content": content },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                messageDialog.dialog('close');
+            }
+        });
+
+    }
+</script>
+<div id="divSendMessage">
+    <table class="edit-table">
+        <tr>
+            <th>发送模式</th>
+            <td>
+                @Html.JComboBox("SendMode").SetData(ViewData["SendModeJson"]).SetWidth(206).SetValue(ViewData["SendMode"].ToString()).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>邮箱地址</th>
+            <td>
+                @(Html.JValidateBox("EmailAddress")
+                .SetPasswordMode(!sampleApply.IsSecret || userEquipmentPrivilige == null || userEquipmentPrivilige.IsEnableLookSecretInfo || loginUserId == sampleApply.ApplicantId.ToString() ? false : true)
+                .SetValidateType(ValidateType.email)
+                .SetValue(emailAddress)
+                .SetWidth(200)
+                .SetInvalidMessage("请输入有效的Eamil地址").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>标题</th>
+            <td>
+                    @Html.JValidateBox("MessageTitle").SetValue(messageTitle).SetWidth(335).SetValidateType(ValidateType.required).SetInvalidMessage("请输入消息的标题").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>内容</th>
+            <td>
+                @Html.TextArea("MessageContent",messageContent,new {style="height:60px;width:335px;font-size:12px;font-weight:normal"})  
+            </td>
+        </tr>
+    </table>
+</div> 

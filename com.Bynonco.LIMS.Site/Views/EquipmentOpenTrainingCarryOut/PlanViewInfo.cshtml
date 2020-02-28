@@ -1,0 +1,12 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenTrainingCarryOutPlan
+@using com.Bynonco.JqueryEasyUI.Core; 
+@if (Model != null)
+{
+    <tr>
+        <td>@(Model == null ? "" : Model.ClassDate.ToString("MM月dd日"))</td>
+        <td>@(Model == null ? "" : Model.ClassTime)</td>
+        <td>@(Model == null ? "" : Model.ClassPlace)</td>
+        <td>@(Model == null ? "" : Model.ClassContent)</td>
+        <td>@(Model == null ? "" : Model.Teacher)</td>
+    </tr>
+}

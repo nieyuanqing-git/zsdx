@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var startAt = new DateTime(DateTime.Now.Year - 1, 9, 1);
+    var endAt = new DateTime(DateTime.Now.Year, 8, 31);
+    var unitPrice = 400000;
+}
+<script type="text/javascript">
+    function doResetSJ3StatisticsAdd() {
+        $("#AddStartAt").datebox("setValue", "");
+        $("#AddEndAt").datebox("setValue", "");
+    }
+</script>
+<ul class="search">
+    <li>
+        请选择生成统计的条件：
+    </li>
+    <li>
+        <label>仪器价值</label>
+        @Html.JValidateBox("AddUnitPrice").SetValue(unitPrice.ToString()).SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>开始时间</label>
+        @Html.JDateTimePicker("AddStartAt").SetValue(startAt.ToString("yyyy-MM-dd")).SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("AddEndAt").SetValue(endAt.ToString("yyyy-MM-dd")).SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSJ3StatisticsAdd", "新增").SetOnclick("doAddSJ3Statistics();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnResetSJ3StatisticsAdd", "清空").SetOnclick("doResetSJ3StatisticsAdd();").ToMvcString()
+        @Html.JLinkButton("btnCloseSJ3StatisticsAdd", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>

@@ -1,0 +1,175 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var materialRecipientPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetMaterialRecipientPrivilige(User.Identity.Name);}
+<div id="divMaterialRecipientDialog" style="display:none"></div>
+<div id="divViewMaterialRecipientDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doMaterialRecipientSearch() {
+        var queryExpression = generateMaterialRecipientQueryExpress();
+        $("#tbMaterialRecipientList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbMaterialRecipientList").datagrid("load", { "queryExpression": queryExpression.trim()});
+        return false;
+    }
+    var materialRecipientDialog;
+    function doMaterialRecipientDialog() {
+        if (materialRecipientDialog) {
+            materialRecipientDialog.dialog("destroy");
+        }
+        materialRecipientDialog = @Html.JDialog("divMaterialRecipientEdit").SetTitle("耗材领用单信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("materialRecipientDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveMaterialRecipient();").ToMvcString();
+    }
+    function doAuditMaterialRecipientDialog() {
+        if (materialRecipientDialog) {
+            materialRecipientDialog.dialog("destroy");
+        }
+        materialRecipientDialog =  @(Html.JDialog("divMaterialRecipientEdit")
+            .SetTitle("耗材领用单信息")
+            .AddButton(new ToolBarButton() { Handler = "doAuditPassMaterialRecipient();return false;", Id = "btnAuditPassMaterialRecipient", Text = "审核通过", IconCls = "icon-pass",Disabled = !materialRecipientPrivilige.IsEnableAudit })
+            .AddButton(new ToolBarButton() { Handler = "doAuditRejectMaterialRecipient();return false;", Id = "btnAuditRejectMaterialRecipient", Text = "审核不通过", IconCls = "icon-reject",Disabled = !materialRecipientPrivilige.IsEnableAudit })
+            .SetIconCls("icon-save")
+            .SetAutoDialog(false)
+            .SetShowOkButton(false)
+            .SetCancelScript("materialRecipientDialog.dialog('destroy');return false;")
+            .SetModal(true).ToMvcString());
+    }
+    function doAuditMaterialRecipient(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedMaterialRecipient = $("#tbMaterialRecipientList").datagrid("getSelected");
+           if(!selectedMaterialRecipient || selectedMaterialRecipient.Id=="" || selectedMaterialRecipient.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材领用单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialRecipient.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Audit","MaterialRecipient")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialRecipientDialog").load(url,function(){
+            doAuditMaterialRecipientDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAuditPassMaterialRecipient()
+    {
+        var url = '@Url.Action("AuditPass","MaterialRecipient")'
+        doSaveMaterialRecipient(url)
+    }
+    function doAuditRejectMaterialRecipient()
+    {
+        var url = '@Url.Action("AuditReject","MaterialRecipient")'
+        doSaveMaterialRecipient(url)
+    }
+    function doAddOrEditMaterialRecipient(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Edit","MaterialRecipient")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialRecipientDialog").load(url,function(){
+            doMaterialRecipientDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAddMaterialRecipient(id) {
+       doAddOrEditMaterialRecipient(id);
+    }
+    function doEditMaterialRecipient(id) {
+       if(!id || id.trim()==""){
+           var selectedMaterialRecipient = $("#tbMaterialRecipientList").datagrid("getSelected");
+           if(!selectedMaterialRecipient || selectedMaterialRecipient.Id=="" || selectedMaterialRecipient.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材领用单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialRecipient.Id;
+       }
+       doAddOrEditMaterialRecipient(id);
+    }
+    function doSaveMaterialRecipient(url){
+        if(!url || url.trim() == "")
+        {
+            url = '@Url.Action("Save","MaterialRecipient")';
+        }
+        if($("#RecipientNum").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"领用单号为空", showType: 'show' });;
+          return false;
+        }
+        if($("#RecipientUserId").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"领用人为空", showType: 'show' });;
+          return false;
+        }
+        if($("#RecipientTime").datetimebox("getValue") == ""){
+          $.messager.show({ title: '提示', msg:"领用时间为空", showType: 'show' });;
+          return false;
+        }
+        if($("#MaterialInfoIds").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"领用项目为空", showType: 'show' });;
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmMaterialRecipientEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                materialRecipientDialog.dialog('destroy');
+                doMaterialRecipientSearch();
+            }
+        });
+   }
+   function doDeleteMaterialRecipient(id){
+        if(!id || id.trim() == ""){
+              var selectedMaterialRecipient = $("#tbMaterialRecipientList").datagrid("getSelected");
+                if(!selectedMaterialRecipient || selectedMaterialRecipient.Id.trim() == "" || selectedMaterialRecipient.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的领用单", showType: 'show' });
+                    return false;
+                }
+                id = selectedMaterialRecipient.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "MaterialRecipient")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doMaterialRecipientSearch();
+                }
+            });
+        });
+        return false;
+   }
+
+   var viewMaterialRecipientDialog;
+   function doViewMaterialRecipientDialog() {
+        if (viewMaterialRecipientDialog) {
+            viewMaterialRecipientDialog.dialog("destroy");
+        }
+        viewMaterialRecipientDialog =  @Html.JDialog("divMaterialRecipientView").SetTitle("耗材领用单信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewMaterialRecipientDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doViewMaterialRecipientInfo(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedMaterialRecipient = $("#tbMaterialRecipientList").datagrid("getSelected");
+           if(!selectedMaterialRecipient || selectedMaterialRecipient.Id=="" || selectedMaterialRecipient.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材领用单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialRecipient.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewInfo","MaterialRecipient")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewMaterialRecipientDialog").load(url,function(){
+            doViewMaterialRecipientDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+</script>

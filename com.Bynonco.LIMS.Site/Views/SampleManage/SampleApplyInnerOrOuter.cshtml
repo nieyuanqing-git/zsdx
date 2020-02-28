@@ -1,0 +1,15 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+}
+<div style="background-color:#F8F8F8;">   
+    <div>@Html.Partial("../SampleManage/SampleApplyInfoInnerOrOuter")</div>
+    <div style="height:25px; text-align:center; padding-top:15px;width:738px;padding:10px">
+        @Html.Partial("../SampleManage/SampleApplyInnerOrOuterOperate")
+    </div> 
+</div>
+<div style="display:none">@Html.Partial("../SampleManage/SampleAuditScriptContainer")</div>

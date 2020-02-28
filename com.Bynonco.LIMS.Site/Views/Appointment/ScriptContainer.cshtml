@@ -1,0 +1,221 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Partial("../Appointment/ViewAppointmentInfoScript")
+<div id="divSelectChangeEquipmentDialog" style="display:none"></div>
+<div id="divPunishConfirmDialog" style="display:none"></div>
+<div id="divRepealConfirmDialog" style="display:none"></div>
+<div id="divAppointmentAuditDialog" style="display:none"></div>
+<div id="divAddUsedConfirmDialog" style="display:none"></div>
+<div id="divSelfAddUsedConfirmDialog" style="display:none"></div>
+<div style="display:none;">
+    <div id="divAppointmentAuditResultContainer" style="width:450px"></div>
+</div>
+<script type="text/javascript">
+    var selfAddUsedConfirmDialog;
+    function doSelfAddAppointmentUsedConfirm(appointmentId){
+        var url= '@Url.Action("SelfAddAppointmentUsedConfirm","UsedConfirm")';
+        if(selfAddUsedConfirmDialog) {
+            selfAddUsedConfirmDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelfAddUsedConfirmDialog").load(url, { "appointmentId": appointmentId, "time": new Date().getMilliseconds() }, function (data) {
+           selfAddUsedConfirmDialog = @(Html.JDialog("divSelfUsedConfirmEdit")
+                                     .SetTitle("编辑使用记录信息")
+                                     .SetIconCls("icon-save")
+                                     .AddButton(new ToolBarButton() { Handler = "doSaveSelfUsedConfirm(selfAddUsedConfirmDialog);return false;", Id = "btnSaveSelfUsedConfirm", Text = "保存", IconCls = "icon-ok" })
+                                     .SetAutoDialog(false)
+                                     .SetShowOkButton(false)
+                                     .SetCancelScript("selfAddUsedConfirmDialog.dialog('close');return false;")
+                                     .SetModal(true).ToMvcString())
+            $.messager.progress('close');
+            
+        });
+    }
+    var addUsedConfirmDialog;
+    function doAddAppointmentUsedConfirm(id){
+        var url= '@Url.Action("EditAppointmentUsedConfirm","UsedConfirm")';
+        if(addUsedConfirmDialog) {
+            addUsedConfirmDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAddUsedConfirmDialog").load(url, { "appointmentId": id, "time": new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            addUsedConfirmDialog = @(Html.JDialog("divUsedConfirmEdit")
+                                     .SetTitle("编辑使用记录信息")
+                                     .SetIconCls("icon-save")
+                                     .AddButton(new ToolBarButton() { Handler = "doChargeUsedConfirm();return false;", Id = "btnChargeUsedConfirm", Text = "扣费", IconCls = "icon-yen" })
+                                     .AddButton(new ToolBarButton() { Handler = "doSaveUsedConfirm();return false;", Id = "btnSaveUsedConfirm", Text = "保存", IconCls = "icon-ok" })
+                                     .SetAutoDialog(false)
+                                     .SetShowOkButton(false)
+                                     .SetCancelScript("addUsedConfirmDialog.dialog('close');return false;")
+                                     .SetModal(true).ToMvcString())
+        });
+    }
+   
+
+    var appointmentAuditDialog;
+    function doAuditAppointment(appointmentIds,appointmentAuditType){
+        if(appointmentIds.trim() == ""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return;
+        }
+        var url= '@Url.Action("AuditAppointmentContainer","Appointment")';
+        if(appointmentAuditDialog) {
+            appointmentAuditDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAppointmentAuditDialog").load(url, { "AppointmentIds":appointmentIds,"appointmentAuditType":appointmentAuditType, "date": new Date().getMilliseconds() }, function () {
+            appointmentAuditDialog = @(Html.JDialog("divAppointmentAuditContainert").SetTitle("预约审核").SetAutoDialog(false).SetOkScript("execAppointmentAudit(appointmentAuditType);").SetCancelScript("appointmentAuditDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+            $.messager.progress('close');
+        });
+    }
+    var appointmentAuditResultDialog;
+    function showAppointmentAuditResult(result){
+        $("#divAppointmentAuditResultContainer").html(result);
+        appointmentAuditResultDialog = @(Html.JDialog("divAppointmentAuditResultContainer").SetTitle("预约审核结果").SetAutoDialog(false).SetOkScript("appointmentAuditResultDialog.dialog('close');").SetCancelScript("appointmentAuditResultDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+    }
+    function execAppointmentAudit(appointmentAuditType) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("AuditAppointment", "Appointment")',
+            data: $("#frmAppointmentAudit").serialize() + "&appointmentAuditType=" + appointmentAuditType +   "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                doAppointmentSearch();
+                showAppointmentAuditResult(msg);
+                $.messager.progress('close');
+                appointmentAuditDialog.dialog("close");
+            }
+        });
+    }
+    function doAppointmentAuditBatch(appointmentAuditType,tableId){
+        var selectedRows = !tableId || tableId==""? $('#tbAppointmentSearchList').datagrid("getSelections"):$('#' + tableId ).datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            for(var i = 0;i < selectedRows.length;i++){
+                ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+            }
+            doAuditAppointment(ids,appointmentAuditType);
+        }
+    }
+    function doCancleAppointment(id) {
+        $.messager.confirm('提示', '确认取消预约?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("CancelAppointment","Appointment")',
+                data: {"AppointmentId":id,"date":new Date().getMilliseconds()},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doAppointmentSearch();
+                }
+             });
+        });
+    }
+    var selectChargeEquipmentDialog;
+    function doChangeAppointment(id,equipmentId) {
+        $.messager.confirm('提示', '确认改约?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            var url = '@Url.Action("SelectChangeEquipment","Equipment")';
+            if(selectChargeEquipmentDialog) {
+                selectChargeEquipmentDialog.dialog("destroy");
+            }
+            $("#divSelectChangeEquipmentDialog").load(url, { "EquipmentId": equipmentId,"ChangeAppointmentId":id, "date": new Date().getMilliseconds() }, function () {
+                selectChargeEquipmentDialog = @(Html.JDialog("divSelectChangeEquipment").SetTitle("选择改约设备").SetAutoDialog(false).SetOkScript("getSelectedChangeEquipment(id);").SetCancelScript("selectChargeEquipmentDialog.dialog('close');").SetIconCls("icon-search").ToMvcString());
+                $.messager.progress('close');
+            });
+        });
+    }
+    function getSelectedChangeEquipment(changeAppointmentId){
+        var euqipmentId = $("#SelectedChangeEquipmentId").combobox("getValue");
+        if(!euqipmentId || euqipmentId==""){
+            $.messager.alert('提示', "请选择改约设备", 'warning');
+            return false;
+        }
+        selectChargeEquipmentDialog.dialog("close");
+        var url = '@Url.Action("AppointmentBoxIndex", "Equipment")' + "?id=" + euqipmentId + "&ChangeAppointmentId=" + changeAppointmentId + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doRegisterBreakAppointment(id) {
+        $.messager.confirm('提示', '确认登记为爽约?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("RegisterBreakAppointment","Appointment")',
+                data: {"AppointmentId":id,"date":new Date().getMilliseconds()},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    try
+                    {
+                         if (msg && msg.indexOf("出错") != -1 && msg.length >= 2 && msg.substr(0,2) == "出错") {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                         }
+                    }
+                    catch(e){}
+                    doAppointmentSearch();
+                    if(msg && msg!=""){
+                        $("#divPunishConfirmDialog").html(msg);
+                        doShowPunishConfirmDialog();
+                    }
+                }
+             });
+        });
+    }
+    function doPunishConfirmCallBack(){
+        doAppointmentSearch();
+    }
+    function doCancelRegisterBreakAppointment(id) {
+         $.messager.confirm('提示', '确认撤消爽约?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("CancelRegisterBreakAppointmentConfirm","Appointment")',
+                data: {"AppointmentId":id,"date":new Date().getMilliseconds()},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    try
+                    {
+                         if (msg && msg.indexOf("出错") != -1 && msg.length >= 2 && msg.substr(0,2) == "出错") {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                         }
+                    }
+                    catch(e){}
+                    doAppointmentSearch();
+                    if(msg && msg!=""){
+                        $("#divRepealConfirmDialog").html(msg);
+                        doShowRepealConfirmDialog();
+                    }
+                }
+             });
+        });
+    }
+    function doRepealConfirmCallBack(){
+        doAppointmentSearch();
+    }
+    function doAppointmentSearch() {
+        $("#tbAppointmentList").datagrid("reload");
+        return false;
+    }
+    function doSaveUsedConfirmCallBack() {
+        doAppointmentSearch();
+        addUsedConfirmDialog.dialog("close");
+    }
+    function doChargeUsedConfirmCallBack() {
+        doAppointmentSearch();
+        addUsedConfirmDialog.dialog("close");
+    }
+    function doPrint(id) {
+        window.open('@Url.Action("Print","Appointment")' + "?id=" + id + "&time=" + new Date().getMilliseconds(), "_blank");
+        return false;
+    }
+</script>

@@ -1,0 +1,171 @@
+﻿div.equipmentTime
+{
+    border: 1px solid rgb(119, 119, 119);
+    overflow: scroll;
+    width: 680px;    
+}
+
+div.rtprbox
+{
+    padding-left: 30px;
+    padding-top: 5px;
+    height: 30px;
+    background-color: #ebf1cc;
+}
+div.rtprbox li
+{
+    float: left;
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+}
+div.rtprbox a span
+{
+    display: none;
+}
+div.rtprbox a
+{
+    display: block;
+    width: 142px;
+    height: 22px;
+    background: url(./images/iconPr.jpg) no-repeat;
+}
+
+div.selectTimeDiv
+{
+    border: 1px solid rgb(119, 119, 119);
+    overflow: scroll;
+    height: 450px;
+    width: 100%;
+}
+
+table.book
+{
+    text-align: left;
+    margin: 0px;
+    border: 0px;
+}
+
+table.book td img
+{
+    padding: 0px;
+    border: 0px;
+    margin: 0px;
+    height: 17px;
+}
+table.book td
+{
+    font-family: @宋体 Arial,Helvetica,sans-serif;
+    color: #627575;
+    font-size: 12px;
+    height: 22px;
+    padding: 0;
+    width: 22px;
+    text-indent: 0px;
+}
+.nowrap
+{
+    white-space: nowrap;
+}
+table.book td.date
+{
+    color: #627284;
+    font-weight: bold;
+    padding: 0;
+    width: 110px;
+    white-space: nowrap;
+}
+table.book td.valid
+{
+    background: transparent url(./images/ico-validbook.png) no-repeat scroll center center;
+    cursor: hand;
+}
+table.book td.invalid
+{
+    background: transparent url(./images/ico-invalidbook.png) no-repeat scroll center center;
+}
+table.book td.booking
+{
+    background: transparent url(./images/ico-booking.png) no-repeat scroll center center;
+    cursor: hand;
+}        
+table.book td.owerBook
+{
+    background: transparent url(./images/ico-minebook.png) no-repeat scroll center center;
+    cursor: hand;
+}
+table.book td.otherBook
+{
+    background: transparent url(./images/ico-otherbook.png) no-repeat scroll center center;
+    cursor: hand;
+}
+table.data
+{
+    background: #FFFFFF none repeat scroll 0 0;
+    border-collapse: collapse;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 12px;
+    width: 100%;
+}
+table.data th, table.data td
+{
+    height: 26px;
+    text-align: center;
+    vertical-align: middle;
+}
+table.data th
+{
+    background: #00AEEF none repeat scroll 0 0;
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: 0;
+    text-align: center;
+}
+table.data td
+{
+    border: 1px solid #CCCCCC;
+}
+div.htmlArea
+{
+    border: 1px solid rgb(119, 119, 119);
+    overflow: scroll;
+    height: 220px;
+    width: 100%;
+}
+#selectAppointmentTime, #info, #agreement, #success, #selectEquipmentDiv, #pickUserDiv
+{
+    height: 500px;
+    background-color: #ebf1cc;
+}
+#selectAppointmentTime
+{
+    margin: 0px;
+    padding: 10px;
+    text-align: center;
+}
+#bookingstatus
+{
+    text-align: center;
+    background-color: #ebf1cc;
+    height: 45px;
+}
+
+#bookingstatus li.activingStep
+{
+    background: #e7f7d0 url(./images/iconprb.gif) no-repeat 0px 7px;
+    text-align: left;
+    padding: 10px 0 0 20px;
+    border: 0px;
+    height: 32px;
+    width: 125px;
+}
+
+#bookingstatus li.unactiveStep
+{
+    background: #e7f7d0 url(./images/iconpr.gif) no-repeat 0px 7px;
+    text-align: left;
+    padding: 10px 0 0 20px;
+    border: 0px;
+    height: 32px;
+    width: 125px;
+}

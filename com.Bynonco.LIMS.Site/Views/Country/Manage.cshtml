@@ -1,0 +1,100 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Country/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../Country/List")
+</div>
+<div id="divCountryDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateCountryQueryExpress();
+        $("#tbCountryList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbCountryList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var countryDialog;
+    function doCountryDialog() {
+        if (countryDialog) {
+            countryDialog.dialog("destroy");
+        }
+        countryDialog =  @Html.JDialog("divCountryEdit").SetTitle("国家信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("countryDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveCountry();").ToMvcString();
+    }
+    function doAddCountry(id) {
+       doAddOrEditCountry(id);
+    }
+    function doEditCountry(id) {
+       if(!id || id.trim()==""){
+           var selectedCountry = $("#tbCountryList").datagrid("getSelected");
+           if(!selectedCountry || selectedCountry.Id=="" || selectedCountry.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择国家", showType: 'show' });
+              return false;
+           }
+           id = selectedCountry.Id;
+       }
+       doAddOrEditCountry(id);
+    }
+    function doAddOrEditCountry(id){
+        var url = '@Url.Action("Edit","Country")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divCountryDialog").load(url,function(){
+            doCountryDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveCountry(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","Country")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmCountryEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                countryDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteCountry(id){
+        if(!id || id.trim() == ""){
+              var selectedCountry = $("#tbCountryList").datagrid("getSelected");
+                if(!selectedCountry || selectedCountry.Id.trim() == "" || selectedCountry.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedCountry.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Country")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+</script>

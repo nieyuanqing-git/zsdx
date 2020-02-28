@@ -1,0 +1,42 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@{
+    Layout = ViewBag.Layout;
+}
+<script type="text/javascript">
+    function doBack() {
+        var url = '@Url.Action("Index", "Equipment")' + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doReload(id) {
+        var url = '@Url.Action("Edit", "Equipment")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds(); ;
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doDelete() {
+        var id = $("#Id").val().trim();
+        if (id == "") {
+            $.messager.show({ title: '警告', msg: "编码为空,不能删除", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Equipment")' + "?id=" + id + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    doBack();
+                }
+            });
+        });
+        return false;
+
+    }
+</script>

@@ -1,0 +1,1177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{829CE488-56F2-41F4-9FC8-D89C02B81DC5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>com.Bynonco.LIMS.BLL</RootNamespace>
+    <AssemblyName>com.Bynonco.LIMS.BLL</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+  <Compile Include="ChangeeEquAuthorizationLogBLL.cs" />
+    <Compile Include="AnimalAppointmentBLL.cs" />
+    <Compile Include="AnimalBLL.cs" />
+    <Compile Include="AnimalCageBLL.cs" />
+    <Compile Include="AnimalCategoryBLL.cs" />
+    <Compile Include="AnimalCostDeductBLL.cs" />
+    <Compile Include="AnimalFrameBLL.cs" />
+    <Compile Include="AnimalOutAppointmentBLL.cs" />
+    <Compile Include="AnimalOutAppointmentDetailBLL.cs" />
+    <Compile Include="AppointmentEquipmentAddtionChargeItemBLL.cs" />
+    <Compile Include="AppointmentEquipmentPartBLL.cs" />
+    <Compile Include="AppointmentEquipmentUseConditionBLL.cs" />
+    <Compile Include="AppointmentRelativeBLL.cs" />
+    <Compile Include="Assist\CustomDiffHandlerManager.cs" />
+    <Compile Include="Assist\HttpRequestAssitant.cs" />
+    <Compile Include="AutoDeductSettingBLL.cs" />
+    <Compile Include="BenefitEvaluation\EvaluationTableBLL.cs" />
+    <Compile Include="BenefitEvaluation\EvaluationTablePrivilege.cs" />
+    <Compile Include="BenefitEvaluation\ViewEvaluationTableStatBLL.cs" />
+    <Compile Include="Business\AnimalCostDeduct\AnimalCostDeductManager.cs" />
+    <Compile Include="Business\AnimalCostDeduct\IAnimalCostDeductManager.cs" />
+    <Compile Include="Business\Animal\AnimalRegisterDeathManager.cs" />
+    <Compile Include="Business\Animal\IAnimalRegisterDeathManager.cs" />
+    <Compile Include="Business\Appointment\Rule\WhichWeekDayStopBookOfNextWeekAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Validate\AppointmentAuditStatusValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\EquipmentSubjectLimitValidate.cs" />
+    <Compile Include="Business\AutoCancelAppointment\AutoCancelAppointmentManager.cs" />
+    <Compile Include="Business\AutoCancelAppointment\IAutoCancelAppointmentManager.cs" />
+    <Compile Include="Business\AutoDeduct\AutoDeductManager.cs" />
+    <Compile Include="Business\AutoDeduct\IAutoDeductManager.cs" />
+    <Compile Include="Business\CostDeduct\Logic\AnimalDayCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Logic\NMPAppointmentCostDeduct.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Business\CostDeduct\Logic\WaterControlCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Logic\NMPUsedConfirmRelativeCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Logic\NMPUsedConfirmCostDeduct.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Business\CostDeduct\Logic\NMPNewUsedRecordCostDeduct.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Business\CostDeduct\Manager\DeductSynManager.cs" />
+    <Compile Include="Business\Customer\Base\ICutomer.cs" />
+    <Compile Include="Business\Customer\BJDXYXBCustomer.cs" />
+    <Compile Include="Business\Customer\BJHGDXCostomer.cs" />
+    <Compile Include="Business\Customer\BJLGDXCustomer.cs" />
+    <Compile Include="Business\Customer\HCCustomer.cs" />
+    <Compile Include="Business\Customer\JXZYYDXCustomer.cs" />
+    <Compile Include="Business\Customer\NJYKDXCustomer.cs" />
+    <Compile Include="Business\Customer\SHLGDXCustomer.cs" />
+    <Compile Include="Business\Customer\SYXYYCustomer.cs" />
+    <Compile Include="Business\Customer\TRYWJFSYWGJZDSYSCustomer.cs" />
+    <Compile Include="Business\Customer\ZGSYDXCustomer.cs" />
+    <Compile Include="Business\Customer\ZJDXCustomer.cs" />
+    <Compile Include="Business\Customer\ZGNYKXYCustomer.cs" />
+    <Compile Include="Business\Customer\ZDYKZXCustomer.cs" />
+    <Compile Include="Business\Customer\DEJYDXCustomer.cs" />
+    <Compile Include="Business\Customer\SKLNBDCustomer.cs" />
+    <Compile Include="Business\Customer\HNDXCustomer.cs" />
+    <Compile Include="Business\Customer\BJKJDXCustomer.cs" />
+    <Compile Include="Business\Customer\ZJDXNMXYCustomer.cs" />
+    <Compile Include="Business\Customer\ZSDXSMKXXYCustomer.cs" />
+    <Compile Include="Business\Customer\ZDYXYCustomer.cs" />
+    <Compile Include="Business\Customer\GDGYDXCustomer.cs" />
+    <Compile Include="Business\Customer\YZDXCustomer.cs" />
+    <Compile Include="Business\Customer\FSKXJSXYCustomer.cs" />
+    <Compile Include="Business\Customer\BJJTDXCustomer.cs" />
+    <Compile Include="Business\Customer\HBDLDXCustomer.cs" />
+    <Compile Include="Business\Customer\GFKJDXCustomer.cs" />
+    <Compile Include="Business\Customer\BJGYDXCustomer.cs" />
+    <Compile Include="Business\Customer\BJLYDXCustomer.cs" />
+    <Compile Include="Business\Customer\ZJYYCustomer.cs" />
+    <Compile Include="Business\EquipmentRepairFundsApply\EquipmentRepairFundsLabRoomAudit.cs" />
+    <Compile Include="Business\EquipmentRepairFundsApply\EquipmentRepairFundsSchoolAudit.cs" />
+    <Compile Include="Business\MessageReceiveSetting\IMessageReceiveSettingManager.cs" />
+    <Compile Include="Business\MessageReceiveSetting\MessageReceiveSettingManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\AnimalCostDeductMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\AppointmentCostDeductMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\AppointmentSuccessMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\AppointmentTutorAuditMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\AppointmentTutorAuditResultMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\DepositAuditPassMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\DoorAuthorizeMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\DoorContinueAuthorizeMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\ErrorChargedTypeMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\AnimalRegisterDeathMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\ManualCostDeductMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\SampleApplyCostDeductMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\SampleApplyTutorAuditMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\UsedConfirmCostDeductMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\MaterialCostDeductMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\EquipmentAuthorizeMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\EquipmentContinueAuthorizeMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\WaterControlCostDeductMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\UserEquipmentUnPassMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\DelinquencyConfirmMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\DepositAuditRejectMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\NMPAppointmentSuccessMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\NMPAppointmentTutorAuditMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\NMPAppointmentTutorAuditResultMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\NMPAppointmentAuditMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\NMPUsedConfirmCostDeductMessageManager.cs" />
+    <Compile Include="Business\Message\MessageTemplate\AppointmentAdminAuditMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\AppointmentTutorAuditMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\AppointmentTutorAuditResultMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\DoorAuthorizeMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\ErrorChargedTypeMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\AnimalRegisterDeathMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\SampleApplyTutorAuditMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\AppointmentSuccessMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\DepositAuditPassMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\AnimalCostDeductMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\UsedConfirmCostDeductMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\AppointmentCostDeductMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\ManualCostDeductMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\MaterialCostDeductMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\SampleApplyCostDeductMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\DoorContinueAuthorizeMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\EquipmentAuthorizeMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\EquipmentContinueAuthorizeMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\UserAuditMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\UserEquipmentAuditMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\WaterControlCostDeductMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\UserEquipmentUnPassMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\DelinquencyConfirmMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\DepositAuditRejectMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\NMPAppointmentSuccessMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\NMPAppointmentTutorAuditMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\NMPAppointmentTutorAuditResultMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\NMPAppointmentAuditMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\NMPUsedConfirmCostDeductMessageTemplate.cs" />
+    <Compile Include="Business\NMPAppointment\Logic\Factory\NMPAppointmentManagerFactory.cs" />
+    <Compile Include="Business\NMPAppointment\Logic\Factory\NMPAppointmentManagerFactoryBase.cs" />
+    <Compile Include="Business\NMPAppointment\Logic\Factory\NMPAppointmentManagerFactoryMethod.cs" />
+    <Compile Include="Business\NMPAppointment\Logic\Factory\NMPCancelAppointmentManagerFactory.cs" />
+    <Compile Include="Business\NMPAppointment\Logic\Handle\NMPAppointmentHandler.cs" />
+    <Compile Include="Business\NMPAppointment\Logic\Handle\NMPAppointmentHandlerBase.cs" />
+    <Compile Include="Business\NMPAppointment\Logic\Handle\NMPCancelAppointmentHandler.cs" />
+    <Compile Include="Business\NMPAppointment\Logic\Manager\NMPAppointmentManager.cs" />
+    <Compile Include="Business\NMPAppointment\Logic\Manager\NMPAppointmentManagerBase.cs" />
+    <Compile Include="Business\NMPAppointment\Logic\Manager\NMPCancelAppointmentManager.cs" />
+    <Compile Include="Business\NMPAppointment\Manager\NMPAppointmentValidateManager.cs" />
+    <Compile Include="Business\NMPAppointment\Manager\NMPAppointmentValidateManagerBase.cs" />
+    <Compile Include="Business\NMPAppointment\Manager\NMPCancelNMPAppointmentValidateManager.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\NMPAppointmentPriorityAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\Base\NMPAppointmentRuleBase.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\Base\NMPAppointmentTimesManager.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\Base\INMPAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\Base\INMPAppointmentTimesManager.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\NMPBookedAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\NMPDelinquencyAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\NMPOutOfTimeAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\NMPSpeciaAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\NMPTagEnableBookDaysAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\NMPTagEquipmentFunAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\NMPUnAppointmentPeriodTimeAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\UserNMPTimeAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\NMPUserStatusAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Rule\WorkDayAppointmentRule.cs" />
+    <Compile Include="Business\NMPAppointment\Validate\NMPAppointmentAuditStatusValidate.cs" />
+    <Compile Include="Business\NMPAppointment\Validate\NMPAppointmentMoneyValidate.cs" />
+    <Compile Include="Business\NMPAppointment\Validate\Base\NMPAppointmentValidateBase.cs" />
+    <Compile Include="Business\NMPAppointment\Validate\NMPDelinquencyValidate.cs" />
+    <Compile Include="Business\NMPAppointment\Validate\NMPCalcFeeRuleValidate.cs" />
+    <Compile Include="Business\NMPAppointment\Validate\NMPChargeStandardValidate.cs" />
+    <Compile Include="Business\NMPAppointment\Validate\NMPSubjectLimitValidate.cs" />
+    <Compile Include="Business\NMPAppointment\Validate\NMPUserLimitValidate.cs" />
+    <Compile Include="Business\NMPAppointment\Validate\NMPOutOfTimeValidate.cs" />
+    <Compile Include="Business\NMPAppointment\Validate\NMPUserStatusValidate.cs" />
+    <Compile Include="Business\OranizationSync\DefaultOranizationSyncHandler.cs" />
+    <Compile Include="Business\OranizationSync\IOranizationSyncManager.cs" />
+    <Compile Include="Business\OranizationSync\OranizationSyncHandler.cs" />
+    <Compile Include="Business\OranizationSync\OranizationSyncHandlerFactory.cs" />
+    <Compile Include="Business\OranizationSync\OranizationSyncManager.cs" />
+    <Compile Include="Business\OranizationSync\ZGSYDXOrganizationSyncHandler.cs" />
+    <Compile Include="Business\Privilige\AnimalAppointmentPrivilige.cs" />
+    <Compile Include="Business\Privilige\AnimalOutAppointmentPrivilige.cs" />
+    <Compile Include="Business\Privilige\AutoDeductSettingPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentGroupPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentSampleFeedBackSettingPrivilige.cs" />
+    <Compile Include="Business\Privilige\NMPPrivilige.cs" />
+    <Compile Include="Business\Privilige\SampleItemLabelPrivilige.cs" />
+    <Compile Include="Business\Privilige\SampleStatisticsPrivilige.cs" />
+    <Compile Include="Business\Privilige\SystemLogPrivilige.cs" />
+    <Compile Include="Business\Privilige\UserEquipmentPriviligePrivilige.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Business\Privilige\UserLabOrganizationExaminationPrivilige.cs" />
+    <Compile Include="Business\Privilige\AnimalCategoryPrivilige.cs" />
+    <Compile Include="Business\Privilige\AnimalPrivilige.cs" />
+    <Compile Include="Business\Privilige\EthicsApplyPrivilige.cs" />
+    <Compile Include="Business\Privilige\EthicsSettingPrivilige.cs" />
+    <Compile Include="Business\Privilige\AnimalFramePrivilige.cs" />
+    <Compile Include="Business\Privilige\AnimalCagePrivilige.cs" />
+    <Compile Include="Business\Privilige\JudgeProjectPrivilige.cs" />
+    <Compile Include="Business\Privilige\JudgeEquipmentRecordPrivilige.cs" />
+    <Compile Include="Business\Privilige\OpenFundApplyPrivilige.cs" />
+    <Compile Include="Business\Privilige\StatisticsPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentRelationPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentSemesterCostPrivilige.cs" />
+    <Compile Include="Business\Privilige\SemesterPrivilige.cs" />
+    <Compile Include="Business\Privilige\ActivityTypePrivilige.cs" />
+    <Compile Include="Business\Privilige\ActivityApplyPrivilige.cs" />
+    <Compile Include="Business\Privilige\SupplierPrivilige.cs" />
+    <Compile Include="Business\Privilige\SMSSendPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentExtendPrivilige.cs" />
+    <Compile Include="Business\Privilige\TemperatureHumiditySetupPrivilige.cs" />
+    <Compile Include="Business\Privilige\UserMessageNoticeSettingPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentUndergraduateOpenPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentOpenTrainingPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentOpenTrainingCarryOutPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentOpenTrainingCarryOutSignUpPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentOpenPracticePrivilige.cs" />
+    <Compile Include="Business\Privilige\WindowsPrivilige.cs" />
+    <Compile Include="Business\Privilige\DepositRecordOpenFundPrivilige.cs" />
+    <Compile Include="Business\Privilige\BuildingPrivilige.cs" />
+    <Compile Include="Business\Privilige\WaterControlPrivilige.cs" />
+    <Compile Include="Business\Privilige\RepairPrivilige.cs" />
+    <Compile Include="Business\Privilige\SJ3StatisticsUsedHourPrivilige.cs" />
+    <Compile Include="Business\Privilige\ShareFundApplyPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentImportPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentGroupRegPrivilige.cs" />
+    <Compile Include="Business\Privilige\NMPAppointmentPrivilige.cs" />
+    <Compile Include="Business\Privilige\NMPUsedConfirmPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentCustomsPrivilige.cs" />
+    <Compile Include="Business\ShortMail\IShortMailManager.cs" />
+    <Compile Include="Business\ShortMail\ShortMailManager.cs" />
+    <Compile Include="Business\ZjdxUserSync\IZjdxUserSyncManager.cs" />
+    <Compile Include="Business\ZjdxUserSync\ZjdxUserSyncManager.cs" />
+    <Compile Include="Business\EquipmentSync\IEquipmentSyncManager.cs" />
+    <Compile Include="Business\EquipmentSync\EquipmentSyncManager.cs" />
+    <Compile Include="CalcFeeTimeRuleRalativeBLL.cs" />
+    <Compile Include="CasBLL.cs" />
+    <Compile Include="CersPlatformBLL.cs" />
+    <Compile Include="ChangePassUserMsgBLL.cs" />
+    <Compile Include="ChargeStandardRelativeBLL.cs" />
+    <Compile Include="CostDeductEquipmentOpenFundBLL.cs" />
+    <Compile Include="CostDeductForStatisticsBLL.cs" />
+    <Compile Include="DataProviderToSPBLL.cs" />
+    <Compile Include="EquipmentGroupAdminBLL.cs" />
+    <Compile Include="EquipmentGroupBLL.cs" />
+    <Compile Include="EquipmentGroupMemberBLL.cs" />
+    <Compile Include="EquipmentLogBLL.cs" />
+    <Compile Include="EquipmentOpenPracticeExperienceBLL.cs" />
+    <Compile Include="EquipmentRepairFundsApplyAttachmentBLL.cs" />
+    <Compile Include="EquipmentSampleFeedBackSettingBLL.cs" />
+    <Compile Include="EthicsApplyAnimalDataBLL.cs" />
+    <Compile Include="EthicsApplyAnimalExperimenterBLL.cs" />
+    <Compile Include="EthicsApplyBLL.cs" />
+    <Compile Include="EthicsSettingBLL.cs" />
+    <Compile Include="LabelRelativeBLL.cs" />
+    <Compile Include="LabOrganizationDirectorBLL.cs" />
+    <Compile Include="MoneyValidateBLL.cs" />
+    <Compile Include="AppointmentPriorityBLL.cs" />
+    <Compile Include="AppointmentPriorityUserBLL.cs" />
+    <Compile Include="Assist\BussinessIdManager.cs" />
+    <Compile Include="Base\BLLBase.cs" />
+    <Compile Include="BLLFactory\BLLFactory.cs" />
+    <Compile Include="Business\Appointment\Logic\Handle\AppointmentHandler.cs" />
+    <Compile Include="Business\Appointment\Logic\Handle\AppointmentHandlerBase.cs" />
+    <Compile Include="Business\Appointment\Logic\Handle\CancelAppointmentHandler.cs" />
+    <Compile Include="Business\Appointment\Logic\Handle\ChangeAppointmentHandler.cs" />
+    <Compile Include="Business\Appointment\Logic\Manager\AppointmentManager.cs" />
+    <Compile Include="Business\Appointment\Logic\Manager\AppointmentManagerBase.cs" />
+    <Compile Include="Business\Appointment\Logic\Manager\CancelAppointmentManager.cs" />
+    <Compile Include="Business\Appointment\Logic\Manager\ChangeAppointmentManager.cs" />
+    <Compile Include="Business\Appointment\Logic\Factory\AppointmentManagerFactory.cs" />
+    <Compile Include="Business\Appointment\Logic\Factory\AppointmentManagerFactoryBase.cs" />
+    <Compile Include="Business\Appointment\Logic\Factory\AppointmentManagerFactoryMethod.cs" />
+    <Compile Include="Business\Appointment\Logic\Factory\CancelAppointmentManagerFactory.cs" />
+    <Compile Include="Business\Appointment\Logic\Factory\ChangeAppointmentManagerFactory.cs" />
+    <Compile Include="Business\Appointment\Model\AppointmentBusinessType.cs" />
+    <Compile Include="Business\Appointment\Model\AppointmentMidiator.cs" />
+    <Compile Include="Business\Appointment\Rule\AppointmentPriorityAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\Base\AppointmentRuleBase.cs" />
+    <Compile Include="Business\Appointment\Rule\Base\AppointmentTimesManager.cs" />
+    <Compile Include="Business\Appointment\Rule\BookedAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\DelinquencyAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\EquipmentBlackListAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\EquipmentNoticeAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\EquipmentStatusAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\HolidayAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\OrganizationAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\OutOfTimeAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\SpeciaAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\TagEnableBookDaysAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\TagEquipmentFunAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\TrainningAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\UnAppointmentPeriodTimeAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\UsedConfirmFeedBackAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\UserEquipmentAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\UserEquipmentTimeAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\UserStatusAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\WorkDayAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Validate\AppointmentMoneyValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\Base\AppointmentValidateBase.cs" />
+    <Compile Include="Business\Appointment\Validate\DelinquencyValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\EquipmentBlackListValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\EquipmentCalcFeeRuleValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\EquipmentChargeStandardValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\EquipmentUserLimitValidate.cs" />
+    <Compile Include="Business\Appointment\Manager\AppointmentValidateManager.cs" />
+    <Compile Include="Business\Appointment\Manager\BeforeAppointmentValidateManager.cs" />
+    <Compile Include="Business\Appointment\Validate\EquipmentNoticValidate.cs" />
+    <Compile Include="Business\Appointment\Manager\AppointmentValidateManagerBase.cs" />
+    <Compile Include="Business\Appointment\Manager\CancelAppointmentValidateManager.cs" />
+    <Compile Include="Business\Appointment\Manager\ChangeAppointmentValidateManager.cs" />
+    <Compile Include="Business\Appointment\Validate\OutOfTimeValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\TranningValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\UsedConfirmFeedBackValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\UserEquipmentValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\UserStatusValidate.cs" />
+    <Compile Include="Business\Appointment\Validate\UserExaminationValidate.cs" />
+    <Compile Include="Business\CostDeduct\Logic\AppointmentAuditCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Logic\AppointmentCostDeduct.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Business\CostDeduct\Logic\AppointmentPredictCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Logic\CommondCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Logic\CostDeductBase.cs" />
+    <Compile Include="Business\CostDeduct\Logic\ManualedCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Logic\NewUsedRecordCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Logic\UsedConfirmCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Logic\UsedConfirmRelativeCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Logic\MaterialCostDeduct.cs" />
+    <Compile Include="Business\CostDeduct\Manager\CostDeductManager.cs" />
+    <Compile Include="Business\CostDeduct\Manager\ICostDeductManager.cs" />
+    <Compile Include="Business\Customer\DefaultCustomer.cs" />
+    <Compile Include="Business\Customer\Factory\CustomerFactory.cs" />
+    <Compile Include="Business\Customer\HDSFDXCustomer.cs" />
+    <Compile Include="Business\Customer\NJSFDXCustomer.cs" />
+    <Compile Include="Business\Customer\LZDXCustomer.cs" />
+    <Compile Include="Business\Customer\YCFYSCustomer.cs" />
+    <Compile Include="Business\DataCatche\DataCacheManager.cs" />
+    <Compile Include="Business\DataCatche\IDataCacheManager.cs" />
+    <Compile Include="Business\EquipmentApply\EquipmentApplicant.cs" />
+    <Compile Include="Business\EquipmentApply\EquipmentApplyBase.cs" />
+    <Compile Include="Business\EquipmentApply\EquipmentLabRoomDirectorAudit.cs" />
+    <Compile Include="Business\EquipmentApply\EquipmentSchoolDirectorAudit.cs" />
+    <Compile Include="Business\EquipmentApply\EquipmentShareEAudit.cs" />
+    <Compile Include="Business\EquipmentApply\Factory\EquipmentApplyFactory.cs" />
+    <Compile Include="Business\EquipmentApply\Factory\EquipmentApplyRole.cs" />
+    <Compile Include="Business\EquipmentRepairFundsApply\EquipmentRepairFundsApplicant.cs" />
+    <Compile Include="Business\EquipmentRepairFundsApply\EquipmentRepairFundsApplyAuditContext.cs" />
+    <Compile Include="Business\EquipmentRepairFundsApply\EquipmentRepairFundsApplyBase.cs" />
+    <Compile Include="Business\EquipmentRepairFundsApply\EquipmentRepairFundsCollegeAudit.cs" />
+    <Compile Include="Business\EquipmentRepairFundsApply\EquipmentRepairFundsEquipmentDeptAudit.cs" />
+    <Compile Include="Business\EquipmentRepairFundsApply\EquipmentRepairFundsShareEAudit.cs" />
+    <Compile Include="Business\EquipmentRepairFundsApply\Factory\EquipmentRepairFundsApplyFactory.cs" />
+    <Compile Include="Business\EquipmentRepairFundsApply\Factory\EquipmentRepairFundsApplyRole.cs" />
+    <Compile Include="Business\Exception\CheckMoneyFailException.cs" />
+    <Compile Include="Business\Mail\IMailManager.cs" />
+    <Compile Include="Business\Mail\MailManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\AppointmentAuditMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\BindTutorMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\DoorWarringMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\UseEquipmentOutOfTimeMessageManager.cs" />
+    <Compile Include="Business\Message\MessageTemplate\AppointmentAuditMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\BindTutorMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\DoorWarringMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\UseEquipmentOutOfTimeMessageTemplate.cs" />
+    <Compile Include="Business\Privilige\BalanceAccountPrivilige.cs" />
+    <Compile Include="Business\Privilige\CostDeductPrivilige.cs" />
+    <Compile Include="Business\Privilige\DataCachePrivilige.cs" />
+    <Compile Include="Business\Privilige\DefaultTagEquipmentFunPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentApplyPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentApplyStatisticsPrivilige.cs" />
+    <Compile Include="Business\Privilige\MessagePrivilige.cs" />
+    <Compile Include="Business\Privilige\DepositRecordPrivilige.cs" />
+    <Compile Include="Business\BadBehaviorPunish\BadBehaviorPunishManager.cs" />
+    <Compile Include="Business\BadBehaviorPunish\IBadBehaviorPunishManager.cs" />
+    <Compile Include="Business\Message\MessageHandler\IMessageHandler.cs" />
+    <Compile Include="Business\Message\MessageHandler\MessageHandler.cs" />
+    <Compile Include="Business\Message\MessageSender\EmailMessageSender.cs" />
+    <Compile Include="Business\Message\MessageSender\InnerMessageSender.cs" />
+    <Compile Include="Business\Message\MessageSender\MessageSenderBase.cs" />
+    <Compile Include="Business\Message\MessageSender\PhoneMessageSender.cs" />
+    <Compile Include="Business\Message\MessageSendManager\EqBlackListMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\ExperimenterSubjectMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\GlobalMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\MessageManagerBase.cs" />
+    <Compile Include="Business\Message\MessageSendManager\PunishMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\RepaelPunishMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\SampleMessageManager.cs" />
+    <Compile Include="Business\Message\MessageSendManager\UserAccountMessageManager.cs" />
+    <Compile Include="Business\Message\MessageTemplate\BadBehaviorMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\EqBlackListMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\ExperimenterSubjectMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\MessageTemplateBase.cs" />
+    <Compile Include="Business\Message\MessageContex\MessageContex.cs" />
+    <Compile Include="Business\Message\MessageTemplate\RepealBadBehaviorMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\SampleMessageTemplate.cs" />
+    <Compile Include="Business\Message\MessageTemplate\UserAccountMessageTemplate.cs" />
+    <Compile Include="Business\Privilige\SampleApplyPrivilige.cs" />
+    <Compile Include="Business\Privilige\SampleChargeItemPrivilige.cs" />
+    <Compile Include="Business\Privilige\SampleItemPrivilige.cs" />
+    <Compile Include="Business\Privilige\SampleParameterPrivilige.cs" />
+    <Compile Include="Business\Privilige\SampleStatusPrivilige.cs" />
+    <Compile Include="Business\Privilige\TagSampleItemDiscountPrivilige.cs" />
+    <Compile Include="Business\Privilige\TrainningMaterialPrivilige.cs" />
+    <Compile Include="Business\Privilige\TrainningQuestionPrivilige.cs" />
+    <Compile Include="Business\Privilige\TrainningExaminationPrivilige.cs" />
+    <Compile Include="Business\Privilige\UsedConfirmPrivilige.cs" />
+    <Compile Include="Business\Privilige\UserEquipmentExaminationPrivilige.cs" />
+    <Compile Include="Business\Privilige\UserSampleItemDiscountPrivilige.cs" />
+    <Compile Include="Business\Privilige\DoorPrivilige.cs" />
+    <Compile Include="Business\Privilige\PowerOperationPrivilige.cs" />
+    <Compile Include="Business\Privilige\AchievementPrivilige.cs" />
+    <Compile Include="Business\Privilige\CameraPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentAuthorizationPrivilige.cs" />
+    <Compile Include="Business\Privilige\UserAuthorizationPrivilige.cs" />
+    <Compile Include="Business\Privilige\SystemPrivilige.cs" />
+    <Compile Include="Business\Privilige\NetDiskPrivilige.cs" />
+    <Compile Include="Business\Privilige\CountryPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentTrainningPrivilige.cs" />
+    <Compile Include="Business\Privilige\SubjectProjectImcomePrivilige.cs" />
+    <Compile Include="Business\Privilige\TrainningTypePrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentRepairFundsApplyPrivilige.cs" />
+    <Compile Include="Business\Privilige\MaterialCategoryPrivilige.cs" />
+    <Compile Include="Business\Privilige\MaterialInfoPrivilige.cs" />
+    <Compile Include="Business\Privilige\MaterialPurchasePrivilige.cs" />
+    <Compile Include="Business\Privilige\MaterialInputPrivilige.cs" />
+    <Compile Include="Business\Privilige\MaterialRecipientPrivilige.cs" />
+    <Compile Include="Business\Privilige\MaterialOutputPrivilige.cs" />
+    <Compile Include="Business\Privilige\MaterialBrokenPrivilige.cs" />
+    <Compile Include="Business\Privilige\MaterialUserAccountPrivilige.cs" />
+    <Compile Include="Business\RegisterAppoinmentsOfTimeout\IRegisterAppoinmentsOfTimeoutManager.cs" />
+    <Compile Include="Business\RegisterAppoinmentsOfTimeout\RegisterAppoinmentsOfTimeoutManager.cs" />
+    <Compile Include="Business\Sample\Factory\ApplicantSampleFactory.cs" />
+    <Compile Include="Business\Sample\Factory\DoubtAuditSampleFactory.cs" />
+    <Compile Include="Business\Sample\Factory\UploadSampleFactory.cs" />
+    <Compile Include="Business\Sample\Factory\ReleaserSampleFactory.cs" />
+    <Compile Include="Business\Sample\Factory\SampleFactory.cs" />
+    <Compile Include="Business\Sample\Factory\SampleOfficerFactory.cs" />
+    <Compile Include="Business\Sample\Factory\SampleSearcherFactory.cs" />
+    <Compile Include="Business\Sample\Factory\SampleTransactorSampleFactory.cs" />
+    <Compile Include="Business\Sample\Factory\TesterSampleFactory.cs" />
+    <Compile Include="Business\Sample\Factory\ChargerSampleFactory.cs" />
+    <Compile Include="Business\Sample\Manager\SampleApplicantManager.cs" />
+    <Compile Include="Business\Sample\Manager\SampleChargeManager.cs" />
+    <Compile Include="Business\Sample\Manager\SampleCostDeductAssist.cs" />
+    <Compile Include="Business\Sample\Manager\SampleDoubtAuditManager.cs" />
+    <Compile Include="Business\Sample\Manager\SampleManager.cs" />
+    <Compile Include="Business\Sample\Manager\SampleMessageAssist.cs" />
+    <Compile Include="Business\Sample\Manager\SampleOfficerManager.cs" />
+    <Compile Include="Business\Sample\Manager\SampleOperateAssist.cs" />
+    <Compile Include="Business\Sample\Manager\SampleUploaderManager.cs" />
+    <Compile Include="Business\Sample\Manager\SampleRegistUserAssist.cs" />
+    <Compile Include="Business\Sample\Manager\SampleResultReleaseManager.cs" />
+    <Compile Include="Business\Sample\Manager\SampleSearchManager.cs" />
+    <Compile Include="Business\Sample\Manager\SampleTesterManager.cs" />
+    <Compile Include="Business\Sample\Manager\SampleTransactorManager.cs" />
+    <Compile Include="Business\Sample\Model\SmaplePriviligeExtend.cs" />
+    <Compile Include="Business\Sample\Privilige\ApplicantSamplePrivilige.cs" />
+    <Compile Include="Business\Sample\Privilige\DoubtAuditorSamplePrivilige.cs" />
+    <Compile Include="Business\Sample\Privilige\NoSamplePrivilige.cs" />
+    <Compile Include="Business\Sample\Privilige\SampleChargerPrivilige.cs" />
+    <Compile Include="Business\Sample\Privilige\UploadSamplePrivilige.cs" />
+    <Compile Include="Business\Sample\Privilige\ReleaserSamplePrivilige.cs" />
+    <Compile Include="Business\Sample\Privilige\SampleOfficerPrivilige.cs" />
+    <Compile Include="Business\Sample\Privilige\SamplePrivilige.cs" />
+	<Compile Include="WeChatUseStatusRecordBLL.cs" />
+	<Compile Include="PowerToBeOperationBLL.cs" />
+	<Compile Include="UserBindWeChatBLL.cs" />
+    <Compile Include="Business\Sample\Privilige\SampleSearcherPrivilige.cs" />
+    <Compile Include="Business\Sample\Privilige\SampleTransactorSamplePrivilige.cs" />
+    <Compile Include="Business\Sample\Privilige\TesterSamplePrivilige.cs" />
+    <Compile Include="Business\Sample\Proxy\ApplicantSampleProxy.cs" />
+    <Compile Include="Business\Sample\Proxy\DoubtAuditSampleProxy.cs" />
+    <Compile Include="Business\Sample\Proxy\Factory\SampleProxyFactory.cs" />
+    <Compile Include="Business\Sample\Proxy\UploadSampleProxy.cs" />
+    <Compile Include="Business\Sample\Proxy\ReleaserSampleProxy.cs" />
+    <Compile Include="Business\Sample\Proxy\SampleOfficerProxy.cs" />
+    <Compile Include="Business\Sample\Proxy\SampleProxy.cs" />
+    <Compile Include="Business\Sample\Proxy\SampleSearchSampleProxy.cs" />
+    <Compile Include="Business\Sample\Proxy\SampleTransactorProxy.cs" />
+    <Compile Include="Business\Sample\Proxy\SampleTesterProxy.cs" />
+    <Compile Include="Business\Sample\Proxy\ChargerSampleProxy.cs" />
+    <Compile Include="Business\Sample\SendTimeReserve\Manager\ISampleSendTimeValidateManager.cs" />
+    <Compile Include="Business\Sample\SendTimeReserve\Manager\SampleSendTimeValidateManager.cs" />
+    <Compile Include="Business\Sample\SendTimeReserve\Validate\SampleSendTimeExistValidate.cs" />
+    <Compile Include="Business\Sample\SendTimeReserve\Validate\SampleSendTimeHolidayValidate.cs" />
+    <Compile Include="Business\Sample\SendTimeReserve\Validate\SampleSendTimeOutOfEnableReserveDaysValidate.cs" />
+    <Compile Include="Business\Sample\SendTimeReserve\Validate\SampleSendTimeTimeOutValidate.cs" />
+    <Compile Include="Business\Sample\SendTimeReserve\Validate\SampleSendTimeTimeReserveValidate.cs" />
+    <Compile Include="Business\Sample\SendTimeReserve\Validate\SampleSendTimeUnappointmentTimeValidate.cs" />
+    <Compile Include="Business\Sample\SendTimeReserve\Validate\SampleSendTimeValidateBase.cs" />
+    <Compile Include="Business\Sample\SendTimeReserve\Validate\SampleSendTimeWorkDaysValidate.cs" />
+    <Compile Include="Business\UserSync\IUserSyncManager.cs" />
+    <Compile Include="Business\UserSync\UserSyncManager.cs" />
+    <Compile Include="DataDictTemplateBLL.cs" />
+    <Compile Include="DataSyncAndCommunicationSettingBLL.cs" />
+    <Compile Include="EquipmentApplyBLL.cs" />
+    <Compile Include="EquipmentGroupServerBLL.cs" />
+    <Compile Include="EquipmentRepairFundsApplyBLL.cs" />
+    <Compile Include="EquipmentServiceHoursStatBLL.cs" />
+    <Compile Include="EquipmentUseConditionBLL.cs" />
+    <Compile Include="FeedbackBLL.cs" />
+    <Compile Include="JudgeProjectBLL.cs" />
+    <Compile Include="JudgeProjectContentBLL.cs" />
+    <Compile Include="JudgeProjectRecordBLL.cs" />
+    <Compile Include="JudgeProjectContentRecordBLL.cs" />
+    <Compile Include="LuaRegiserBLL.cs" />
+    <Compile Include="NMPAdditionChargeItemBLL.cs" />
+    <Compile Include="NMPAdminBLL.cs" />
+    <Compile Include="NMPAppointmentAddtionChargeItemBLL.cs" />
+    <Compile Include="NMPAppointmentBLL.cs" />
+    <Compile Include="NMPAppointmentPriorityBLL.cs" />
+    <Compile Include="NMPAppointmentPriorityUserBLL.cs" />
+    <Compile Include="NMPAppointmentSpeciaRuleBLL.cs" />
+    <Compile Include="NMPAppointmentSpeciaRuleUserBLL.cs" />
+    <Compile Include="NMPAppointmentTimeLimitBLL.cs" />
+    <Compile Include="NMPAppointmentTimeLimitUserBLL.cs" />
+    <Compile Include="NMPBLL.cs" />
+    <Compile Include="NMPCalcFeeTimeRuleBLL.cs" />
+    <Compile Include="NMPChargeStandardBLL.cs" />
+    <Compile Include="NMPEquipmentAccessBLL.cs" />
+    <Compile Include="NMPEquipmentAuthorizationBLL.cs" />
+    <Compile Include="NMPEquipmentBLL.cs" />
+    <Compile Include="NMPLabelAddtionChargeItemBLL.cs" />
+    <Compile Include="NMPLabelBLL.cs" />
+    <Compile Include="NMPLabelChargeStandardBLL.cs" />
+    <Compile Include="NMPLabelItemBLL.cs" />
+    <Compile Include="NMPPublicHolidaysBLL.cs" />
+    <Compile Include="NMPSubjectAppointmentTimeLimitBLL.cs" />
+    <Compile Include="NMPSubjectAppointmentTimeLimitUserBLL.cs" />
+    <Compile Include="NMPTagEquipmentFunBLL.cs" />
+    <Compile Include="NMPUnAppointmentPeriodTimeBLL.cs" />
+    <Compile Include="NMPUsedConfirmAddtionChargeItemBLL.cs" />
+    <Compile Include="NMPUsedConfirmBLL.cs" />
+    <Compile Include="NMPUsedConfirmFeedBackBLL.cs" />
+    <Compile Include="OAuthBLL.cs" />
+    <Compile Include="OAuthClientBLL.cs" />
+    <Compile Include="OAuthCodeBLL.cs" />
+    <Compile Include="OAuthTokenBLL.cs" />
+    <Compile Include="ProjectBLL.cs" />
+    <Compile Include="QrCodePrintSettingsBLL.cs" />
+    <Compile Include="RuleBusinessTypeBLL.cs" />
+    <Compile Include="SampleApplyParameterBLL.cs" />
+    <Compile Include="SampleApplyReportNumberBLL.cs" />
+    <Compile Include="SampleApplyReportNumberLogBLL.cs" />
+    <Compile Include="SampleFeedBackAttachmentBLL.cs" />
+    <Compile Include="SampleItemLabelBLL.cs" />
+    <Compile Include="SampleItemLabelChargeStandardBLL.cs" />
+    <Compile Include="SampleItemLabelItemBLL.cs" />
+    <Compile Include="SampleParameterBLL.cs" />
+    <Compile Include="SampleParameterEquipmentBLL.cs" />
+    <Compile Include="SampleParameterItemBLL.cs" />
+    <Compile Include="SampleParameterStatusBLL.cs" />
+    <Compile Include="SampleUnAppointmentPeriodTimeBLL.cs" />
+    <Compile Include="SchoolEquipmentBLL.cs" />
+    <Compile Include="SchoolOrganizationBLL.cs" />
+    <Compile Include="SchoolUserBLL.cs" />
+    <Compile Include="SchoolUserLogBLL.cs" />
+    <Compile Include="SendShortMailBLL.cs" />
+    <Compile Include="StatisticsInfoBLL.cs" />
+    <Compile Include="Business\WebDisk\SubAreaBehaviorFactory\SubAreaBehaviorFactory.cs" />
+    <Compile Include="Business\WebDisk\SubAreaBehavior\ISubAreaBehavior.cs" />
+    <Compile Include="Business\WebDisk\SubAreaBehavior\PeronalSubAreaBehavior.cs" />
+    <Compile Include="Business\WebDisk\SubAreaBehavior\PublicSubAreaBehavior.cs" />
+    <Compile Include="Business\WebDisk\SubAreaBehavior\SubAreaBehaviorBase.cs" />
+    <Compile Include="Business\WebDisk\SubAreaBehavior\SubjectSubAreaBehavior.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileBehavior\ISubAreaFileBehavior.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileBehavior\PersonalSubAreaFileBehavior.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileBehavior\PublicSubAreaFileBehavior.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileBehavior\SubAreaFileBehaviorBase.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileBehavior\SubjectSubAreaFileBehavior.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileEntity\PersonalSubAreaFile.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileEntity\PublicSubAreaFile.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileEntity\SubAreaFileBase.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileEntity\SubjectSubAreaFile.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileFactory\PersonalSubAreaFileFactory.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileFactory\PublicSubAreaFileFactory.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileFactory\SubAreaFileFactoryBase.cs" />
+    <Compile Include="Business\WebDisk\SubAreaFileFactory\SubjectSubAreaFileFactory.cs" />
+    <Compile Include="GenerateBusinessIdBLL.cs" />
+    <Compile Include="LabOrganizationAuthorizedBLL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LuaApi\AppointmentLuaApi.cs" />
+    <Compile Include="LuaApi\DateTimeLuaApi.cs" />
+    <Compile Include="LuaApi\EquipmentLuaApi.cs" />
+    <Compile Include="LuaApi\WeekLuaApi.cs" />
+    <Compile Include="Business\Privilige\AppointmentPrivilige.cs" />
+    <Compile Include="Business\Privilige\ArticleCategoryPrivilige.cs" />
+    <Compile Include="Business\Privilige\ArticlePrivilige.cs" />
+    <Compile Include="Business\Appointment\Rule\Base\IAppointmentRule.cs" />
+    <Compile Include="Business\Appointment\Rule\Base\IAppointmentTimesManager.cs" />
+    <Compile Include="Business\Privilige\QAPrivilige.cs" />
+    <Compile Include="Business\Privilige\DelinquencyPrivilige.cs" />
+    <Compile Include="Business\Privilige\DictCodeTypePrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentCategoryPrivilige.cs" />
+    <Compile Include="Business\Privilige\EquipmentPrivilige.cs" />
+    <Compile Include="Business\Privilige\Factory\PriviligeFactory.cs" />
+    <Compile Include="Business\Privilige\HolidayPrivilige.cs" />
+    <Compile Include="Business\Privilige\LabOrganizationPrivilige.cs" />
+    <Compile Include="Business\Privilige\PriviligeBase.cs" />
+    <Compile Include="Business\Privilige\SubjectPrivilige.cs" />
+    <Compile Include="Business\Privilige\UserEquipmentPrivilige.cs" />
+    <Compile Include="Business\Privilige\UserTagPrivilige.cs" />
+    <Compile Include="Business\Privilige\UserTypePrivilige.cs" />
+    <Compile Include="Business\Privilige\WorkGroupPrivilige.cs" />
+    <Compile Include="Business\Privilige\ModuleFunctionPrivilige.cs" />
+    <Compile Include="Business\Privilige\CreditLimitPrivilige.cs" />
+    <Compile Include="Business\Privilige\UserPrivilige.cs" />
+    <Compile Include="Business\Privilige\HomeMenuPrivilige.cs" />
+    <Compile Include="Business\Privilige\DictCodePrivilige.cs" />
+    <Compile Include="DelinquencyCategoryBLL.cs" />
+    <Compile Include="DelinquencyRuleBLL.cs" />
+    <Compile Include="DictCodeBLL.cs" />
+    <Compile Include="DictCodeTypeBLL.cs" />
+    <Compile Include="AcademicExchangesBLL.cs" />
+    <Compile Include="AcademicExchangesDepBLL.cs" />
+    <Compile Include="AcademicExchangesUserBLL.cs" />
+    <Compile Include="AcademicPositionBLL.cs" />
+    <Compile Include="AchievementStudentBLL.cs" />
+    <Compile Include="AppointmentBLL.cs" />
+    <Compile Include="AppointmentSpeciaRuleBLL.cs" />
+    <Compile Include="AppointmentSpeciaRuleUserBLL.cs" />
+    <Compile Include="AppointmentTimeLimitBLL.cs" />
+    <Compile Include="AppointmentTimeLimitUserBLL.cs" />
+    <Compile Include="AppoitmentContractRuleBLL.cs" />
+    <Compile Include="ArticleBLL.cs" />
+    <Compile Include="ArticleCategoryBLL.cs" />
+    <Compile Include="MessageNoticeSettingBLL.cs" />
+    <Compile Include="QuestionBLL.cs" />
+    <Compile Include="AttachmentBLL.cs" />
+    <Compile Include="AwardsBLL.cs" />
+    <Compile Include="AwardsAuthorBLL.cs" />
+    <Compile Include="AwardsDepartmentBLL.cs" />
+    <Compile Include="BalanceAccountBLL.cs" />
+    <Compile Include="BalanceAccountItemBLL.cs" />
+    <Compile Include="BusinessIdBLL.cs" />
+    <Compile Include="CalcFeeTimeRuleBLL.cs" />
+    <Compile Include="ChargeStandardBLL.cs" />
+    <Compile Include="CostDeductBLL.cs" />
+    <Compile Include="CostDeductAppealBLL.cs" />
+    <Compile Include="CostDeductLogBLL.cs" />
+    <Compile Include="CreditLimitBLL.cs" />
+    <Compile Include="DelinquencyConfirmBLL.cs" />
+    <Compile Include="DepositRecordBLL.cs" />
+    <Compile Include="EquipmentAdditionChargeItemBLL.cs" />
+    <Compile Include="EquipmentAttachmentBLL.cs" />
+    <Compile Include="EquipmentBlackListMessageTemplateBLL.cs" />
+    <Compile Include="EquipmentBLL.cs" />
+    <Compile Include="EquipmentBlackListBLL.cs" />
+    <Compile Include="EquipmentBrokenReportBLL.cs" />
+    <Compile Include="EquipmentCategoryBLL.cs" />
+    <Compile Include="EquipmentCategoryBindBLL.cs" />
+    <Compile Include="EquipmentLabelAddtionChargeItemBLL.cs" />
+    <Compile Include="EquipmentLabelBLL.cs" />
+    <Compile Include="EquipmentLabelChargeStandardBLL.cs" />
+    <Compile Include="EquipmentLabelItemBLL.cs" />
+    <Compile Include="EquipmentLinkmanBLL.cs" />
+    <Compile Include="EquipmentMalFunctionBLL.cs" />
+    <Compile Include="EquipmentMasterMarkingBLL.cs" />
+    <Compile Include="EquipmentNoticeAttachmentBLL.cs" />
+    <Compile Include="EquipmentNoticeBLL.cs" />
+    <Compile Include="EquipmentNoticeReadBLL.cs" />
+    <Compile Include="EquipmentPartBLL.cs" />
+    <Compile Include="EquipmentRepairBLL.cs" />
+    <Compile Include="EquipmentStatusLogBLL.cs" />
+    <Compile Include="EquipmentTranningBLL.cs" />
+    <Compile Include="EquipmentAdditionalFeeBLL.cs" />
+    <Compile Include="EquipmentMarkingBLL.cs" />
+    <Compile Include="ExchangeFairylandBLL.cs" />
+    <Compile Include="ExchangeFairylandCommentBLL.cs" />
+    <Compile Include="ExperimenterSubjectBLL.cs" />
+    <Compile Include="HolidaysExcludeBLL.cs" />
+    <Compile Include="HolidaysIncludeBLL.cs" />
+    <Compile Include="LabOrganizationBLL.cs" />
+    <Compile Include="LabRoomMarkingBLL.cs" />
+    <Compile Include="ManualCostDeductBLL.cs" />
+    <Compile Include="MessageBLL.cs" />
+    <Compile Include="PatentBLL.cs" />
+    <Compile Include="PatentUserBLL.cs" />
+    <Compile Include="PublicationBLL.cs" />
+    <Compile Include="PublicHolidaysBLL.cs" />
+    <Compile Include="PunishActionBLL.cs" />
+    <Compile Include="PunishActionDelinquencyBLL.cs" />
+    <Compile Include="PunishRecordBLL.cs" />
+    <Compile Include="AnswerBLL.cs" />
+    <Compile Include="ReceiverBLL.cs" />
+    <Compile Include="RepealDelinquencyBLL.cs" />
+    <Compile Include="SampleAnalysisAttachmentBLL.cs" />
+    <Compile Include="SampleApplyAttachmentBLL.cs" />
+    <Compile Include="SampleApplyBLL.cs" />
+    <Compile Include="SampleApplyChargeItemBLL.cs" />
+    <Compile Include="SampleApplyNumberBLL.cs" />
+    <Compile Include="SampleChargeItemBLL.cs" />
+    <Compile Include="SampleChargeItemRelateBLL.cs" />
+    <Compile Include="SampleItemBLL.cs" />
+    <Compile Include="SampleItemResultBLL.cs" />
+    <Compile Include="SampleItemStatusBLL.cs" />
+    <Compile Include="SampleStatusBLL.cs" />
+    <Compile Include="SampleTesterBLL.cs" />
+    <Compile Include="SampleTestRecordBLL.cs" />
+    <Compile Include="SendMailBLL.cs" />
+    <Compile Include="SubAreaBLL.cs" />
+    <Compile Include="SubAreaCategoryBLL.cs" />
+    <Compile Include="SubAreaFileBLL.cs" />
+    <Compile Include="SubAreaTagPowerBLL.cs" />
+    <Compile Include="SubAreaUerPowerBLL.cs" />
+    <Compile Include="SubAreaUserWithoutPowerBLL.cs" />
+    <Compile Include="SubjectAppointmentTimeLimitBLL.cs" />
+    <Compile Include="SubjectAppointmentTimeLimitUserBLL.cs" />
+    <Compile Include="SubjectBLL.cs" />
+    <Compile Include="SubjectAchievementBLL.cs" />
+    <Compile Include="SubjectDepartmentBLL.cs" />
+    <Compile Include="SubjectEquipmentBLL.cs" />
+    <Compile Include="SubjectMemberBLL.cs" />
+    <Compile Include="SubjectProjectBLL.cs" />
+    <Compile Include="SystemLogBLL.cs" />
+    <Compile Include="SystemRunSettingBLL.cs" />
+    <Compile Include="SystemUpgradeLogBLL.cs" />
+    <Compile Include="TagBLL.cs" />
+    <Compile Include="TagEquipmentFunBLL.cs" />
+    <Compile Include="TagSampleItemDiscountBLL.cs" />
+    <Compile Include="ThesisBLL.cs" />
+    <Compile Include="ThesisAuthor.cs" />
+    <Compile Include="ThesisDepartmentBLL.cs" />
+    <Compile Include="ThesisEquipmentBLL.cs" />
+    <Compile Include="UnAppointmentPeriodTimeBLL.cs" />
+    <Compile Include="UsedConfirmBLL.cs" />
+    <Compile Include="UsedConfirmEquipmentAddtionChargeItemBLL.cs" />
+    <Compile Include="UsedConfirmEquipmentPartBLL.cs" />
+    <Compile Include="UsedConfirmEquipmentUseConditionBLL.cs" />
+    <Compile Include="UsedConfirmFeedBackBLL.cs" />
+    <Compile Include="UserBLL.cs" />
+    <Compile Include="UserAccountBLL.cs" />
+    <Compile Include="UserEquipmentBLL.cs" />
+    <Compile Include="UserEquipmentPriviligeBLL.cs" />
+    <Compile Include="UserEquipmentTimeBLL.cs" />
+    <Compile Include="UserEquipmentTimeUserBLL.cs" />
+    <Compile Include="UserFocusUserBLL.cs" />
+    <Compile Include="UserMessageNoticeSettingBLL.cs" />
+    <Compile Include="UserNMPTimeBLL.cs" />
+    <Compile Include="UserNMPTimeUserBLL.cs" />
+    <Compile Include="UserSampleItemDiscountBLL.cs" />
+    <Compile Include="UserSystemSettingBLL.cs" />
+    <Compile Include="UserUnReceiveMessageTypeBLL.cs" />
+    <Compile Include="UserWorkGroupBLL.cs" />
+    <Compile Include="UserWorkScopeBLL.cs" />
+    <Compile Include="View\ViewEquipmentExtendBLL.cs" />
+    <Compile Include="View\ViewAnimalOutAppointmentBLL.cs" />
+    <Compile Include="View\ViewNeedCostDeductAnimalBLL.cs" />
+    <Compile Include="View\ViewNMPAppointmentBLL.cs" />
+    <Compile Include="View\ViewNMPBLL.cs" />
+    <Compile Include="View\ViewNMPEquipmentAuthorizationBLL.cs" />
+    <Compile Include="View\ViewNMPEquipmentBLL.cs" />
+    <Compile Include="View\ViewNMPUsedConfirmBLL.cs" />
+    <Compile Include="View\ViewNMPUsedConfirmFeedBackBLL.cs" />
+    <Compile Include="View\ViewSampleItemLabelBLL.cs" />
+    <Compile Include="View\ViewAnimalCageBLL.cs" />
+    <Compile Include="View\ViewAnimalFrameBLL.cs" />
+    <Compile Include="View\ViewAnimalAppointmentBLL.cs" />
+    <Compile Include="View\ViewAnimalBLL.cs" />
+    <Compile Include="View\ViewAnimalStoreLabRoomBLL.cs" />
+    <Compile Include="View\ViewAppointmentEquipmentUseConditionBLL.cs" />
+    <Compile Include="View\ViewBalanceAccountItemBLL.cs" />
+    <Compile Include="View\ViewCostDeductBLL.cs" />
+    <Compile Include="View\ViewAppointmentBLL.cs" />
+    <Compile Include="View\ViewCurrentUsingEquipmentBLL.cs" />
+    <Compile Include="View\ViewDelinquencyConfirmBLL.cs" />
+    <Compile Include="View\ViewEquipmentApplyBLL.cs" />
+    <Compile Include="View\ViewEquipmentBrokenReportBLL.cs" />
+    <Compile Include="View\ViewEquipmentRepairBLL.cs" />
+    <Compile Include="View\ViewAcademicExchangesBLL.cs" />
+    <Compile Include="View\ViewAcademicPositionBLL.cs" />
+    <Compile Include="View\ViewAchievementStudentBLL.cs" />
+    <Compile Include="View\ViewAwardsBLL.cs" />
+    <Compile Include="View\ViewEquipmentBLL.cs" />
+    <Compile Include="View\ViewEquipmentRepairFundsApplyBLL.cs" />
+    <Compile Include="View\ViewEquipmentSampleFeedBackSettingBLL.cs" />
+    <Compile Include="View\ViewEquipmentSampleItemQueryBLL.cs" />
+    <Compile Include="View\ViewEquipmentStatusLogBLL.cs" />
+    <Compile Include="View\ViewEquipmentTotalBLL.cs" />
+    <Compile Include="View\ViewEquipmentTrainningBLL.cs" />
+    <Compile Include="View\ViewEquipmentMarkingBLL.cs" />
+    <Compile Include="View\ViewEthicsApplyBLL.cs" />
+    <Compile Include="View\ViewLabOrganizationAuthorizedBLL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ViewOpenFundDetailBLL.cs" />
+    <Compile Include="View\ViewPatentBLL.cs" />
+    <Compile Include="View\ViewPublicationBLL.cs" />
+    <Compile Include="View\ViewPunishActionBLL.cs" />
+    <Compile Include="View\ViewQuestionBLL.cs" />
+    <Compile Include="View\ViewSampleApplyBLL.cs" />
+    <Compile Include="View\ViewSampleApplyChargeItemBLL.cs" />
+    <Compile Include="View\ViewSampleChargeItemRelateBLL.cs" />
+    <Compile Include="View\ViewSampleItemBLL.cs" />
+    <Compile Include="View\ViewSampleParameterBLL.cs" />
+    <Compile Include="View\ViewSampleStatisticsBLL.cs" />
+    <Compile Include="View\ViewSampleTesterBLL.cs" />
+    <Compile Include="View\ViewSampleTestRecordBLL.cs" />
+    <Compile Include="View\ViewSchoolEquipmentBLL.cs" />
+    <Compile Include="View\ViewSchoolUserBLL.cs" />
+    <Compile Include="View\ViewSchoolUserLogBLL.cs" />
+    <Compile Include="View\ViewSubjectAchievementBLL.cs" />
+    <Compile Include="View\ViewSubjectBLL.cs" />
+    <Compile Include="View\ViewSubjectEquipmentBLL.cs" />
+    <Compile Include="View\ViewSystemLogBLL.cs" />
+    <Compile Include="View\ViewThesisBLL.cs" />
+    <Compile Include="View\ViewThesisEquipmentBLL.cs" />
+    <Compile Include="View\ViewUnTestSampleApplyBLL.cs" />
+    <Compile Include="View\ViewUsedConfirmBLL.cs" />
+    <Compile Include="View\ViewUsedConfirmFeedBackBLL.cs" />
+    <Compile Include="View\ViewUsedConfirmUseConditionBLL.cs" />
+    <Compile Include="View\ViewUserBLL.cs" />
+    <Compile Include="View\ViewUserEquipmentPriviligeBLL.cs" />
+    <Compile Include="View\ViewUserSampleItemDiscountBLL.cs" />
+    <Compile Include="View\ViewUserSystemSettingBLL.cs" />
+    <Compile Include="View\ViewUserUsingEquipmentStatBLL.cs" />
+    <Compile Include="View\ViewUserWorkGroupBLL.cs" />
+    <Compile Include="View\ViewUserWorkGroupModuleFunctionBLL.cs" />
+    <Compile Include="View\ViewWorkGroupModuleBLL.cs" />
+    <Compile Include="View\ViewUserEquipmentBLL.cs" />
+    <Compile Include="View\ViewModuleFunctionBLL.cs" />
+    <Compile Include="View\ViewHomeMenuBLL.cs" />
+    <Compile Include="View\ViewMessageReceiveBLL.cs" />
+    <Compile Include="View\ViewUserEquipmentExaminationBLL.cs" />
+    <Compile Include="View\ViewEquipmentCategoryBindBLL.cs" />
+    <Compile Include="View\ViewArticleBLL.cs" />
+    <Compile Include="View\ViewUserDoorContinuedAuthorizationBLL.cs" />
+    <Compile Include="View\ViewUserDoorAuthorizationBLL.cs" />
+    <Compile Include="View\ViewUserEquipmentAuthorizationBLL.cs" />
+    <Compile Include="View\ViewUserEquipmentContinuedAuthorizationBLL.cs" />
+    <Compile Include="View\ViewDoorAccessRecordBLL.cs" />
+    <Compile Include="View\ViewPowerOperationBLL.cs" />
+    <Compile Include="View\ViewCurrentUsingEquipmentByPowerOperationBLL.cs" />
+    <Compile Include="View\ViewLabOrganizationAdminBLL.cs" />
+    <Compile Include="View\ViewCameraBLL.cs" />
+    <Compile Include="View\ViewDoorBLL.cs" />
+    <Compile Include="View\ViewCameraRelationBLL.cs" />
+    <Compile Include="View\ViewBalanceAccountBLL.cs" />
+    <Compile Include="View\ViewSubjectProjectImcomeLogBLL.cs" />
+    <Compile Include="View\ViewSubjectProjectImcomeBLL.cs" />
+    <Compile Include="View\ViewTrainningMaterialBLL.cs" />
+    <Compile Include="View\ViewTrainningQuestionBLL.cs" />
+    <Compile Include="View\ViewTrainningExaminationBLL.cs" />
+    <Compile Include="View\ViewUserMaterialReadingTimeBLL.cs" />
+    <Compile Include="View\ViewMaterialInfoBLL.cs" />
+    <Compile Include="View\ViewMaterialPurchaseBLL.cs" />
+    <Compile Include="View\ViewMaterialPurchaseItemBLL.cs" />
+    <Compile Include="View\ViewMaterialInputBLL.cs" />
+    <Compile Include="View\ViewMaterialInputItemBLL.cs" />
+    <Compile Include="View\ViewMaterialRecipientBLL.cs" />
+    <Compile Include="View\ViewMaterialRecipientItemBLL.cs" />
+    <Compile Include="View\ViewMaterialOutputBLL.cs" />
+    <Compile Include="View\ViewMaterialOutputItemBLL.cs" />
+    <Compile Include="View\ViewMaterialBrokenBLL.cs" />
+    <Compile Include="View\ViewMaterialBrokenItemBLL.cs" />
+    <Compile Include="View\ViewMaterialInfoLogBLL.cs" />
+    <Compile Include="View\ViewDoorEquipmentBLL.cs" />
+    <Compile Include="View\ViewUserLabOrganizationExaminationBLL.cs" />
+    <Compile Include="View\ViewJudgeProjectBLL.cs" />
+    <Compile Include="View\ViewJudgeProjectContentBLL.cs" />
+    <Compile Include="View\ViewJudgeEquipmentRecordBLL.cs" />
+    <Compile Include="View\ViewJudgeProjectRecordBLL.cs" />
+    <Compile Include="View\ViewJudgeProjectContentRecordBLL.cs" />
+    <Compile Include="View\ViewOpenFundApplyBLL.cs" />
+    <Compile Include="View\ViewOpenFundApplyEquipmentBLL.cs" />
+    <Compile Include="View\ViewOpenFundDepositRecordBLL.cs" />
+    <Compile Include="View\ViewEquipmentAlarmBLL.cs" />
+    <Compile Include="View\ViewSJ1BLL.cs" />
+    <Compile Include="View\ViewSJ3BLL.cs" />
+    <Compile Include="View\ViewSJ1StatisticsBLL.cs" />
+    <Compile Include="View\ViewSJ3StatisticsBLL.cs" />
+    <Compile Include="View\ViewArticleRelationBLL.cs" />
+    <Compile Include="View\ViewEquipmentRelationBLL.cs" />
+    <Compile Include="View\ViewArticleCategoryBLL.cs" />
+    <Compile Include="View\ViewEquipmentSemesterCostBLL.cs" />
+    <Compile Include="View\ViewActivityApplyBLL.cs" />
+    <Compile Include="View\ViewMaterialSupplierBLL.cs" />
+    <Compile Include="View\ViewSJ2BLL.cs" />
+    <Compile Include="View\ViewSJ2StatisticsBLL.cs" />
+    <Compile Include="View\ViewSJ4BLL.cs" />
+    <Compile Include="View\ViewSJ4StatisticsBLL.cs" />
+    <Compile Include="View\ViewSJ5BLL.cs" />
+    <Compile Include="View\ViewSJ5StatisticsBLL.cs" />
+    <Compile Include="View\ViewSJ6BLL.cs" />
+    <Compile Include="View\ViewSJ6StatisticsBLL.cs" />
+    <Compile Include="View\ViewSJ7BLL.cs" />
+    <Compile Include="View\ViewSJ7StatisticsBLL.cs" />
+    <Compile Include="View\ViewEquipmentSiteMapBLL.cs" />
+    <Compile Include="View\ViewSendShortMailBLL.cs" />
+    <Compile Include="View\ViewTemperatureHumiditySetupBLL.cs" />
+    <Compile Include="View\ViewEquipmentUndergraduateOpenBLL.cs" />
+    <Compile Include="View\ViewEquipmentOpenTrainingBLL.cs" />
+    <Compile Include="View\ViewEquipmentOpenTrainingCarryOutBLL.cs" />
+    <Compile Include="View\ViewEquipmentOpenTrainingCarryOutSignUpBLL.cs" />
+    <Compile Include="View\ViewEquipmentOpenPracticeBLL.cs" />
+    <Compile Include="View\ViewEquipmentOpenPracticeEquipmentBLL.cs" />
+    <Compile Include="View\ViewEquipmentOpenPracticeMemberBLL.cs" />
+    <Compile Include="View\ViewEquipmentOpenPracticeTeacherBLL.cs" />
+    <Compile Include="View\ViewEquipmentExtendUploadBLL.cs" />
+    <Compile Include="View\ViewDepositRecordOpenFundBLL.cs" />
+    <Compile Include="View\ViewDepositRecordBLL.cs" />
+    <Compile Include="View\ViewWaterControlCostBLL.cs" />
+    <Compile Include="View\ViewWorkGroupUserBLL.cs" />
+    <Compile Include="View\ViewBuildingEquipmentBLL.cs" />
+    <Compile Include="View\ViewShareFundApplyEquipmentBLL.cs" />
+    <Compile Include="View\ViewShareFundApplyBLL.cs" />
+    <Compile Include="View\ViewPatentEquipmentBLL.cs" />
+    <Compile Include="View\ViewEquipmentCustomsBLL.cs" />
+    <Compile Include="WorkdaysValidateBLL.cs" />
+    <Compile Include="View\ViewMaterialUserAccountBLL.cs" />
+    <Compile Include="View\ViewMaterialDepositRecordBLL.cs" />
+    <Compile Include="WorkGroupBLL.cs" />
+    <Compile Include="WorkGroupModuleBLL.cs" />
+    <Compile Include="LazyLoadSetUp\LazyLoadSetUp.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserTypeBLL.cs" />
+    <Compile Include="ModuleFunctionBLL.cs" />
+    <Compile Include="HomeMenuBLL.cs" />
+    <Compile Include="UserExaminationQuestionBLL.cs" />
+    <Compile Include="UserExaminationBLL.cs" />
+    <Compile Include="TrainningMaterialBLL.cs" />
+    <Compile Include="TrainningExaminationQuestionBLL.cs" />
+    <Compile Include="TrainningExaminationBLL.cs" />
+    <Compile Include="TrainningQuestionItemBLL.cs" />
+    <Compile Include="TrainningQuestionBLL.cs" />
+    <Compile Include="DoorBLL.cs" />
+    <Compile Include="UserDoorAuthorizationBLL.cs" />
+    <Compile Include="EquipmentAuthorizationAndAppointmentBLL.cs" />
+    <Compile Include="UserEquipmentAuthorizationBLL.cs" />
+    <Compile Include="UserEquipmentContinuedAuthorizationBLL.cs" />
+    <Compile Include="LabOrganizationAdminBLL.cs" />
+    <Compile Include="DoorAccessRecordBLL.cs" />
+    <Compile Include="PowerOperationBLL.cs" />
+    <Compile Include="CameraBLL.cs" />
+    <Compile Include="CameraRelationBLL.cs" />
+    <Compile Include="CountryBLL.cs" />
+    <Compile Include="SubjectProjectImcomeErrorLogBLL.cs" />
+    <Compile Include="SubjectProjectImcomeLogBLL.cs" />
+    <Compile Include="EquipmentAccessBLL.cs" />
+    <Compile Include="TrainningTypeBLL.cs" />
+    <Compile Include="TrainningExaminationMaterialBLL.cs" />
+    <Compile Include="UserMaterialReadingTimeBLL.cs" />
+    <Compile Include="View\ViewSssJBLL.cs" />
+    <Compile Include="MaterialInfoBLL.cs" />
+    <Compile Include="MaterialAdminBLL.cs" />
+    <Compile Include="MaterialPurchaseBLL.cs" />
+    <Compile Include="MaterialPurchaseItemBLL.cs" />
+    <Compile Include="MaterialInputBLL.cs" />
+    <Compile Include="MaterialInputItemBLL.cs" />
+    <Compile Include="MaterialCategoryBLL.cs" />
+    <Compile Include="MaterialRecipientBLL.cs" />
+    <Compile Include="MaterialRecipientItemBLL.cs" />
+    <Compile Include="MaterialOutputBLL.cs" />
+    <Compile Include="MaterialOutputItemBLL.cs" />
+    <Compile Include="MaterialBrokenBLL.cs" />
+    <Compile Include="MaterialBrokenItemBLL.cs" />
+    <Compile Include="MaterialDepositRecordBLL.cs" />
+    <Compile Include="MaterialUserAccountBLL.cs" />
+    <Compile Include="MaterialInfoLogBLL.cs" />
+    <Compile Include="SubjectProjectSyncBLL.cs" />
+    <Compile Include="DoorOfflineAuthorizationBLL.cs" />
+    <Compile Include="LabOrganizationRelationBLL.cs" />
+    <Compile Include="JudgeEquipmentRecordBLL.cs" />
+    <Compile Include="OpenFundApplyBLL.cs" />
+    <Compile Include="OpenFundApplyEquipmentBLL.cs" />
+    <Compile Include="OpenFundDepositRecordBLL.cs" />
+    <Compile Include="EquipmentAlarmBLL.cs" />
+    <Compile Include="SJ1BLL.cs" />
+    <Compile Include="SJ1StatisticsBLL.cs" />
+    <Compile Include="SJ3BLL.cs" />
+    <Compile Include="SJ3StatisticsBLL.cs" />
+    <Compile Include="ArticleRelationBLL.cs" />
+    <Compile Include="EquipmentRelationBLL.cs" />
+    <Compile Include="EquipmentSemesterCostBLL.cs" />
+    <Compile Include="SemesterBLL.cs" />
+    <Compile Include="ActivityApplyBLL.cs" />
+    <Compile Include="ActivityTypeBLL.cs" />
+    <Compile Include="MaterialSupplierBLL.cs" />
+    <Compile Include="SupplierBLL.cs" />
+    <Compile Include="SJ2BLL.cs" />
+    <Compile Include="SJ2StatisticsBLL.cs" />
+    <Compile Include="SJ4BLL.cs" />
+    <Compile Include="SJ4StatisticsBLL.cs" />
+    <Compile Include="SJ5BLL.cs" />
+    <Compile Include="SJ5StatisticsBLL.cs" />
+    <Compile Include="SJ6BLL.cs" />
+    <Compile Include="SJ6StatisticsBLL.cs" />
+    <Compile Include="SJ7BLL.cs" />
+    <Compile Include="SJ7StatisticsBLL.cs" />
+    <Compile Include="FindPasswordBLL.cs" />
+    <Compile Include="EquipmentExtendBLL.cs" />
+    <Compile Include="LabOrganizationAdminDeleteBLL.cs" />
+    <Compile Include="LabOrganizationUpdatedBLL.cs" />
+    <Compile Include="UserUpdatedBLL.cs" />
+    <Compile Include="TemperatureHumiditySetupBLL.cs" />
+    <Compile Include="EquipmentTemperatureHumidityBLL.cs" />
+    <Compile Include="EquipmentCategoryShareBLL.cs" />
+    <Compile Include="EquipmentUndergraduateOpenBLL.cs" />
+    <Compile Include="EquipmentOpenTrainingBLL.cs" />
+    <Compile Include="EquipmentOpenTrainingPlanBLL.cs" />
+    <Compile Include="EquipmentOpenTrainingCarryOutBLL.cs" />
+    <Compile Include="EquipmentOpenTrainingCarryOutPlanBLL.cs" />
+    <Compile Include="EquipmentOpenTrainingCarryOutSignUpBLL.cs" />
+    <Compile Include="EquipmentOpenPracticeBLL.cs" />
+    <Compile Include="EquipmentOpenPracticeEquipmentBLL.cs" />
+    <Compile Include="EquipmentOpenPracticeMaterialBLL.cs" />
+    <Compile Include="EquipmentOpenPracticeMemberBLL.cs" />
+    <Compile Include="EquipmentOpenPracticeTeacherBLL.cs" />
+    <Compile Include="WaterControlCostDeductBLL.cs" />
+    <Compile Include="EquipmentOpenPracticeRelationSubjectBLL.cs" />
+    <Compile Include="EquipmentOpenPracticeRelationOpenFundApplyBLL.cs" />
+    <Compile Include="DepositRecordEquipmentBLL.cs" />
+    <Compile Include="DepositRecordOpenFundBLL.cs" />
+    <Compile Include="DepositRecordOpenFundEquipmentBLL.cs" />
+    <Compile Include="BuildingBLL.cs" />
+    <Compile Include="BuildingEquipmentBLL.cs" />
+    <Compile Include="OpenFundApplyExcelBLL.cs" />
+    <Compile Include="AwardsEquipmentBLL.cs" />
+    <Compile Include="PatentEquipmentBLL.cs" />
+    <Compile Include="SJ3StatisticsUsedHourBLL.cs" />
+    <Compile Include="ShareFundApplyBLL.cs" />
+    <Compile Include="ShareFundApplyEquipmentBLL.cs" />
+    <Compile Include="ManualTimeCostDeductBLL.cs" />
+    <Compile Include="RepairBLL.cs" />
+    <Compile Include="EquipmentImportBLL.cs" />
+    <Compile Include="EquipmentRoomDirectorBLL.cs" />
+    <Compile Include="EquipmentProfessorBLL.cs" />
+    <Compile Include="PatentImportBLL.cs" />
+    <Compile Include="CersEquipmentImportBLL.cs" />
+    <Compile Include="EquipmentCustomsBindBLL.cs" />
+    <Compile Include="EquipmentCustomsBLL.cs" />
+    <Compile Include="ImportCersEquipmnetBLL.cs" />
+    <Compile Include="ZsdxAccountBLL.cs" />
+    <Compile Include="CostDeductSynBLL.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="com.august.Core.XQuery">
+      <HintPath>..\com.Bynonco.LIMS.Lib\com.august.Core.XQuery.dll</HintPath>
+    </Reference>
+    <Reference Include="com.august.Core.XQuery.NHibernate">
+      <HintPath>..\com.Bynonco.LIMS.Lib\com.august.Core.XQuery.NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="com.Bynonco.Leams.GsmComm.GsmCommunication">
+      <HintPath>..\com.Bynonco.LIMS.Lib\com.Bynonco.Leams.GsmComm.GsmCommunication.dll</HintPath>
+    </Reference>
+    <Reference Include="com.Bynonco.Leams.GsmComm.PDUConverter">
+      <HintPath>..\com.Bynonco.LIMS.Lib\com.Bynonco.Leams.GsmComm.PDUConverter.dll</HintPath>
+    </Reference>
+    <Reference Include="com.Bynonco.Leams.GsmComm.RS232">
+      <HintPath>..\com.Bynonco.LIMS.Lib\com.Bynonco.Leams.GsmComm.RS232.dll</HintPath>
+    </Reference>
+    <Reference Include="com.Bynonco.Leams.GsmComm.Shared">
+      <HintPath>..\com.Bynonco.LIMS.Lib\com.Bynonco.Leams.GsmComm.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\com.Bynonco.LIMS.Lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\com.Bynonco.LIMS.Lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\com.Bynonco.LIMS.Lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.5.9.10348, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\com.Bynonco.LIMS.Lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\com.august.DataLink\com.august.DataLink.csproj">
+      <Project>{38341edd-042f-4f8e-8666-1d23baa1273f}</Project>
+      <Name>com.august.DataLink</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\com.Bynonco.JqueryEasyUI.Core\com.Bynonco.JqueryEasyUI.Core.csproj">
+      <Project>{D191B431-BB7E-4591-A6CE-81CDEF6045DD}</Project>
+      <Name>com.Bynonco.JqueryEasyUI.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\com.Bynonco.LIMS.DAL\com.Bynonco.LIMS.DAL.csproj">
+      <Project>{CDB99903-C08D-4E8C-B95A-5A3DAE03EF62}</Project>
+      <Name>com.Bynonco.LIMS.DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\com.Bynonco.LIMS.IBLL\com.Bynonco.LIMS.IBLL.csproj">
+      <Project>{2B522BA1-716C-487C-B029-B0CE73280944}</Project>
+      <Name>com.Bynonco.LIMS.IBLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\com.Bynonco.LIMS.Model\com.Bynonco.LIMS.Model.csproj">
+      <Project>{E66798FE-0245-447D-BC45-D56E38D12C0D}</Project>
+      <Name>com.Bynonco.LIMS.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\com.Bynonco.LIMS.Utility\com.Bynonco.LIMS.Utility.csproj">
+      <Project>{0A11A7E0-49E3-40A1-98E2-8EEFD1620D5E}</Project>
+      <Name>com.Bynonco.LIMS.Utility</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\com.Bynonco.Logic.Model\com.Bynonco.Logic.Model.csproj">
+      <Project>{B32825C0-C7B0-47BA-9B87-4761DAAAFAB5}</Project>
+      <Name>com.Bynonco.Logic.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="UserDoorContinuedAuthorizationBLL.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

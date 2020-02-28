@@ -1,0 +1,44 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+    
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbEquipmentTrainningList")
+    .SetUrl(Url.Action("GetGridEquipmentTrainningList", "Equipment"))
+    .AddQueryParam("EquipmentId", equipmentId)
+    .AddQueryParam("QueryExpression", queryExpression)
+    .SetHeight(isPopDialog ? 350 : 650)
+    .SetPageSize(isPopDialog ? 10 : 20)
+    .SetSortName("CreateTime")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请人", "CreatorName").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "CreateTimeStr").SetWidth(130).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("当前状态", "StatusStr").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("登记人", "RegisterName").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("登记时间", "RegisterTimeStr").SetWidth(130).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddTrainning);
+    if(equipmentPrivilige.IsEnableAddTrainning)
+    {
+        dataGrid.SetAddScript("doAddOrEditEquipmentTrainning('');");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditTrainning);
+    if (equipmentPrivilige.IsEnableEditTrainning)
+    {
+        dataGrid.SetEditScript("doEditEquipmentTrainning();");
+        dataGrid.SetOnDblClickRow("doAddOrEditEquipmentTrainning(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteTrainning);
+    if (equipmentPrivilige.IsEnableDeleteTrainning)
+    {
+        dataGrid.SetDeleteScript("doDeleteEquipmentTrainning();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

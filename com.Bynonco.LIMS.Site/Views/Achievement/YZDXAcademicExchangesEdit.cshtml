@@ -1,0 +1,222 @@
+﻿@model com.Bynonco.LIMS.Model.AcademicExchanges
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var enableUploadFileType = "可上传的文件类型:" + ViewData["EnableUploadFileType"] + ".   ";
+    var enableUploadFileSize = "最大可上传" + ViewData["enableUploadFileSize"] + "的文件.";
+    var uploadTip = enableUploadFileType + "" + enableUploadFileSize;
+    var academicTypeCode = Model != null ? Model.AcademicTypeCode : (ViewData["AcademicTypeCode"] == null ? "" : ViewData["AcademicTypeCode"].ToString());
+    bool isMeeting = false;
+    bool isOut = false;
+    bool isInvite = false;
+    var academicName = "";
+    var userLocal = "";
+    var depLocal = "";
+    
+    switch(academicTypeCode)
+    {
+        case "AcademicTypeMeeting":
+            academicName = "参加会议名称";
+            userLocal = "参加会议人员";
+            depLocal = "参加会议单位";
+            isMeeting = true;
+            break;
+        case "AcademicTypeOut":
+            academicName = "外出交流名称";
+            userLocal = "外出人员";
+            depLocal = "外出单位";
+            isOut = true;
+            break;
+        case "AcademicTypeInvite":
+            academicName = "专家报告题目";
+            userLocal = "邀请人";
+            depLocal = "邀请单位";
+            isInvite = true;
+            //$("#trUserOut").removeClass("hide");
+            //$("#trDepOut").removeClass("hide");
+            break; 
+    }
+}
+<div id="divAcademicExchangesEdit">
+ <form id="frmAcademicExchangesEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdAcademicExchangesEdit" class="edit-table"  style="width:640px;">
+        <tr>
+            <th><span class="required">* </span>交流类型</th>
+            <td>@(Html.JComboBox("AcademicType")
+                .SetData(ViewData["AcademicTypeJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .SetDisabled(true)
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>时间</th>
+            <td>
+                @(Html.JDateTimePicker("ExchangesTime").SetWidth(215).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.ExchangesTime.Value.ToString("yyyy-MM-dd")).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>地点</th>
+            <td colspan="3">
+                @(Html.JValidateBox("ExchangesAddress").SetWidth(530).SetValue(Model == null ? "" : Model.ExchangesAddress).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>@academicName</th>
+            <td colspan="3">
+                @(Html.JValidateBox("AcademicName").SetWidth(530).SetValue(Model == null ? "" : Model.AcademicName).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>@userLocal</th>
+            <td colspan="3" id="tdUserLocalName">
+                  @(Html.TokenInput("UserLocalName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(false)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doUserLocalNameChange();")
+                    .SetOnDelete("doUserLocalNameChange();")
+                    .SetPrePopulate(ViewData["UserLocalJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserLocalJson"].ToString()) ? null : ViewData["UserLocalJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("UserLocalId", ViewData["UserLocalId"] == null ? "" : ViewData["UserLocalId"].ToString())
+            </td>
+        </tr>
+        <tr class='@(isOut ? "" : "hide")'>
+            <th><span class="required">* </span>@depLocal</th>
+            <td colspan="3" id="tdDepartmentLocalName">
+                @(Html.TokenInput("DepartmentLocalName")
+                    .SetUrl(Url.Action("GetLabOrganizationWeakListByKeyWord", "LabOrganization"))
+                    .SetWidth(540)
+                    .SetSingle(false)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doDepartmentLocalNameChange();")
+                    .SetOnDelete("doDepartmentLocalNameChange();")
+                    .SetPrePopulate(ViewData["DepartmentLocalJson"] == null || string.IsNullOrWhiteSpace(ViewData["DepartmentLocalJson"].ToString()) ? null : ViewData["DepartmentLocalJson"].ToString())
+                    .ToMvcString())
+                    @Html.Hidden("DepartmentLocalId", ViewData["DepartmentLocalId"] == null ? "" : ViewData["DepartmentLocalId"].ToString())
+            </td>
+        </tr>
+        <tr class='@(isInvite ? "" : "hide")'>
+            <th><span class="required">* </span>报告交流教授</th>
+            <td colspan="3" id="tdUserOutName">
+                  @(Html.TokenInput("UserOutName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(false)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doUserOutNameChange();")
+                    .SetOnDelete("doUserOutNameChange();")
+                    .SetPrePopulate(ViewData["UserOutJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserOutJson"].ToString()) ? null : ViewData["UserOutJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("UserOutId", ViewData["UserOutId"] == null ? "" : ViewData["UserOutId"].ToString())
+            </td>
+        </tr>
+        <tr class='@(isInvite ? "" : "hide")'>
+            <th><span class="required">* </span>来访人员单位</th>
+            <td colspan="3" id="tdDepartmentOutName">
+                @(Html.TokenInput("DepartmentOutName")
+                    .SetUrl(Url.Action("GetLabOrganizationWeakListByKeyWord", "LabOrganization"))
+                    .SetWidth(540)
+                    .SetSingle(false)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doDepartmentOutNameChange();")
+                    .SetOnDelete("doDepartmentOutNameChange();")
+                    .SetPrePopulate(ViewData["DepartmentOutJson"] == null || string.IsNullOrWhiteSpace(ViewData["DepartmentOutJson"].ToString()) ? null : ViewData["DepartmentOutJson"].ToString())
+                    .ToMvcString())
+                    @Html.Hidden("DepartmentOutId", ViewData["DepartmentOutId"] == null ? "" : ViewData["DepartmentOutId"].ToString())
+            </td>
+        </tr>
+        <tr class='@(isMeeting ? "" : "hide")'>
+            <th><span class="required">* </span>会议报告题目</th>
+            <td>
+                @(Html.JValidateBox("MeetingReportTitle").SetWidth(210).SetValue(Model == null ? "" : Model.MeetingReportTitle).ToMvcString())
+            </td>
+            <th><span class="required">* </span>会议报告类型</th>
+            <td>@(Html.JComboBox("MeetingReportType")
+                .SetData(ViewData["MeetingReportTypeJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>交流内容</th>
+            <td colspan="3">
+                @(Html.JValidateBox("ExchangesContent").SetWidth(530).SetValue(Model == null ? "" : Model.ExchangesContent).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th rowspan="2">
+                 <span class="required">* </span>附件信息
+            </th>
+            <td colspan="3">
+                <input id="fileToUpload" type="file" name="fileToUpload" style="width:230px" title="@(uploadTip)" />
+                @(Html.JLinkButton("btnUpLoad", "上传").SetIconCls("icon-upload").SetPlain(true).SetOnclick("ajaxFileUpload();return false;").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3"  id="tdAttachment">
+                @Html.Partial("AttachmentList", "Achievement")
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdUserLocalName ul.token-input-list-facebook").css("width", "535px");
+        $("#tdUserOutName ul.token-input-list-facebook").css("width", "535px");
+        $("#tdDepartmentLocalName ul.token-input-list-facebook").css("width", "535px");
+        $("#tdDepartmentOutName ul.token-input-list-facebook").css("width", "535px");
+    });
+    function doUserLocalNameChange() {
+        $("#UserLocalId").val("");
+        var userLocalList = $("#UserLocalName").tokenInput("get");
+        if (userLocalList && userLocalList.length > 0) {
+            var userLocalIds = "";
+            for (var i = 0; i < userLocalList.length; i++) {
+                if (userLocalIds != "") userLocalIds += ",";
+                userLocalIds += userLocalList[i].id;
+            }
+            $("#UserLocalId").val(userLocalIds);
+        }
+    }
+    function doUserOutNameChange() {
+        $("#UserOutId").val("");
+        var userOutList = $("#UserOutName").tokenInput("get");
+        if (userOutList && userOutList.length > 0) {
+            var userOutIds = "";
+            for (var i = 0; i < userOutList.length; i++) {
+                if (userOutIds != "") userOutIds += ",";
+                userOutIds += userOutList[i].id;
+            }
+            $("#UserOutId").val(userOutIds);
+        }
+    }
+    function doDepartmentLocalNameChange() {
+        $("#DepartmentLocalId").val("");
+        var departmentList = $("#DepartmentLocalName").tokenInput("get");
+        if (departmentList && departmentList.length > 0) {
+            var departmentIds = "";
+            for (var i = 0; i < departmentList.length; i++) {
+                if (departmentIds != "") departmentIds += ",";
+                departmentIds += departmentList[i].id;
+            }
+            $("#DepartmentLocalId").val(departmentIds);
+        }
+    }
+    function doDepartmentOutNameChange() {
+        $("#DepartmentOutId").val("");
+        var departmentList = $("#DepartmentOutName").tokenInput("get");
+        if (departmentList && departmentList.length > 0) {
+            var departmentIds = "";
+            for (var i = 0; i < departmentList.length; i++) {
+                if (departmentIds != "") departmentIds += ",";
+                departmentIds += departmentList[i].id;
+            }
+            $("#DepartmentOutId").val(departmentIds);
+        }
+    }
+</script>

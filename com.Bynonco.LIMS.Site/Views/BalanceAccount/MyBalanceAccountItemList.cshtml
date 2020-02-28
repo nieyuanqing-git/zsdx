@@ -1,0 +1,22 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JDataGrid("tbPayerCloseViewCostDeductList")
+    .SetUrl(Url.Action("GetMyGridViewBalanceAccountItemList", "BalanceAccount"))
+    .SetShowFooter(true)
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetMutiSelect(false)
+    .SetSingleSelect(true)
+    .SetSortName("BeginAt")
+    .SetSortOrder(SortOrder.desc)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("查看明细", "ViewDetailOperate").SetSortable(false).SetWidth(60).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "BeginAtStr").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndAtStr").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总额(元)", "TotalMoneyStr").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("计费时长(小时)", "TotalCalcDurationStr").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结算人", "CreatorName").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结算标题", "BalanceAccountTitle").SetWidth(800).SetAlign(Align.left))
+    ;
+}
+@(dataGrid.ToMvcString()) 

@@ -1,0 +1,16 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenTrainingCarryOutPlan
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var infoId = Model == null ? Guid.NewGuid() : Model.Id;
+}
+<tr id='@("tr_" + infoId)'>
+    <td class='tdId'>
+        <input id="Id_@(infoId)" type="hidden" value="@(infoId)" name="Id_@(infoId)"/>
+        @Html.JLinkButton("btnRemovePlan_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemovePlan('" + infoId + "');return false;").ToMvcString()
+    </td>
+    <td>@Html.JDateTimePicker("ClassDate_" + infoId).SetValue(Model == null ? "" : Model.ClassDate.ToString("yyyy-MM-dd")).SetWidth(80).ToMvcString()</td>
+    <td>@Html.JValidateBox("ClassTime_" + infoId).SetValue(Model == null ? "" : Model.ClassTime).SetWidth(70).ToMvcString()</td>
+    <td>@Html.JValidateBox("ClassPlace_" + infoId).SetValue(Model == null ? "" : Model.ClassPlace).SetWidth(60).ToMvcString()</td>
+    <td>@Html.JValidateBox("ClassContent_" + infoId).SetValue(Model == null ? "" : Model.ClassContent).SetWidth(100).ToMvcString()</td>
+    <td>@Html.JValidateBox("Teacher_" + infoId).SetValue(Model == null ? "" : Model.Teacher).SetWidth(50).ToMvcString()</td>
+</tr>

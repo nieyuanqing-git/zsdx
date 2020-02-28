@@ -1,0 +1,226 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var shareFundApplyMessage = ViewData["ShareFundApplyMessage"] == null ? "" : ViewData["ShareFundApplyMessage"];
+    }
+<div id="divShareFundApplyDialog" style="display:none"></div>
+<div id="divViewShareFundApplyDialog" style="display:none"></div>
+<div id="divAuditShareFundApplyDialog" style="display:none;"></div>
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $(this).attr("class", "tabs-selected");
+            doShareFundApplySearch('');
+        });
+    });
+
+    function doShareFundApplySearch() {
+        var queryExpression = generateShareFundApplyQueryExpress();
+        if($(".tabs").find("li.tabs-selected").length > 0)
+        {
+            var status = $(".tabs").find("li.tabs-selected").attr("status");
+            if(status != undefined && status != '') 
+            {
+                var str = status.split(",");
+                var statusQyeryExpression = "";
+                for (i=0; i < str.length; i++ )   
+                {   
+                    statusQyeryExpression += (statusQyeryExpression == "" ? "" :"+") + "Status=\"" + str[i] + "\""; 
+                } 
+                if(statusQyeryExpression != "") queryExpression += (queryExpression == "" ? "" : "*") + "(" + statusQyeryExpression + ")";  
+            }
+        }
+        $("#tbShareFundApplyList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbShareFundApplyList").datagrid("load", { "queryExpression": queryExpression.trim()});
+        return false;
+    }
+    var shareFundApplyDialog;
+    function doShareFundApplyDialog() {
+        if (shareFundApplyDialog) {
+            shareFundApplyDialog.dialog("destroy");
+        }
+        shareFundApplyDialog =  @Html.JDialog("divShareFundApplyEdit").SetTitle("共享基金信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("shareFundApplyDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveShareFundApply();").ToMvcString();
+    }
+    function doAddOrEditShareFundApply(id,materialPurchaseId){
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Edit","ShareFundApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        if(materialPurchaseId && materialPurchaseId.trim()!="") url +="&MaterialPurchaseId=" + materialPurchaseId.trim();
+        $("#divShareFundApplyDialog").load(url,function(){
+            doShareFundApplyDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAddShareFundApply(id,materialPurchaseId) {
+       doAddOrEditShareFundApply(id,materialPurchaseId);
+    }
+    function doEditShareFundApply(id) {
+       if(!id || id.trim()==""){
+           var selectedShareFundApply = $("#tbShareFundApplyList").datagrid("getSelected");
+           if(!selectedShareFundApply || selectedShareFundApply.Id=="" || selectedShareFundApply.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择共享基金", showType: 'show' });
+              return false;
+           }
+           id = selectedShareFundApply.Id;
+       }
+       doAddOrEditShareFundApply(id);
+    }
+    function doSaveShareFundApply(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","ShareFundApply")',
+            data: $("#frmShareFundApplyEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                shareFundApplyDialog.dialog('destroy');
+                doShareFundApplySearch();
+                alert('@shareFundApplyMessage');
+            }
+        });
+        
+   }
+   function doDeleteShareFundApply(id){
+        if(!id || id.trim() == ""){
+              var selectedShareFundApply = $("#tbShareFundApplyList").datagrid("getSelected");
+                if(!selectedShareFundApply || selectedShareFundApply.Id.trim() == "" || selectedShareFundApply.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的共享基金", showType: 'show' });
+                    return false;
+                }
+                id = selectedShareFundApply.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "ShareFundApply")',
+                data: {"id" : id, "date" : new Date().getMilliseconds()} ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doShareFundApplySearch();
+                }
+            });
+        });
+        return false;
+   }
+   var viewShareFundApplyDialog;
+   function doViewShareFundApplyDialog() {
+        if (viewShareFundApplyDialog) {
+            viewShareFundApplyDialog.dialog("destroy");
+        }
+        viewShareFundApplyDialog =  @Html.JDialog("divShareFundApplyView").SetTitle("共享基金信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewShareFundApplyDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doViewShareFundApplyInfo(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedShareFundApply = $("#tbShareFundApplyList").datagrid("getSelected");
+           if(!selectedShareFundApply || selectedShareFundApply.Id=="" || selectedShareFundApply.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择共享基金", showType: 'show' });
+              return false;
+           }
+           id = selectedShareFundApply.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewInfo","ShareFundApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewShareFundApplyDialog").load(url,function(){
+            doViewShareFundApplyDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    var auditShareFundApplyDialog;
+   function doAuditShareFundApplyDialog() {
+        if (auditShareFundApplyDialog) {
+            auditShareFundApplyDialog.dialog("destroy");
+        }
+        auditShareFundApplyDialog =  @(Html.JDialog("divShareFundApplyAudit")
+            .SetTitle("共享基金审核")
+            .SetIconCls("icon-pass")
+            .SetAutoDialog(false)
+            .SetOnClose("auditShareFundApplyDialog.dialog('destroy');return false;")
+            .SetCancelScript("auditShareFundApplyDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton() { Handler = "doAuditPassShareFundApply();return false;", Id = "btnAuditPassShareFundApply", Text = "审核通过", IconCls = "icon-ok"})
+            .AddButton(new ToolBarButton() { Handler = "doAuditRejectShareFundApply();return false;", Id = "btnAuditRejectShareFundApply", Text = "审核不通过", IconCls = "icon-no"})
+            .ToMvcString());
+    }
+    function doAuditShareFundApply(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedShareFundApply = $("#tbShareFundApplyList").datagrid("getSelected");
+           if(!selectedShareFundApply || selectedShareFundApply.Id=="" || selectedShareFundApply.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择共享基金", showType: 'show' });
+              return false;
+           }
+           id = selectedShareFundApply.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Audit","ShareFundApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divAuditShareFundApplyDialog").load(url,function(){
+            doAuditShareFundApplyDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+     function doAuditPassShareFundApply(){
+        var url = '@Url.Action("AuditPass","ShareFundApply")';
+        return doAuditShareFundApplySave(url);
+    }
+    function doAuditRejectShareFundApply(){
+        var url = '@Url.Action("AuditReject","ShareFundApply")';
+        return doAuditShareFundApplySave(url);
+    }
+    function doAuditShareFundApplySave(url){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmShareFundApplyAudit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                auditShareFundApplyDialog.dialog('destroy');
+                doShareFundApplySearch();
+            }
+        });
+   }
+
+   function doExportDocShareFundApply(id) {
+        if(!id || id.trim()==""){
+           var selectedShareFundApply = $("#tbShareFundApplyList").datagrid("getSelected");
+           if(!selectedShareFundApply || selectedShareFundApply.Id=="" || selectedShareFundApply.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择共享基金", showType: 'show' });
+              return false;
+           }
+           id = selectedShareFundApply.Id;
+        }
+        $.messager.confirm('提示', '是否确认选中记录导出Doc?', function (r) {
+            if (!r) return;
+            var queryData = "id=" + id;
+            var url = '@Url.Action("ExportDoc","ShareFundApply")' + '?' + queryData
+            window.open(url, '_blank');
+        });
+        return false;
+    }
+
+    function doExportExcel()
+    {
+        var queryExpression = generateShareFundApplyQueryExpress();
+        var url = '@Url.Action("ExportExcel","ShareFundApply")' + "?queryExpression=" + queryExpression;
+        window.open(url,'_blank');
+    }
+</script>

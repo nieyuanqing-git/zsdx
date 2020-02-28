@@ -1,0 +1,13 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    <div class="search-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../Delinquency/PunishActionSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../Delinquency/PunishActionList")</div>
+</div>
+<div style="display:none">@Html.Partial("../Delinquency/PunishActionScriptContainer")</div>

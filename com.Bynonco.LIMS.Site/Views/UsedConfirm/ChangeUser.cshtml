@@ -1,0 +1,28 @@
+﻿@model com.Bynonco.LIMS.Model.UsedConfirm
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divUsedConfirmChangeUser">
+ <form id="frmUsedConfirmChangeUser" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdUsedConfirmChangeUser" class="edit-table"  style="width:385px;">
+        <tr>
+            <th>原使用者</th>
+            <td>@Model.User.UserName</td>
+        </tr>
+         <tr>
+            <th>新使用者</th>
+            <td id='trUserId'>
+                @(Html.TokenInput("UserId")
+                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                    .SetSingle(true)
+                    .SetWidth(200)
+                    .ToMvcString())
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#trUserId ul.token-input-list-facebook").css("width", "200px");
+    });
+</script>

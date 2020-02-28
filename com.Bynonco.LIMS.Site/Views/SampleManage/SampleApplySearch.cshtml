@@ -1,0 +1,128 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var sampleNo = $("#txtQuerySampleNo").val().trim();
+        if (sampleNo != "") {
+            queryExpression += "SampleNo∽\"" + sampleNo + "\"";
+        }
+
+        var sampleItemId = $("#txtQuerySampleItemId").val();
+        if (sampleItemId.trim() != "") {
+            queryExpression += queryExpression == "" ? "SampleItemId=\"" + sampleItemId.trim() + "\"" : "*SampleItemId=\"" + sampleItemId.trim() + "\"";
+        }
+        var equipmentId = $("#txtQueryEquipmentId").val().trim();
+        if (equipmentId != "") {
+            queryExpression += queryExpression == "" ? "EquipmentId=\"" + equipmentId + "\"" : "*EquipmentId=\"" + equipmentId + "\"";
+        }
+        var applicantId = $("#txtQueryApplicantId").val().trim();
+        if (applicantId != "") {
+            queryExpression += queryExpression == "" ? "ApplicantId=\"" + applicantId + "\"" : "*ApplicantId=\"" + applicantId + "\"";
+        }
+
+        var selectedSampleStatus = $("#cbxQuerySampleStatus").combobox("getValues");
+        var selectedSampleStatusIds = selectedSampleStatus.toString().split(",");
+        if (selectedSampleStatusIds.length > 1 || (selectedSampleStatusIds[0].trim() != "" && selectedSampleStatusIds[0].trim() != "-1" && selectedSampleStatusIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedSampleStatusIds.length; i++) {
+                if (selectedSampleStatusIds[i].trim() == "" || selectedSampleStatusIds[i].trim() == "-1") { index++; continue; }
+                queryExpression += (i == index ? "Status=\"" + selectedSampleStatusIds[i] + "\"" : "+Status=\"" + selectedSampleStatusIds[i] + "\"");
+            }
+            queryExpression += ")";
+        }
+
+        var selectedChargeStatuses = $("#cbxQueryChargeStatus").combobox("getValues");
+        var selectedChargeStatusIds = selectedChargeStatuses.toString().split(",");
+        if (selectedChargeStatusIds.length > 1 || (selectedChargeStatusIds[0].trim() != "-1" && selectedChargeStatusIds[0].trim() != "" && selectedChargeStatusIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedChargeStatusIds.length; i++) {
+                if (selectedChargeStatusIds[i].trim() == "-1" || selectedChargeStatusIds[i].trim() == "") { index++; continue; }
+                queryExpression += (i == index ? "ChargeStatus=" + selectedChargeStatusIds[i] : "+ChargeStatus=" + selectedChargeStatusIds[i]);
+            }
+            queryExpression += ")";
+        }
+
+        var beginDate = $("#dtpQueryBeginDate").datebox("getValue");
+        if (beginDate.trim() != "") {
+            beginDate = beginDate.trim() + " 00:00:00";
+            queryExpression += queryExpression == "" ? "ApplyDate>\"" + beginDate.trim() + "\"" : "*ApplyDate>\"" + beginDate.trim() + "\"";
+        }
+        var endDate = $("#dtpQueryEndDate").datebox("getValue");
+        if (endDate.trim() != "") {
+            endDate = endDate.trim() + " 23:59:59"
+            queryExpression += queryExpression == "" ? "ApplyDate<\"" + endDate.trim() + "\"" : "*ApplyDate<\"" + endDate.trim() + "\"";
+        }
+        var feedBackStatus = $("#cbxQueryFeedBackStatus").combobox("getValue").trim();
+        if (feedBackStatus != "" && feedBackStatus != "-1") {
+            if (feedBackStatus == "0") {
+                queryExpression += queryExpression == "" ? "IsNeedFeedBack=true*FeedbackTime=null" : "*IsNeedFeedBack=true*FeedbackTime=null";
+            }
+            if (feedBackStatus == "1") {
+                queryExpression += queryExpression == "" ? "IsNeedFeedBack=true*FeedbackTime=-null" : "*IsNeedFeedBack=true*FeedbackTime=-null";
+            }
+        }
+        return queryExpression;
+    }
+
+    function doQueryReset() {
+        $("#txtQuerySampleNo").val("");
+        $("#txtQuerySampleItemId").tokenInput("clear");
+        $("#txtQueryEquipmentId").tokenInput("clear");
+        $("#txtQueryApplicantId").tokenInput("clear");
+        $("#txtQuerySampleItemName").val("");
+        $("#dtpQueryBeginDate").datebox("setValue", "")
+        $("#dtpQueryEndDate").datebox("setValue", "");
+        $("#cbxQuerySampleStatus").combobox("setValue", "-1");
+        $("#cbxQueryChargeStatus").combobox("setValue", "-1");
+        $("#cbxQueryFeedBackStatus").combobox("setValue", "-1");
+        return false;
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>样品编号</label>
+        @Html.JValidateBox("txtQuerySampleNo").SetHeight(20).SetWidth(146).ToMvcString()
+    </li>
+    <li class="li-tokenInput">
+        <label style="padding-right:4px">设备名称</label>
+        @Html.TokenInput("txtQueryEquipmentId").SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment")).SetSingle(true).ToMvcString()
+    </li>
+    <li class="li-tokenInput">
+        <label style="padding-right:4px">项目名称</label>
+        @Html.TokenInput("txtQuerySampleItemId").SetUrl(Url.Action("GetSampleItemListByKeyWord", "SampleItem")).SetSingle(true).ToMvcString()
+    </li>
+    <li class="li-tokenInput">
+        <label style="padding-right:4px">申请人</label>
+        @Html.TokenInput("txtQueryApplicantId").SetUrl(Url.Action("GetUserListByKeyWord", "User")).SetSingle(true).ToMvcString()
+    </li>
+    <li>
+        <label>反馈情况</label>
+        @Html.JComboBox("cbxQueryFeedBackStatus").SetWidth(152).SetData(ViewData["FeedBackStatusJson"]).SetEditable(false).SetMutiSelect(false).ToMvcString()
+    </li>
+    <li>
+        <label>当前状态</label>
+        @Html.JComboBox("cbxQuerySampleStatus").SetWidth(152).SetData(ViewData["SampleStatusJson"]).SetEditable(false).SetMutiSelect(true).ToMvcString()
+    </li>
+     <li>
+        <label>收费状态</label>
+        @Html.JComboBox("cbxQueryChargeStatus").SetWidth(152).SetData(ViewData["ChargeStatusJson"]).SetEditable(false).SetMutiSelect(true).ToMvcString()
+    </li>
+     <li>
+        <label>开始日期</label>
+        @Html.JDateTimePicker("dtpQueryBeginDate").SetWidth(152).ToMvcString()
+    </li>
+     <li>
+        <label>结束日期</label>
+        @Html.JDateTimePicker("dtpQueryEndDate").SetWidth(152).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doQueryReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

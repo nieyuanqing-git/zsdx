@@ -1,0 +1,50 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUserSystemSetting
+@{
+    string skinName = Model == null ? "blue" : Model.SkinName;
+	<link rel="stylesheet" href="@Url.Content("~/Content/themes/" + skinName + "/css.css")" type="text/css" media="screen" />
+    <ul >
+        <li class='themes-ico @(skinName == "blue" ? "current" : "")' style="margin-left:5px;_margin-left: 2px;">
+            <a href="javascript:;" skinname="blue" onclick="SaveCurrentSkinName(this)">
+                <img src="@Url.Content("~/Content/images/color-blue.png")" alt="蓝色"/>
+            </a>
+        </li>
+        <li class='themes-ico @(skinName == "green" ? "current" : "")'>
+            <a href="javascript:;" skinname="green" onclick="SaveCurrentSkinName(this)">
+                <img src="@Url.Content("~/Content/images/color-green.png")" alt="绿色"/>
+            </a>
+        </li>
+        <li class='themes-ico @(skinName == "cyan" ? "current" : "")'>
+            <a href="javascript:;" skinname="cyan" onclick="SaveCurrentSkinName(this)">
+                <img src="@Url.Content("~/Content/images/color-cyan.png")" alt="青色"/>
+            </a>
+        </li>
+        <li class='themes-ico @(skinName == "red" ? "current" : "")'>
+            <a href="javascript:;" skinname="red" onclick="SaveCurrentSkinName(this)">
+                <img src="@Url.Content("~/Content/images/color-red.png")" alt="红色"/>
+            </a>
+        </li>
+        <li class='themes-ico @(skinName == "orange" ? "current" : "")' style="margin-right:0;">
+            <a href="javascript:;" skinname="orange" onclick="SaveCurrentSkinName(this)">
+                <img src="@Url.Content("~/Content/images/color-orange.png")" alt="橙色"/>
+            </a>
+        </li>
+    </ul>
+}
+<script type="text/javascript">
+    function SaveCurrentSkinName(obj) {
+        $(obj).parent().siblings().removeClass("current");
+        $(obj).parent().addClass("current");
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUserSystemSetting","User")',
+            data: "SkinName=" + $(obj).attr("skinname") + "&time=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                IniUserSkin();
+            }
+        });
+    }
+</script>

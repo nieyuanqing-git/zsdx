@@ -1,0 +1,29 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<style type="text/css">
+    #divSelectSemester{ padding:15px 20px; vertical-align:middle;}
+    #divSelectSemester span.span-title{ font-size:14px; padding-right:3px;vertical-align:middle;}
+</style>
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../EquipmentGroup/Search")
+    </div>
+</div>
+<div class="x-panel-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../EquipmentSemesterCost/Search")
+    </div>
+</div>
+<div id="divSelectSemester" style="border:1px solid #D3D3D3;border-bottom:0;"> 
+    @Html.Partial("../Semester/SelectSemester")
+</div>
+<div class="layout-center-left" style='top:auto;'>
+    @Html.Partial("../EquipmentGroup/ListNoPadding")
+</div>
+<div class="layout-center-right">
+    @Html.Partial("../EquipmentSemesterCost/List")
+</div>
+@Html.Partial("../EquipmentGroup/ScriptContainer")
+@Html.Partial("../EquipmentSemesterCost/ScriptContainer")

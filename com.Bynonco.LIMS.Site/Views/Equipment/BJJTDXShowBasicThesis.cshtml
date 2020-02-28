@@ -1,0 +1,14 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewThesisEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var infoId = Model == null ? Guid.NewGuid() : Model.Id;
+}
+<tr id='@("tr_" + infoId)'>   
+    <td>@Html.JValidateBox("Index").SetValue("1").SetWidth(100).ToMvcString()</td>
+    <td>@Html.JValidateBox("FirstThesisAuthorNames").SetValue(Model == null ? "" : Model.ViewThesis.FirstThesisAuthorNames).SetWidth(140).ToMvcString()</td>    
+    <td>@Html.JValidateBox("Title").SetValue(Model == null ? "" : Model.ViewThesis.Title).SetWidth(140).ToMvcString()</td>    
+    <td>@Html.JValidateBox("JournalName").SetValue(Model == null ? "" : Model.ViewThesis.JournalName).SetWidth(140).ToMvcString()</td>  
+    <td>@Html.JValidateBox("JournalTimeStr").SetValue(Model == null ? "" : Model.ViewThesis.JournalTimeStr).SetWidth(100).ToMvcString()</td>
+    <td>@Html.JValidateBox("VolumeNumber").SetValue(Model == null ? "" : Model.ViewThesis.VolumeNumber).SetWidth(100).ToMvcString()</td>    
+    <td>@Html.JValidateBox("Pagination").SetValue(Model == null ? "" : Model.ViewThesis.Pagination).SetWidth(100).ToMvcString()</td>       
+</tr>

@@ -1,0 +1,128 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div class="search-box">
+    <div class="edit-info">
+        <div class="tit">设备名称</div>
+        <div class="bdmain">
+            <div class="text-box">
+                <strong>
+                    @Html.JValidateBox("SearchEquipmentName").SetWidth(140).SetHeight(27).AddClass("textinp").ToMvcString()
+                </strong>
+            </div>
+        </div>
+        <div class="tit">设备功能</div>
+        <div class="bdmain">
+            <div class="text-box">
+                <strong>
+                    @Html.JValidateBox("SearchScopeOfApplication").SetWidth(140).SetHeight(27).AddClass("textinp").ToMvcString()
+                </strong>
+            </div>
+        </div>
+        
+        <div class="tit">技术指标</div>
+        <div class="bdmain">
+            <div class="text-box">
+                <strong>
+                    @Html.JValidateBox("SearchQualification").SetWidth(140).SetHeight(27).AddClass("textinp").ToMvcString()
+                </strong>
+            </div>
+        </div>
+        <div class="tit">组织机构</div>
+        <div class="bdmain">
+            <div class="text-box" id="divSearchOrganization">
+                <strong>
+                    @(Html.TokenInput("SearchOrganizationId")
+                        .SetUrl(Url.Action("GetLabOrganizationListByKeyWord", "LabOrganization"))
+                        .SetSingle(true)
+                        .SetWidth(140)
+                        .SetOnAdd("objfocus(this);")
+                        .AddClass("textinp")
+                        .ToMvcString())
+                </strong>
+            </div>
+        </div>
+    </div>
+    <div class="edit-info">
+        <div class="tit">放置地点</div>
+        <div class="bdmain">
+            <div class="text-box"  id="divSearchRoom">
+                <strong>
+                      @(Html.TokenInput("SearchRoomId")
+                        .SetUrl(Url.Action("GetLabOrganizationRoomListByKeyWord", "LabOrganization"))
+                        .SetSingle(true)
+                        .SetWidth(140)
+                        .SetOnAdd("objfocus(this);")
+                        .AddClass("textinp")
+                        .ToMvcString())
+                </strong>
+            </div>
+        </div>
+    </div>
+    <div class="edit-info">
+        <div class="tit">设备分类</div>
+        <div class="bdmain">
+            <div class="text-box">
+                <strong>
+                    @(Html.JComboTree("SearchEquipmentCategoryId")
+                        .SetData(ViewData["EquipmentCategoryJson"])
+                        .SetMultiple(false)
+                        .SetWidth(145)
+                        .SetExpandAll(true)
+                        .SetOnCheck("objfocus(this);")
+                        .ToMvcString())
+                </strong>
+            </div>
+        </div>
+    </div>
+    <div class="edit-info">
+        <div class="tit">控制方式</div>
+        <div class="bdmain">
+            <div class="text-box">
+                <strong>
+                     @(Html.JComboBox("SearchEquipmentControllerType")
+                        .SetEditable(true)
+                        .SetData(ViewData["EquipmentControllerTypeJson"])
+                        .SetWidth(145)
+                        .SetHeight(27)
+                        .SetOnSelect("objfocus(this);")
+                        .ToMvcString())
+                </strong>
+            </div>
+        </div>
+    </div>
+    <div class="edit-info" style="margin-top:5px;">
+        <input class="botton" type="submit" onclick="objfocus(this);doSearch();" value="查 询" />
+        <input class="botton" type="submit" onclick="doReset();" value="清 空" style='margin-left:25px'/>
+    </div>
+    <div class="clear-both"></div>
+</div>
+<script type="text/javascript">
+    function objfocus(obj) {
+        $(".text-over").removeClass('text-over');
+        $(".textare-over").removeClass('textare-over');
+        $(obj).parents(".text-box").addClass('text-over');
+        $(obj).parents(".textare-box").addClass('textare-over');
+    }
+    $(function () {
+        $(".edit-info .textinp").focus(function () { objfocus(this); });
+        $(".edit-info .textareinp").focus(function () { objfocus(this); });
+        $(".edit-info .combo-text").focus(function () { objfocus(this); });
+        $("#token-input-SearchOrganizationId").focus(function () { objfocus(this); });
+        $("#token-input-SearchRoomId").focus(function () { objfocus(this); });
+        $("#divSearchOrganization ul.token-input-list-facebook").css("width", "140px");
+        $("#divSearchRoom ul.token-input-list-facebook").css("width", "140px");
+
+    })
+
+    function doReset() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchScopeOfApplication").val("");
+        $("#SearchQualification").val("");
+        $("#SearchOrganizationId").val("");
+        $("#divSearchOrganization .token-input-token-facebook").remove();
+        $("#SearchRoomId").val("");
+        $("#divSearchRoom .token-input-token-facebook").remove();
+        $("#SearchEquipmentControllerType").combobox("setValue", "");
+        $("#SearchEquipmentCategoryId").combotree("clear");
+        return false;
+    }
+</script>

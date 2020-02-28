@@ -1,0 +1,74 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleItem
+@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function setValueName(){
+        var propertyName = $("#PropertyName").combobox("getText");
+        if (propertyName!="")$("#thValueName").html(propertyName);
+    }
+    function doOnSampleItemPropertyChanged(newValue, oldValue) {
+        $("#tdValue span.valueName").css("display", "none");
+        $("#" + "sp" + newValue).css("display", "");
+        setTimeout("setValueName();", 100);
+    }
+</script>
+<div id="divBatchUpdateInfo" style=" margin:auto;width:515px;height:180px; line-height:180px; overflow:hidden">
+    <form id="frmUpdateInfo" style="height:100%; width:100%">
+    <table class="edit-table" style="height:100%; width:100%">
+        <tr>
+            <th>列名</th>
+            <td>
+                @Html.JComboBox("PropertyName").SetData(ViewData["SampleItemPropertiesJson"]).SetOnChange("doOnSampleItemPropertyChanged(newValue, oldValue);").SetWidth(255).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th id="thValueName">检测条件及要求填写说明</th>
+            <td id="tdValue">
+                <span id="spDirections" class="valueName">
+                    @Html.TextArea("Directions", Model != null ? Model.Directions : "", new { style = "font-size:12px;text-decoration:none;height:60px;width:350px" })
+                </span>
+                <span id="spIsStop" style="display:none" class="valueName">
+                    @Html.JComboBox("IsStop").SetData(ViewData["IsStopJson"]).SetWidth(255).ToMvcString()
+                </span>
+                <span id="spRemark" style="display:none" class="valueName">
+                    @Html.TextArea("Remark", Model != null ? Model.Remark : "", new { style = "font-size:12px;text-decoration:none;height:60px;width:350px" })
+                </span>
+                <span id="spEquipmentId" style="display:none" class="valueName">
+                    @(Html.TokenInput("EquipmentId")
+                    .SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment", new { time = DateTime.Now.Millisecond.ToString() }))
+                    .SetPrePopulate(ViewData["EquipmentJson"] == null ? null : ViewData["EquipmentJson"].ToString())
+                    .SetSingle(true).SetWidth(250).ToMvcString())
+                </span>
+                <span id="spSampleStatusIds" style="display:none" class="valueName">
+                     @(Html.TokenInput("SampleStatusIds")
+                    .SetUrl(Url.Action("GetSampleStatusByKeyWord", "SampleStatus", new { time = DateTime.Now.Millisecond.ToString() }))
+                    .SetPrePopulate(ViewData["SampleStatusesJson"] == null ? null : ViewData["SampleStatusesJson"].ToString())
+                    .SetSingle(false).SetWidth(255).ToMvcString())
+                </span>
+                <span id="spChargeCategory" style="display:none" class="valueName">
+                    @Html.JComboBox("ChargeCategory").SetData(ViewData["ChargeCategoryJson"]).SetWidth(255).ToMvcString()
+                </span>
+                <span id="spUnitPrice" style="display:none" class="valueName">
+                     @(Html.JValidateBox("UnitPrice")
+                    .SetValue(Model == null ? "0" : Model.UnitPrice.ToString("0.00"))
+                    .SetValidateType(ValidateType.number)
+                    .SetWidth(250)
+                    .SetInvalidMessage("请输入大于或者等于0的价格").ToMvcString())
+                </span>
+                <span id="spRoundDigits" style="display:none" class="valueName">
+                    @(Html.JValidateBox("RoundDigits")
+                    .SetValue(Model == null ? "2" : Model.RoundDigits.ToString())
+                    .SetValidateType(ValidateType.number)
+                    .SetWidth(250)
+                    .SetInvalidMessage("请输入大于或者等于0数字").ToMvcString())
+                </span>
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+ <script type="text/javascript">
+     $(function () {
+         $("#spSampleStatusIds ul.token-input-list-facebook").css("width", "253px");
+         $("#spEquipmentId ul.token-input-list-facebook").css("width", "253px");
+     });
+ </script>

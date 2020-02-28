@@ -1,0 +1,125 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Achievement/AcademicPositionSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../Achievement/AcademicPositionList")
+</div>
+<div id="divAcademicPositionDialog"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbAcademicPositionList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbAcademicPositionList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    var academicPositionDialog;
+    function doAcademicPositionDialog() {
+        if (academicPositionDialog) {
+            academicPositionDialog.dialog("destroy");
+        }
+        academicPositionDialog =  @Html.JDialog("divAcademicPositionEdit").SetTitle("学术组织任职信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("academicPositionDialog.dialog('destroy');return false;").SetOnClose("academicPositionDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveAcademicPosition();").ToMvcString();
+    }
+    function doAddOrEditAcademicPosition(id){
+        var url = '@Url.Action("AcademicPositionEdit","Achievement")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAcademicPositionDialog").load(url,function(){
+            $.messager.progress('close');
+            doAcademicPositionDialog();
+        })
+        return false;
+    }
+    function doAddAcademicPosition(id) {
+       doAddOrEditAcademicPosition(id);
+    }
+    function doEditAcademicPosition(id) {
+       if(!id || id.trim()==""){
+           var selectedSubject = $("#tbAcademicPositionList").datagrid("getSelected");
+           if(!selectedSubject || selectedSubject.Id=="" || selectedSubject.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择学术组织任职", showType: 'show' });
+              return false;
+           }
+           id = selectedSubject.Id;
+       }
+       doAddOrEditAcademicPosition(id);
+    }
+    function doSaveAcademicPosition(){
+        if ($("#UserName").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入任职人员",showType: 'show' });
+            return false;
+        }
+        if ($("#AcademicName").val().trim() == "" || !$("#AcademicName").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"请输入学术组织名称",showType: 'show' });
+            return false;
+        }
+        if ($("#Position").val().trim() == "" || !$("#Position").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"请输入职位",showType: 'show' });
+            return false;
+        }
+        if ($("#MagazineName").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入国内外杂志名称",showType: 'show' });
+            return false;
+        }
+        if ($("#StartTime").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入开始时间",showType: 'show' });
+            return false;
+        }
+         if ($("#EndTime").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入结束时间",showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AcademicPositionSave","Achievement")' ,
+            data: $("#frmAcademicPositionEdit").serialize() + "&attamentFiles=" + generateAttachmentFiles() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                academicPositionDialog.dialog('destroy');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteAcademicPosition(id){
+        if(!id || id.trim() == ""){
+              var selectedSubject = $("#tbAcademicPositionList").datagrid("getSelected");
+                if(!selectedSubject || selectedSubject.Id.trim() == "" || selectedSubject.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedSubject.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AcademicPositionDelete", "Achievement")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function doAcademicPositionExportExcel()
+    {
+        var url='@Url.Action("AcademicPositionExportExcel","Achievement")';
+        window.open(url,'_blank');
+    }
+</script>
+ 

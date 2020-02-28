@@ -1,0 +1,23 @@
+﻿<script type="text/javascript">
+    function doEquipmentReset() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchEquipmentLabel").val("");
+        $("#SearchIP").val("");
+        $("#SearchOrgId").val('@Guid.Empty.ToString()');
+        $("#SearchRoomId").val('@Guid.Empty.ToString()');
+        $("#SearchEquipmentCategoryId").val('@Guid.Empty.ToString()');
+        $("#SearchControllerTypeValue").combobox("setValue", "");
+        $("#SearchScopeOfApplication").val("");
+        $("#SearchQualification").val("");
+        $("#SearchBuyDateBegin").datebox("setValue", "");
+        $("#SearchBuyDateEnd").datebox("setValue", "");
+        $('#SearchDirectorId').tokenInput('clear')
+        return false;
+    }
+    function doEquipmentSearch() {
+        if (perPageSize)
+            doLoadEquipmentList(1, perPageSize);
+        else
+            doLoadEquipmentList(1, 10);
+    }
+</script>

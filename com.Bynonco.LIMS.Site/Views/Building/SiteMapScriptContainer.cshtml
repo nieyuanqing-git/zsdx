@@ -1,0 +1,339 @@
+﻿@model com.Bynonco.LIMS.Model.Building
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divBuildingEquipmentDialog" style="display:none;"></div>
+<script type="text/javascript">
+    var buildingEquipmentDialog;
+    function doBuildingEquipmentDialog() {
+        if (buildingEquipmentDialog) {
+            buildingEquipmentDialog.dialog("destroy");
+        }
+        buildingEquipmentDialog =  @Html.JDialog("divBuildingEquipmentAdd").SetTitle("楼宇设备信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("buildingEquipmentDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveBuildingEquipment();").SetOnClose("buildingEquipmentDialog.dialog('destroy');return false;").ToMvcString();
+    }
+    function doAddBuildingEquipment(x,y){
+        var id = '@(Model == null ? Guid.Empty : Model.Id)';
+        var url = '@Url.Action("AddBuildingEquipment","Building")'+ "?id=" + id + "&x=" + x + "&y=" + y + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divBuildingEquipmentDialog").load(url,function(){
+            $.messager.progress('close');
+            doBuildingEquipmentDialog();
+        })
+        return false;
+    }
+    function doSaveBuildingEquipment(){
+        if ($("#BuildingId").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"楼宇为空", showType: 'show' });
+            return false;
+        }
+        if ($("#EquipmentId").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请选择楼宇设备", showType: 'show' });
+            return false;
+        }
+        if ($("#PointX").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"无效地图坐标", showType: 'show' });
+            return false;
+        }
+        if ($("#PointY").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"无效地图坐标", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBuildingEquipment","Building")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmBuildingEquipmentAdd").serialize(),
+            dataType: 'json',
+            success: function (data) {
+                $.messager.progress('close');
+                if (data && data.indexOf("出错,") != -1) {
+                    $.messager.show({ title: '提示', msg:data, showType: 'show' });
+                    return false;
+                }
+                buildingEquipmentDialog.dialog('destroy');
+                initMarker(data);
+            }
+        });
+   }
+
+    function ajaxFileUploadBuildingSiteMapPic() {
+        var id = $("#Id").val();
+        if (id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "楼宇为空", showType: 'show' });
+            return false;
+        }
+        var file = $("#fileBuildingSiteMapPic").val();
+        if (!doValidatesUpLoadFile(file)) return false;
+        $("#fileBuildingSiteMapPic").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadBuildingSiteMapPic", "Building")' + "?id=" + id.trim() + "&date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileBuildingSiteMapPic',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.filePath) {
+                    $.messager.progress({ title: '提示', msg: '正在加载图片,请稍候……' });
+                    $.getJSON(currUrl, function (data) {
+                        initMap(data);
+                        $.messager.progress('close');
+                    });
+                }
+                else if (data && (data.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doValidatesUpLoadFile(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    function doBack() {
+        var url = '@Url.Action("Index", "Building")' + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    $(function () {
+        SetMapHeiht();
+        setTimeout("initBuildingJson();", 1000);
+    });
+
+    function SetMapHeiht() {
+        if (typeof (window.innerWidth) == 'number') {
+            //Non-IE
+            myHeight = window.innerHeight;
+        }
+        else if (document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight)) {
+            //IE 6+ in 'standards compliant mode'
+            myHeight = document.documentElement.clientHeight;
+        }
+        else if (document.body && (document.body.clientWidth || document.body.clientHeight)) {
+            //IE 4 compatible
+            myHeight = document.body.clientHeight;
+        }
+        myHeight = myHeight - 250;
+        if (myHeight < 200) myHeight = 200;
+        $("#map").css("height", myHeight);
+    }
+    var map;
+    var tileUrl = "";
+    var prevUrl = "";
+    var nextUrl = "";
+    var currUrl = '@Url.Action("GetBuildingSiteMap", "Building", new { id =  Model==null? Guid.Empty: Model.Id })';
+    var isFullScreen = false;
+
+
+    function initBuildingJson() {
+        $.getJSON(currUrl, function (data) {
+            initMap(data);
+        });
+    }
+
+    //初始化地图
+    function initMap(jsonData) {
+        tileUrl = jsonData.TileUrl;
+        currUrl = jsonData.CurrUrl;
+        prevUrl = jsonData.UpUrl;
+        nextUrl = jsonData.DownUrl;
+
+        var tileLayer = new BMap.TileLayer();
+        tileLayer.getTilesUrl = function (tileCoord, zoom) {
+            var x = tileCoord.x;
+            var y = tileCoord.y;
+            return tileUrl + zoom + "/" + x + "_" + y + ".png?date=" + new Date().getMilliseconds();
+        }
+
+        var MyMap = new BMap.MapType('MyMap', tileLayer, { minZoom: jsonData.MinZoom, maxZoom: jsonData.MaxZoom });
+        map = new BMap.Map('map', { mapType: MyMap });
+        map.addControl(new BMap.NavigationControl({ anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL }));
+        map.centerAndZoom(new BMap.Point(0, 0), jsonData.CurZoom);
+        map.enableScrollWheelZoom();
+        map.enableKeyboard();
+
+        initMenu();
+        initMarker(jsonData.Marker);
+    }
+
+    //初始化中心点和缩放级别
+    function initCenterAndZoom(center, zoom) {
+        map.setCenter(center);
+        map.setZoom(zoom);
+    }
+
+    //初始化标注
+    function initMarker(markerList) {
+        if (!markerList) return;
+        for (var i = 0; i < markerList.length; i++) 
+        {
+            var item = markerList[i];
+            var p0 = item.Point.X;
+            var p1 = item.Point.Y;
+            var point = new BMap.Point(p0, p1);
+            var iconImg = createIcon(item.MapIcon);
+            var marker = new BMap.Marker(point, { icon: iconImg });
+            var iw = createInfoWindow(item);
+            var label = new BMap.Label(item.Content, { "offset": new BMap.Size(item.MapIcon.lb - item.MapIcon.x + 10, -15) });
+            marker.setLabel(label);
+            map.addOverlay(marker);
+            label.setStyle({
+                borderColor: "#808080",
+                color: "#333",
+                cursor: "pointer"
+            });
+
+            (function () {
+                    var _iw = createInfoWindow(item);
+                    var _marker = marker;
+                    _marker.addEventListener("click", function () { this.openInfoWindow(_iw); });
+                    _iw.addEventListener("open", function () { _marker.getLabel().hide(); })
+                    _iw.addEventListener("close", function () { _marker.getLabel().show(); })
+                    label.addEventListener("click", function () { _marker.openInfoWindow(_iw); })
+                    if (markerList.length == "") { label.hide();  _marker.openInfoWindow(_iw); }
+            })()
+        }
+    }
+    //创建一个Icon
+    function createIcon(json) {
+        var icon = new BMap.Icon(json.src, new BMap.Size(json.w, json.h), { imageOffset: new BMap.Size(-json.l, -json.t), infoWindowOffset: new BMap.Size(json.lb + 5, 1), offset: new BMap.Size(json.x, json.h) })
+        return icon;
+    }
+    //创建InfoWindow
+    function createInfoWindow(item) {
+        var httpText = getEquipmentMapInfo(item);
+        var iw = new BMap.InfoWindow(httpText, { enableMessage: false }); //{enableMessage: false}不显示发短信的手机
+        return iw;
+    }
+
+    function getEquipmentMapInfo(item) {
+        return "<table style='width:200px;'>"
+            + "     <tr>"
+            + "         <td rowspan = '3' style='width:70px;height:60px;vertical-align:middle'>"
+            + "             <img align='middle' style='width:60px; height:60px' src='" + item.IconPath + "' />"
+            + "         </td>"
+            + "         <td colspan='2' style='font-size:13px; font-weight:bold; text-align:left'>" + item.Name + "</td>"
+            + "     </tr>"
+            + "     <tr>"
+            + "         <th>资产编号:</th>"
+            + "         <td>" + item.Label + "</td>"
+            + "     </tr>"
+            + "     <tr>"
+            + "         <th>设备型号:</th>"
+            + "         <td>" + item.Model + "</td>"
+            + "     </tr>"
+            + "     <tr>"
+            + "         <th>所属机构:</th>"
+            + "         <td colspan='3'>" + item.OrgName + "</td>"
+            + "     </tr>"
+            + "     <tr>"
+            + "         <th>放置地点:</th>"
+            + "         <td colspan='3'>" + item.RoomName + "</td>"
+            + "     </tr>"
+            + "     <tr>"
+            + "         <td colspan='4' style='text-align:right;'><a class='l-btn-color l-btn-color-red' title='移除楼宇设备' href='#' onclick='doDeleteBuildingEquipment(\"" + item.Id + "\");return false;'><span class='tree-folder icon-no-white'></span> 移除楼宇设备 </a></td>"
+            + "     </tr>"
+            + "</table>";
+    }
+    function doDeleteBuildingEquipment(id){
+        if(!id || id.trim() == ""){
+            $.messager.show({ title: '提示', msg:'请选择要删除的项', showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在删除楼宇设备,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteBuildingEquipment", "Building")'+ "?date=" + new Date().getMilliseconds(),
+            data: "id=" + id ,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                $.getJSON(currUrl, function (data) {
+                    initMap(data);
+                    $.messager.progress('close');
+                });
+            }
+        });
+        return false;
+   }
+    //初始化右键菜单
+    function initMenu() {
+        var contextMenu = new BMap.ContextMenu();
+        var txtMenuItem = [{
+            text: '添加设备',
+            callback: function (p) {
+                doAddBuildingEquipment(p.lng,p.lat);
+            }
+        }];
+        for (var i = 0; i < txtMenuItem.length; i++) {
+            contextMenu.addItem(new BMap.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback, 100));
+            if (i == 1 || i == 3) {
+                contextMenu.addSeparator();
+            }
+        }
+        map.addContextMenu(contextMenu);
+    }
+    //添加标注
+    function addMarker(point, txt, iconpng) {
+        var myIcon = new BMap.Icon(iconpng, new BMap.Size(18, 23));
+        var marker = new BMap.Marker(point, { icon: myIcon });
+        var label = new BMap.Label(txt, { offset: new BMap.Size(0, -30) });
+        marker.setLabel(label);
+        map.addOverlay(marker);
+    }
+    //上楼
+    function fnPrevUrl() {
+        if (prevUrl != "") {
+            //ajax取数据,返回json
+            $.getJSON(prevUrl, function (data) {
+                initMap(data);
+            });
+        }
+    }
+    //下楼
+    function fnNextUrl() {
+        if (nextUrl != "") {
+            //ajax取数据,返回json
+            $.getJSON(nextUrl, function (data) {
+                initMap(data);
+            });
+        }
+    }
+    //放大
+    function fnZoomIn() {
+        map.zoomIn();
+    }
+    //缩小
+    function fnZoomOut() {
+        map.zoomOut();
+    }
+    //全屏
+    function fnFullScreen() {
+        var center = map.getCenter();
+        var zoom = map.getZoom();
+        if (isFullScreen) {
+            $("#map").css({ "width": "600px", "height": "480px" });
+            $("#btn5").val("全屏");
+            isFullScreen = false;
+        }
+        else {
+            $("#map").css({ "width": "100%", "height": "100%" });
+            $("#btn5").val("退出全屏");
+            isFullScreen = true;
+        }
+        $.getJSON(currUrl, function (data) {
+            initMap(data);
+            initCenterAndZoom(center, zoom);
+        });
+    }
+</script>

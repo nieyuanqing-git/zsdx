@@ -1,0 +1,18 @@
+﻿@{
+    Layout = ViewBag.Layout;
+}
+ <div class="search-grid hide" style="width:300px">
+    <div class="search-inner-box">
+        @Html.Partial("../EquipmentApply/EquipmentApplySearch")
+    </div>
+</div>
+<div>@Html.Partial("../EquipmentApply/EquipmentApplyList")</div>    
+<div>@Html.Partial("../EquipmentApply/ScriptContainer")</div>    
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpression();
+        $("#tbEquipmentApplyList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentApplyList").datagrid("reload", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+</script>

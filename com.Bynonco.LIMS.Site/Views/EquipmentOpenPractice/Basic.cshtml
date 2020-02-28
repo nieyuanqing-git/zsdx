@@ -1,0 +1,292 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPractice
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Utility;
+<style type="text/css">
+    .edit-table th{background-color:#fff;}
+    .edit-table td{background-color:#fff;}
+</style>
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <p><span class="icon icon-practice"></span>基本信息</p>
+    <table style="width: 700px;">
+        <tr>
+            <th style='width:80px;'>所属学期</th>
+            <td>
+                @Html.Hidden("SemesterId", ViewData["SemesterId"] == null ? "" : ViewData["SemesterId"].ToString())
+                @(ViewData["SemesterName"] == null ? "" : ViewData["SemesterName"].ToString())
+            </td>
+        </tr>
+        <tr>
+            <th style='width:80px;'>项目名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(300).SetValidateType(ValidateType.required).SetInvalidMessage("请输入设备名称").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>申请人</th>
+            <td id='tdApplyUserId'>
+                @if (Model == null || Model.ApplyUser == null)
+                {
+                    <div style='float:left;'>
+                    @(Html.TokenInput("ApplyUserId")
+                        .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                        .SetSingle(true)
+                        .SetWidth(400)
+                        .SetPrePopulate(ViewData["ApplyUserJson"] == null ? null : ViewData["ApplyUserJson"].ToString())
+                        .ToMvcString())
+                    </div>
+                    <div style='float:left;' class='@(ViewData["IsSuperAdmin"] == null || !bool.Parse(ViewData["IsSuperAdmin"].ToString()) ? "hide":"")'>
+                        @Html.JLinkButton("btnClearApplyUserId", "").SetDisabled(ViewData["IsSuperAdmin"] == null || !bool.Parse(ViewData["IsSuperAdmin"].ToString())).SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#ApplyUserId').tokenInput('clear');;return false;").ToMvcString()
+                    </div>
+                }
+                else
+                {
+                    @Html.Hidden("ApplyUserId", Model.ApplyUserId)
+                    @Model.ApplyUser.UserName
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>申请理由</th>
+            <td>
+                @Html.TextArea("ApplyReason", Model == null ? "" : Model.ApplyReason, new { style = "width:600px;height:100px;", placeholder = "(实践研究的目的、意义、所具备的条件等)" })
+            </td>
+        </tr>
+        <tr>
+            <th>研究方案</th>
+            <td>
+                @*@Html.TextArea("ApplyScheme", Model == null ? "" : Model.ApplyScheme, new { style = "width:600px;height:100px;", placeholder = "(实践研究的目标、方法、步骤、可行性及预期成果等)" })*@
+                @Html.EditorFor(m => m.ApplyScheme)
+            </td>
+        </tr>
+        <tr>
+            <th>其他经费途径来源</th>
+            <td>
+                @Html.TextBox("OtherMoneySource", Model == null ? "" : Model.OtherMoneySource, new { placeholder = "(其他经费途径来源)" })
+            </td>
+        </tr>
+        <tr>
+            <th>其他经费金额</th>
+            <td>
+                @Html.TextBox("OtherMoney", Model == null ? "0" : Model.OtherMoney.ToString(), new { placeholder = "(其他经费)" })
+            </td>
+        </tr>
+    </table>
+    <table class="edit-table"  border='0' cellpadding='0' cellspacing='0' id="tbExperienceList" style='width:700px;margin-top:10px;'>
+        <tr>
+            <th colspan='3' style='text-align:left;padding-left:10px;'><span class="icon icon-noteuser"></span>申请人时间研究经历</th>
+            <th style='text-align:right;'>
+                @Html.JLinkButton("btnSelectExperience", "新增").SetIconCls("icon-add").SetPlain(false).SetOnclick("doAddExperience();return false;").ToMvcString()
+            </th>
+        </tr>
+        <tr>
+            <th style='width:40px;'>操作</th>
+            <th style='width:150px;'>时间</th>
+            <th style='width:150px;'>实践(研究内容)</th>
+            <th style='width:250px;'>取得的成果</th>
+        </tr>
+        @if (Model != null && Model.EquipmentOpenPracticeExperienceList != null && Model.EquipmentOpenPracticeExperienceList.Count() > 0)
+        {
+            foreach (var item in Model.EquipmentOpenPracticeExperienceList)
+            {
+                @Html.Partial("../EquipmentOpenPractice/ExperienceEdit",item)
+            }
+        }
+    </table>
+    <table class="edit-table"  border='0' cellpadding='0' cellspacing='0' id='tbTeacherList' style='width:700px;margin-top:10px;'>
+        <tr>
+            <th colspan='3' style='text-align:left;padding-left:10px;'><span class="icon icon-boss"></span>指导老师</th>
+            <th style='text-align:right;'>
+                @Html.JLinkButton("btnSelectTeacher", "新增").SetIconCls("icon-add").SetPlain(false).SetOnclick("doAddTeacher();return false;").ToMvcString()
+            </th>
+        </tr>
+        <tr>
+            <th style='width:40px;'>操作</th>
+            <th style='width:250px;'>导师姓名</th>
+            <th style='width:150px;'>导师工号</th>
+            <th style='width:150px;'>项目中的指导职责</th>
+        </tr>
+        @if (Model != null && Model.EquipmentOpenPracticeTeacherList != null && Model.EquipmentOpenPracticeTeacherList.Count() > 0)
+        {
+            foreach (var item in Model.EquipmentOpenPracticeTeacherList)
+            {
+                @Html.Partial("../EquipmentOpenPractice/TeacherEdit",item)
+            }
+        }
+    </table>
+    <table class="edit-table"  border='0' cellpadding='0' cellspacing='0' id='tbMemberList' style='width:700px;margin-top:10px;'>
+        <tr>
+            <th colspan='3' style='text-align:left;padding-left:10px;'><span class="icon icon-users"></span>项目组成员</th>
+            <th style='text-align:right;'>
+                @Html.JLinkButton("btnSelectMember", "新增").SetIconCls("icon-add").SetPlain(false).SetOnclick("doAddMember();return false;").ToMvcString()
+            </th>
+        </tr>
+        <tr>
+            <th style='width:40px;'>操作</th>
+            <th style='width:250px;'>姓名</th>
+            <th style='width:150px;'>成员学号</th>
+            <th style='width:150px;'>项目中的分工</th>
+        </tr>
+        @if (Model != null && Model.EquipmentOpenPracticeMemberList != null && Model.EquipmentOpenPracticeMemberList.Count() > 0)
+        {
+            foreach (var item in Model.EquipmentOpenPracticeMemberList)
+            {
+                @Html.Partial("../EquipmentOpenPractice/MemberEdit", item)
+            }
+        }
+    </table>
+    <table class="edit-table"  border='0' cellpadding='0' cellspacing='0' id='tbEquipmentList' style='width:700px;margin-top:10px;'>
+        <tr>
+            <th colspan='3' style='text-align:left;padding-left:10px;'><span class="icon icon-equipment"></span>需要使用的仪器设备</th>
+            <th style='text-align:right;'>
+                @Html.JLinkButton("btnSelectEquipment", "新增").SetIconCls("icon-add").SetPlain(false).SetOnclick("doAddEquipment();return false;").ToMvcString()
+            </th>
+        </tr>
+        <tr>
+            <th style='width:40px;'>操作</th>
+            <th style='width:250px;'>仪器设备名称</th>
+            <th>所需机时</th>
+            <th>预计金额</th>
+        </tr>
+        @if (Model != null && Model.EquipmentOpenPracticeEquipmentList != null && Model.EquipmentOpenPracticeEquipmentList.Count() > 0)
+        {
+            foreach (var item in Model.EquipmentOpenPracticeEquipmentList)
+            {
+                @Html.Partial("../EquipmentOpenPractice/EquipmentEdit", item)
+            }
+        }
+    </table>
+    <table class="edit-table"  border='0' cellpadding='0' cellspacing='0' id='tbMaterialList' style='width:700px;margin-top:10px;'>
+        <tr>
+            <th colspan='2' style='text-align:left;padding-left:10px;'><span class="icon icon-materialinfo"></span>需要购置的耗材</th>
+            <th style='text-align:right;'>
+                @Html.JLinkButton("btnSelectMaterial", "新增").SetIconCls("icon-add").SetPlain(false).SetOnclick("doAddMaterial();return false;").ToMvcString()
+            </th>
+        </tr>
+        <tr>
+            <th style='width:40px;'>操作</th>
+            <th style='width:250px;'>材料名称</th>
+            <th style='width:100px;'>预计金额</th>
+        </tr>
+        @if (Model != null && Model.EquipmentOpenPracticeMaterialList != null && Model.EquipmentOpenPracticeMaterialList.Count() > 0)
+        {
+            foreach (var item in Model.EquipmentOpenPracticeMaterialList)
+            {
+                @Html.Partial("../EquipmentOpenPractice/MaterialEdit", item)
+            }
+        }
+    </table>
+    @if (Model != null)
+    {
+        <p><span class="icon icon-doc"></span>审核信息 (状态：@(Model.StatusStr))</p>
+        <table>
+        @if (Model.TeacherAuditUser != null)
+        {
+            <tr>
+                <th style='width:80px;'>指导教师审核</th>
+                <td>@(Model.TeacherAuditUser.UserName + " [" + (Model.TeacherAuditTime.HasValue ? Model.TeacherAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "") + "]" + (string.IsNullOrWhiteSpace(Model.TeacherAuditRemark) ? "" : ":" + Model.TeacherAuditRemark))</td>
+            </tr>
+        }
+        @if (Model.CollegeAuditUser != null)
+        {
+             <tr>
+                <th style='width:80px;'>学院审核</th>
+                <td>@(Model.CollegeAuditUser.UserName + " [" + (Model.CollegeAuditTime.HasValue ? Model.CollegeAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "") + "]" + (string.IsNullOrWhiteSpace(Model.CollegeAuditRemark) ? "" : ":" + Model.CollegeAuditRemark))</td>
+            </tr>
+        }
+        @if (Model.ManagePreAuditUser != null)
+        {
+            <tr>
+                <th style='width:80px;'>实管处预审核</th>
+                <td>@(Model.ManagePreAuditUser.UserName + " [" + (Model.ManagePreAuditTime.HasValue ? Model.ManagePreAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "") + "]" + (string.IsNullOrWhiteSpace(Model.ManagePreAuditRemark) ? "" : ":" + Model.ManagePreAuditRemark))</td>
+            </tr>
+        }
+        @if (Model.ManageAuditUser != null)
+        {
+            <tr>
+                <th style='width:80px;'>实管处审核</th>
+                <td>@(Model.ManageAuditUser.UserName + " [" + (Model.ManageAuditTime.HasValue ? Model.ManageAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "") + "]" + (string.IsNullOrWhiteSpace(Model.ManageAuditRemark) ? "" : ":" + Model.ManageAuditRemark))</td>
+            </tr>
+        }
+        </table>
+    }
+<script type="text/javascript">
+    $(function () {
+        $("#tdApplyUserId ul.token-input-list-facebook").css("width", "302px");
+    });
+    function doAddExperience() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("ExperienceEdit", "EquipmentOpenPractice")',
+            success: function (data) {
+                $("#tbExperienceList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doAddTeacher() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("TeacherEdit", "EquipmentOpenPractice")',
+            success: function(data) {
+                $("#tbTeacherList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+
+    function doAddMember() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("MemberEdit", "EquipmentOpenPractice")',
+            success: function(data) {
+                $("#tbMemberList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+
+    function doAddEquipment() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("EquipmentEdit", "EquipmentOpenPractice", new { semesterId = (ViewData["SemesterId"] == null ? Guid.Empty.ToString() : ViewData["SemesterId"].ToString()) })',
+            success: function(data) {
+                $("#tbEquipmentList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+
+    function doAddMaterial() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("MaterialEdit", "EquipmentOpenPractice")',
+            success: function (data) {
+                $("#tbMaterialList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemoveItem(infoId) {
+        if (!infoId || infoId == "") return;
+        $("#tr_" + infoId).remove();
+    }
+    function doMaterialNameChange(id) {
+        if (!id || id.trim() == "") return;
+
+        $("#MaterialName_" + id).val("");
+        var materialList = $("#MaterialName_" + id).tokenInput("get");
+        if (materialList && materialList.length > 0) {
+            var materialIds = "";
+            for (var i = 0; i < materialList.length; i++) {
+                if (materialIds != "") materialIds += ",";
+                materialIds += materialList[i].id;
+            }
+            $("#MaterialInfoId_" + id).val(materialIds);
+        }
+    }
+</script>

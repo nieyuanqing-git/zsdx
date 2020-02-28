@@ -1,0 +1,48 @@
+﻿ @{
+     var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+     var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+ }  
+ <script type="text/javascript">
+     var perPageSize = 10;
+     function GetIsHome(){
+         if ('@(isHome.ToString().ToLower())' == 'true') {
+            return "&isHome=true"
+        }
+        return "";
+     }
+     function doLoadEquipmentList(pageNumber, pageSize) {
+         if ($("#EquipmentList").length > 0) {
+             $.messager.progress({ title: '提示', msg: '正在加载仪器信息,请稍候……' });
+             $.ajax({
+                 type: "Post",
+                 url: '@Url.Action("NoPaginationList", "Equipment")',
+                 data: $("#frmSearchCondition").serialize() + GetIsHome() + "&date=" + new Date(),
+                 success: function (data) {
+                     $.messager.progress('close');
+                     if (data && data.indexOf("出错") != -1) {
+                         $.messager.show({ title: '提示', msg: "获取设备信息出错", showType: 'show' });
+                     }
+                     else {
+                         $("#EquipmentList").html(data);
+                     }
+                     ajaxloadsuccess();
+                     return false;
+                 }
+             });
+         }
+     }
+     
+     $(function () {
+         doLoadEquipmentList();
+     });
+     function doShowDetailInfo(equipmentId) {
+        if ('@(isHome.ToString().ToLower())' == 'true')
+            location.href= '@Url.Action("Show", "Equipment")' + '?Id=' + equipmentId;
+        else
+        { 
+            var url = '@Url.Action("Detail", "Equipment")' + "?id=" + equipmentId + "&time=" + new Date().getMilliseconds();
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+         return false;
+     }
+</script>

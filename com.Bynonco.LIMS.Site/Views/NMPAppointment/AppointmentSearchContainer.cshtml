@@ -1,0 +1,58 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var title = ViewData["Title"] == null ? "工位预约信息列表" : ViewData["Title"].ToString();
+    var nmpEquipmentId = ViewData["nmpEquipmentId"] == null ? "" : ViewData["nmpEquipmentId"].ToString();
+    var totalType = ViewData["totalType"] == null ? "" : ViewData["totalType"].ToString();
+    var appointmentYear = ViewData["AppointmentYear"] == null ? "" : ViewData["AppointmentYear"].ToString();
+    var userId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString();
+    var startAt = ViewData["StartAt"] == null ? "" : ViewData["StartAt"].ToString();
+    var endAt = ViewData["EndAt"] == null ? "" : ViewData["EndAt"].ToString();
+ }
+<div id="divNMPAppointmentSearchContainer" style="width:895px;height:630px;overflow:hidden">
+    <div class="y-panel-grid hide appointment-search">
+        <div class="search-inner-box">
+            @Html.Partial("../NMPAppointment/AppointmentSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../NMPAppointment/AppointmentSearchList")</div>
+    <div style="display:none;">@Html.Partial("../NMPAppointment/ScriptContainer")</div>
+</div>
+<script type="text/javascript">
+    var appointmentSearchDialog;
+    function doShowAppointmentSearchDialog() {
+        if (appointmentSearchDialog) {
+            appointmentSearchDialog.dialog("destroy");
+        }
+        appointmentSearchDialog = @(Html.JDialog("divNMPAppointmentSearchContainer").SetTitle(title).SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("appointmentSearchDialog.dialog('close');return false;").SetModal(true).SetOkScript("appointmentSearchDialog.dialog('close');return false;").SetTitle("预约信息列表").SetIconCls("icon-save").SetAutoDialog(false).ToMvcString());
+        $("div.panel-title").text("@title");
+    }
+    function doAppointmentSearch(){
+        var queryExpression = generateAppointmentTotalQueryExpression();
+        $("#tbNMPAppointmentSearchList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbNMPAppointmentSearchList").datagrid("load", { "queryExpression": queryExpression.trim(),"nmpEquipmentId": "@nmpEquipmentId","totalType":"@totalType","AppointmentYear": "@appointmentYear"});
+    }
+    function doExportExcelSearch() {
+        var queryExpression = generateAppointmentTotalQueryExpression();
+        var url = '@Url.Action("ExportExcelSearch", "NMPAppointment")' + '?NMPEquipmentId=' + '@nmpEquipmentId' + '&TotalType=' + '@totalType' + '&AppointmentYear=' + '@appointmentYear' + '&UserId=' + '@userId' + '&StartAt=' + '@startAt' + '&EndAt=' + '@endAt' + "&QueryExpression=" + queryExpression ;
+        window.open(url, '_blank');
+    }
+    function doShowPopSearch() {
+        var jqObj = $("#btnShowPopSearch");
+        var offset = jqObj.offset();
+        var right = offset.left + jqObj.width();
+        var down = offset.top + jqObj.height();
+        $(".y-panel-grid").removeClass("hide");
+        if (jqObj.parents(".dialog-content").length > 0) {
+            $(".y-panel-grid").css("left", "10px");
+            $(".y-panel-grid").css("top", "55px");
+        }
+        else {
+            $(".y-panel-grid").css("left", offset.left);
+            $(".y-panel-grid").css("top", down);
+        }
+    }
+    function doClosePopSearch() {
+        $(".y-panel-grid").addClass("hide");
+        return false;
+    }
+</script>

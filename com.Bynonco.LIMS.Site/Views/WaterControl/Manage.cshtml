@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../WaterControl/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../WaterControl/List")
+</div>
+<div id="divWaterControlCostDialogEdit" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateWaterControlCostQueryExpress();
+        $("#tbWaterControlCostList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbWaterControlCostList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var waterControlCostDialog;
+    function doWaterControlCostDialog() {
+        if (waterControlCostDialog) {
+            waterControlCostDialog.dialog("destroy");
+        }
+        waterControlCostDialog =  @Html.JDialog("divWaterControlCostDialogEdit").SetTitle("水控扣费信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("waterControlCostDialog.dialog('close');return false;").SetModal(true).SetOkScript("waterControlCostDialog.dialog('close')").ToMvcString();
+    }   
+    function doViewWaterControlCost()
+    {
+        doWaterControlCostDialog();
+    }
+    function doExportExcel()
+    {
+        var queryExpression = generateWaterControlCostQueryExpress();
+        var url = '@Url.Action("ExportExcel","WaterControl")' + "?queryExpression=" + queryExpression;
+        window.open(url,'_blank');
+    }
+</script>

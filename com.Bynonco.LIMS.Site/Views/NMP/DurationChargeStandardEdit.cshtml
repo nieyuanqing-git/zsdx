@@ -1,0 +1,44 @@
+﻿@model com.Bynonco.LIMS.Model.NMPChargeStandard
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{ 
+    var nmpPrivilige = Model != null ?
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.NMPId);}
+<div id="divDurationChargeStandardEdit" style="min-height:30px; min-width:600px">
+ <form id="frmDurationChargeStandardEdit" action="#">
+ <div id="divDurationChargeStandards" style="overflow:hidden; margin:0; padding:0;">
+    <p style="background-color: #F7F7F7; width:100%; padding:0; margin:0;">
+        @(Html.JLinkButton("btnAddDurationChargeStandard", "新增").SetOnclick("doAddDurationChargeStandard();return false;").SetVisible(nmpPrivilige.IsEnableAddDurationChargeStandard).SetIconCls("icon-add").SetPlain(true).ToMvcString())
+    </p>
+    @if (Model != null && Model.DurationChargeStandards != null && Model.DurationChargeStandards.Count > 0)
+    {
+        foreach (var durationChargeStandard in Model.DurationChargeStandards)
+        {
+            @Html.Partial("DurationChargeStandard", durationChargeStandard)
+        }
+    }
+  </div>
+  </form>
+</div>
+<script type="text/javascript">
+    function doDeleteDurationChargeStandar(id) {
+        $("#div" + id).remove();
+    }
+    function doAddDurationChargeStandard() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AddDurationChargeStandard","NMP")',
+            data: {"date": new Date().getMilliseconds() },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                $("#divDurationChargeStandards").append(msg);
+            }
+        });
+        return false;
+    }
+</script> 

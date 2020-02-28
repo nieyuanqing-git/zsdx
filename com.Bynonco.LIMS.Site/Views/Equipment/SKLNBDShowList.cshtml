@@ -1,0 +1,102 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{      
+    Layout = "~/Views/Shared/_TwoColumnLayout.cshtml";
+    ViewBag.Title = "仪器展示";
+    var hotEquipmentList = ViewData["HotEquipmentList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewEquipmentTotal>)ViewData["HotEquipmentList"];
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+}
+@section ImportCssAndJs
+{
+    <style type="text/css">
+    .edit-info .bdmain {margin-right:0;}
+    .search-box .edit-info, .edit-box .edit-info{float:none;}
+    </style>
+    <script type="text/javascript">
+        $(function () {
+            $("#divEquipmentCategory").empty();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("TopListForHome", "EquipmentCategory")',
+                success: function (msg) {
+                    $("#divEquipmentCategory").html(msg);
+                    $("#divEquipmentCategory a").click(function () {
+                        var value = $(this).attr("equipmentcategoryid");
+                        var text = $(this).attr("title");
+                        SetCondition($("#ConditionEquipmentCategory"), text, value);
+                        doLoadEquipmentList(1, perPageSize);
+                        return false;
+                    });
+                    $("#divEquipmentCategory").find(".news-list").css("display", "none");
+                }
+            });
+        });
+
+        function doLoadCategoryEquipment(obj) {
+            $(obj).siblings(".parent-item-l").removeClass("parent-item-l-currentdown");
+            if ($(obj).hasClass("parent-item-l-currentdown")) {
+                $(obj).removeClass("parent-item-l-currentdown");
+                $(obj).next().slideUp("normal");
+            }
+            else {
+                $(obj).siblings(".news-list").slideUp("normal");
+                if ($(obj).next().hasClass("news-list")) {
+                    $(obj).addClass("parent-item-l-currentdown");
+                    $(obj).next().slideToggle("normal");
+                }
+                else {
+                    var xpath = $(obj).find("a").attr("xpath");
+                    $(obj).find("img").removeClass("hide");
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("EquipmentListForHome", "EquipmentCategory")',
+                        data: {CategoryXPath : xpath},
+                        success: function (msg) {
+                            $(msg).insertAfter(obj);
+                            $(obj).find("img").addClass("hide");
+                            $(obj).addClass("parent-item-l-currentdown");
+                        }
+                    });
+                }
+            }
+        }
+        function doSearch() {
+            var topEquipmentName = $("#HomeSearchEquipmentName").val();
+            SetCondition($("#ConditionEquipmentName"), topEquipmentName, topEquipmentName);
+            doLoadEquipmentList(1, perPageSize);
+        }
+    </script>
+}
+@section MainLeft
+{
+    <a href="javascript:;" class="accordion"><h2 class="title">设备分类</h2></a>
+    <div class="content-box" id="divEquipmentCategory" style='padding-bottom:10px;'></div>
+}
+@section MainRight
+{
+    <div class="home-search-box">
+        <div>
+            <input type="text" value="" class="easyui-validatebox textinp validatebox-text search-input" id="HomeSearchEquipmentName" /> 
+            <a class="botton" href="#" onclick="doSearch();return false;">搜  索</a>
+            <a class="search-more" href="@Url.Action("SearchAdvanced", "Equipment", routeCurrentXPathValue)" >高级搜索</a>
+        </div>
+        <div class="search-hot-box">
+            <span class='search-title'>热门搜索:</span>
+            @if (hotEquipmentList != null && hotEquipmentList.Count() > 0)
+            {
+                for (int i = 0; i < hotEquipmentList.Count() && i < 4; i++)
+                {
+                    var item = hotEquipmentList[i];
+                    var url = Url.Action("Show", "Equipment") + "?Id=" + item.Id;
+                    <a href='@url' title='@item.EquipmentName'>@ShortcutStringUtility.GetSubString(item.EquipmentName, 20, "")</a>
+                }
+            }
+        </div>
+    </div>
+    <div class="clear-both"></div>
+
+    <div class="content-box" style="background:none;padding:0;">
+        @Html.Partial("../Equipment/NoPaginationListContainer")
+    </div>
+}

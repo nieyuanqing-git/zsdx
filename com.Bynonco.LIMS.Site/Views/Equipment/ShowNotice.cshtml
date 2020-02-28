@@ -1,0 +1,56 @@
+﻿@model IList<com.Bynonco.LIMS.Model.EquipmentNotice>
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    DataGridSettings dataGridSettings = (DataGridSettings)ViewData["DataGridSettings"];
+    if (Model != null && Model.Count() > 0)
+    {
+        var paginationTop = Html.JPagination("PageNoticeListTop")
+            .SetTotal(dataGridSettings.Total)
+            .SetPageSize(dataGridSettings.PageSize)
+            .SetPageNumber(dataGridSettings.PageIndex)
+            .SetOnSelectPage("doSelectNoticePageTop(pageNumber, pageSize);");
+        @(paginationTop.ToMvcString()) 
+        <ul>
+        @for (int i=0; i < Model.Count() ; i++)
+        {
+            var item = Model[i];
+            <li class='@(i % 2 == 0 ? "" : "alt-row") @(i==0? "first-row" : "") border-b'>
+                <h2 style="padding:20px 0 10px;">@item.Title</h2>
+                <div style="padding:10px;line-height:25px;">
+                    @System.Web.Mvc.MvcHtmlString.Create(item.Content.Replace("\r\n", "<br />"))
+                    @if (item.Attachments != null && item.Attachments.Count() > 0)
+                    {
+                        <div style="margin:20px;background-color:#eee;">
+                            <ul>
+                            @foreach (var attachment in item.Attachments)
+                            {
+                                <li class='border-b' style="padding:5px 20px;">
+                                    @System.Web.Mvc.MvcHtmlString.Create(attachment.FileNameStr)
+                                    <span style="font-size:12px;color:#aaa;margin-left:10px;">[@attachment.FileSizeStr]</span>
+                                </li>
+                            }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            </li>
+        }
+        </ul>
+       
+        var pagination = Html.JPagination("PageNoticeList")
+            .SetTotal(dataGridSettings.Total)
+            .SetPageSize(dataGridSettings.PageSize)
+            .SetPageNumber(dataGridSettings.PageIndex)
+            .SetOnSelectPage("doSelectNoticePage(pageNumber, pageSize);");
+        @(pagination.ToMvcString()) 
+    }
+    else
+    {
+        <p>没有相关公告信息</p>
+    }
+}
+<script type="text/javascript">
+    $(function () {
+        SetTagNums('@dataGridSettings.Total', "ShowNoticeTitle", "公告");
+    });
+</script>

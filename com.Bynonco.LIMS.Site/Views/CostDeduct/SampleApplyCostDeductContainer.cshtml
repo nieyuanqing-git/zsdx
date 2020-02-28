@@ -1,0 +1,24 @@
+﻿ @{
+     var userId = ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "";
+     string widthStr = ViewData["Width"] != null ? "width:" + ViewData["Width"].ToString() + "px" : "";
+  }
+<div id="divSampleCostDeduct" style="@widthStr">
+     <div class="search-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../CostDeduct/SampleApplyCostDeductSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../CostDeduct/SampleApplyCostDeductList")</div>
+</div>
+<script type="text/javascript">
+    function doSampleApplyDeductSearch() {
+        var queryExpression = generateSampleApplyDeductQueryExpression();
+        $("#tbViewSampleApplyCostDeductList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbViewSampleApplyCostDeductList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doExportSampleApplyCostDeductList(payerId) {
+        var newQueryExpression = generateSampleApplyDeductQueryExpression();
+        var url = '@Url.Action("ExportSampleApplyCostDeductList", "CostDeduct")' + "?userId=" + '@(ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "")' + "&isManage=" + '@(ViewData["IsManage"].ToString().ToLower())' + "&queryExpression=" + newQueryExpression.trim() + "&payerId=" + payerId + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+</script>

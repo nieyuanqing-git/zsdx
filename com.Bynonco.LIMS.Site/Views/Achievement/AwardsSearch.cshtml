@@ -1,0 +1,54 @@
+﻿ @using com.Bynonco.JqueryEasyUI.Core;
+ <script type="text/javascript">
+     function generateQueryExpress() {
+         var queryExpression = "";
+         var achievementName = $("#SearchAchievementName").val();
+         if (achievementName.trim() != "") {
+             queryExpression = "AchievementName∽\"" + achievementName.trim() + "\"";
+         }
+         var awardsName = $("#SearchAwardsName").val();
+         if (awardsName.trim() != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "AwardsName∽\"" + awardsName.trim() + "\"";
+         }
+         var awardsRankId = $("#SearchAwardsRank").combobox("getValue");
+         if (awardsRankId != "" && !awardsRankId.isDefaultGuid()) {
+             queryExpression += (queryExpression == "" ? "" : "*") + "AwardsRankId=\"" + awardsRankId + "\"";
+         }
+         return queryExpression;
+     }
+
+     function doReset() {
+         $("#SearchAchievementName").val("");
+         $("#SearchAwardsName").val("");
+         $("#SearchAwardsRank").combobox("setValue", "");
+     }
+</script>
+<ul class="search">
+    <li>
+        <label>成果名称</label>
+        @Html.JValidateBox("SearchAchievementName").SetWidth(150).ToMvcString()
+    </li>
+     <li>
+        <label>奖励名称</label>
+        @Html.JValidateBox("SearchAwardsName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>奖励等级</label>
+        @(Html.JComboBox("SearchAwardsRank")
+            .SetData(ViewData["AwardsRankJson"])
+            .SetWidth(155)
+            .SetMutiSelect(false)
+            .SetEditable(false)
+            .ToMvcString())
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+
+

@@ -1,0 +1,17 @@
+﻿@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var controller = ViewContext.RouteData.Values["controller"].ToString().ToLower();
+    var action = ViewContext.RouteData.Values["action"].ToString().ToLower();
+    
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var customer = CustomerFactory.GetCustomer();
+    var customerLayoutXPath = customer == null ? "" : customer.GetHomeLayoutXPath(orgXPath);
+}
+@if (customerLayoutXPath != "")
+{
+    <link type="text/css" href="@Url.Content("~/Content/Home/FSKXJSXY/000" + (customerLayoutXPath == "000" ? "" : "/" + customerLayoutXPath) + "/css.css")" rel="stylesheet" />
+    if(controller == "home" && action.Contains("index"))
+    {
+        <link type="text/css" href="@Url.Content("~/Content/Home/FSKXJSXY/000" + (customerLayoutXPath == "000" ? "" : "/" + customerLayoutXPath) + "/home.css")" rel="stylesheet" />
+    }
+}

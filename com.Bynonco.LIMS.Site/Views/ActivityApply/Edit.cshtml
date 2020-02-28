@@ -1,0 +1,145 @@
+﻿@model com.Bynonco.LIMS.Model.ActivityApply
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var isShowAuditGroupAdmin = ViewData["IsShowAuditGroupAdminRemark"] == null ? false : bool.Parse(ViewData["IsShowAuditGroupAdminRemark"].ToString());
+    var isShowAuditDirector = ViewData["IsShowAuditDirectorRemark"] == null ? false : bool.Parse(ViewData["IsShowAuditDirectorRemark"].ToString());
+    var isShowAuditOperator = ViewData["IsShowAuditOperatorRemark"] == null ? false : bool.Parse(ViewData["IsShowAuditOperatorRemark"].ToString());
+    var isShowOnlyEdit = !isShowAuditGroupAdmin && !isShowAuditDirector && !isShowAuditOperator;
+}
+<div id="divActivityApplyEdit">
+ <form id="frmActivityApplyEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdActivityApplyEdit" class="edit-table"  style="width:385px;">
+        <tr>
+            <th><span class="required">*</span>费用范围</th>
+            <td>
+                @Html.JComboBox("ActivityTypeId").SetValue(Model==null ?  "" : Model.ActivityTypeId.ToString()).SetEditable(false).SetWidth(155).SetData(ViewData["ActivityTypeJson"]).ToMvcString()
+            </td>
+            <th>状态</th>
+            <td>@(Model==null ? ActivityApplyStatus.WaittingAudit.ToCnName() : Model.StatusEnum.ToCnName())</td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>申请人</th>
+            <td id='tdUserId'>
+                @(Html.TokenInput("UserId")
+                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                    .SetSingle(true)
+                    .SetWidth(400)
+                    .SetPrePopulate(ViewData["UserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserJson"].ToString()) ? null : ViewData["UserJson"].ToString())
+                    .ToMvcString())
+            </td>
+            <th><span class="required">*</span>仪器组群</th>
+            <td id='tdEquipmentGroupId'>
+                @(Html.TokenInput("EquipmentGroupId")
+                    .SetUrl(Url.Action("GetEquipmentGroupByKeyWord", "EquipmentGroup"))
+                    .SetSingle(true)
+                    .SetWidth(400)
+                    .SetPrePopulate(ViewData["EquipmentGroupJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentGroupJson"].ToString()) ? null : ViewData["EquipmentGroupJson"].ToString())
+                    .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>申请金额</th>
+            <td>
+                @Html.JValidateBox("ReimbursementMoney").SetValue(Model == null ? "" : Math.Round(Model.ReimbursementMoney, 2).ToString()).SetWidth(150).ToMvcString()
+            </td>
+            <th><span class="required">*</span>活动时间</th>
+            <td>
+                @Html.JDateTimePicker("ActivityTime").SetValue(Model == null ? "" : Model.ActivityTime.ToString("yyyy-MM-dd")).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>活动理由</th>
+            <td colspan='3'>
+                @Html.TextArea("ActivityReason", Model == null ? "" : Model.ActivityReason, new { style = "width:96%;height:80px" })
+                
+            </td>
+        </tr>
+        @if (isShowOnlyEdit)
+        {
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:96%;height:80px" })
+            </td>
+        </tr>
+        }
+        else
+        {
+             <tr>
+                <th>备注</th>
+                <td colspan='3'>
+                    @(Model == null ? "" : Model.Remark)
+                </td>
+            </tr>
+            if (isShowAuditGroupAdmin)
+            {
+            <tr>
+                <th>组群负责人意见</th>
+                <td colspan='3'>
+                    @Html.TextArea("AuditGroupAdminRemark", Model == null ? "" : Model.AuditGroupAdminRemark, new { style = "width:96%;height:80px" })
+                </td>
+            </tr>
+            }
+            else
+            {
+                var groupAdminAuditInfo = Model == null ? "" :
+                    (Model.GroupAdmin == null ? "" : Model.GroupAdmin.UserName)
+                    + (Model.AuditGroupAdminTime.HasValue ? "(" + Model.AuditGroupAdminTime.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : "")
+                    + Model.AuditGroupAdminRemark;
+                <tr>
+                    <th>组群负责人意见</th>
+                    <td colspan='3'>
+                        @groupAdminAuditInfo
+                    </td>
+                </tr>
+                if (isShowAuditDirector)
+                {
+                <tr>
+                    <th>中心主任意见</th>
+                    <td colspan='3'>
+                        @Html.TextArea("AuditDirectorRemark", Model == null ? "" : Model.AuditDirectorRemark, new { style = "width:96%;height:80px" })
+                    </td>
+                </tr>
+                }
+                else 
+                {
+                    var directorAuditInfo = Model == null ? "" :
+                       (Model.Director == null ? "" : Model.Director.UserName)
+                       + (Model.AuditDirectorTime.HasValue ? "(" + Model.AuditDirectorTime.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : "")
+                       + Model.AuditDirectorRemark;
+                    <tr>
+                    <th>中心主任意见</th>
+                    <td colspan='3'>
+                        @directorAuditInfo
+                    </td>
+                </tr>
+                }
+                if (isShowAuditOperator)
+                {
+                    <tr>
+                        <th>经办人意见</th>
+                        <td colspan='3'>
+                            @Html.TextArea("AuditOperatorRemark", Model == null ? "" : Model.AuditOperatorRemark, new { style = "width:96%;height:80px" })
+                        </td>
+                    </tr>
+                    if (Model != null && Model.AuditOperatorTime.HasValue)
+                    {
+                        <tr>
+                            <th>经办人审核时间</th>
+                            <td colspan='3'>@Model.AuditOperatorTime.Value.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        </tr>
+                    }
+                }
+            }
+        }
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdUserId ul.token-input-list-facebook").css("width", "155px");
+        $("#tdEquipmentGroupId ul.token-input-list-facebook").css("width", "155px");
+    });
+</script>

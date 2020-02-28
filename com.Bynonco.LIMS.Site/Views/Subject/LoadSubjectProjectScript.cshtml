@@ -1,0 +1,28 @@
+﻿ <script type="text/javascript">
+     function doOnSubjectChanged(newValue, oldValue) {
+         var selectedSubjectProjectId= "";
+         if (typeof (getSelectedSubjectProjectId) == 'function') {
+             selectedSubjectProjectId = getSelectedSubjectProjectId();
+         }
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("GetSubjectProjectList", "Subject")',
+             data: { "subjectId": newValue, "subjectProjectId": selectedSubjectProjectId, "time": new Date().getMilliseconds() },
+             success: function (msg) {
+                 $.messager.progress('close');
+                 try
+                 {
+                     $("#SubjectProjectId").combobox("loadData", "");
+                     $("#SubjectProjectId").combobox("setText", "");
+                     $("#SubjectProjectId").combobox("setValue", "");
+                     var data = eval("(" + msg + ")");
+                     if (msg.toString().indexOf("出错") != -1) {
+                         $.messager.show({ title: '提示', msg: msg.toString(), showType: 'show' });
+                     }
+                     $("#SubjectProjectId").combobox("loadData", data);
+                 }catch(e){}
+             }
+         });
+     }
+ </script>

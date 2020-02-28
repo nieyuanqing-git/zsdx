@@ -1,0 +1,57 @@
+﻿@model IList<com.Bynonco.LIMS.Model.EquipmentOpenTrainingCarryOut>
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEquipmentOpenTrainingCarryOutAudit">
+@if (Model != null && Model.Count() > 0)
+{
+    string ids = "";
+    var auditRemark = "";
+    if (Model.Count() == 1)
+    {
+        ids = Model[0].Id.ToString();
+        auditRemark = Model[0].AuditRemark;
+        @Html.Partial("../EquipmentOpenTrainingCarryOut/ViewInfo", Model[0])
+    }
+    else
+    {
+        <table class="edit-table"  style="width:545px;">
+            <tr>
+                <th>培训实施名称</th>
+                <th>设备名称</th>
+                <th style='width:40px;'>报名时间</th>
+                <th style='width:50px;'>考试时间</th>
+                <th>状态</th>
+                <th>查看</th>
+            </tr>
+        @foreach (var item in Model)
+        {
+            ids += (ids == "" ? "" : ",") + item.Id.ToString();
+            <tr>
+                <td>@item.Name</td>
+                <td>@(item.EquipmentOpenTraining != null && item.EquipmentOpenTraining.Equipment != null ? item.EquipmentOpenTraining.Equipment.Name : "")</td>
+                <td style='text-align:center;'>@(item.ApplyStratTime.ToString("yyyy-MM-dd") + "至" + item.ApplyEndTime.ToString("MM-dd"))</td>
+                <td style='text-align:center;'>@(item.ExamineTime.HasValue ? item.ExamineTime.Value.ToString("yyyy-MM-dd") : "")</td>
+                <td style='text-align:center;'>@item.StatusStr</td>
+                <td style='text-align:center;'>
+                    @System.Web.Mvc.MvcHtmlString.Create(string.Format("<a class='l-btn-color l-btn-color-green' title=\"{0}\" href=\"#\" onclick=\"doViewEquipmentOpenTrainingCarryOutInfo('{1}');return false;\">{2}</a>", "查看", item.Id, "<span class='tree-folder icon-eye-white'></span> 查看"))
+                </td>
+            </tr>
+        }
+        </table>
+    }
+    <form id="frmEquipmentOpenTrainingCarryOutAudit" action="#">
+    <input id="Ids" type="hidden" value="@(ids)" name="Ids" />
+    <table class="edit-table"  style="width:545px;">
+        <tr>
+            <th>审核备注</th>
+            <td>
+                @Html.TextArea("AuditRemark", auditRemark, new { style = "width:96%;height:50px;" })
+            </td>
+        </tr>
+    </table>
+    </form>
+}
+else
+{
+    <p>没有找到相关设备应用知识培训信息</p>
+}
+</div>

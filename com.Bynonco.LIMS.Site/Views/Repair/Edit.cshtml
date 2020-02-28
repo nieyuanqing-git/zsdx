@@ -1,0 +1,28 @@
+﻿@model com.Bynonco.LIMS.Model.Repair
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divRepairEdit">
+ <form id="frmRepairEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdRepairEdit" class="edit-table"  style="width:385px;">
+        <tr>
+            <th>名称</th>
+            <td>
+                @Html.JValidateBox("RepairName").SetValue(Model == null ? "" : Model.RepairName).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>联系电话</th>
+            <td>
+                @Html.JValidateBox("PhoneNumber").SetValue(Model == null ? "" : Model.PhoneNumber).SetWidth(200).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>评价(数字)</th>
+            <td>
+                @Html.JValidateBox("Appraise").SetValue(Model == null ? "" : Model.Appraise.ToString()).SetWidth(200).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的评价").ToMvcString()
+            </td>
+        </tr>        
+    </table>
+  </form>
+</div> 

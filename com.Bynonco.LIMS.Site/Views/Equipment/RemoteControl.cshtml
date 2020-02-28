@@ -1,0 +1,33 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+
+<div id="divEquipmentRemoteControl" style="width:630px; height:570px;">
+@if (Model == null || Model.IP == "")
+{
+    <p>设备IP为空,无法进行远程监控</p>
+}
+else
+{
+    <p>
+        @(Model.Name + " ( IP:" + Model.IP + " )")
+        @Html.CheckBox("IsNormalPic", false, new { @style = "margin-left:20px;" })
+        <label>显示原图</label>
+    </p>
+    <img id="RemoteControlImg" style=" vertical-align:top; margin-top:2px;" src="" alt="远程监控" title="远程监控" />
+    <script type="text/javascript">
+        function AutoGetRemoteControlImg() {
+            var isNormalPic = $("#IsNormalPic").attr("checked");
+            var lnkIsNormalPic = isNormalPic ? "&IsNormalPic=true" : "";
+            if ($("#RemoteControlImg").length > 0) {
+                $("#RemoteControlImg").attr("src", '@Url.Action("GetRemoteControlImg", "Equipment")' + "?date=" + new Date().getMilliseconds() + lnkIsNormalPic);
+                setTimeout("AutoGetRemoteControlImg();", 2000);
+            }
+        }
+        $(function () {
+            AutoGetRemoteControlImg();
+        });
+    </script>
+}
+
+</div>
+

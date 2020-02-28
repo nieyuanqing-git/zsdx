@@ -1,0 +1,38 @@
+﻿@model com.Bynonco.LIMS.Model.Business.SystemRunSetting
+@using com.Bynonco.JqueryEasyUI.Core;
+<form id="frmSystemRunSetting">
+    <p><span class="icon icon-setting"></span>系统运行设置</p>
+    <table id="tdSystemRunSetting" class="edit-info">
+         <tr>
+            <th colspan="2" style="text-align:left; padding-left:100px;font-size:14px;font-weight:bold;color:Red;">修改需重启IIS生效</th>
+        </tr>
+        <tr>
+            <th>是否触摸屏运行模式</th>
+            <td>
+                @Html.CheckBox("IsRunAsTouchScreenMode")
+            </td>
+        </tr>
+     
+    </table>
+</form>
+<div class="edit-operate">
+    @Html.JLinkButton("btnSave", "保存").SetPlain(true).SetOnclick("doSave();").SetIconCls("icon-save").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSave() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveSystemRunSetting", "SystemRunSetting")' + "?time=" + new Date().getMilliseconds(),
+            data: $("#frmSystemRunSetting").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+    }
+</script>

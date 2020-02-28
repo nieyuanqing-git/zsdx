@@ -1,0 +1,119 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+
+    var nmpPrivilige = Model != null ?
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.Id);
+}
+<div>@Html.Partial("../NMP/NMPEquipmentList")</div>
+<div id="divNMPEquipmentEditDialog" style="display:none;"></div>
+<script type="text/javascript">
+    var editNMPEquipmentDialog;
+    function doAddOrEditNMPEquipment(id) {
+        var nmpId  = '@Model.Id';
+        if(editNMPEquipmentDialog) editNMPEquipmentDialog.dialog('destroy');
+        var url = (id != "" ? '@Url.Action("EditNMPEquipment")' : '@Url.Action("AddNMPEquipment")') + "?id=" + id + "&nmpId=" + nmpId + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divNMPEquipmentEditDialog").load(url, function () {
+            $.messager.progress('close');
+            editNMPEquipmentDialog = @(Html.JDialog("divNMPEquipmentEdit").SetTitle("工位关联仪器信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("editNMPEquipmentDialog.dialog('close');return false;").SetModal(true).SetOkScript(nmpPrivilige.IsEnableSaveNMPEquipment?"doSaveNMPEquipment();":"alert('无操作权限');").ToMvcString());
+        });
+    }
+    function generateNMPEquipmentSelectedIds() {
+        var ids = [];
+        var rows = $("#tbNMPEquipment").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    function doDeleteNMPEquipment(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateNMPEquipmentSelectedIds() : ids;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteNMPEquipment")'+ "?time=" + new Date().getMilliseconds().toString(),
+                data: "ids=" + delIds,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    doNMPEquipmentSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    function doSaveNMPEquipment() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveNMPEquipment")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: $("form").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doNMPEquipmentSearch();
+                editNMPEquipmentDialog.dialog('close'); 
+            }
+        });
+        return false;
+    }
+    
+    function doNMPEquipmentSearch() {
+        $("#tbNMPEquipment").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbNMPEquipment").datagrid("load", {"time":new Date().getMilliseconds() });
+    }    
+
+
+    function doRemoteOpen(id)
+    {
+        alert(id);
+        $.messager.confirm('提示', '是否确认远程开机?', function (r) {
+            if (!r) return;
+            doRemoteAction('@Url.Action("RemoteOpen", "NMP")',id);
+        });
+    }
+    function doRemoteClose(id)
+    {
+        $.messager.confirm('提示', '是否确认远程关机?', function (r) {
+            if (!r) return;
+            doRemoteAction('@Url.Action("RemoteClose", "NMP")',id);
+        });
+    }
+    function doRemoteReload(id)
+    {
+        doRemoteAction('@Url.Action("RemoteReload", "NMP")',id);
+    }
+    function doRemoteAction(url, id)
+    {
+        if(!id || id == "") {
+            $.messager.show({ title: '提示', msg: "找不到工位设备Id", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: "id=" + id + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+            }
+        });
+
+    }
+</script>

@@ -1,0 +1,138 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMPEquipmentAuthorization
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var nmpEquipmentId = ViewData["nmpEquipmentId"] == null ? "" : ViewData["nmpEquipmentId"].ToString();
+    var nmpEquipmentName = ViewData["nmpEquipmentName"] == null ? "" : ViewData["nmpEquipmentName"].ToString();
+    var userId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString();
+    var userName = ViewData["UserName"] == null ? "" : ViewData["UserName"].ToString();
+}
+<div id="divUserNMPEquipmentAuthorizationEdit">
+ <form id="frmUserNMPEquipmentAuthorizationEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tdUserNMPEquipmentAuthorizationEdit" class="edit-table" style="width:640px;">
+         <tr>
+            <th><span class="required">* </span>设备</th>
+            <td colspan="3" style='@(nmpEquipmentId== "" ? "padding:0;border:0;": "")'>
+                @*@if (nmpEquipmentId == "")
+                {
+                    <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>
+                                @(Html.TokenInput("nmpEquipmentId")
+                                    .SetUrl(Url.Action("GetUserManageViewNMPEquipmentListByKeyWord", "NMP"))
+                                    .SetSingle(false)
+                                    .SetWidth(400)
+                                    .ToMvcString())
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectAuthorizationEquipment();return false;").ToMvcString()
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnCleanEquipment", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanEquipment();return false;").ToMvcString()
+                            </td>
+                        </tr>
+                    </table>
+                }
+                else
+                {
+                    *@<div style="padding-left:2px">
+                        @Html.Hidden("nmpEquipmentId", nmpEquipmentId)
+                        @nmpEquipmentName
+                    </div>
+                @*}*@
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>用户</th>
+            <td colspan="3" style='@(userId == "" ? "padding:0;border:0;" : "")'>
+                @if (userId == "")
+                {
+                     <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>
+                                @(Html.TokenInput("UserId")
+                                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                                    .SetSingle(false)
+                                    .SetWidth(400)
+                                    .ToMvcString())
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnSelectUser", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectAuthorizationUser();return false;").ToMvcString()
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnCleanUser", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanUser();return false;").ToMvcString()
+                            </td>
+                        </tr>
+                    </table>
+                }
+                else
+                {
+                    <div style="padding-left:2px">
+                        @Html.Hidden("UserId", userId)
+                        @userName
+                    </div>
+                }
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>开始时间</th>
+            <td>
+                @Html.JDateTimePicker("StartDate").SetMode(DateTimePickerMode.dateTime).SetShowSeconds(false).SetValue(Model == null || !Model.StartDate.HasValue ? DateTime.Now.ToString("yyyy-MM-dd 00:00") : Model.StartDate.Value.ToString("yyyy-MM-dd HH:mm")).SetWidth(180).ToMvcString()
+            </td>
+            <th><span class="required">* </span>结束时间</th>
+            <td>
+                @Html.JDateTimePicker("EndDate").SetMode(DateTimePickerMode.dateTime).SetShowSeconds(false).SetValue(Model == null || !Model.EndDate.HasValue ? DateTime.Now.ToString("yyyy-MM-dd 23:59") : Model.EndDate.Value.ToString("yyyy-MM-dd HH:mm")).SetWidth(180).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan="3" >
+                @Html.TextArea("AuthorizationNote", Model == null ? "" : Model.AuthorizationNote, new { style = "font-size:12px;text-decoration:none;height:60px;width:520px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+@*<div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>*@
+<div style="display:none">@Html.Partial("../User/SelectUserNoPagingContainer")</div>
+<script type="text/javascript">
+    function doCleanEquipment() {
+        $("#frmUserNMPEquipmentAuthorizationEdit #EquipmentId").tokenInput("clear");
+    }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+
+        $("#frmUserNMPEquipmentAuthorizationEdit #EquipmentId").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#frmUserNMPEquipmentAuthorizationEdit #EquipmentId").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+    function doSelectAuthorizationEquipment() {
+        doSelectEquipmentDialog('EquipmentId', { "SelectEquipmentMode": '@((int)com.Bynonco.LIMS.Model.Enum.SelectEquipmentMode.AuthorizationEquipment)' });
+        return false;
+    }
+
+    function doCleanUser() {
+        $("#frmUserNMPEquipmentAuthorizationEdit #UserId").tokenInput("clear");
+    }
+    function getSelectedUserCallBack(selectedUserNames, selectedUserIds) {
+
+        $("#frmUserNMPEquipmentAuthorizationEdit #UserId").tokenInput("clear");
+        if (selectedUserIds != "") {
+            var selectedUserIdsArray = selectedUserIds.split(",");
+            var selectedUserNamesArray = selectedUserNames.split(",");
+            if (!selectedUserIdsArray || selectedUserIdsArray.length == 0 || !selectedUserNamesArray || selectedUserNamesArray.length == 0) return;
+            for (var i = 0; i < selectedUserIdsArray.length && i < selectedUserNamesArray.length; i++) {
+                $("#frmUserNMPEquipmentAuthorizationEdit #UserId").tokenInput("add", { id: selectedUserIdsArray[i], text: selectedUserNamesArray[i] });
+            }
+        }
+    }
+    function doSelectAuthorizationUser() {
+        doSelectUserDialog('UserId');
+        return false;
+    }
+</script>

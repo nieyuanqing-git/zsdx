@@ -1,0 +1,109 @@
+﻿@model com.Bynonco.LIMS.Model.AppointmentPriority
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var url = string.Empty;
+    var type = 0;
+    if (ViewData["CurrentBusinessesType"] != null)
+    {
+        type = int.Parse(ViewData["CurrentBusinessesType"].ToString());
+    }
+    switch (type)
+    {
+        case 1:
+            url = Url.Action("GetSubjectListByKeyWord", "Subject");
+            break;
+        case 2:
+            url = Url.Action("GetLabOrganizationListByKeyWord", "LabOrganization");
+            break;
+        case 3:
+            url = Url.Action("GetTagListByKeyWord", "UserTag");
+            break;
+        case 4:
+            url = Url.Action("GetUserTypeListByKeyWord", "UserType");
+            break;
+        case 5:
+            url = Url.Action("GetWorkGroupListByKeyWord", "WorkGroup");
+            break;
+        default:
+            url = Url.Action("GetUserListByKeyWord", "User");
+            break;
+    }
+}
+<style type="text/css">
+     #tdWorkTimes th{ border:none}
+     #tdWorkTimes td{ border:none}
+</style>
+<div id="divAppointmentPriorityEdit">
+    <form id="frmAppointmentPriorityEdit" action="#">
+    @Html.Hidden("AppointmentPriorityId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style="width:700px;">
+        <tr>
+            <th>对象类型<span class="required">*</span></th>
+            <td>
+                @Html.JComboBox("BusinessType").SetData(ViewData["PriorityBusinessesType"]).SetOnChange("onBusinessTypeChange();").SetWidth(150).SetEditable(false).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>对象<span class="required">*</span></th>
+            <td id="tbSelectAppointmentPriorityUsers" colspan="3">
+                @(Html.TokenInput("AppointmentPriorityUserIds")
+                .SetUrl(url)
+                .SetPrePopulate(ViewData["PriorityUsersJson"] == null || string.IsNullOrWhiteSpace(ViewData["PriorityUsersJson"].ToString()) ? null : ViewData["PriorityUsersJson"].ToString())
+                .SetSingle(false)
+                .SetPreventDuplicates(true)
+                .SetWidth(200)
+                .ToMvcString())
+
+            </td>
+        </tr>
+        <tr>
+            <th>提前取消时间<span class="required">*</span></th>
+            <td>
+                @Html.JValidateBox("PriorityDays").SetValue(Model == null ? "0" : Model.PriorityDays.ToString()).SetWidth(260).SetValidateType(ValidateType.positiveIntNumber).ToMvcString()
+                <span>天</span>
+            </td>
+        </tr>
+        <tr>
+            <th>开始时间</th>
+            <td>
+                @Html.JDateTimePicker("StartAt").SetWidth(155).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.StartAt.HasValue ? Model.StartAt.Value.ToString("yyyy-MM-dd") : "").ToMvcString()
+                @Html.JComboBox("StartAtHour").SetData(ViewData["StartAtHourJson"]).SetWidth(50).ToMvcString()
+                @Html.JComboBox("StartAtMinute").SetData(ViewData["StartAtMinuteJson"]).SetWidth(50).ToMvcString()
+                <span><b>为空表示该优先权从当前时间开始生效</b></span>
+            </td>
+        </tr>
+        <tr>
+            <th>结束时间</th>
+            <td>
+                @Html.JDateTimePicker("EndAt").SetWidth(155).SetValue(Model == null ? DateTime.Now.AddDays(30).ToString("yyyy-MM-dd") : Model.EndAt.HasValue ? Model.EndAt.Value.ToString("yyyy-MM-dd") : "").ToMvcString()
+                @Html.JComboBox("EndAtHour").SetData(ViewData["EndAtHourJson"]).SetWidth(50).ToMvcString()
+                @Html.JComboBox("EndAtMinute").SetData(ViewData["EndAtMinuteJson"]).SetWidth(50).ToMvcString()
+                <span><b>为空表示该优先权一直有效</b></span>
+            </td>
+        </tr>
+         <tr>
+            <th>每周工作日</th>
+            <td>
+               @Html.Partial("WorkDays") 
+            </td>
+        </tr>
+        <tr>
+            <th>预留时间段</th>
+            <td  id="tdWorkTimes">
+               @Html.Partial("AppointmentTimesOfDay")
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:120px;width:600px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tbSelectAppointmentPriorityUsers ul.token-input-list-facebook").css("width", "600px");
+    });
+</script>

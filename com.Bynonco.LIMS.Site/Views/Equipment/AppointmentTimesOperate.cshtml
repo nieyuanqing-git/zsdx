@@ -1,0 +1,40 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+      #divAppointmentTimesOperate ul li{float:left;}
+</style>
+@Html.Hidden("WeekIndex", ViewData["WeekIndex"])
+<div id="divAppointmentTimesOperate">
+   <ul>
+        <li style="padding-left:85px">
+            @Html.JLinkButton("btnDataScope", string.Format("{0}～{1}", ViewData["AppoinmentBeginDate"].ToString(), ViewData["AppoinmentEndDate"]).ToString()).SetPlain(true).AddClass("f_bold").AddClass("f_13").SetOnclick("loadEquipmentAppointmentTimes();return false;").ToMvcString()
+        </li>
+        <li style="padding-left:30px">
+            @Html.JLinkButton("btnPreviousWeek", "<<上周").SetPlain(true).AddClass("f_bold").SetOnclick("doGeneratePreviousWeekAppointmentTimes();return false;").ToMvcString()
+        </li>
+        <li>
+            @Html.JLinkButton("btnCurWeek", "本周").SetPlain(true).AddClass("f_bold").SetOnclick("doGenerateCurWeekAppointmentTimes();return false;").SetDisabled(ViewData["WeekIndex"] == null || ViewData["WeekIndex"].ToString() == "0").ToMvcString()
+        </li>
+        <li>
+            @Html.JLinkButton("btnNextWeek", "下周>>").SetPlain(true).AddClass("f_bold").SetOnclick("doGenerateNextWeekAppointmentTimes();return false;").ToMvcString()
+        </li>
+        <div class="clear-both"></div>
+   </ul>
+</div>
+<script type="text/javascript">
+    function doGeneratePreviousWeekAppointmentTimes() {
+        var weekIndex = $("#WeekIndex").val();
+        weekIndex = !weekIndex ? 0 :( parseInt(weekIndex) - 1);
+        $("#WeekIndex").val(weekIndex.toString());
+        loadEquipmentAppointmentTimes();
+    }
+    function doGenerateCurWeekAppointmentTimes() {
+        $("#WeekIndex").val("0");
+        loadEquipmentAppointmentTimes();
+    }
+    function doGenerateNextWeekAppointmentTimes() {
+        var weekIndex = $("#WeekIndex").val();
+        weekIndex = !weekIndex ? 0 : (parseInt(weekIndex) + 1);
+        $("#WeekIndex").val(weekIndex.toString());
+        loadEquipmentAppointmentTimes();
+    }
+</script>

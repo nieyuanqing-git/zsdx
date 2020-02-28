@@ -1,0 +1,24 @@
+﻿@model IList<com.Bynonco.LIMS.Model.View.ViewEquipment>
+@using com.Bynonco.LIMS.Utility;
+@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+}
+@if (Model != null && Model.Count() > 0)
+{
+    <ul class='home-equipment-list'>
+    @foreach (var item in Model)
+    {
+        var url = Url.Action("Show", "Equipment", new { Id = item.Id, XPath = orgXPath });
+        var name = ShortcutStringUtility.GetSubString(item.Name, 15, "..");
+        <li>
+            <div class='equipment-icon-box'>
+                <a href='#' title='@item.Name' class='scroller' onclick="doZJDXAppointment('@item.Id','@(item.Name.Replace('\'','＇'))');return false;"><img src="@(item.IconPath)" alt="@item.Name" /></a>
+            </div>
+            <div class='equipment-link-box'>
+                <a href='#' title='@item.Name' class='scroller' onclick="doZJDXAppointment('@item.Id','@(item.Name.Replace('\'','＇'))');return false;">@name</a>
+            </div>
+        </li>
+    }
+    <div class='clear-both'></div>
+    </ul>
+}

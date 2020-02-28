@@ -1,0 +1,39 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var tagPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetTagPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbTagList")
+       .SetUrl(Url.Action("GetGridTagList", "UserTag"))
+       .SetHeight(650)
+       .SetSortName("Name")
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false);
+    if (tagPrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+    }
+    dataGrid.SetShowAddButton(tagPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(tagPrivilige.IsEnableEdit);
+    if (tagPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddTag('');");
+       dataGrid.SetEditScript("doEditTag('');");
+       dataGrid.SetOnDblClickRow("doEditTag(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(tagPrivilige.IsEnableDelete);
+    if (tagPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteTag('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetSortable(false).SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("可预约天数", "EnableAppointmentDays").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("XPath", "XPath").SetSortable(false).SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("助记符", "InputStr").SetSortable(false).SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否默认", "IsDefaultStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetSortable(false).SetWidth(600).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

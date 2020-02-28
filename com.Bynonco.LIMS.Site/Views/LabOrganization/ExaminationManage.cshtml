@@ -1,0 +1,58 @@
+﻿@model com.Bynonco.LIMS.Model.LabOrganization
+@using com.Bynonco.JqueryEasyUI.Core;  
+@{
+    Layout = ViewBag.Layout;
+    var retunURL = ViewData["ReturnURL"] != null ? ViewData["ReturnURL"].ToString() : "";
+    var isOperateByOrgAdmin = ViewData["IsOperateByOrgAdmin"] != null ? (bool)ViewData["IsOperateByOrgAdmin"] : false;
+    var url = Url.Action(!isOperateByOrgAdmin ? "ExaminationSettingContainer" : "ExaminationSettingContainerForOrgAdmin", "LabOrganization", new { id = Model == null ? Guid.Empty : Model.Id, ReturnURL = retunURL });
+}
+<style type="text/css">
+.layout-center .main-content .edit-box .fix-box {
+    background-color: #F7F7F7;
+}
+</style>
+
+<ul class="tabs" style="border-bottom:0;">
+    <li class="tabs-selected"><a class="tabs-inner" href="javascript:void(0)" onclick="doLoadExaminationSetting(this);"><span class="tabs-title">考试设置</span><span class="tabs-icon"></span></a></li>
+    <li><a class="tabs-inner" href="javascript:void(0)" onclick="doLoadTrainningExamination(this);"><span class="tabs-title">试卷</span><span class="tabs-icon"></span></a></li>
+    <li><a class="tabs-inner" href="javascript:void(0)" onclick="doLoadUserExamination(this);"><span class="tabs-title">考试记录</span><span class="tabs-icon"></span></a></li>
+</ul>
+<div id="divLabOrganizationExaminationContainer">
+   
+</div>
+<script type="text/javascript">
+    $(function () {
+        $(".tabs-selected").find("a.tabs-inner").click();
+    });
+    function doLoadExaminationSetting(obj) {
+        doLoadLabOrganizationExaminationContainer(obj, '@url');
+        return false;
+    }
+    function doLoadTrainningExamination(obj) {
+        var url = '@Url.Action("ExaminationContainer", "LabOrganization",new {id = Model == null ? Guid.Empty : Model.Id})';
+        doLoadLabOrganizationExaminationContainer(obj, url);
+        return false;
+    }
+    function doLoadUserExamination(obj) {
+        var url = '@Url.Action("UserExaminationContainer", "LabOrganization",new {id = Model == null ? Guid.Empty : Model.Id})';
+        doLoadLabOrganizationExaminationContainer(obj, url);
+        return false;
+    }
+    function doLoadLabOrganizationExaminationContainer(obj, url) {
+        $(obj).parent().addClass("tabs-selected");
+        $(obj).parent().siblings().removeClass("tabs-selected");
+        $("#divLabOrganizationExaminationContainer").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: {date : new Date().getMilliseconds()},
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divLabOrganizationExaminationContainer").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+</script>

@@ -1,0 +1,30 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@{
+  var dataGrid = Html.JDataGrid("tbSampleDepositRecordList")
+        .SetUrl(Url.Action("GetGridViewSampleApplyList") + "?sampleRoleStr=" + ViewData["SampleRoleStr"].ToString() + "&time=" + DateTime.Now.Millisecond.ToString())
+        .AddQueryParam("queryExpression", ViewData["queryExpression"] == null ? "" : ViewData["queryExpression"].ToString().Trim())
+        .SetHeight(570)
+        .SetPageSize(10)
+        .SetShowPrintButton(false)
+        .SetSortName("OperateDate")
+        .SetSortOrder(SortOrder.desc)
+        .SetSortOrder(SortOrder.desc)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch()")
+        .SetShowAddButton(false);
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "ApplicantIcon").SetWidth(50).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("送样单号", "SampleNoStr").SetWidth(120).SetAlign(Align.left));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("送样人", "ApplicantNameStr").SetWidth(60).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("送样单位", "OrganizationName").SetWidth(180).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "TelephoneNo").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("送样时间", "ApplyDateStr").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("金额", "Fee").SetWidth(80).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发票号", "InvoiceNo").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否到账", "IsPayForStr").SetWidth(60).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(80).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("收费情况", "ChargeStatusStr").SetWidth(80).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SampleItemName").SetWidth(180).SetAlign(Align.left));
+ }
+ @(dataGrid.ToMvcString())

@@ -1,0 +1,197 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentGroup
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+<style type="text/css">
+#tdEquipmentIds .token-input-list-facebook{border:0;}
+</style>
+<script type="text/javascript">
+    function doOnGroupTypeChange() {
+        var groupType = $("#GroupType").combotree("getValue");
+        if (groupType == '@((int)EquipmentGroupType.Sample)') {
+            $(".Sample-Required").removeClass("hide");
+        }
+        else {
+            $(".Sample-Required").addClass("hide");
+        }
+    } 
+</script>
+<div id="divEquipmentGroupEdit"> 
+<form id="frmEquipmentGroup" action="#">
+    @Html.Hidden("Id",Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style='width:640px;'>
+        <tr>
+            <th><span class='required'>*</span>编号</th>
+            <td>
+                 @Html.JValidateBox("InnerID").SetValue(Model == null ? "" : Model.InnerID).SetWidth(150).ToMvcString()
+            </td>
+            <th><span class="required">*</span>机组类型</th>
+            <td>
+                 @(Html.JComboBox("GroupType")
+                    .SetData(ViewData["GroupTypeJson"])
+                    .SetWidth(155)
+                    .SetOnChange("doOnGroupTypeChange();")
+                    .ToMvcString())
+            </td>
+            <td rowspan='7' style='width:100px;'>
+                <img id="imgGroupImageURL" src='@(Model == null || Model.ImageURL == "" ? "" : Url.Content("~/" + Model.ImageURL))' style='width:80px;'/>
+                @Html.Hidden("ImageURL", Model == null ? "" : Model.ImageURL)
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>名称</th>
+            <td>
+                 @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(150).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+            <th>简称</th>
+            <td>
+                @Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(150).SetValidateType(ValidateType.none).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>负责人</th>
+            <td id="tdAdminIds" style="padding-left:2px">
+                @Html.TokenInput("AdminIds").SetSingle(false).SetUrl(Url.Action("GetUserListByKeyWord", "User")).SetPrePopulate(ViewData["AdminJson"] == null || string.IsNullOrWhiteSpace(ViewData["AdminJson"].ToString()) ? null : ViewData["AdminJson"].ToString()).ToMvcString()
+            </td>
+            <th>联系人</th>
+            <td>
+                 @Html.JValidateBox("ContactPerson").SetValue(Model == null ? "" : Model.ContactPerson).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>通讯地址</th>
+            <td>
+                 @Html.JValidateBox("Address").SetValue(Model == null ? "" : Model.Address).SetWidth(150).ToMvcString()
+            </td>
+            <th>邮政编码</th>
+            <td>
+                 @Html.JValidateBox("ZIPCode").SetValue(Model == null ? "" : Model.ZIPCode).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        
+         <tr>
+            <th>电话</th>
+            <td>
+                 @Html.JValidateBox("Telephone").SetValue(Model == null ? "" : Model.Telephone).SetWidth(150).ToMvcString()
+            </td>
+            <th>传真</th>
+            <td>
+                 @Html.JValidateBox("Fax").SetValue(Model == null ? "" : Model.Fax).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>电子邮箱</th>
+            <td>
+                 @Html.JValidateBox("Email").SetValue(Model == null ? "" : Model.Email).SetWidth(150).ToMvcString()
+            </td>
+            <th>成立时间</th>
+            <td>
+                @Html.JDateTimePicker("StartDate").SetValue(Model == null ? "" : Model.StartDate.HasValue ? Model.StartDate.Value.ToString("yyyy-MM-dd") : "").SetWidth(155).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class='required @(Model != null && Model.TypeEnum == EquipmentGroupType.Sample ? "hide" : "") Sample-Required'>*</span>机组网址</th>
+            <td>
+                 @Html.JValidateBox("WebSite").SetValue(Model == null ? "" : Model.WebSite).SetWidth(150).ToMvcString()
+            </td>
+            <th><span class="required">*</span>是否停用</th>
+            <td>
+                @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+        <tr>
+            <th>图片上传</th>
+            <td colspan='3'>
+                <input id="fileGroupImageURL" type="file" name="fileGroupImageURL" class="addfile" onchange="ajaxFileUploadGroupImageURL();return false;"/>
+            </td>
+            <td style='text-align:center;'>
+                @Html.JLinkButton("btnCleanImageURL", "清空图片").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("doCleanImageURL();return false;").ToMvcString()
+            </td>
+        </tr>
+    </table>
+    <ul style="border-bottom:0;background-color:#fff;margin-top:10px;" class="tabs">
+        <li class="tabs-selected"><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divGroupEquipmentIds');"><span class="tabs-title">设备名称</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divGroupIntroduction')"><span class="tabs-title"><span style='color:Red;' class='@(Model != null && Model.TypeEnum == EquipmentGroupType.Sample ? "hide" : "") Sample-Required'>*</span>机组简介<span id='spSelectUserCount'></span></span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divGroupStrength')"><span class="tabs-title"><span style='color:Red;' class='@(Model != null && Model.TypeEnum == EquipmentGroupType.Sample ? "hide" : "") Sample-Required'>*</span>机组测试特长<span id='spSelectUserCount'></span></span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divGroupExpert')"><span class="tabs-title"><span style='color:Red;' class='@(Model != null && Model.TypeEnum == EquipmentGroupType.Sample ? "hide" : "") Sample-Required'>*</span>专家队伍<span id='spSelectUserCount'></span></span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divGroupInstrument')"><span class="tabs-title"><span style='color:Red;' class='@(Model != null && Model.TypeEnum == EquipmentGroupType.Sample ? "hide" : "") Sample-Required'>*</span>机组仪器简介<span id='spSelectUserCount'></span></span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divGroupAchievement')"><span class="tabs-title"><span style='color:Red;' class='@(Model != null && Model.TypeEnum == EquipmentGroupType.Sample ? "hide" : "") Sample-Required'>*</span>机组主要成果<span id='spSelectUserCount'></span></span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divGroupRemark')"><span class="tabs-title">备注<span id='spSelectUserCount'></span></span><span class="tabs-icon"></span></a></li>
+    </ul>
+    <div style='height:100px;overflow:hidden;' id='divGroupEquipmentIds' class='GroupTag'>
+        <table border='0' cellpadding='0' cellspacing='0' style='width:640px;'>
+            <tr>
+                <td id="tdEquipmentIds" style='border:1px solid #ccc;border-right:0;' rowspan='2'>
+                    <div style='padding-top:8px; height:90px;overflow-y:auto;overflow-x:hidden;'>
+                    @(Html.TokenInput("EquipmentIds")
+                        .SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment"))
+                        .SetSingle(false)
+                        .SetWidth(400)
+                        .SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString())
+                        .ToMvcString())
+                    </div>
+                </td>
+                <td style='text-align:center;border:1px solid #ccc;border-bottom:0;border-left:0;'>
+                    @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectUserManagementEquipment();return false;").ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <td style='text-align:center;border:1px solid #ccc;border-top:0;border-left:0;'>
+                    @Html.JLinkButton("btnCleanEquipment", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanEquipment();return false;").ToMvcString()
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style='height:100px;' id='divGroupIntroduction' class='GroupTag hide'>
+        @Html.TextArea("Introduction", Model == null ? "" : Model.Introduction, new { style = "width:96%;height:90px;", placeholder = "(请输入机组简介)" })
+    </div>
+    <div style='height:100px;' id='divGroupStrength' class='GroupTag hide'>
+        @Html.TextArea("Strength", Model == null ? "" : Model.Strength, new { style = "width:96%;height:90px;", placeholder = "(请输入机组测试特长)" })
+    </div>
+    <div style='height:100px;' id='divGroupExpert' class='GroupTag hide'>
+        @Html.TextArea("Expert", Model == null ? "" : Model.Expert, new { style = "width:96%;height:90px;", placeholder = "(请输入专家队伍)" })
+    </div>
+    <div style='height:100px;' id='divGroupInstrument' class='GroupTag hide'>
+        @Html.TextArea("Instrument", Model == null ? "" : Model.Instrument, new { style = "width:96%;height:90px;", placeholder = "(请输入机组仪器简介)" })
+    </div>            
+    <div style='height:100px;' id='divGroupAchievement' class='GroupTag hide'>
+        @Html.TextArea("Achievement", Model == null ? "" : Model.Achievement, new { style = "width:96%;height:90px;", placeholder = "(请输入机组主要成果)" })
+    </div> 
+    <div style='height:100px;' id='divGroupRemark' class='GroupTag hide'>
+        @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:96%;height:90px;", placeholder = "(请输入机组备注)" })
+    </div>       
+  </form>
+</div>
+<div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>
+<script type="text/javascript">
+    function changeTag(obj, tagId) {
+        $(".GroupTag").addClass("hide");
+        $(".tabs li").removeClass("tabs-selected");
+        $(obj).parent().addClass("tabs-selected");
+        $("#" + tagId).removeClass("hide");
+        return false;
+    }
+
+    $(function () {
+        $("#tdEquipmentIds ul.token-input-list-facebook").css("width", "555px");
+        $("#tdAdminIds ul.token-input-list-facebook").css("width", "155px");
+    });
+
+    function doCleanEquipment() {
+        $("#frmEquipmentGroup #EquipmentIds").tokenInput("clear");
+    }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+        $("#frmEquipmentGroup #EquipmentIds").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#frmEquipmentGroup #EquipmentIds").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+    function doSelectUserManagementEquipment() {
+        doSelectEquipmentDialog('EquipmentIds', { "SelectEquipmentMode": '@((int)com.Bynonco.LIMS.Model.Enum.SelectEquipmentMode.ManagementEquipment)' });
+        return false;
+    }
+</script>

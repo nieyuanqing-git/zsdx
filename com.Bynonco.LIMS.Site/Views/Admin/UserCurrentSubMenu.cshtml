@@ -1,0 +1,34 @@
+﻿@{
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+    var sbUserDefinedParams = ViewBag.UserDefinedParams == null ? "" : ViewBag.UserDefinedParams.ToString();
+    if (ViewData["UserCurrentSubMenu"] != null)
+    {
+        IList<com.Bynonco.LIMS.Model.View.ViewWorkGroupModule> viewWorkGroupModuleList = (IList<com.Bynonco.LIMS.Model.View.ViewWorkGroupModule>)ViewData["UserCurrentSubMenu"];
+        if (viewWorkGroupModuleList != null && viewWorkGroupModuleList.Count > 0)
+        {
+            <div class="main-content-box" style="padding-top:1px;">
+                <div class="main-content main-content-submenu" id="divMainContentBox">
+                    <ul class="submenu-icon">
+                     @foreach (var item in viewWorkGroupModuleList)
+                     {
+                        <li>
+                            @if (isAjax)
+                            {
+                                @Ajax.IconActionLink(item.IconCssLarge, item.text, item.text, item.ActionName, item.ControllerName, new { id = Model == null ? "" : Model.Id.ToString(), userParameters = sbUserDefinedParams.ToString(), date = DateTime.Now.Millisecond }, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess", OnBegin = "ajaxloadbegin" }, new { @class = "icon" })
+                                @Ajax.ActionLink(item.text, item.ActionName, item.ControllerName, new { id = Model == null ? "" : Model.Id.ToString(), userParameters = sbUserDefinedParams.ToString(), date = DateTime.Now.Millisecond }, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess", OnBegin = "ajaxloadbegin" }, null)
+                            }
+                            else
+                            {
+                                @Html.HtmlIconActionLink(item.IconCssLarge, item.text, item.text, item.ActionName, item.ControllerName, new { id = Model == null ? "" : Model.Id.ToString(), userParameters = sbUserDefinedParams.ToString() }, null, new { @class = "icon" })
+                                @Html.ActionLink(item.text, item.ActionName, item.ControllerName, new { id = Model == null ? "" : Model.Id.ToString(), userParameters = sbUserDefinedParams.ToString() }, null)
+                            }
+                        </li>
+                     }
+                     </ul>
+                     <div class="clear-both"></div>
+                </div>
+                <div class="main-bottom"></div>
+            </div>
+        }
+    }
+}

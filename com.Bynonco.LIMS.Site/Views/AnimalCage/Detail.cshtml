@@ -1,0 +1,42 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimalCage
+<table class="edit-table">
+    <tr>
+        <th colspan="6">动物笼子信息</th>
+    </tr>
+    <tr>
+        <th colspan="6">
+            录入数:@(ViewData["InputCount"])&nbsp&nbsp&nbsp&nbsp
+            入库数:@(ViewData["InCount"])&nbsp&nbsp&nbsp&nbsp
+            取材数:@(ViewData["GetOutCount"])&nbsp&nbsp&nbsp&nbsp
+            死亡数:@(ViewData["DieCount"])
+        </th>
+    </tr>
+    <tr>
+        <th>笼子名称</th>
+        <td>@Model.Name</td>
+        <th>编码</th>
+        <td>@Model.Code</td>
+        <th>是否停用</th>
+        <td>@Model.IsStopStr</td>
+    </tr>
+    <tr>
+        <th>总笼位数</th>
+        <td>@(Model.RowCnt * Model.ColCnt)</td>
+        <th>行数</th>
+        <td>@Model.RowCnt</td>
+        <th>列数</th>
+        <td>@Model.ColCnt</td>
+    </tr>
+    <tr>
+        <th>所在房间</th>
+        <td>@Model.LabRoomName</td>
+        <th>所在架子</th>
+        <td>@Model.AnimalFrameName</td>
+        <th>所在架位</th>
+        <td>@(Model.AnimalFrameId.HasValue ? Model.FrameRowNo.Value.ToString() + "-" + Model.FrameColNo.Value.ToString() : "")</td>
+    </tr>
+    <tr>
+        <th>备注</th>
+        <td colspan="5">@Model.Remark</td>
+    </tr>
+</table>

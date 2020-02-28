@@ -1,0 +1,96 @@
+﻿<form id="frmSearchCondition" action="#">
+<div class="panel-condition">
+    <span class="top-tit">已选条件:</span>
+    <ul>
+        <li class='token-input-token-facebook @(ViewData["EquipmentName"] == null ? "hide" : "")' id="ConditionEquipmentName">
+            <span class='tit'>设备名称: </span>
+            <p>@(ViewData["EquipmentName"] == null ? "" : ViewData["EquipmentName"])</p>
+            @Html.Hidden("SearchEquipmentName", ViewData["EquipmentName"] == null ? "" : ViewData["EquipmentName"])
+            <span class="token-input-delete-token-facebook">×</span>
+        </li>
+        <li class='token-input-token-facebook @(ViewData["ScopeOfApplication"] == null ? "hide" : "")' id="ConditionScopeOfApplication">
+            <span class='tit'>设备功能: </span>
+            <p>@(ViewData["ScopeOfApplication"] == null ? "" : ViewData["ScopeOfApplication"])</p>
+            @Html.Hidden("SearchScopeOfApplication", ViewData["ScopeOfApplication"] == null ? "" : ViewData["ScopeOfApplication"])
+            <span class="token-input-delete-token-facebook">×</span>
+        </li>
+        <li class='token-input-token-facebook @(ViewData["Qualification"] == null ? "hide" : "")' id="ConditionQualification">
+            <span class='tit'>技术指标: </span>
+            <p>@(ViewData["Qualification"] == null ? "" : ViewData["Qualification"])</p>
+            @Html.Hidden("SearchQualification", ViewData["Qualification"] == null ? "" : ViewData["Qualification"])
+            <span class="token-input-delete-token-facebook">×</span>
+        </li>
+        <li class='token-input-token-facebook @(ViewData["OrgName"] == null ? "hide" : "")' id="ConditionOrg">
+            <span class='tit'>组织机构: </span>
+            <p>@(ViewData["OrgName"] == null ? "" : ViewData["OrgName"])</p>
+            @Html.Hidden("SearchOrgId", ViewData["OrgId"] == null ? "" : ViewData["OrgId"])
+            <span class="token-input-delete-token-facebook">×</span>
+        </li>
+        <li class='token-input-token-facebook @(ViewData["EquipmentCategoryName"] == null ? "hide" : "")' id="ConditionEquipmentCategory">
+            <span class='tit'>设备分类: </span>
+            <p>@(ViewData["EquipmentCategoryName"] == null ? "" : ViewData["EquipmentCategoryName"])</p>
+            @Html.Hidden("SearchEquipmentCategoryId", ViewData["EquipmentCategoryId"] == null ? "" : ViewData["EquipmentCategoryId"])
+            <span class="token-input-delete-token-facebook">×</span>
+        </li>
+        <li class='token-input-token-facebook @(ViewData["ControllerTypeName"] == null ? "hide" : "")' id="ConditionControllerType">
+            <span class='tit'>控制方式: </span>
+            <p>@(ViewData["ControllerTypeName"] == null ? "" : ViewData["ControllerTypeName"])</p>
+            @Html.Hidden("SearchControllerTypeValue", ViewData["ControllerTypeValue"] == null ? "" : ViewData["ControllerTypeValue"])
+            <span class="token-input-delete-token-facebook">×</span>
+        </li>
+        <li class='token-input-token-facebook @(ViewData["RoomName"] == null ? "hide" : "")' id="ConditionRoom">
+            <span class='tit'>放置位置: </span>
+            <p>@(ViewData["RoomName"] == null ? "" : ViewData["RoomName"])</p>
+            @Html.Hidden("SearchRoomId", ViewData["RoomId"] == null ? "" : ViewData["RoomId"])
+            <span class="token-input-delete-token-facebook">×</span>
+        </li>
+       <li class='token-input-token-facebook @(ViewData["EquipmentLabel"] == null ? "hide" : "")' id="ConditionEquipmentLabel">
+            <span class='tit'>部门编号: </span>
+            <p>@(ViewData["EquipmentLabel"] == null ? "" : ViewData["EquipmentLabel"])</p>
+            @Html.Hidden("SearchEquipmentLabel", ViewData["EquipmentLabel"] == null ? "" : ViewData["EquipmentLabel"])
+            <span class="token-input-delete-token-facebook">×</span>
+        </li>
+        <li class='token-input-token-facebook @(ViewData["EquipmentAdminName"] == null ? "hide" : "")' id="ConditionEquipmentAdminName">
+            <span class='tit'>管理员: </span>
+            <p>@(ViewData["EquipmentAdminName"] == null ? "" : ViewData["EquipmentAdminName"])</p>
+            @Html.Hidden("SearchEquipmentAdminName", ViewData["EquipmentAdminName"] == null ? "" : ViewData["EquipmentAdminName"])
+            <span class="token-input-delete-token-facebook">×</span>
+        </li>
+    </ul>
+    <div class="clear-both"></div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $(".panel-condition .token-input-delete-token-facebook").click(function () {
+            $(this).parent().addClass("hide");
+            $(this).parent().find("p").empty();
+            $(this).parent().find("input").val("");
+            IniConditionBox();
+            doLoadEquipmentList(1, perPageSize);
+        });
+        IniConditionBox();
+    });
+
+    function IniConditionBox() {
+        var isShowBox = false;
+        $(".panel-condition .token-input-token-facebook").each(function () {
+            if (!$(this).hasClass("hide"))
+                isShowBox = true;
+        });
+        if (isShowBox) $(".panel-condition").removeClass("hide");
+        else $(".panel-condition").addClass("hide");
+    }
+    function SetCondition(obj, text, value) {
+        if (!text) text = "";
+        if (!value) value = "";
+        if (value.isDefaultGuid()) value = "";
+        if(text != "" && value != "")
+            $(obj).removeClass("hide");
+        else
+            $(obj).addClass("hide");
+        $(obj).find("p").empty().append(text);
+        $(obj).find("input").val(value);
+        IniConditionBox();
+    }
+</script>

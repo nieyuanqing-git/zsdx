@@ -1,0 +1,137 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentGroupPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentGroupPrivilige(User.Identity.Name);
+}
+<div id="divEquipmentGroupEditDialog" style="display:none;"></div>
+<script type="text/javascript">
+    function doSearchEquipmentGroup() {
+        var queryExpression = generateEquipmentGroupQueryExpress();
+        $("#tbEquipmentGroup").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentGroup").datagrid("load", { "queryExpression": queryExpression.trim()});
+    }    
+    var editEquipmentGroupDialog;
+    function doAddOrEditEquipmentGroup(id) {
+        if(editEquipmentGroupDialog) editEquipmentGroupDialog.dialog('destroy');
+        var url = (id != "" ? '@Url.Action("Edit","EquipmentGroup")' : '@Url.Action("Add","EquipmentGroup")') + "?id=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentGroupEditDialog").load(url, function () {
+            $.messager.progress('close');
+            editEquipmentGroupDialog = @(Html.JDialog("divEquipmentGroupEdit")
+                .SetTitle("仪器组信息")
+                .SetIconCls("icon-save")
+                .SetAutoDialog(false)
+                .SetOnClose("editEquipmentGroupDialog.dialog('destroy');return false;")
+                .SetCancelScript("editEquipmentGroupDialog.dialog('destroy');return false;")
+                .SetModal(true)
+                .SetShowOkButton(equipmentGroupPrivilige.IsEnableSave)
+                .SetOkScript("doSaveEquipmentGroup()")
+                .ToMvcString());
+        });
+    }
+    function doEditEquipmentGroup(id) {
+       if(!id || id.trim()==""){
+           id=generateSelectedEquipmentGroupIds();
+           if (!id || id.length == 0) {
+                $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+                return false;
+           }
+            if (id && id.length > 1) {
+                $.messager.show({ title: '提示', msg: "不能多项编辑", showType: 'show' });
+                return false;
+           }
+           id =id.toString();
+       }
+       doAddOrEditEquipmentGroup(id);
+    }
+    function generateSelectedEquipmentGroupIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentGroup").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDeleteEquipmentGroup(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedEquipmentGroupIds().toString() : ids;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","EquipmentGroup")',
+                data: "ids=" + delIds,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchEquipmentGroup();
+                }
+            });
+        });
+        return false;
+    }
+    function doSaveEquipmentGroup() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","EquipmentGroup")',
+            data: $("#frmEquipmentGroup").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearchEquipmentGroup();
+                editEquipmentGroupDialog.dialog('destroy'); 
+            }
+        });
+        return false;
+    }
+     function doValidatesUpLoadFile(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    function ajaxFileUploadGroupImageURL() {
+        var file = $("#fileGroupImageURL").val();
+        if (!doValidatesUpLoadFile(file)) return false;
+        $("#fileGroupImageURL").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadGroupImageURL", "EquipmentGroup")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileGroupImageURL',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.filePath) {
+                    $("#ImageURL").val(data.filePath);
+                    var src = "/" + data.filePath + "?date=" + new Date().getMilliseconds();
+                    $("#imgGroupImageURL").attr("src", src);
+                }
+                else if (data && (data.indexOf("出错") != -1)) {
+                    $("#imgGroupImageURL").attr("src", "");
+                    $("#ImageURL").val("");
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+            },
+            error: function (data, status, e) {
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doCleanGroupImageURL() {
+        $("#imgGroupImageURL").attr("src", "");
+        $("#ImageURL").val("");
+    }
+</script>

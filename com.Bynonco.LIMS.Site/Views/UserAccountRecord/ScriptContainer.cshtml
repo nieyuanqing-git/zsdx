@@ -1,0 +1,25 @@
+﻿@model com.Bynonco.LIMS.Model.UserAccount
+<script type="text/javascript">
+    function doSearchUserAccountRecord() {
+        var startAt = $("#SearchStartAt").datebox("getValue").trim();
+        var endAt = $("#SearchEndAt").datebox("getValue").trim();
+        if (endAt != "") endAt += " 23:59:59";
+        $("#tbUserAccountRecordList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUserAccountRecordList").datagrid("load", { "startAt": startAt, "endAt": endAt });
+        try 
+        {
+            $("#tbUserAccountRecordTotal").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbUserAccountRecordTotal").datagrid("load", { "startAt": startAt, "endAt": endAt });
+        }
+        catch (e) { }
+    }
+    function doUserAccountRecordExportExcel() {
+        var startAt = $("#SearchStartAt").datebox("getValue").trim();
+        var endAt = $("#SearchEndAt").datebox("getValue").trim();
+        if (endAt != "") endAt += " 23:59:59";
+        var url = '@Url.Action("ExportExcel", "UserAccountRecord", new { userAccountId = Model==null ? Guid.Empty : Model.Id})';
+        if (startAt != "") url += "&startAt=" + startAt;
+        if (endAt != "") url += "&endAt=" + endAt;
+        window.open(url, '_blank');
+    }
+</script>

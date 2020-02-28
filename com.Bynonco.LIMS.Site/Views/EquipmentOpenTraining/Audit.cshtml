@@ -1,0 +1,70 @@
+﻿@model IList<com.Bynonco.LIMS.Model.EquipmentOpenTraining>
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divEquipmentOpenTrainingAudit">
+@if (Model != null && Model.Count() > 0)
+{
+    var actionName = ViewContext.RouteData.Values["action"].ToString();
+    var auditUserName = "";
+    var auditRemark = "";
+    switch(actionName)
+    {
+        case "CollegeAudit":
+            auditUserName = "学院";
+            auditRemark = Model[0].CollegeAuditRemark;
+            break;
+        case "ManageAudit":
+            auditUserName = "管理科";
+            auditRemark = Model[0].ManageAuditRemark;
+            break;
+        case "DirectorAudit":
+            auditUserName = "主管处长";
+            auditRemark = Model[0].DirectorAuditRemark;
+            break;   
+    }
+    string ids = "";
+    if (Model.Count() == 1)
+    {
+        ids = Model[0].Id.ToString();
+        @Html.Partial("../EquipmentOpenTraining/ViewInfo", Model[0])
+    }
+    else
+    {
+        auditRemark = "";
+        <table class="edit-table"  style="width:545px;">
+            <tr>
+                <th>培训名称</th>
+                <th>设备名称</th>
+                <th style='width:40px;'>负责人</th>
+                <th style='width:50px;'>联系电话</th>
+                <th>状态</th>
+            </tr>
+        @foreach (var item in Model)
+        {
+            ids += (ids == "" ? "" : ",") + item.Id.ToString();
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Equipment.Name</td>
+                <td style='text-align:center;'>@item.AdminUser.UserName</td>
+                <td style='text-align:center;'>@item.AdminPhone</td>
+                <td style='text-align:center;'>@item.StatusStr</td>
+            </tr>
+        }
+        </table>
+    }
+    <form id="frmEquipmentOpenTrainingAudit" action="#">
+    <input id="Ids" type="hidden" value="@(ids)" name="Ids" />
+    <table class="edit-table"  style="width:545px;">
+        <tr>
+            <th>@(auditUserName)审核备注</th>
+            <td>
+                @Html.TextArea("AuditRemark", auditRemark, new { style = "width:96%;height:50px;" })
+            </td>
+        </tr>
+    </table>
+    </form>
+}
+else
+{
+    <p>没有找到相关设备应用知识培训信息</p>
+}
+</div>

@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function doTipGeneratePreviousWeekNMPAppointmentTimes(id,nmpEquipmentId,tiptype) {
+        var weekIndex = $("#WeekIndex" + id + nmpEquipmentId + tiptype).val();
+        weekIndex = !weekIndex ? 0 : (parseInt(weekIndex) - 1);
+        $("#WeekIndex" + id + nmpEquipmentId + tiptype).val(weekIndex.toString());
+        loadTipNMPAppointmentTimes(id, tiptype);
+    }
+    function doTipGenerateCurWeekNMPAppointmentTimes(id, nmpEquipmentId, tiptype) {
+        $("#WeekIndex" + id + tiptype).val("0");
+        loadTipNMPAppointmentTimes(id, nmpEquipmentId, tiptype);
+    }
+    function doTipGenerateNextWeekNMPAppointmentTimes(id, nmpEquipmentId, tiptype) {
+        var weekIndex = $("#WeekIndex" + id + tiptype).val();
+        weekIndex = !weekIndex ? 0 : (parseInt(weekIndex) + 1);
+        $("#WeekIndex" + id + tiptype).val(weekIndex.toString());
+        loadTipNMPAppointmentTimes(id, nmpEquipmentId, tiptype);
+    }
+    function loadTipNMPAppointmentTimes(id, nmpEquipmentId,tiptype) {
+        var weekIndex = $("#WeekIndex" + id + nmpEquipmentId + tiptype).val();
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("TipAppointmentTimesContainer", "NMP")',
+            data: { "NMPId": id, "NMPEquipmentId": nmpEquipmentId, "WeekIndex": weekIndex ? weekIndex : "0", "TipType": tiptype, "date": new Date().getMilliseconds() },
+            success: function (data) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: "获取预约资源信息出错", showType: 'show' });
+                }
+                else {
+                    $("#divAppointmentTimesContainer" + id + nmpEquipmentId + tiptype).html(data);
+                }
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+</script>
+

@@ -1,0 +1,10 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewTrainningMaterial
+@if(Model != null)
+{
+    var materialNo = ViewData["MaterialNo"] == null ? "" : ViewData["MaterialNo"].ToString() + ". ";
+    var name = Model.Name == "" ? "" : Model.Name;
+    <p style="font-size:14px;font-weight:bold;">@(materialNo + name)</p>
+    <div style="padding:0 15px;">
+        @System.Web.Mvc.MvcHtmlString.Create(Model.ContentHTML)
+    </div>
+}

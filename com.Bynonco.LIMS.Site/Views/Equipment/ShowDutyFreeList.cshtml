@@ -1,0 +1,147 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{      
+    Layout = "~/Views/Shared/_TwoColumnLayout.cshtml";
+    ViewBag.Title = "免税设备";
+    var hotEquipmentList = ViewData["HotEquipmentList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewEquipmentTotal>)ViewData["HotEquipmentList"];
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+}
+@section ImportCssAndJs
+{
+    <style type="text/css">
+    .edit-info .bdmain {margin-right:0;}
+    .search-box .edit-info, .edit-box .edit-info{float:none;}
+    </style>
+    <script type="text/javascript">
+        function IniSubAccordion(objId) {
+            $("#" + objId).find("p.parent-item").click(function () {
+                if ($(this).next().hasClass("news-list")) {
+                    $(this).next().slideToggle("normal");
+                }
+            });
+        }
+        $(function () {
+            $(".accordion").next().hide();
+            $(".accordion").click(function () {
+                $(this).siblings(".accordion").next().slideUp("normal");
+                $(this).siblings(".accordion").removeClass("current");
+                if ($(this).hasClass("current")) { $(this).removeClass("current"); }
+                else { $(this).addClass("current"); }
+                $(this).next().slideToggle("normal");
+                return false;
+            });
+            $("#divEquipmentCategory").slideToggle("normal");
+            $("#divEquipmentCategory").empty();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ListForHome", "EquipmentCategory")',
+                data: "isDutyFree=" + true,
+                success: function (msg) {
+                    $("#divEquipmentCategory").html(msg);
+                    $("#divEquipmentCategory a").click(function () {
+                        var value = $(this).attr("equipmentcategoryid");
+                        var text = $(this).attr("title");
+                        SetCondition($("#ConditionEquipmentCategory"), text, value);
+                        doLoadEquipmentList(1, perPageSize);
+                        return false;
+                    });
+                    //$("#divEquipmentCategory").find(".news-list").css("display", "none");
+                    IniSubAccordion("divEquipmentCategory");
+                }
+            });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ListForHome", "LabOrganization")',
+                data: "isDutyFree=" + true,
+                success: function (msg) {
+                    $("#divOrg").html(msg);
+                    $("#divOrg a").click(function () {
+                        var value = $(this).attr("orgid");
+                        var text = $(this).attr("title");
+                        SetCondition($("#ConditionOrg"), text, value);
+                        doLoadEquipmentList(1, perPageSize);
+                        return false;
+                    });
+                    IniSubAccordion("divOrg");
+                }
+            });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DutyFreeControllerTypeListForHome", "Equipment")',
+                data: "isDutyFree=" + true,
+                success: function (msg) {
+                    $("#divControllerType").html(msg);
+                    $("#divControllerType a").click(function () {
+                        var value = $(this).attr("controllertypevalue");
+                        var text = $(this).attr("title");
+                        SetCondition($("#ConditionControllerType"), text, value);
+                        doLoadEquipmentList(1, perPageSize);
+                        return false;
+                    });
+                    IniSubAccordion("divControllerType");
+                }
+            });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("RoomListForHome", "LabOrganization")',
+                data: "isDutyFree=" + true,
+                success: function (msg) {
+                    $("#divRoom").html(msg);
+                    $("#divRoom a").click(function () {
+                        var value = $(this).attr("roomid");
+                        var text = $(this).attr("title");
+                        SetCondition($("#ConditionRoom"), text, value);
+                        doLoadEquipmentList(1, perPageSize);
+                        return false;
+                    });
+                    IniSubAccordion("divRoom");
+                }
+            });
+
+        });
+        function doSearch() {
+            var topEquipmentName = $("#HomeSearchEquipmentName").val();
+            SetCondition($("#ConditionEquipmentName"), topEquipmentName, topEquipmentName);
+            doLoadEquipmentList(1, perPageSize);
+        }
+    </script>
+}
+@section MainLeft
+{
+    <a href="javascript:;" class="accordion current"><h2 class="title">设备分类</h2></a>
+    <div class="content-box" id="divEquipmentCategory" style='padding-bottom:10px;'></div>
+    <a href="javascript:;" class="accordion"><h2 class="title">组织机构</h2></a>
+    <div class="content-box" id="divOrg" style='padding-bottom:10px;'></div>
+    <a href="javascript:;" class="accordion"><h2 class="title">控制方式</h2></a>
+    <div class="content-box" id="divControllerType" style='padding-bottom:10px;'></div>
+    <a href="javascript:;" class="accordion"><h2 class="title">放置地点</h2></a>
+    <div class="content-box" id="divRoom" style='padding-bottom:10px;'></div>
+}
+@section MainRight
+{
+    <div class="home-search-box">
+        <div>
+            <input type="text" value="" class="easyui-validatebox textinp validatebox-text search-input" id="HomeSearchEquipmentName" /> 
+            <a class="botton" href="#" onclick="doSearch();return false;">搜  索</a>
+            <a class="search-more" href="@Url.Action("SearchAdvanced", "Equipment", routeCurrentXPathValue)" >高级搜索</a>
+        </div>
+        <div class="search-hot-box">
+           @* <span class='search-title'>热门搜索:</span>
+            @if (hotEquipmentList != null && hotEquipmentList.Count() > 0)
+            {
+                for (int i = 0; i < hotEquipmentList.Count() && i < 4; i++)
+                {
+                    var item = hotEquipmentList[i];
+                    var url = Url.Action("Show", "Equipment") + "?Id=" + item.Id;
+                    <a href='@url' title='@item.EquipmentName'>@ShortcutStringUtility.GetSubString(item.EquipmentName, 20, "")</a>
+                }
+            }*@
+        </div>
+    </div>
+    <div class="clear-both"></div>
+
+    <div class="content-box" style="background:none;padding:0;">
+        @Html.Partial("../Equipment/PaginationDutyFreeListContainer")
+    </div>
+}

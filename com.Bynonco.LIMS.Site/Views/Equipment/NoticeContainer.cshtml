@@ -1,0 +1,85 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+@{
+    Layout = ViewBag.Layout;
+    var equipmentPrivilige = Model == null ?
+    com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+    com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.Id);
+}
+<div>@Html.Partial("NoticeList")</div>    
+<div id="divEquipmentNoticeDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditEquipmenNotice(){
+        var selectedRow = $("#tbEquipmentNoticeList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditEquipmentNotice(selectedRow.Id);
+    }
+    function doAddOrEditEquipmentNotice(id) {
+        var url = '@Url.Action("EditNotice","Equipment")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divEquipmentNoticeDialog").load(url, function (data) {
+            doEquipmentNoticeDialog();
+        })
+        return false;
+    }
+    var equipmentNoticeDialog;
+    function doEquipmentNoticeDialog() {
+        if (equipmentNoticeDialog) {
+            equipmentNoticeDialog.dialog("destroy");
+        }
+        equipmentNoticeDialog =  @Html.JDialog("divEquipmentNoticeEdit").SetTitle("公告信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentNoticeDialog.dialog('close');return false;").SetModal(true).SetOkScript(equipmentPrivilige.IsEnableSaveNotice ? "doSaveEuipmenNotice();return false;" : "").ToMvcString();
+    }
+    function doSaveEuipmenNotice() {
+        var equipmentId= $("#EquipmentId").val();
+        var attchmentFiles =  generateAttachmentFiles();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveNotice","Equipment")',
+            data: $("#frmEquipmentNoticeEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId + "&AttachmentFiles=" + attchmentFiles,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentNoticeDialog.dialog('close');
+                doSearch();
+            }
+        });
+    }
+    function doDeleteEquipmentNotice(){
+        var selectedRows = $('#tbEquipmentNoticeList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteNotice","Equipment")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doSearch();
+                    }
+                });
+             });
+        }
+    }
+    function doSearch() {
+        $("#tbEquipmentNoticeList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentNoticeList").datagrid("reload");
+        return false;
+    }
+</script>

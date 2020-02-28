@@ -1,0 +1,7 @@
+﻿@model com.Bynonco.LIMS.Model.SJ3
+@Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+<div class="layout-center-full">
+    <div class="edit-box">
+        @Html.Partial("../Statistics/SJ3Edit",Model)
+    </div>
+</div>

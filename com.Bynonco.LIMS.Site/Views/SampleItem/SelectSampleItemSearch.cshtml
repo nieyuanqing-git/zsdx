@@ -1,0 +1,90 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+}
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var name = $("#txtQueryName").val();
+        if (name.trim() != "") {
+            queryExpression += "Name∽\"" + name.trim() + "\"";
+        }
+
+        var equipmentName = $("#txtQueryEquipmentName").val();
+        if (equipmentName.trim() != "") {
+            queryExpression += "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+
+        var isStop = $("#cbxQueryIsStop").combobox("getValue");
+        if (isStop.trim() != "") {
+            queryExpression += (queryExpression == "" ? "IsStop=" + isStop : "*IsStop=" + isStop);
+        }
+
+        var inputStr = $("#txtQueryInputStr").val();
+        if (inputStr.trim() != "") {
+            queryExpression += (queryExpression == "" ? "InputStr∽\"" + inputStr.trim() + "\"" : "*InputStr∽\"" + inputStr.trim() + "\"");
+        }
+
+        var selectedSampleStatus = $("#cbxQuerySampleStatus").combobox("getValues");
+        var selectedSampleStatusIds = selectedSampleStatus.toString().split(",");
+        if (selectedSampleStatusIds.length > 1 || (selectedSampleStatusIds[0].trim() != "" && selectedSampleStatusIds.length == 1 && selectedSampleStatusIds[0] != "00000000-0000-0000-0000-000000000000")) {
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedSampleStatusIds.length; i++)
+                queryExpression += (i == 0 ? "SampleStatusId=\"" + selectedSampleStatusIds[i] + "\"" : "+SampleStatusId=\"" + selectedSampleStatusIds[i] + "\"");
+            queryExpression += ")";
+        }
+
+        var selectedOrganizations = $("#cbxQueryOrganization").combotree("getValues");
+        var selectedOrganizationIds = selectedOrganizations.toString().split(",");
+        if (selectedOrganizationIds.length > 1 || (selectedOrganizationIds[0].trim() != "" && selectedOrganizationIds.length == 1 && selectedOrganizationIds[0] != "00000000-0000-0000-0000-000000000000")) {
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedOrganizations.length; i++)
+                queryExpression += (i == 0 ? "OrganizationId=\"" + selectedOrganizationIds[i] + "\"" : "+OrganizationId=\"" + selectedOrganizationIds[i] + "\"");
+            queryExpression += ")";
+        }
+        return queryExpression;
+    }
+
+    function doSelectedQueryReset() {
+        $("#txtQueryName").val("");
+        $("#txtQueryEquipmentName").val("");
+        $("#txtQueryInputStr").val("");
+        $("#cbxQueryIsStop").val("");
+        $("#cbxQuerySampleStatus").combobox("clear");
+        $("#cbxQueryOrganization").combotree("clear");
+        return false;
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>@customerOrgName</label>
+        @Html.JComboTree("cbxQueryOrganization").SetUrl(Url.Action("GetOrganizationList", "NewOrganization")).SetPanelHeight(300).SetWidth(232).SetRequired(false).ToMvcString()
+    </li>
+     <li>
+        <label>形态名称</label>
+        @Html.JComboBox("cbxQuerySampleStatus").SetWidth(232).SetUrl(Url.Action("GetSampleStatusList", "SampleStatus")).SetTextField("text").SetValueField("id").SetMutiSelect(true).ToMvcString()
+    </li>
+    <li>
+        <label>项目名称</label>
+        @Html.JValidateBox("txtQueryName").SetHeight(20).SetWidth(230).ToMvcString()
+    </li>
+    <li>
+        <label>是否停用</label>
+        @Html.JComboBox("cbxQueryIsStop").SetEditable(false).SetWidth(50).SetData(ViewData["IsStopJson"]).ToMvcString()
+    </li>
+    <li>
+        <label>助记符</label>
+        @Html.JValidateBox("txtQueryInputStr").SetHeight(20).SetWidth(230).ToMvcString()
+    </li>
+    
+    <li class="button">
+        @Html.JLinkButton("btnSelectSampleItemSearch", "查询").SetOnclick("doSelectedSampleItemSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnSelectSampleItemReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnSelectSampleItemClose", "关闭").SetOnclick("doSelectedQueryReset();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

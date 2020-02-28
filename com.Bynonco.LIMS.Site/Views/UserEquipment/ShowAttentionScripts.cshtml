@@ -1,0 +1,89 @@
+﻿ <script type="text/javascript">
+     function doShowIcon() {
+         $(".panel-header .icon-icon-menu").addClass("icon-icon-menu-current");
+         $(".panel-header .icon-list-menu").removeClass("icon-list-menu-current");
+
+         $(".Icon-EquipmentList").removeClass("hide");
+         $(".List-EquipmentList").addClass("hide");
+     }
+     function doShowList() {
+         $(".panel-header .icon-icon-menu").removeClass("icon-icon-menu-current");
+         $(".panel-header .icon-list-menu").addClass("icon-list-menu-current");
+         $(".Icon-EquipmentList").addClass("hide");
+         $(".List-EquipmentList").removeClass("hide");
+     }
+     var perPageSize = 10;
+     function doSelectPageTop(pageNumber, pageSize) {
+         var pageNumber = $('#PageEquipmentListTop').pagination("options").pageNumber;
+         var pageSize = $('#PageEquipmentListTop').pagination("options").pageSize;
+         doLoadEquipmentList(pageNumber, pageSize);
+         return false;
+     }
+     function doSelectPage(pageNumber, pageSize) {
+         var pageNumber = $('#PageEquipmentList').pagination("options").pageNumber;
+         var pageSize = $('#PageEquipmentList').pagination("options").pageSize;
+         doLoadEquipmentList(pageNumber, pageSize);
+         return false;
+     }
+     function GetSort() {
+         if (!$("div.sort-item.current")) return "";
+         var sortname = $("div.sort-item.current").attr("sortname");
+         var sort = $("div.sort-item.current").hasClass("datagrid-sort-desc") ? "desc" : "asc";
+         return "&sort=" + sortname + "&order=" + sort;
+     }
+     function GetShowType() {
+         if ($(".panel-header .icon-list-menu-current").length > 0)
+             return "&ShowType=List";
+         return "&ShowType=Icon";
+     }
+     function GetIsManage() {
+         var isManage = true;
+         if ($("#btnIsManage").length == 0) {
+             isManage = false;
+         }
+         else {
+             var obj_checked = $("#btnIsManage").find(".icon-checked");
+             if (obj_checked.length > 0) isManage = false;
+         }
+         return "&isManage=" + isManage;
+     }
+     function doLoadEquipmentList(pageNumber, pageSize) {
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "Post",
+             url: '@Url.Action("AttentionPaginationList", "Equipment")',
+             data: $("#frmSearchCondition").serialize() + GetSort() + GetShowType()+ GetIsManage()+ "&page=" + pageNumber + "&rows=" + pageSize + "&date=" + new Date().getMilliseconds(),
+             success: function (data) {
+                 $.messager.progress('close');
+                 if (data && data.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: "获取设备信息出错", showType: 'show' });
+                 }
+                 else {
+                     $("#EquipmentList").html(data);
+                 }
+                 ajaxloadsuccess();
+                 return false;
+             }
+         });
+     }
+     function doShowDetailInfo(equipmentId, equipmentName) {
+        var url = '@Url.Action("Detail", "Equipment")' + "?id=" + equipmentId + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+         return false;
+     }
+     $(function () {
+         doLoadEquipmentList(1, perPageSize);
+         $(".sort-item").click(function () {
+             var sortclass = "datagrid-sort-desc";
+             if ($(this).hasClass("datagrid-sort-desc"))
+                 sortclass = "datagrid-sort-asc";
+             $(this).removeClass("datagrid-sort-asc");
+             $(this).removeClass("datagrid-sort-desc");
+             $(this).addClass(sortclass);
+             $(this).addClass("current");
+             $(this).siblings().removeClass("current");
+             doLoadEquipmentList(1, perPageSize);
+         });
+     });
+     
+</script>

@@ -1,0 +1,65 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divArticleRelationHelpDialog" style="display:none"></div>
+<script type="text/javascript">
+    function generateSelectedArticleRelationIds() {
+        var ids = [];
+        var rows = $("#tbArticleRelationList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDeleteArticleRelation(ids) {
+        var url = '@Url.Action("Delete", "ArticleRelation")';
+        doAuditOrDeleteArticleRelation(ids, url, "删除");
+    }
+    function doAuditArticleRelationPass(ids) { 
+        var url = '@Url.Action("AuditPass", "ArticleRelation")';
+        doAuditOrDeleteArticleRelation(ids, url, "审核通过");
+    }
+    function doAuditArticleRelationReject(ids) {
+        var url = '@Url.Action("AuditReject", "ArticleRelation")';
+        doAuditOrDeleteArticleRelation(ids, url, "审核不通过");
+    }
+    function doAuditOrDeleteArticleRelation(ids, url,operaName) {
+        if(!operaName || operaName.trim() == "") operaName = "操作";
+        var operaIds = ids == null || ids.trim() == "" ? generateSelectedArticleRelationIds().toString() : ids;
+        if (operaIds == null) {
+            $.messager.show({ title: '提示', msg: "请选择要" + operaName + "的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认' + operaName + '选中项?', function (r) {
+            if (!r) return;
+            $.ajax({
+                url: url,
+                data: { "ids": operaIds },
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: operaName + "成功", showType: 'show' });
+                    doSearchArticleRelation("");
+                }
+            });
+        });
+        return false;
+    }
+    var viewArticleRelationHelpDialog;
+    function doViewArticleRelationHelpDialog() {
+        if (viewArticleRelationHelpDialog) {
+            viewArticleRelationHelpDialog.dialog("destroy");
+        }
+        viewArticleRelationHelpDialog = @Html.JDialog("divArticleRelationHelp").SetTitle("帮助说明").SetIconCls("icon-help").SetAutoDialog(false).SetShowOkButton(false).SetCancelScript("viewArticleRelationHelpDialog.dialog('destroy');return false;").SetModal(true).ToMvcString();
+    }
+    function doViewArticleRelationHelp(){
+         var url = '@Url.Action("Help","ArticleRelation")';
+        $("#divArticleRelationHelpDialog").load(url,function(){
+            doViewArticleRelationHelpDialog();
+        })
+        return false;
+    }
+</script>
+

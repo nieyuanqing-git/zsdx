@@ -1,0 +1,85 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Hidden("NMPId", Model == null ? "" : Model.Id.ToString())
+@{var nmpPrivilige = Model!= null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.Id);}
+<div>@Html.Partial("AppointmentPriorityList")</div>    
+<div id="divAppointmentPriorityDialog" style="display:none"></div>
+<div style="display:none">@Html.Partial("../User/SelectUserNoPagingContainer")</div>
+<script type="text/javascript">
+    function doEditAppointmentPriority(){
+        var selectedRow = $("#tbAppointmentPriorityList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditAppointmentPriority(selectedRow.Id);
+    }
+    function doAddOrEditAppointmentPriority(id) {
+        var nmpId= $("#NMPId").val();
+        var url = '@Url.Action("EditAppointmentPriority","NMP")' + "?id=" + id + "&date=" + new Date().getMilliseconds() + "&NMPId=" + nmpId;
+        $("#divAppointmentPriorityDialog").load(url, function (data) {
+            doAppointmentPriorityDialog();
+        });
+        return false;
+    }
+    var appointmentPriorityDialog;
+    function doAppointmentPriorityDialog() {
+        if (appointmentPriorityDialog) {
+            appointmentPriorityDialog.dialog("destroy");
+        }
+        appointmentPriorityDialog =  @Html.JDialog("divAppointmentPriorityEdit").SetTitle("用户优先权信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("appointmentPriorityDialog.dialog('destroy');return false;").SetModal(true).SetOkScript(nmpPrivilige.IsEnableSaveAppointmentPriority ? "doSaveAppointmentPriority();return false;" : "alter('无操作权限');").ToMvcString();
+    }
+    function doSaveAppointmentPriority() {
+        var nmpId= $("#NMPId").val();
+        var workdays = getWorkDays();
+        var workTimes = getSelectedWorkTimeIds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveAppointmentPriority","NMP")',
+            data: $("#frmAppointmentPriorityEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&NMPId=" + nmpId + "&WorkDays=" + workdays + "&WorkTimes=" + workTimes,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                appointmentPriorityDialog.dialog('destroy');
+                doAppointmentPrioritySearch();
+            }
+        });
+    }
+    function doDeleteAppointmentPriority(){
+        var selectedRows = $('#tbAppointmentPriorityList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteAppointmentPriority","NMP")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                             $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doAppointmentPrioritySearch();
+                    }
+                });
+            });
+        }
+    }
+    function doAppointmentPrioritySearch() {
+        $("#tbAppointmentPriorityList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbAppointmentPriorityList").datagrid("reload");
+        return false;
+    }
+</script>

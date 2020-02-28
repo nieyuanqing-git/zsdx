@@ -1,0 +1,23 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+      var equipmenApplytPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentApplyPrivilige(User.Identity.Name);
+      var dataGrid = Html.JDataGrid("tbEquipmentApplyIconList")
+        .SetWidth(650)
+        .SetHeight(350)
+        .SetUrl(Url.Action("GetIconData", "EquipmentApply", new { id = Model != null ? Model.Id.ToString() : "" }))
+        .SetShowDeleteButton(equipmenApplytPrivilige.IsEnableDeleteIcon)
+        .AddCostomerAttribute("FixWidth", "true");
+        if (equipmenApplytPrivilige.IsEnableDeleteIcon)
+        {
+            dataGrid.SetDeleteScript("doDeleteIcon();");
+        }
+        dataGrid.SetShowPrintButton(false);
+        dataGrid.SetPagination(false);
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Pic").SetWidth(60).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "IconName").SetWidth(252).SetAlign(Align.left));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "IconExt").SetWidth(50).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("大小", "IconSize").SetWidth(150).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否默认", "IsDefaultStr").SetWidth(77).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

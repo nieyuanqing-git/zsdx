@@ -1,0 +1,55 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var achievementPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAchievementPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbPublicationList")
+        .SetUrl(Url.Action("GetPublicationList", "Achievement"))
+        .SetHeight(650)
+        .SetSortName("CreateTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("论著名称", "PublicationName").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("作者姓名", "UserName").SetWidth(80).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("角色", "PublicationRoleName").SetWidth(80).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("作者排序", "AuthorNo").SetWidth(80).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("论著类型", "PublicationTypeName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("著作总字数", "TotalWords").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("撰写字数(千字)", "MyWords").SetWidth(90).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("出版单位", "PublishingHouse").SetWidth(150).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("出版号", "PublishingNum").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("出版时间", "PublishingTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("单位", "Department").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(80).SetAlign(Align.center));
+    
+    dataGrid.SetShowAddButton(achievementPrivilige.IsEnablePublicationAdd);
+    if (achievementPrivilige.IsEnablePublicationAdd)
+    {
+        dataGrid.SetAddScript("doAddPublication()");
+    }
+    dataGrid.SetShowEditButton(achievementPrivilige.IsEnablePublicationEdit);
+    if (achievementPrivilige.IsEnablePublicationEdit)
+    {
+        dataGrid.SetEditScript("doEditPublication('')");
+        dataGrid.SetOnDblClickRow("doEditPublication(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(achievementPrivilige.IsEnablePublicationDelete);
+    if (achievementPrivilige.IsEnablePublicationDelete)
+    {
+        dataGrid.SetDeleteScript("doDeletePublication('');");
+    }
+    dataGrid.SetShowExpertButton(achievementPrivilige.IsEnablePublicationExpert);
+    if (achievementPrivilige.IsEnablePublicationExpert)
+    {
+        dataGrid.SetExpertScript("doPublicationExportExcel();");
+    }
+}
+@(dataGrid.ToMvcString())

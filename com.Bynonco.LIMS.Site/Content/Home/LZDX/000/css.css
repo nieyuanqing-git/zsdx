@@ -1,0 +1,18 @@
+﻿/*------------ banner-box ------------------------*/
+.banner-box{background: url("images/banner.jpg") no-repeat scroll left top #FFFFFF; height:120px;margin-top:25px;}
+/*------------ menu-box ------------------------*/
+.menu-box .home-menu a.fg-button{margin:0;border-right: 1px solid #73a7d7;border-left:1px solid #134985;}
+.menu-box .home-menu a.first{border-left:0;}
+.menu-box .home-menu a.last{border-right:0;}
+
+.college-box { height: 462px;}
+.college-box .college-list{line-height:29px;}
+.college-box .college-list li{background:url("images/bg-menu-right.png") no-repeat scroll 10px 8px transparent;}
+.college-box .college-list li.current{background:url("images/bg-menu-right-current.png") no-repeat scroll 10px 8px #FFFFFF;}
+.quick-link-box{ height: 138px;background:url("images/bg-biue-box.gif") no-repeat scroll left top transparent;}
+.quick-link-sample{display:none;}
+.quick-link-appointment{display:none;}
+
+.main-box-left h2.title-gray a.current, .main-box-center h2.title-gray a.current, .main-box-right h2.title-gray a.current {
+    background: url("images/bg-title-current.gif") repeat-x scroll left top transparent;
+}

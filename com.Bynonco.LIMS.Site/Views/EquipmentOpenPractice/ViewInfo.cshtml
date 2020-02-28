@@ -1,0 +1,165 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPractice
+<script type="text/javascript">
+    function changeTag(obj, tagId) {
+        $(".tag-box").addClass("hide");
+        $(".tabs li").removeClass("tabs-selected");
+        $(obj).parent().addClass("tabs-selected");
+        $("#" + tagId).removeClass("hide");
+        return false;
+    }
+</script>
+<style type="text/css">
+    .tag-box {
+        height: 500px;
+    }
+</style>
+<div id="divEquipmentOpenPracticeView"  style="width:620px;">
+    @if (Model != null)
+    {
+    <ul style="border-bottom:0;background-color:#fff;" class="tabs">
+        <li class="tabs-selected"><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divBasicInfo');"><span class="tabs-title">基本信息</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divExperienceInfo')"><span class="tabs-title">研究经历</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divTeachInfo')"><span class="tabs-title">指导教师</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divMememberInfo')"><span class="tabs-title">项目成员</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divEquipmentInfo')"><span class="tabs-title">所需仪器</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divMaterialInfo')"><span class="tabs-title">所需耗材</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divAuditInfo')"><span class="tabs-title">审核意见</span><span class="tabs-icon"></span></a></li>
+    </ul>
+    <div style='overflow-y:auto;overflow-x:hidden;' id='divBasicInfo' class='tag-box'>
+        <table  class="edit-table"  style="width:550px;">
+        <tr>
+            <th style='width:80px;'>所属学期</th>
+            <td>@Model.Semester.Name</td>
+        </tr>
+        <tr>
+            <th>项目名称</th>
+            <td>@Model.Name</td>
+        </tr>
+        <tr>
+            <th>申请人</th>
+            <td>@(Model.ApplyUser == null ? "" : Model.ApplyUser.Name)</td>
+        </tr>
+        <tr>
+            <th>申请理由</th>
+            <td>@(Model.ApplyReason)</td>
+        </tr>
+        <tr>
+            <th>研究方案</th>
+            <td>@(new HtmlString(Model.ApplyScheme))</td>
+        </tr>
+        <tr>
+            <th>状态</th>
+            <td>@(Model.StatusStr)</td>
+        </tr>
+    </table>
+    </div>
+    <div style='max-height:550px;overflow-y:auto;overflow-x:hidden;' id='divExperienceInfo' class='tag-box hide'>
+        <table  class="edit-table"  style="width:550px;">
+             <tr>
+                <th>时间</th>
+                <th>实践(研究内容)</th>
+                <th>取得的成果</th>
+            </tr>
+            @if (Model != null && Model.EquipmentOpenPracticeExperienceList != null && Model.EquipmentOpenPracticeExperienceList.Count() > 0)
+            {
+                foreach (var item in Model.EquipmentOpenPracticeExperienceList)
+                {
+                    @Html.Partial("../EquipmentOpenPractice/ExperienceInfo", item)
+                }
+            }
+        </table>
+    </div>
+    <div style='max-height:550px;overflow-y:auto;overflow-x:hidden;' id='divTeachInfo' class='tag-box hide'>
+        <table  class="edit-table"  style="width:550px;">
+             <tr>
+                <th>导师姓名</th>
+                <th>导师工号</th>
+                <th>项目中的指导职责</th>
+                <th>电话</th>
+            </tr>
+            @if (Model != null && Model.EquipmentOpenPracticeTeacherList != null && Model.EquipmentOpenPracticeTeacherList.Count() > 0)
+            {
+                foreach (var item in Model.EquipmentOpenPracticeTeacherList)
+                {
+                    @Html.Partial("../EquipmentOpenPractice/TeacherInfo", item)
+                }
+            }
+        </table>
+    </div>
+    <div style='max-height:550px;overflow-y:auto;overflow-x:hidden;' id='divMememberInfo' class='tag-box hide'>
+        <table  class="edit-table"  style="width:550px;">
+             <tr>
+                <th>姓名</th>
+                <th>成员学号</th>
+                <th>项目中的分工</th>
+            </tr>
+            @if (Model != null && Model.EquipmentOpenPracticeMemberList != null && Model.EquipmentOpenPracticeMemberList.Count() > 0)
+            {
+                foreach (var item in Model.EquipmentOpenPracticeMemberList)
+                {
+                    @Html.Partial("../EquipmentOpenPractice/MemberInfo", item)
+                }
+            }
+        </table>
+    </div>
+    <div style='max-height:550px;overflow-y:auto;overflow-x:hidden;' id='divEquipmentInfo' class='tag-box hide'>
+        <table  class="edit-table"  style="width:550px;">
+             <tr>
+                <th>仪器设备名称</th>
+                <th>仪器所在学院</th>
+                <th>所需机时</th>
+                <th>已使用机时</th>
+                <th>预计金额</th>
+                <th>已使用金额</th>
+            </tr>
+            @if (Model != null && Model.EquipmentOpenPracticeEquipmentList != null && Model.EquipmentOpenPracticeEquipmentList.Count() > 0)
+            {
+                foreach (var item in Model.EquipmentOpenPracticeEquipmentList)
+                {
+                    @Html.Partial("../EquipmentOpenPractice/EquipmentInfo", item)
+                }
+            }
+        </table>
+    </div>
+    <div style='max-height:550px;overflow-y:auto;overflow-x:hidden;' id='divMaterialInfo' class='tag-box hide'>
+        <table  class="edit-table"  style="width:550px;">
+             <tr>
+                <th>材料名称</th>
+                <th>预计金额</th>
+            </tr>
+            @if (Model != null && Model.EquipmentOpenPracticeMaterialList != null && Model.EquipmentOpenPracticeMaterialList.Count() > 0)
+            {
+                foreach (var item in Model.EquipmentOpenPracticeMaterialList)
+                {
+                    @Html.Partial("../EquipmentOpenPractice/MaterialInfo", item)
+                }
+            }
+        </table>
+    </div>
+    <div style='max-height:550px;overflow-y:auto;overflow-x:hidden;' id='divAuditInfo' class='tag-box hide'>
+        <table  class="edit-table"  style="width:550px;">
+         @if (Model.TeacherAuditUser != null)
+         {
+            <tr>
+                <th style='width:80px;'>指导教师审核</th>
+                <td>@(Model.TeacherAuditUser.UserName + " [" + (Model.TeacherAuditTime.HasValue ? Model.TeacherAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "") + "]" + (string.IsNullOrWhiteSpace(Model.TeacherAuditRemark) ? "" : ":" + Model.TeacherAuditRemark))</td>
+            </tr>
+         }
+        @if (Model.CollegeAuditUser != null)
+        {
+             <tr>
+                <th style='width:80px;'>学院审核</th>
+                <td>@(Model.CollegeAuditUser.UserName + " [" + (Model.CollegeAuditTime.HasValue ? Model.CollegeAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "") + "]" + (string.IsNullOrWhiteSpace(Model.CollegeAuditRemark) ? "" : ":" + Model.CollegeAuditRemark))</td>
+            </tr>
+        }
+        @if (Model.ManageAuditUser != null)
+        {
+            <tr>
+                <th style='width:80px;'>实管处审核</th>
+                <td>@(Model.ManageAuditUser.UserName + " [" + (Model.ManageAuditTime.HasValue ? Model.ManageAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "") + "]" + (string.IsNullOrWhiteSpace(Model.ManageAuditRemark) ? "" : ":" + Model.ManageAuditRemark))</td>
+            </tr>
+        }
+        </table>
+    </div>
+    }
+</div>

@@ -1,0 +1,56 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateWaterControlCostQueryExpress() {
+        var queryExpression = "";
+        var name = $("#SearchName").val().trim();
+        if (name != "") {
+            queryExpression = "(UserName∽\"" + name.trim() + "\")";
+        }
+        var winName = $("#WINNAME").val().trim();
+        if (winName != "") {
+            queryExpression = "(WINNAME∽\"" + winName.trim() + "\")";
+        }
+        var beginAtStart = $("#SearchBeginAtStart").datebox("getValue").trim();
+        if (beginAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DATETIME>\"" + beginAtStart + "\"";
+        }
+        var beginAtEnd = $("#SearchBeginAtEnd").datebox("getValue").trim();
+        if (beginAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DATETIME<\"" + beginAtEnd + "\"";
+        }  
+        return queryExpression;
+    }
+    function doReset() {
+        $("#SearchName").val("");
+        $("#WINNAME").val("");
+        $("#SearchBeginAtStart").val(""); 
+        $("#SearchBeginAtEnd").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>中文名称</label>
+        @Html.JValidateBox("SearchName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>       
+    <li>
+        <label>终端机</label>
+        @Html.JValidateBox("WINNAME").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>开始时间</label>
+        @Html.JDateTimePicker("SearchBeginAtStart").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchBeginAtEnd").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnWaterControlCostSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnWaterControlCostReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnWaterControlCostClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,32 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@{    
+    var userId = ViewData["PayerId"] == null ? Guid.Empty : Guid.Parse(ViewData["PayerId"].ToString());
+    var dataGrid = Html.JDataGrid("tbCostDeductPayerStatistics")
+    .SetUrl(Url.Action("GetMyCostDeductStatisticsList", "CostDeduct"))
+    .AddQueryParam("queryExpression",ViewData["queryExpression"]==null ? "" : ViewData["queryExpression"].ToString().Trim())
+    .SetHeight(120)
+    .SetPagination(false)
+    .SetSingleSelect(true)
+    .SetMutiSelect(false)
+    .SetShowSearchButton(false)
+    .SetShowPrintButton(false)
+    .SetShowRefreshButton(false)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "PayerId").SetHidden(true))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总使用次数", "UsedCount").SetWidth(85).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总实际用时<br />(小时)", "UsedHourStr").SetWidth(85).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总计费时长<br />(小时)", "CalcDurationStr").SetWidth(85).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总费用<br />(元)", "TotalCurrencyStr").SetWidth(85).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总存款(元)", "DepositSumStr").SetWidth(90).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("帐户余额(元)", "AccountCurrencySumStr").SetWidth(90).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总存款<br />(真实币/元)", "DepositRealSumStr").SetWidth(90).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总存款<br />(虚拟币/元)", "DepositVirtualSumStr").SetWidth(90).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("耗材存款<br />(真实币/元)", "MaterialDepositSumStr").SetWidth(90).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开放基金<br />(真实币/元)", "OpenFundDepositSumStr").SetWidth(90).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("帐户余额<br />(真实币/元)", "RealCurrencyStr").SetWidth(100).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("帐户余额<br />(虚拟币/元)", "VirtualCurrencyStr").SetWidth(100).SetAlign(Align.center).SetSortable(false))
+    .AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowViewCostDeductEquipmentList('" + userId .ToString() + "');", IconCls = "icon-eye", Id = "btnShowViewCostDeductEquipmentList", Text = "查看扣费记录" })
+    .AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowViewCostDeductEquipmentChartColumn('" + userId.ToString() + "');", IconCls = "icon-chartbar", Id = "btnShowViewCostDeductEquipmentChartColumn", Text = "柱形图" })
+    .AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowViewCostDeductEquipmentChartPie('" + userId.ToString() + "');", IconCls = "icon-chartpie", Id = "btnShowViewCostDeductEquipmentChartPie", Text = "饼形图" });
+}
+@(dataGrid.ToMvcString()) 

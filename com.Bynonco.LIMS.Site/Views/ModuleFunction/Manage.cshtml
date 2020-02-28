@@ -1,0 +1,193 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    @Html.Partial("../ModuleFunction/List")
+</div>
+<div id="divModuleFunctionDialog" style="display:none"></div>
+<div id="divChangeParentDialog" style="display:none"></div>
+
+<script type="text/javascript">
+    $(function(){
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+    });
+    function doOnloadTreeSuccess(){
+        $.messager.progress('close');
+    }
+    function doOnloadTreeError(){
+        $.messager.progress('close');
+        $.messager.show({ title: '警告', msg: '数据加载失败,请刷新重试.', showType: 'show' });
+    }
+    function doSearch() {
+        $('#tbModuleFunctionList').treegrid('loadData', { total: 0, rows: [] });
+        $("#tbModuleFunctionList").treegrid("reload");
+        return false;
+    }
+    var moduleFunctionDialog;
+    function doModuleFunctionDialog() {
+        if (moduleFunctionDialog) {
+            moduleFunctionDialog.dialog("destroy");
+        }
+        moduleFunctionDialog =  @Html.JDialog("divModuleFunctionEdit").SetTitle("模块操作信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("moduleFunctionDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveModuleFunction();").ToMvcString();
+    }
+    function doAddOrEditModuleFunction(id){
+        var url = '@Url.Action("Edit","ModuleFunction")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divModuleFunctionDialog").load(url,function(){
+            $.messager.progress('close');
+            chgIco();
+            doModuleFunctionDialog();
+        })
+        return false;
+    }
+    function doAddModuleFunction(id) {
+       doAddOrEditModuleFunction(id);
+    }
+    function doEditModuleFunction(id) {
+       if(!id || id.trim()==""){
+           var selectedModuleFunction = $("#tbModuleFunctionList").treegrid("getSelected");
+           if(!selectedModuleFunction || selectedModuleFunction.Id=="" || selectedModuleFunction.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择模块操作", showType: 'show' });
+              return false;
+           }
+           id = selectedModuleFunction.Id;
+       }
+       doAddOrEditModuleFunction(id);
+    }
+
+    function doSaveModuleFunction(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        if ($("#ModuleFunctionType").combobox("getValue").trim() == "") {
+          $.messager.show({ title: '提示', msg: "类型为空", showType: 'show' });
+          return false;
+        }
+        if($("#ControllerName").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "Controller名称为空", showType: 'show' });
+          return false;
+        }
+        if($("#ActionName").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "Action名称为空", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("Save","ModuleFunction")',
+            data: $("#frmModuleFunctionEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                moduleFunctionDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteModuleFunction(id){
+        if(!id || id.trim() == ""){
+              var selectedModuleFunction = $("#tbModuleFunctionList").treegrid("getSelected");
+                if(!selectedModuleFunction || selectedModuleFunction.Id.trim() == "" || selectedModuleFunction.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedModuleFunction.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "ModuleFunction")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpath(xPath,compareTarget){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "ModuleFunction")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false;
+   }
+   var moduleFunctionChangeParentDialog;
+    function doModuleFunctionChangeParentDialog() {
+        if (moduleFunctionChangeParentDialog) {
+            moduleFunctionChangeParentDialog.dialog("destroy");
+        }
+        moduleFunctionChangeParentDialog =  @Html.JDialog("divModuleFunctionChangeParent").SetTitle("模块调整父级关系").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("moduleFunctionChangeParentDialog.dialog('destroy');return false;").SetCancelScript("moduleFunctionChangeParentDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveModuleFunctionChangeParent();").ToMvcString();
+    }
+    function doChangeParentModuleFunction(id){
+        if(!id || id.trim()==""){
+           var selectedModuleFunction = $("#tbModuleFunctionList").treegrid("getSelected");
+           if(!selectedModuleFunction || selectedModuleFunction.Id=="" || selectedModuleFunction.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择模块", showType: 'show' });
+              return false;
+           }
+           id = selectedModuleFunction.Id;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ChangeParent","ModuleFunction")'+ "?Id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divChangeParentDialog").load(url,function(){
+            doModuleFunctionChangeParentDialog();
+            $.messager.progress("close");
+        });
+        return false;
+    }
+
+    function doSaveModuleFunctionChangeParent(){
+        if($("#frmModuleFunctionChangeParent").find("#Id").val().trim() == ""){
+            $.messager.show({ title: '提示', msg: "模块为空", showType: 'show' });
+            return false;
+        }
+        var parentId = $("#frmModuleFunctionChangeParent").find("#ParentId").val();
+        var newParentId = $("#frmModuleFunctionChangeParent").find("#NewParentId").combotree("getValue").trim();
+        if(parentId == newParentId)
+        {
+            $.messager.show({ title: '提示', msg: "父级模块没发生变化", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ChangeParentSave", "ModuleFunction")',
+            data: $("#frmModuleFunctionChangeParent").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    if($("#frmModuleFunctionChangeParent").find("#Id").val() != '') 
+                        $("#frmModuleFunctionChangeParent").find("#ParentId").attr("disabled","disabled");
+                    return false;
+                }
+                moduleFunctionChangeParentDialog.dialog('destroy');
+                doSearch();
+            }
+        });
+    }
+</script>

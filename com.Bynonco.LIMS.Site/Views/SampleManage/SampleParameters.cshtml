@@ -1,0 +1,60 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.LIMS.Model.View;
+<style type="text/css">
+    .table-sampleApplyParameter tr th{text-align:right; width:120px; line-height:22px; font-weight:normal; border:1px solid #F0F0F0; vertical-align:middle;padding:2px; color:Gray;}
+    .table-sampleApplyParameter tr td{text-align:left;line-height:22px; border:1px solid #F0F0F0; vertical-align:middle;padding:5px;}
+</style>
+@{
+    IList<Equipment> equipments = ViewData["Equipments"]!=null?(IList<Equipment>)ViewData["Equipments"]:null;
+    IList<SampleParameter> sampleParameters = ViewData["SampleParameters"] != null ? (IList<SampleParameter>)ViewData["SampleParameters"] : null;
+    IList<SampleApplyParameter> sampleApplyParameters = ViewData["SampleApplyParameters"] != null ? (IList<SampleApplyParameter>)ViewData["SampleApplyParameters"] : null;
+ }
+@if (sampleParameters != null && sampleParameters.Count > 0)
+{
+    <table class="table-sampleApplyParameter"  style="border-collapse:collapse;width:100%;">
+     <tr>
+        <th colspan="3" style="text-align:center;">
+            <h6>样品参数填写信息列表</h6>
+        </th>
+     </tr>
+    @foreach (var equipment in equipments)
+    {
+        
+            var equipmentSampleParameters = sampleParameters.Where(p => p.SampleParameterEquipments.Any(q => q.EquipmentId == equipment.Id));
+            if (equipments.Count > 1)
+            {
+                <tr>
+                    <th colspan="3" style=" text-align:left;padding-left:100px">
+                        <h6>
+                            <span id="spIcon" class="ico icon-function"></span>
+                            @(equipment.Name)
+                        </h6>
+                    </th>
+                </tr>
+            }
+            foreach (var equipmentSampleParameter in equipmentSampleParameters)
+            {
+                SampleApplyParameter sampleApplyParameter = null;
+                if (sampleApplyParameters != null && sampleApplyParameters.Count > 0)
+                {
+                    sampleApplyParameter = sampleApplyParameters.FirstOrDefault(p => p.SampleParameterId == equipmentSampleParameter.Id && p.EquipmentId == equipment.Id);
+                }
+                <tr>
+                    <th>
+                        @equipmentSampleParameter.Name
+                        @if (equipmentSampleParameter.IsRequired)
+                        {
+                            <span class="required">*</span>
+                        }
+                    </th>
+                    <td>
+                        @Html.Partial("DataDictHtmlString", new DataDictModel(equipmentSampleParameter, sampleApplyParameter != null ? sampleApplyParameter.Val : null, equipment.Id))
+                    </td>
+                </tr>
+            }
+       
+    }
+    </table>
+}

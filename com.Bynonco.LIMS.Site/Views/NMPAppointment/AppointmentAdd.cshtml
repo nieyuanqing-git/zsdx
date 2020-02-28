@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divAddNMPAppointment" style="width:412px;overflow:auto">
+    <table class="edit-table" id="tbAddAppointment">
+        <tr>
+            <th>工位设备</th>
+            <td id="tdAppointmentNMPEquipmentId">
+                @(Html.TokenInput("AppointmentNMPEquipmentId")
+                .SetUrl(Url.Action("GetUserManageViewNMPEquipmentListByKeyWord", "NMP"))
+                .SetSingle(true)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>用户</th>
+            <td id="tbAppointmentUserId">
+                @(Html.TokenInput("AppointmentUserId")
+                .SetUrl(Url.Action("GetManageUserListByKeyWord", "User"))
+                .SetSingle(true)
+                .ToMvcString())
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdAppointmentNMPEquipmentId ul.token-input-list-facebook").css("width", "302px");
+        $("#tbAppointmentUserId ul.token-input-list-facebook").css("width", "302px");
+    });
+    function doRedirectToAppointment() {
+        var nmpEquipmentId = $("#AppointmentNMPEquipmentId").val().trim();
+        if (nmpEquipmentId == "") {
+            $.messager.show({ title: '提示', msg: '请选择工位设备', showType: 'show' });
+            return false;
+        }
+        var userId = $("#AppointmentUserId").val().trim();
+        if (userId == "") {
+            $.messager.show({ title: '提示', msg: '请选择用户', showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("AppointmentBoxIndex", "NMP")' + "?nmpEquipmentId=" + nmpEquipmentId + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+</script>

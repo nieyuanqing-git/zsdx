@@ -1,0 +1,71 @@
+﻿@model com.Bynonco.LIMS.Model.ActivityApply
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divActivityApplyView">
+@if (Model != null)
+{
+    var groupAdminAuditInfo = (Model.GroupAdmin == null ? "" : Model.GroupAdmin.UserName)
+            + (Model.AuditGroupAdminTime.HasValue ? "(" + Model.AuditGroupAdminTime.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : "")
+            + Model.AuditGroupAdminRemark;
+    var directorAuditInfo = (Model.Director == null ? "" : Model.Director.UserName)
+            + (Model.AuditDirectorTime.HasValue ? "(" + Model.AuditDirectorTime.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : "")
+            + Model.AuditDirectorRemark;
+    var operatorAuditInfo = (Model.Operator == null ? "" : Model.Operator.UserName)
+            + (Model.AuditOperatorTime.HasValue ? "(" + Model.AuditOperatorTime.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : "")
+            + Model.AuditOperatorRemark;
+    <table class="edit-table"  style="width:385px;">
+        <tr>
+            <th>费用范围</th>
+            <td>@(Model.ActivityType == null ? "" : Model.ActivityType.Name)</td>
+            <th>状态</th>
+            <td>@(Model.StatusEnum.ToCnName())</td>
+        </tr>
+        <tr>
+            <th>申请人</th>
+            <td>@(Model.ApplyUser == null ? "" : Model.ApplyUser.UserName)</td>
+            <th>仪器组群</th>
+            <td>@(Model.EquipmentGroup == null ? "" : Model.EquipmentGroup.Name)</td>
+        </tr>
+        <tr>
+            <th>申请金额</th>
+            <td>@(Math.Round(Model.ReimbursementMoney, 2).ToString())</td>
+            <th>活动时间</th>
+            <td>@(Model.ActivityTime.ToString("yyyy-MM-dd"))</td>
+        </tr>
+        <tr>
+            <th>活动理由</th>
+            <td colspan='3'>@Model.ActivityReason</td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>@Model.Remark</td>
+        </tr>
+        @if (groupAdminAuditInfo != "")
+        {
+        <tr>
+            <th>组群负责人审核</th>
+            <td colspan='3'>
+                @groupAdminAuditInfo
+            </td>
+        </tr>
+        }
+        @if (directorAuditInfo != "")
+        {
+        <tr>
+            <th>中心主任审核</th>
+            <td colspan='3'>
+                @directorAuditInfo
+            </td>
+        </tr>
+        }
+        @if (operatorAuditInfo != "")
+        {
+        <tr>
+            <th>经办人意见</th>
+            <td colspan='3'>
+                @operatorAuditInfo
+            </td>
+        </tr>
+        }
+    </table>
+}
+</div>

@@ -1,0 +1,111 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentLabel
+@using com.Bynonco.JqueryEasyUI.Core; 
+<script type="text/javascript">
+    function doOnNameChanged() {
+        $("#InputStr").val("");
+    }
+    function doOnLabelTypeChanged(newValue, oldValue) {
+        $("#divTagIds").css("display", "none");
+        $("#divSubjctIds").css("display", "none");
+        $("#divOrganizationIds").css("display", "none");
+        $("#divUserIds").css("display", "none");
+        switch (newValue.toString()) {
+            case "0":
+                $("#divUserIds").css("display", "block");
+                break;
+            case "1":
+                $("#divSubjctIds").css("display", "block");
+                break;
+            case "2":
+                $("#divOrganizationIds").css("display", "block");
+                break;
+            case "3":
+                $("#divTagIds").css("display", "block");
+                break;
+        }
+    }
+</script>
+<div id="divEquipmentLabelEdit">
+ <form id="frmEquipmentLabelEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdEquipmentLabelEdit" class="edit-table"  style="width:420px;">
+         <tr>
+            <th>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(200).SetValidateType(ValidateType.required).ToMvcString()
+                <span class="">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>助记符</th>
+            <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(200).ToMvcString()</td>
+        </tr>
+         <tr>
+            <th>类型</th>
+            <td id="tdType">
+                @(Html.JComboBox("LabelType")
+                .SetData(ViewData["EquipmentLabelItemTypeJson"])
+                .SetOnChange("doOnLabelTypeChanged(newValue, oldValue);")
+                .SetWidth(205).ToMvcString())
+                <span class="">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>标签</th>
+            <td>
+                <div id="divTagIds" style="display:none">
+                     @(Html.TokenInput("TagIds")
+                    .SetUrl(Url.Action("GetTagListByKeyWord", "UserTag"))
+                    .SetPrePopulate(ViewData["TagsJson"] == null || string.IsNullOrWhiteSpace(ViewData["TagsJson"].ToString()) ? null : ViewData["TagsJson"].ToString())
+                    .SetSingle(false)
+                    .SetPreventDuplicates(true)
+                    .SetWidth(200)
+                    .ToMvcString())
+                </div>
+                <div id="divOrganizationIds" style="display:none">
+                     @(Html.TokenInput("OrganizationIds")
+                    .SetUrl(Url.Action("GetLabOrganizationListByKeyWord", "LabOrganization"))
+                    .SetPrePopulate(ViewData["OrganizationsJson"] == null || string.IsNullOrWhiteSpace(ViewData["OrganizationsJson"].ToString()) ? null : ViewData["OrganizationsJson"].ToString())
+                    .SetPreventDuplicates(true)
+                    .SetSingle(false)
+                    .SetWidth(200)
+                    .ToMvcString())
+                </div>
+                <div id="divSubjctIds" style="display:none">
+                     @(Html.TokenInput("SubjectIds")
+                     .SetUrl(Url.Action("GetSubjectListByKeyWord", "Subject"))
+                    .SetPrePopulate(ViewData["SubjectsJson"] == null || string.IsNullOrWhiteSpace(ViewData["SubjectsJson"].ToString()) ? null : ViewData["SubjectsJson"].ToString())
+                    .SetPreventDuplicates(true)
+                    .SetSingle(false)
+                    .SetWidth(200)
+                    .ToMvcString())
+                </div>
+                <div id="divUserIds"style="display:none">
+                     @(Html.TokenInput("UserIds")
+                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                    .SetPrePopulate(ViewData["UsersJson"] == null || string.IsNullOrWhiteSpace(ViewData["UsersJson"].ToString()) ? null : ViewData["UsersJson"].ToString())
+                    .SetSingle(false)
+                    .SetPreventDuplicates(true)
+                    .SetWidth(200)
+                    .ToMvcString())
+                </div>
+
+            </td>
+        </tr>
+         <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:320px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#divTagIds ul.token-input-list-facebook").css("width", "205px");
+        $("#divOrganizationIds ul.token-input-list-facebook").css("width", "205px");
+        $("#divUserIds ul.token-input-list-facebook").css("width", "205px");
+        $("#divSubjctIds ul.token-input-list-facebook").css("width", "205px");
+    });
+</script>

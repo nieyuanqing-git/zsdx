@@ -1,0 +1,24 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var authorizedType = ViewData["AuthorizedType"] == null ? "0" : ViewData["AuthorizedType"].ToString();
+    var dataGrid = Html.JDataGrid("tbLabOrganizationAuthorizedList")
+        .SetUrl(Url.Action("GetGridViewLabOrganizationAuthorizedList", "LabOrganizationAuthorized"))
+        .AddQueryParam("AuthorizedType",authorizedType)
+        .SetHeight(650)
+        .SetPageSize(20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowPrintButton(false)
+        .SetShowAddButton(true)
+        .SetShowEditButton(true)
+        .SetAddScript("doAddLabOrganizationAuthorized();")
+        .SetEditScript("doEditLabOrganizationAuthorized();")
+        .SetOnDblClickRow("doEditLabOrganizationAuthorized(rowData.Id,rowData.AuthorizedBusinessType);")
+        .SetShowDeleteButton(true)
+        .SetDeleteScript("doDeleteLabOrganizationAuthorized('');");
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("授权类型", "AuthorizedBusinessTypeStr").SetSortable(false).SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "AuthorizedBusinessName").SetSortable(false).SetWidth(250).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("机构名称", "LabOrganizationAuthorizedNames").SetSortable(false).SetWidth(1000).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

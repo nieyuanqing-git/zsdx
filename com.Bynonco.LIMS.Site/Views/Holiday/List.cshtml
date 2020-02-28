@@ -1,0 +1,34 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var holidayPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetHolidayPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbHolidayList")
+    .SetUrl(Url.Action("GetGridHolidayList", "Holiday"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("StartAt")
+    .SetSortOrder(SortOrder.desc)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "StartAtStr").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndAtStr").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("同时对送样生效", "IsEffectOnSampleStr").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("调休日", "WorkDays").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("说明", "Description").SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(holidayPrivilige.IsEnableAdd);
+    if (holidayPrivilige.IsEnableAdd)
+    {
+        dataGrid.SetAddScript("doAddOrEditHoliday('');");
+    }
+    dataGrid.SetShowEditButton(holidayPrivilige.IsEnableEdit);
+    if (holidayPrivilige.IsEnableEdit)
+    {
+        dataGrid.SetEditScript("doEditHoliday();");
+        dataGrid.SetOnDblClickRow("doAddOrEditHoliday(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(holidayPrivilige.IsEnableDelete);
+    if (holidayPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteHoliday();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

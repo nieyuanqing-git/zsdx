@@ -1,0 +1,121 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenTraining
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divEquipmentOpenTrainingEdit">
+    <form id="frmEquipmentOpenTrainingEdit" action="#">
+    <input id="Id" type="hidden" value="@(Model == null ? "": Model.Id.ToString())" name="Id" />
+    <table class="edit-table"  style="width:545px;">
+        <tr>
+            <th>学期</th>
+            <td colspan='4'>
+                @(ViewData["SemesterName"] == null ? "" : ViewData["SemesterName"].ToString())
+                @Html.Hidden("SemesterId", ViewData["SemesterId"] == null ? "" : ViewData["SemesterId"].ToString())
+            </td>
+        </tr>
+        <tr>
+            <th>培训名称</th>
+            <td colspan='4'>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(400).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>设备名称</th>
+            <td id='tdEquipmentId'>
+                @if (Model == null || Model.Equipment == null)
+                {
+                    @(Html.TokenInput("EquipmentId")
+                        .SetUrl(Url.Action("GetEquipmentUndergraduateOpenListByKeyWord", "EquipmentOpen",new{QueryExpression="SemesterId=\""+(ViewData["SemesterId"] == null ? Guid.Empty.ToString(): ViewData["SemesterId"].ToString())+"\""}))
+                        .SetSingle(true)
+                        .SetWidth(400)
+                        .ToMvcString())
+                }
+                else
+                {
+                    @Html.Hidden("EquipmentId", Model.EquipmentId)
+                    @Model.Equipment.Name
+                }
+            </td>
+            <td>
+                @if (Model == null || Model.Equipment == null)
+                {
+                    @Html.JLinkButton("btnClearEquipmentId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#EquipmentId').tokenInput('clear');;return false;").ToMvcString()
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>培训负责人</th>
+            <td id='tdAdminId'>
+                @(Html.TokenInput("AdminId")
+                        .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                        .SetSingle(true)
+                        .SetWidth(400)
+                        .SetPrePopulate(ViewData["AdminJson"] == null || string.IsNullOrWhiteSpace(ViewData["AdminJson"].ToString()) ? null : ViewData["AdminJson"].ToString())
+                        .ToMvcString())
+            </td>
+            <td>
+                @Html.JLinkButton("btnClearAdminId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#AdminId').tokenInput('clear');;return false;").ToMvcString()
+            </td>
+            <th>联系电话</th>
+            <td>
+                 @Html.JValidateBox("AdminPhone").SetValue(Model == null ? "" : Model.AdminPhone).SetWidth(150).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>目的与意义</th>
+            <td colspan='4'>
+                @Html.TextArea("Purpose", Model == null ? "" : Model.Purpose, new { style = "width:96%;height:50px;", placeholder = "(请输入目的与意义)" })
+            </td>
+        </tr>
+        <tr>
+            <th>支撑条件</th>
+            <td colspan='4'>
+                @Html.TextArea("SupportingConditions", Model == null ? "" : Model.SupportingConditions, new { style = "width:96%;height:50px;", placeholder = "(请输入支撑条件)" })
+            </td>
+        </tr>
+        <tr>
+            <th>培训计划<br />
+                @Html.JLinkButton("btnAddPlan", "新增").SetIconCls("icon-add").SetPlain(true).SetOnclick("doAddPlan();return false;").ToMvcString()
+            </th>
+            <td colspan='4' id='tdPlanItems'>
+                <table border='0' cellpadding='0' cellspacing='0' id='tbPlanList'>
+                    <tr>
+                        <th style='width:40px;'>操作</th>
+                        <th style='width:150px;'>培训内容</th>
+                        <th>学时数<br />(机时)</th>
+                        <th>培训<br />学生数</th>
+                        <th>费用预计<br />(元)</th>
+                        <th>承担人</th>
+                    </tr>
+                    @if (Model != null && Model.EquipmentOpenTrainingPlanList != null && Model.EquipmentOpenTrainingPlanList.Count() > 0)
+                    {
+                        foreach (var item in Model.EquipmentOpenTrainingPlanList)
+                        {
+                            @Html.Partial("../EquipmentOpenTraining/PlanEdit", item)
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+    </table>
+    </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdEquipmentId ul.token-input-list-facebook").css("width", "155px");
+        $("#tdAdminId ul.token-input-list-facebook").css("width", "155px");
+    });
+    function doAddPlan() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("PlanEdit","EquipmentOpenTraining")',
+            success: function (data) {
+                $("#tbPlanList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemovePlan(infoId) {
+        if (!infoId || infoId == "") return;
+        $("#tr_" + infoId).remove();
+    }
+</script>

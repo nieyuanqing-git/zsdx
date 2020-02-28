@@ -1,0 +1,89 @@
+﻿@{
+    if (ViewData["UserWorkGroupList"] != null)
+    {
+        IList<com.Bynonco.LIMS.Model.View.ViewUserWorkGroup> viewUserWorkGroupList = (IList<com.Bynonco.LIMS.Model.View.ViewUserWorkGroup>)ViewData["UserWorkGroupList"];
+        if (viewUserWorkGroupList.Count > 0)
+        {
+            if (viewUserWorkGroupList.Count > 1)
+            {
+                string workGroupId = ViewData["WorkGroupId"] != null ? ViewData["WorkGroupId"].ToString() : "";
+                string workGroupName = ViewData["WorkGroupName"] != null ? ViewData["WorkGroupName"].ToString() : "";
+                <ul class="role-menu">
+                    <li>
+		                <a class="nav-top-item" href="#">
+			                <span id="lbCurrentWorkGroup">
+                                角色-@(workGroupName == "" ? "(全部)" : workGroupName + "")
+                            </span>
+		                </a>
+                        <div class="role-submenu">
+                            <div class="menu-middle">
+                                <div class="menu-top">
+                                    <div class="menu-bottom">
+                                        <ul class="submenu">
+						                    <li><a href="javascript:;" workgroupid="" class='@(workGroupId == "" ? "current" : "")' onclick="ChangeCurrentWorkGroup(this)">(全部)</a></li>
+                                            @{
+                                             foreach (var item in viewUserWorkGroupList)
+                                             {
+						                        <li><a href="javascript:;" workgroupid="@item.WorkGroupId.ToString()" class='@(workGroupId == item.WorkGroupId.ToString() ? "current" : "")' onclick="ChangeCurrentWorkGroup(this)">@item.Name</a></li>
+                                             }
+                                            }
+					                    </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+	                </li>
+                </ul>
+            }
+            <div id="divUserMenu"></div>
+        }
+    }
+}
+<script type="text/javascript">
+    function ChangeCurrentWorkGroup(obj) {
+        $(".role-submenu .submenu li a").removeClass("current");
+        $(obj).addClass("current");
+        $("#lbCurrentWorkGroup").empty();
+        $("#lbCurrentWorkGroup").append("角色-" + $(obj).html());
+        var workGroupId = $(obj).attr("workgroupid");
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUserSystemSetting","User")',
+            data: "WorkGroupId=" + workGroupId + "&time=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.progress('close');
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                window.location.href = '@Url.Action("Index","Admin")'; //刷新页面
+//                $(".role-menu li .role-submenu").hide();
+//                IniLeftMenu();
+//                IniContentBox();
+            }
+        });
+    }
+    function IniLeftMenu() {
+        var MenuController = '@(ViewData["ParentController"] == null ? "" : ViewData["ParentController"].ToString())'
+        var MenuAction = '@(ViewData["ParentAction"] == null ? "" : ViewData["ParentAction"].ToString())'
+        var url = '@Url.Action("UserCurrentMenu","Admin")' + "?MenuController=" + MenuController + "&MenuAction=" + MenuAction + "&date=" + new Date().getMilliseconds();
+        $("#divUserMenu").load(url, function () {
+            setLeftMenu();
+        });
+    }
+
+    function IniContentBox() {
+//        var url = '@Url.Action("Home","Admin")' + "?date=" + new Date().getMilliseconds();
+//        $("#layoutCenterBox").load(url, function () {
+//            ;
+//        });
+        
+    }
+
+    $(function () {
+        IniLeftMenu();
+        IniContentBox();
+    });
+
+</script>

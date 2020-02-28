@@ -1,0 +1,60 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateAppointmentStatisticsQueryExpression() {
+        var queryExpression = "";
+        var nmpEquipmentName = $("#SearchStatisticsNMPEquipmentName").val().trim();
+        if (nmpEquipmentName != "") {
+            queryExpression = "NMPEquipmentName∽\"" + nmpEquipmentName.trim() + "\"";
+        }
+        var nmpName = $("#SearchStatisticsNMPName").val().trim();
+        if (nmpName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "NMPName∽\"" + nmpName + "\"";
+        }
+        var labRoomXPath = $("#SearchLabRoomXPath").val().trim();
+        if (labRoomXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "NMPRoomXPath→\"" + labRoomXPath + "\"";
+        }
+        return queryExpression;
+    }
+    function getAppointmentSearchLabRoomXPath(element) {
+        $("#SearchLabRoomXPath").val("");
+        var labRoomId = element.value;
+        if (labRoomId != "" && !labRoomId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labRoomId }, function (data) {
+                if (data && data != "")
+                    $("#SearchLabRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    function doAppointmentStatisticsReset() {
+        $("#SearchStatisticsNMPEquipmentName").val("");
+        $("#SearchStatisticsNMPName").val("");
+        $("#SearchLabRoomId").val("@Guid.Empty.ToString()");
+        $("#SearchLabRoomXPath").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>工位名称</label>
+        @Html.JValidateBox("SearchStatisticsNMPName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchStatisticsNMPEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>放置地点</label>
+        @Html.DropDownList("SearchLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px;", onchange = "getAppointmentSearchLabRoomXPath(this);" })
+        @Html.Hidden("SearchLabRoomXPath")
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnAppointmentStatisticsSearch", "查询").SetOnclick("doAppointmentStatisticsSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnAppointmentStatisticsReset", "清空").SetOnclick("doAppointmentStatisticsReset();").ToMvcString()
+        @Html.JLinkButton("btnAppointmentStatisticsClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

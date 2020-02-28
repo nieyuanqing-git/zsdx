@@ -1,0 +1,59 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+    var achievementPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAchievementPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbPatentList")
+        .SetUrl(Url.Action("GetPatentList", "Achievement"))
+        .AddQueryParam("EquipmentId", equipmentId)
+        .AddQueryParam("QueryExpression", queryExpression)
+        .SetHeight(isPopDialog ? 350 : 650)
+        .SetSortName("PatentTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(isPopDialog ? 10 : 20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("专利名称", "PatentName").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("专利号", "PatentNum").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("专利人员", "PatentUserNames").SetWidth(150).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("日期", "PatentTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("专利类型", "PatentTypeName").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("专利所属", "PatentBelongToStr").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(80).SetAlign(Align.center));
+    
+    dataGrid.SetShowAddButton(achievementPrivilige.IsEnablePatentAdd);
+    if (achievementPrivilige.IsEnablePatentAdd)
+    {
+        dataGrid.SetAddScript("doAddPatent()");
+    }
+    dataGrid.SetShowEditButton(achievementPrivilige.IsEnablePatentEdit);
+    if (achievementPrivilige.IsEnablePatentEdit)
+    {
+        dataGrid.SetEditScript("doEditPatent('')");
+        dataGrid.SetOnDblClickRow("doEditPatent(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(achievementPrivilige.IsEnablePatentDelete);
+    if (achievementPrivilige.IsEnablePatentDelete)
+    {
+        dataGrid.SetDeleteScript("doDeletePatent('');");
+    }
+    dataGrid.SetShowExpertButton(achievementPrivilige.IsEnablePatentExpert);
+    if (achievementPrivilige.IsEnablePatentExpert)
+    {
+        dataGrid.SetExpertScript("doPatentExportExcel();");
+    }
+    if (achievementPrivilige.IsEnablePatentImportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doPatentImportExcel();", IconCls = "icon-import", Id = "btnImportExcel", Text = "导入" });
+    }
+}
+@(dataGrid.ToMvcString())

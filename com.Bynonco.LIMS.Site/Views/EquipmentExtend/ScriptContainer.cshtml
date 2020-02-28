@@ -1,0 +1,77 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEquipmentExtendDialog" style="display:none"></div>
+<script type="text/javascript">
+
+    function doSearchEquipmentExtend() {
+        var queryExpression = generateEquipmentExtendQueryExpress();
+        $("#tbViewEquipmentExtendList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbViewEquipmentExtendList").datagrid("load", { "queryExpression": queryExpression.trim()});
+    }   
+    function doEditEquipmentExtend(id) {      
+        if (!id || id.trim() == "") {
+            var selectedEquipment = $("#tbViewEquipmentExtendList").datagrid("getSelected");
+            if (!selectedEquipment || selectedEquipment.Id == "" || selectedEquipment.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择设备", showType: 'show' });
+                return false;
+            }
+            id = selectedEquipment.Id;
+        }
+        var url = '@Url.Action("Edit", "EquipmentExtend")' + "?id=" + encodeURI(id) + "&date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+
+    function doAddOrEquipmentExtend(id) {
+        var url = '@Url.Action("Edit","EquipmentExtend")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentExtendDialog").load(url, function () {
+            doEquipmentExtendDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    var equipmentExtendDialog;
+    function doEquipmentExtendDialog() {
+        if (equipmentExtendDialog) {
+            equipmentExtendDialog.dialog("destroy");
+        }
+        equipmentExtendDialog =  @Html.JDialog("divEquipmentExtendDialog").SetTitle("设备信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentExtendDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEquipmentExtend();").ToMvcString();
+    }
+
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbViewEquipmentExtendList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+
+    function doBatchDelete()
+    {
+        $.messager.confirm('提示', '是否确认批量删除?', function (r) {
+            if (!r) return;
+        var mutiIds = generateSelectedIds().toString();
+        if (mutiIds == null || mutiIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要批量删除的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("Delete", "EquipmentExtend")'+ "?ids=" + mutiIds + "&date=" + new Date().getMilliseconds();
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { "ids": mutiIds , "date" : new Date().getMilliseconds()},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }              
+                doSearchEquipmentExtend();
+            }
+        })
+        });
+    }
+</script>

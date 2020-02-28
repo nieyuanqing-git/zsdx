@@ -1,0 +1,304 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divTrainningQuestionDialog" style="display:none"></div>
+<div id="divTrainningQuestionItemDialog" style="display:none"></div>
+<div id="divTrainningQuestionViewDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearchTrainningQuestion(xpath) {
+        doClearTrainningQuestion();
+        if(!xpath || xpath.trim()==""){
+           var selectedTrainningType = $("#tbTrainningTypeList").treegrid("getSelected");
+           if(!selectedTrainningType || selectedTrainningType.Id=="" || selectedTrainningType.Id.isDefaultGuid()) {
+              xpath = "";
+           }
+           else xpath = selectedTrainningType.XPath;
+        }
+        var queryExpression = "";
+        if(xpath && xpath != "") queryExpression  += (queryExpression == "" ? "" : "*") + "(TrainningTypeXPath→\"" + xpath  + "\")";
+        $("#tbTrainningQuestionList").datagrid('options').url='@Url.Action("GetGridViewTrainningQuestionList", "TrainningQuestion")';
+        $("#tbTrainningQuestionList").datagrid("load", { "queryExpression": queryExpression});
+        queryExpression = "";
+        $("#tbTrainningQuestionItemList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    function doClearTrainningQuestion() {
+        $("#tbTrainningQuestionList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbTrainningQuestionItemList").datagrid('loadData', { total: 0, rows: [] });
+    }
+    function doOnTrainningTypeSelected(rowData){
+        if(rowData.IsEnableSelect.toString() != "true") {
+            doClearTrainningQuestion();
+            return;
+        }
+        doSearchTrainningQuestion(rowData.XPath);
+    }
+    var trainningQuestionViewDialog;
+    function doTrainningQuestionViewDialog() {
+        if (trainningQuestionViewDialog) {
+            trainningQuestionViewDialog.dialog("destroy");
+        }
+        trainningQuestionViewDialog =  @Html.JDialog("divTrainningQuestionView").SetTitle("查看考题").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("trainningQuestionViewDialog.dialog('close');return false;").SetModal(true).SetOkScript("trainningQuestionViewDialog.dialog('close');return false;").ToMvcString();
+    }
+    function doViewQuestion() {
+        var selectedTrainningQuestion = $("#tbTrainningQuestionList").datagrid("getSelected");
+        if(!selectedTrainningQuestion || selectedTrainningQuestion.Id=="" || selectedTrainningQuestion.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择考题", showType: 'show' });
+            return false;
+        }
+        var id = selectedTrainningQuestion.Id;
+        var url = '@Url.Action("ViewQuestion","TrainningQuestion")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divTrainningQuestionViewDialog").load(url,function(){
+            doTrainningQuestionViewDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    var trainningQuestionDialog;
+    function doTrainningQuestionDialog() {
+        if (trainningQuestionDialog) {
+            trainningQuestionDialog.dialog("destroy");
+        }
+        trainningQuestionDialog =  @Html.JDialog("divTrainningQuestionEdit").SetTitle("考题信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("trainningQuestionDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveTrainningQuestion();").ToMvcString();
+    }
+    function doAddTrainningQuestion(id) {
+       doAddOrEditTrainningQuestion(id);
+    }
+    function doEditTrainningQuestion(id) {
+       if(!id || id.trim()==""){
+           var selectedTrainningQuestion = $("#tbTrainningQuestionList").datagrid("getSelected");
+           if(!selectedTrainningQuestion || selectedTrainningQuestion.Id=="" || selectedTrainningQuestion.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择考题", showType: 'show' });
+              return false;
+           }
+           id = selectedTrainningQuestion.Id;
+       }
+       doAddOrEditTrainningQuestion(id);
+    }
+    function doAddOrEditTrainningQuestion(id){
+        var selectedTrainningTypeId = "";
+        var selectedTrainningType = $("#tbTrainningTypeList").treegrid("getSelected");
+        if(!selectedTrainningType || selectedTrainningType.Id=="" || selectedTrainningType.Id.isDefaultGuid() || selectedTrainningType.IsEnableSelect.toString()!="true") { }
+        else selectedTrainningTypeId = selectedTrainningType.Id;
+        var url = '@Url.Action("Edit","TrainningQuestion")'+ "?id=" + id + "&TrainningTypeId=" + selectedTrainningTypeId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divTrainningQuestionDialog").load(url,function(){
+            doTrainningQuestionDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveTrainningQuestion(){
+        if($("#frmTrainningQuestionEdit").find("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "题目为空", showType: 'show' });
+          return false;
+        }
+        if ($("#frmTrainningQuestionEdit").find("#QuestionType").combobox("getValue").trim() == "") {
+          $.messager.show({ title: '提示', msg: "题目类型为空", showType: 'show' });
+          return false;
+        }
+        if ($("#frmTrainningQuestionEdit").find("#TimeSpend").val().trim() == "" || !$("#TimeSpend").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg: "答题时间为空", showType: 'show' });
+            return false;
+        }
+        if ($("#frmTrainningQuestionEdit").find("#Score").val().trim() == "" || !$("#Score").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg: "分数为空", showType: 'show' });
+            return false;
+        }
+        var contentHTML = CKEDITOR.instances.ContentHTML.getData();
+        var contentNotHTML = CKEDITOR.instances.ContentHTML.document.getBody().getText();
+        $("#frmTrainningQuestionEdit").find("#ContentHTML").val(contentHTML);
+        $("#frmTrainningQuestionEdit").find("#ContentNotHTML").val(contentNotHTML);
+
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("Save","TrainningQuestion")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmTrainningQuestionEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                trainningQuestionDialog.dialog('close');
+                doSearchTrainningQuestion();
+            }
+        });
+   }
+   function doDeleteTrainningQuestion(id){
+        if(!id || id.trim() == ""){
+              var selectedTrainningQuestion = $("#tbTrainningQuestionList").datagrid("getSelected");
+                if(!selectedTrainningQuestion || selectedTrainningQuestion.Id.trim() == "" || selectedTrainningQuestion.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedTrainningQuestion.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "TrainningQuestion")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchTrainningQuestion();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpathTrainningQuestion(xPath,compareTarget,trainningTypeId){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "TrainningQuestion")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget,"TrainningTypeId":trainningTypeId},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearchTrainningQuestion();
+            }
+        });
+        return false;
+   }
+   function doOnTrainningQuestionSelected(rowData){
+        var queryExpression = "TrainningQuestionId=\"" + rowData.Id  + "\"";
+        $("#tbTrainningQuestionItemList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbTrainningQuestionItemList").datagrid("load", { "queryExpression": queryExpression});
+    }
+
+    function doSearchTrainningQuestionItem() {
+        $("#tbTrainningQuestionItemList").datagrid("reload");
+    } 
+    function doSetQuestionAnswer(answer)
+    {
+        var selectedTrainningQuestion = $("#tbTrainningQuestionList").datagrid("getSelected");
+        if(!selectedTrainningQuestion || selectedTrainningQuestion.Id.trim() == "" || selectedTrainningQuestion.Id.isDefaultGuid()){
+            return false;
+        }
+        if(!answer || answer =="") answer = "<span style='color:red'>[空答案]</span>";
+        selectedTrainningQuestion.AnswerStr = answer;
+        $(".datagrid-row-selected td[field$='AnswerStr'] div").html(answer);
+    }
+    var trainningQuestionItemDialog;
+    function doTrainningQuestionItemDialog() {
+        if (trainningQuestionItemDialog) {
+            trainningQuestionItemDialog.dialog("destroy");
+        }
+        trainningQuestionItemDialog =  @Html.JDialog("divTrainningQuestionItemEdit").SetTitle("考题项目信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("trainningQuestionItemDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveTrainningQuestionItem();").ToMvcString();
+    }
+    function doAddTrainningQuestionItem() {
+        var selectedTrainningQuestion = $("#tbTrainningQuestionList").datagrid("getSelected");
+        if(!selectedTrainningQuestion || selectedTrainningQuestion.Id.trim() == "" || selectedTrainningQuestion.Id.isDefaultGuid()){
+            $.messager.show({ title: '提示', msg:"请选择要新增项目的考题", showType: 'show' });
+            return false;
+        }
+       doAddOrEditTrainningQuestionItem('',selectedTrainningQuestion.Id);
+    }
+    function doEditTrainningQuestionItem(id,trainningQuestionId) {
+       if(!id || id.trim()=="" || !trainningQuestionId || trainningQuestionId.trim()=="" ){
+           var selectedTrainningQuestionItem = $("#tbTrainningQuestionItemList").datagrid("getSelected");
+           if(!selectedTrainningQuestionItem || selectedTrainningQuestionItem.Id=="" || selectedTrainningQuestionItem.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择考题项目", showType: 'show' });
+              return false;
+           }
+           id = selectedTrainningQuestionItem.Id;
+           trainningQuestionId = selectedTrainningQuestionItem.TrainningQuestionId;
+       }
+       doAddOrEditTrainningQuestionItem(id,trainningQuestionId);
+    }
+    function doAddOrEditTrainningQuestionItem(id,trainningQuestionId){
+        var url = '@Url.Action("EditItem","TrainningQuestion")'+ "?id=" + id + "&TrainningQuestionId=" + trainningQuestionId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divTrainningQuestionItemDialog").load(url,function(){
+            doTrainningQuestionItemDialog();
+            $.messager.progress('close');
+            var msg = $("#divTrainningQuestionItemDialog").html();
+            if( msg.indexOf("出错,判断题") != -1)
+                $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+        })
+        return false;
+    }
+    function doSaveTrainningQuestionItem(){
+        var contentHTML = CKEDITOR.instances.ItemTextHTML.getData();
+        var contentNotHTML = CKEDITOR.instances.ItemTextHTML.document.getBody().getText();
+        $("#ItemTextHTML").val(contentHTML);
+        $("#ItemTextNoHTML").val(contentNotHTML);
+
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("SaveItem","TrainningQuestion")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmTrainningQuestionItemEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                trainningQuestionItemDialog.dialog('close');
+                doSetQuestionAnswer(msg);
+                doSearchTrainningQuestionItem();
+            }
+        });
+   }
+   function doDeleteTrainningQuestionItem(id){
+        if(!id || id.trim() == ""){
+              var selectedTrainningQuestionItem = $("#tbTrainningQuestionItemList").datagrid("getSelected");
+                if(!selectedTrainningQuestionItem || selectedTrainningQuestionItem.Id.trim() == "" || selectedTrainningQuestionItem.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedTrainningQuestionItem.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteItem", "TrainningQuestion")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSetQuestionAnswer(msg);
+                    doSearchTrainningQuestionItem();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpathTrainningQuestionItem(xPath,compareTarget,trainningQuestionId){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPathItem", "TrainningQuestion")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget,"TrainningQuestionId":trainningQuestionId},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSetQuestionAnswer(msg);
+                doSearchTrainningQuestionItem();
+            }
+        });
+        return false;
+   }
+</script>

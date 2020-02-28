@@ -1,0 +1,35 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentRepairFundsApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model.Business;
+<!DOCTYPE html />
+<html>
+    <head>
+        <title>大型仪器设备开放共享维修基金申请表</title>
+        <style type="text/css">
+            #tbEquipmentRepairFundsApply tr th{ text-align:center;font-weight:bold; color:Black; background-color:White; font-size:14px; width:100px;border:1px solid black;}
+            #tbEquipmentRepairFundsApply tr td{color:Black; font-size:13px;border:1px solid black;}
+        </style>
+        @Html.Partial("HomeJsCSS")
+         <script type="text/javascript">
+             function doPrintEquipmentRepairFundsApply() {
+                 $.messager.confirm('提示', '确认打印?', function (r) {
+                     if (!r) return;
+                     $("#divOperate").css("display", "none");
+                     window.print();
+                     setTimeout(function () { $("#divOperate").css("display", ""); }, 1000);
+                 });
+
+             }
+        </script>
+    </head>
+    <body style="background:white; width:600px;margin:auto;">
+        <h3>大型仪器设备开放共享维修基金申请表</h3>
+        @Html.Partial("EquipmentRepairFundsApplyInfo")
+        <div id="divOperate" style="margin-top:5px">
+            @Html.JLinkButton("btnPrintEquipmentRepairFundsApply", "打印").SetIconCls("icon-print").SetOnclick("doPrintEquipmentRepairFundsApply();").ToMvcString()
+            @Html.JLinkButton("btnCloseWindow", "关闭").SetIconCls("icon-cancel").SetOnclick("window.close();").ToMvcString()
+        </div>
+    </body>
+</html>

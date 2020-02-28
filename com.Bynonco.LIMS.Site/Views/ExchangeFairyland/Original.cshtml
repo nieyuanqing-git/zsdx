@@ -1,0 +1,252 @@
+﻿@model IEnumerable<com.Bynonco.LIMS.Model.ExchangeFairyland>
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.JqueryEasyUI.Core;        
+@{
+    ViewBag.Title = "交流天地";
+    Layout = "~/Views/Shared/_TwoColumnLayout.cshtml";
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var isManageLabOrganization = ViewData["IsManageLabOrganization"] == null ? false : bool.Parse(ViewData["IsManageLabOrganization"].ToString());
+    var customer = CustomerFactory.GetCustomer();
+    var isOriginalCheckLogin = customer == null ? false : customer.GetIsOriginalCheckLogin();
+}
+@section ImportCssAndJs{
+
+    <!--CKEditor-->
+    <script src="@Url.Content("~/JqueryPlugin/Ckeditor/ckeditor.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/JqueryPlugin/Ckfinder/ckfinder.js")" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        var isLogin = false;    //是否登录
+        $(function () {
+            $("#originalTable tr:even").addClass("alt");
+            if ("@(User.Identity.IsAuthenticated)" == "True") {
+                isLogin = true;
+            }
+        })
+        function judgeSubmit() {
+            var publishCommentHTML = CKEDITOR.instances.publishComment.getData();
+            var publishCommentNotHTML = CKEDITOR.instances.publishComment.document.getBody().getText();
+            $("#publishComment").val(publishCommentHTML);
+            $("#commentNoHTML").val(publishCommentNotHTML);
+            if ($.trim($("#originalTit").val()) == "") {
+                $.messager.show({ title: '提示', msg: "主题不能为空", showType: 'show' });
+                return false;
+            }
+            if ($.trim($("#publishComment").val()) == "") {
+                $.messager.show({ title: '提示', msg: "评论内容不能为空", showType: 'show' });
+                return false;
+            }
+            if ($.trim($("#publishComment").val()).length < 2) {
+                $.messager.show({ title: '提示', msg: "至少输入2个字符", showType: 'show' });
+                return false;
+            }
+            if(!isLogin){
+                $.messager.show({ title: '提示', msg: "请登录再发贴", showType: 'show' });
+                return false;
+            }
+        }
+
+        var showIndex = 0;
+        function showMoreOriginal() {
+            showIndex = showIndex + 1;
+            $.ajax({
+                url: '@Url.Action("ShowMoreOriginal", "ExchangeFairyland")' + "?date=" + new Date().getMilliseconds().toString(),
+                data: { "showIndex":showIndex,"oldOriginalCount":@(ViewBag.OriginalCount),"searchExpression":"@(ViewBag.SearchExpression)"},
+                type: "Post",
+                success: function (data) {
+                    $("#originalTable tbody").append(data);
+                },
+                error: function () {
+                    $.messager.show({ title: '提示', msg: "请求出错", showType: 'show' });
+                }
+            });
+        }
+
+        function doDeleteOriginal(url)
+        {
+            $.messager.confirm('提示', '确认删除该记录?', function (r) {
+                if (!r) return;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "Post",
+                    url: url,
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        location.reload();
+                    }
+                });
+            });
+        }
+    </script>
+}
+@section MainLeft
+{
+    @Html.Partial("../ArticleCategory/HomeShowList")
+    @Html.Partial("../Home/FriendLink")
+}
+@section MainRight{
+    @{var loginUser2 = ViewBag.LoginUser as com.Bynonco.LIMS.Model.User;}
+    @if (loginUser2 == null && isOriginalCheckLogin)
+    {
+        <div style="margin-top:10px;" class="notification error">
+			<div>您还没有登录系统, 请 <a href='#' style='text-decoration:underline;' onclick="backToLogin();return false;">登录</a> 后才能查看贴!</div>
+		</div>
+    }
+    else
+    {
+    <h2 class="title clear-both">
+        <span>交流园地</span>
+        <a href='javascript:;'>
+            <span>(共有主题数</span><span style="color: #b82e2e"> @(ViewBag.OriginalCount) </span>
+            <span>个，评论贴子数</span>
+            <span style="color: #b82e2e"> @(ViewBag.ReattachmentCount) </span>
+            <span>篇)</span>
+        </a>
+    </h2>
+    <div class="home-search-box" style='margin-top:10px;'>
+        <div>
+            @using (Html.BeginForm())
+            {
+                <div id="searchOriginal" class="search-box">
+                    <div class="edit-info" style='margin-right:10px;'>
+                        <div class="tit">发贴人</div>
+                        <div class="bdmain">
+                            <div class="text-box">
+                                <strong>
+                                    @(Html.TokenInput("userId")
+                                        .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                                        .SetSingle(true)
+                                        .SetWidth(230)
+                                        .SetOnAdd("objfocus(this);")
+                                        .AddClass("textinp")
+                                        .ToMvcString())
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="edit-info">
+                        <div class="tit">发贴日期</div>
+                        <div class="bdmain">
+                            <div class="text-box">
+                                <strong>
+                                    @Html.JDateTimePicker("originalDateFrom").SetWidth(130).ToMvcString()
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="edit-info">
+                        <div class="tit">～</div>
+                        <div class="bdmain">
+                            <div class="text-box">
+                                <strong>
+                                    @Html.JDateTimePicker("originalDateTo").SetWidth(130).ToMvcString()
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="edit-info">
+                        <input class="botton" type="submit" onclick="return judgeDateText('originalDateFrom','originalDateTo');" value="查 询" />
+                    </div>
+                    <div class="clear-both"></div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="content-box">
+        <div id="showOriginal-box">
+            
+            <div class="showOriginal-tab-box">
+                <table id="originalTable" class="list" border="0" cellpadding="0" cellspacing="0">
+                    <thead>
+                        <tr class='table-header'>
+                            <th style="width:40px;"></th>
+                            <th style="text-align:left;width:370px;">主题</th>
+                            <th style="width:70px;">回复数</th>
+                            <th style="width:70px;">作者</th>
+                            <th style="width:130px;">发布时间</th>
+                            <th colspan="2" style="width:60px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Count() > 0)
+                        {
+                            @Html.Partial("OriginalList", Model)
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model != null && Model.Count() > 0)
+            {
+                <div class="notification green-box" style="margin-top:20px;" id="showMoreDiv">
+			        <div style="text-align:center;">
+                        <a href="javascript:void(0);" id="showMoreInfor" onclick="showMoreOriginal();"><span>显示更多...</span></a>
+			        </div>
+		        </div>
+            }
+        </div>
+    </div>}
+    @using (Html.BeginForm("PublishOriginal", "ExchangeFairyland", FormMethod.Post))
+    {
+        var loginUser = ViewBag.LoginUser as com.Bynonco.LIMS.Model.User;
+        <h2 class="title" style="margin-top:20px;">
+            <span>文明上网,登录发贴</span>
+        </h2>
+        <div class="content-box">
+            @if (loginUser == null)
+            {
+                <div style="margin-top:10px;" class="notification error">
+			        <div>您还没有登录系统, 请 <a href='#' style='text-decoration:underline;' onclick="backToLogin();return false;">登录</a> 后进行发言</div>
+		        </div>
+            }
+            else
+            {
+            <div class="edit-box">
+                <div class="edit-info">
+                    <div class="tit">主题</div>
+                    <div class="bdmain">
+                        <div class="text-box">
+                            <strong>
+                                <input type="text" name="originalTit" id="originalTit" class="textinp" style="width:300px;"/>
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+                <div id="isTopOriginal" class="check-box @(isManageLabOrganization ? "" : "hide")">
+                    <input name="isTop" id="isTop" type="checkbox" class="isTop-input" />置顶
+                </div>
+                <div class="clear-both"></div>
+                <div class="edit-info">
+                    <div class="tit">内容</div>
+                    <div class="bdmain">
+                        <textarea id="publishComment" name="comment" class="ckeditor" rows="8" cols="80"></textarea>
+                        @Html.Hidden("commentNoHTML")
+                    </div>
+                </div>
+                <div class="clear-both"></div>
+                <div class="edit-info" style="margin-left:550px;">
+                    <input id="submitPublish" class="botton" type="submit" onclick="return judgeSubmit();" value="发 贴"/>
+                </div>
+                <div class="clear-both"></div>
+            </div>
+            }
+             <div class="notification attention" style="margin-top:10px;">
+			    <div>网友评论仅供网友表达个人看法,并不表明本网站同意其观点或证实其描述</div>
+		    </div>
+        </div>
+        <script type="text/javascript">
+            function objfocus(obj) {
+                $(".text-over").removeClass('text-over');
+                $(".textare-over").removeClass('textare-over');
+                $(obj).parents(".text-box").addClass('text-over');
+                $(obj).parents(".textare-box").addClass('textare-over');
+            }
+            $(function () {
+                $(".edit-info .textinp").focus(function () { objfocus(this); });
+                $(".edit-info .textareinp").focus(function () { objfocus(this); });
+                $(".edit-info .combo-text").focus(function () { objfocus(this); });
+                $("#token-input-userId").focus(function () { objfocus(this); });
+            })
+        </script>
+    }
+}

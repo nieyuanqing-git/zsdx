@@ -1,0 +1,34 @@
+.main-box-left{float:right;}
+.main-box-right-l{float:left;}
+.main-box-center,
+.main-box-right,
+.main-box-right-l{padding:10px 30px 0 0;}
+
+.main-box-left .home-login-box h2.title {background: none;}
+.background-box-200{background: url("images/bg-box-200.gif") no-repeat scroll left 10px transparent;}
+.background-box-233{background: url("images/bg-box-233.gif") no-repeat scroll left 10px transparent;}
+.background-box-200 h2.title,
+.background-box-233 h2.title {background: none; padding-left: 30px;}
+.background-box-200-left{background: url("images/bg-box-200-left.gif") no-repeat scroll left top transparent;}
+.background-box-200-left h2.title{background: none; padding-left:25px;}
+.background-box-200-left .content-box{padding-left:10px;padding-right:10px;}
+.background-box-753{background: url("images/bg-box-753.gif") no-repeat scroll left 10px transparent;}
+.background-box-753 h2.title{background: none; padding-left: 30px;}
+
+.main-box-center .content-box,
+.main-box-right .content-box{padding-left:20px;padding-right:10px;}
+.main-box-center .content-box ul.news-list li, .main-box-right .content-box ul.news-list li {width: 320px;}
+.main-box-center .content-box ul.news-list li.li-num, .main-box-right .content-box ul.news-list li.li-num {width: 310px;}
+
+.quick-link-box{background: url("images/bg-biue-box.gif") no-repeat scroll left top transparent;}
+.quick-link-box .quick-link li a{color:#333}
+.quick-link-box .quick-link li.current a{color:#000}
+.quick-link-box .quick-link li.quick-link-sample{background: none;}
+.quick-link-box .quick-link li.quick-link-appointment{background: none;}
+.quick-link-box .quick-link li.quick-link-userhome{background: none;}
+.quick-link-box .quick-link li.quick-link-equipment{background: none;}
+.quick-link-box .quick-link li.quick-link-sample-current{background: none;}
+.quick-link-box .quick-link li.quick-link-appointment-current{background: none;}
+.quick-link-box .quick-link li.quick-link-userhome-current{background: none;}
+.quick-link-box .quick-link li.quick-link-equipment-current{background: none;}
+.quick-link-box h2.title{background: none;text-shadow:0px 0px 0px #003C61;padding-left:25px;font-weight:normal; line-height: 32px;}

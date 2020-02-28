@@ -1,0 +1,76 @@
+﻿@model com.Bynonco.LIMS.Model.SubjectProject
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.MVC;
+@using Newtonsoft.Json;
+@{
+    var id = Model.Id.ToString();
+    var isCooperative = ViewData["IsCooperative"] != null ? Convert.ToBoolean(ViewData["IsCooperative"]) : false;
+    var subjectPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name, Model.SubjectId, isCooperative);
+    var isHasPower = false;
+    switch (Model.ProjectTypeEnum)
+    {
+        case SubjectProjectType.Education:
+            isHasPower = subjectPrivilige.IsEnableDeleteEducationProject;
+            break;
+        case SubjectProjectType.Scientific:
+            isHasPower = subjectPrivilige.IsEnableDeleteScientificProject;
+            break;
+        case SubjectProjectType.Society:
+            isHasPower = subjectPrivilige.IsEnableDeleteSocietyProject;
+            break;
+    }
+ }
+ <tr id="@id" >
+    <td>
+        @Html.Hidden(id + "_SubjectProjectId", id)
+        @Html.Hidden(id + "_ProjectType", (int)Model.ProjectTypeEnum)
+        @if (isHasPower && (Model != null && !Model.IsImport))
+        {
+            @Html.JLinkButton("btn_" + id + "_DeleteSubjectProject", "").SetPlain(true).SetIconCls("icon-remove").SetOnclick(string.Format("doDeleteSubjectProject('{0}','{1}');",id,(int)Model.ProjectTypeEnum)).ToMvcString()
+        }
+    </td>
+    <td>
+        @Html.JValidateBox(id + "_Name").SetReadOnly(Model != null && Model.IsImport && !string.IsNullOrWhiteSpace(Model.Name)).SetWidth(Model.ProjectTypeEnum != SubjectProjectType.Education ? 200 : 150).SetValue(Model != null ? Model.Name : "").ToMvcString()
+    </td>
+    <td>
+        @Html.JValidateBox(id + "_ProjectNum").SetReadOnly(Model != null && Model.IsImport && !string.IsNullOrWhiteSpace(Model.ProjectNum)).SetWidth(80).SetValue(Model != null ? Model.ProjectNum : "").ToMvcString()
+    </td>
+    <td>
+        @Html.JComboBox(id + "_ProjectComeFrom").SetData(JsonAssitant.GenerateSubjectProjectComeFrom(Model == null ? null : Model.ProjectComeFrom)).SetWidth(100).ToMvcString()
+    </td>
+    <td>
+        @Html.JComboBox(id + "_ProjectDomain").SetData(JsonAssitant.GenerateSubjectProjectDomain(Model == null ? null : Model.ProjectDomain)).SetWidth(100).ToMvcString()
+    </td>
+    @if (Model.ProjectTypeEnum == SubjectProjectType.Education)
+    {
+        <td>
+            @Html.JComboBox(id + "_TeachBookType").SetData(JsonAssitantExtend.GenerateJson<SubjectProjectTeachBookType>(new SubjectProjectTeachBookType[] { Model.TeachBookTypeEnum }, false)).SetWidth(100).ToMvcString()
+        </td>
+        <td>
+            @Html.JValidateBox(id + "_TeachBookName").SetWidth(100).SetValue(Model != null ? Model.TeachBookName : "").ToMvcString()
+        </td>
+        <td>
+            @Html.JValidateBox(id + "_PersonQuatity").SetWidth(50).SetValue(Model != null ? Model.PersonQuatity.ToString() : "").ToMvcString()
+        </td>
+    }
+    <td>
+        <span  class="date">@Html.JDateTimePicker(id + "_BeginAt").SetWidth(82).SetValue(Model != null ? Model.BeginAt.ToString("yyyy-MM-dd") : "").ToMvcString()</span>
+    </td>
+    <td>
+        <span  class="date">@Html.JDateTimePicker(id + "_EndAt").SetWidth(82).SetValue(Model != null && Model.EndAt.HasValue ? Model.EndAt.Value.ToString("yyyy-MM-dd") : "").ToMvcString()</span>
+    </td>
+    <td>
+        @Html.TextArea(id + "_Description", Model != null ? Model.Description : "", new { style = "width:100px;height:20px" })
+    </td>
+ </tr>
+<script type="text/javascript">
+    $(function () {
+        var isIE6 = jQuery.browser.msie && (jQuery.browser.version == "6.0") && !jQuery.support.style;
+        if (isIE6) {
+            $("span.date span.datebox").css("width", "82px");
+            $("span.date span.datebox INPUT").css("width", "82px");
+            $("span.date INPUT.easyui-datebox").css("width", "82px");
+        }
+    });
+</script>

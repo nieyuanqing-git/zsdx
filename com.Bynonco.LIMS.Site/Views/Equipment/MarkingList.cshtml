@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbEquipmentMarkingList")
+    .SetUrl(Url.Action("GetGridMarkingList", "Equipment"))
+    .AddQueryParam("queryExpression", string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("CreateTime")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("评价人", "CreatorName").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("分数", "ScoreStr").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(130).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddMarking);
+    if (equipmentPrivilige.IsEnableAddMarking)
+    {
+        dataGrid.SetAddScript("doAddOrEditEquipmentMarking('');");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditMarking);
+    if (equipmentPrivilige.IsEnableEditMarking)
+    {
+        dataGrid.SetEditScript("doEditEquipmentMarking();");
+        dataGrid.SetOnDblClickRow("doAddOrEditEquipmentMarking(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteMarking);
+    if (equipmentPrivilige.IsEnableDeleteMarking)
+    {
+        dataGrid.SetDeleteScript("doDeleteEquipmentMarking();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

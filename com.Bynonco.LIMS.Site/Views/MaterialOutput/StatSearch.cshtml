@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateMaterialOutputStatQueryExpress() {
+        var queryExpression = "";
+        var outusername = $("#OutputUserName").val().trim();
+        if (outusername != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "outusername=\"" + outusername + "\"";
+        }
+        var outputTimeStart = $("#OutputTimeStart").datebox("getValue").trim();
+        if (outputTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "outputTimeStart=\"" + outputTimeStart + "\"";
+        }
+        var outputTimeEnd = $("#OutputTimeEnd").datebox("getValue").trim();
+        if (outputTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "outputTimeEnd=\"" + outputTimeEnd + "\"";
+        }
+        return queryExpression;
+    }
+    function doMaterialOutputReset() {
+        $("#OutputUserName").val("");
+        $("#OutputTimeStart").datebox("setValue","");
+        $("#OutputTimeEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>导师</label>
+        @Html.JValidateBox("OutputUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>开始日期</label>
+        @Html.JDateTimePicker("OutputTimeStart").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>结束日期</label>
+        @Html.JDateTimePicker("OutputTimeEnd").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnMaterialOutputSearch", "查询").SetOnclick("doMaterialOutputSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialOutputReset", "清空").SetOnclick("doMaterialOutputReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialOutputClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,123 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenTrainingCarryOutSignUp
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divEquipmentOpenTrainingCarryOutSignUpView">
+@if (Model != null && Model.EquipmentOpenTrainingCarryOut != null)
+{
+    <table class="edit-table"  style="width:545px;">
+        <tr>
+            <th>报名人</th>
+            <td>@(Model.User != null ? Model.User.UserName : "")</td>
+            <th>报名时间</th>
+            <td>@(Model.CreateTime.ToString("yyyy-MM-dd HH:mm"))</td>
+        </tr>
+        <tr>
+            <th>学期</th>
+            <td>@(Model.EquipmentOpenTrainingCarryOut.EquipmentOpenTraining != null && Model.EquipmentOpenTrainingCarryOut.EquipmentOpenTraining.Semester != null ? Model.EquipmentOpenTrainingCarryOut.EquipmentOpenTraining.Semester.Name : "")</td>
+            <th>状态</th>
+            <td>@(Model.StatusStr + " " + Model.IsPassStr)</td>
+        </tr>
+        <tr>
+            <th>培训名称</th>
+            <td colspan='3'>@(Model.EquipmentOpenTrainingCarryOut.Name)</td>
+        </tr>
+        <tr>
+            <th>设备名称</th>
+            <td colspan='3'>
+                @(Model.EquipmentOpenTrainingCarryOut.EquipmentOpenTraining != null && Model.EquipmentOpenTrainingCarryOut.EquipmentOpenTraining.Equipment != null ? Model.EquipmentOpenTrainingCarryOut.EquipmentOpenTraining.Equipment.Name : "")
+            </td>
+        </tr>
+        <tr>
+            <th colspan='4'>考核安排</th>
+        </tr>
+        <tr>
+            <th>考核方式</th>
+            <td>@Model.EquipmentOpenTrainingCarryOut.ExamineType</td>
+            <th>考试时间</th>
+            <td>@(Model.EquipmentOpenTrainingCarryOut.ExamineTime.HasValue ? Model.EquipmentOpenTrainingCarryOut.ExamineTime.Value.ToString("yyyy-MM-dd") : "")</td>
+        </tr>
+        <tr>
+            <th>考核地点</th>
+            <td colspan='3'>@Model.EquipmentOpenTrainingCarryOut.ExaminePlace</td>
+        </tr>
+        <tr>
+            <th colspan='4'>报名注意事项</th>
+        </tr>
+         <tr>
+            <th>开始时间</th>
+            <td>@Model.EquipmentOpenTrainingCarryOut.ApplyStratTime.ToString("yyyy-MM-dd")</td>
+            <th>结束时间</th>
+            <td>@Model.EquipmentOpenTrainingCarryOut.ApplyEndTime.ToString("yyyy-MM-dd")</td>
+        </tr>
+        <tr>
+            <th>报名条件</th>
+            <td>@Model.EquipmentOpenTrainingCarryOut.ApplyCondition</td>
+            <th>考试地点</th>
+            <td>@Model.EquipmentOpenTrainingCarryOut.ApplyPlace</td>
+        </tr>
+        <tr>
+            <th>联系人</th>
+            <td>@Model.EquipmentOpenTrainingCarryOut.ApplyLinkman</td>
+            <th>联系电话</th>
+            <td>@Model.EquipmentOpenTrainingCarryOut.ApplyLinkPhone</td>
+        </tr>
+
+        <tr>
+            <th>培训安排</th>
+            <td colspan='4'>
+                <table border='0' cellpadding='0' cellspacing='0'>
+                    <tr>
+                        <th style='width:60px;'>日期</th>
+                        <th>起止时间</th>
+                        <th>培训地点</th>
+                        <th style='width:150px;'>培训内容(方式)</th>
+                        <th>授课教师</th>
+                    </tr>
+                    @if (Model.EquipmentOpenTrainingCarryOut.EquipmentOpenTrainingCarryOutPlanList != null && Model.EquipmentOpenTrainingCarryOut.EquipmentOpenTrainingCarryOutPlanList.Count() > 0)
+                    {
+                        foreach (var item in Model.EquipmentOpenTrainingCarryOut.EquipmentOpenTrainingCarryOutPlanList)
+                        {
+                            @Html.Partial("../EquipmentOpenTrainingCarryOut/PlanViewInfo", item)
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+        @if (Model.AuditUser != null)
+        {
+             <tr>
+                <th>审核人</th>
+                <td>@Model.AuditUser.UserName</td>
+                <th>审核时间</th>
+                <td>@(Model.AuditTime.HasValue ? Model.AuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "")</td>
+            </tr>
+            if (!string.IsNullOrWhiteSpace(Model.AuditRemark))
+            {
+            <tr>
+                <th>审核备注</th>
+                <td colspan='3'>@Model.AuditRemark</td>
+            </tr>
+            }
+        }
+         @if (Model.ResultUser != null)
+        {
+             <tr>
+                <th>结果登记人</th>
+                <td>@Model.ResultUser.UserName</td>
+                <th>结果登记时间</th>
+                <td>@(Model.ResultTime.HasValue ? Model.ResultTime.Value.ToString("yyyy-MM-dd HH:mm") : "")</td>
+            </tr>
+            if (!string.IsNullOrWhiteSpace(Model.ResultRemark))
+            {
+            <tr>
+                <th>结果登记备注</th>
+                <td colspan='3'>@Model.ResultRemark</td>
+            </tr>
+            }
+        }
+    </table>
+}
+else
+{
+    <p>没有找到相应设备培训报名信息</p>
+}
+</div>

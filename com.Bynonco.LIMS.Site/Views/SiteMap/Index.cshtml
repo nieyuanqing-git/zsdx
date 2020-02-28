@@ -1,0 +1,183 @@
+﻿@{
+    Layout = "~/Views/Shared/_HomeSiteMapLayout.cshtml";
+    ViewBag.Title = "仪器设备电子地图";
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+}
+@section ImportCssAndJs
+{
+    <style type="text/css">
+        #ulSiteMapTree a{ text-decoration:underline;}
+    </style>
+    <script type="text/javascript">
+    //创建和初始化地图函数：
+    function initMap() {
+        createMap(); //创建地图
+        setMapEvent(); //设置地图事件
+        addMapControl(); //向地图添加控件
+        addMarker(); //向地图中添加marker
+        showtree();
+    }
+
+    function showtree() {
+        $("#ulSiteMapTree").treeview({
+            collapsed: true,
+            url: '@Url.Action("GetSiteMapTree", "SiteMap", new {XPath = orgXPath})'
+        });
+    }
+
+    //创建地图函数：
+    function createMap() {
+        var p0 = 116.404736;
+        var p1 = 39.915553;
+        var latitudeAndlongitude = '@( ViewData["LatitudeAndlongitude"] == null ? "" :  ViewData["LatitudeAndlongitude"].ToString())';
+        if (latitudeAndlongitude != "" && latitudeAndlongitude.indexOf("|") != -1) {
+            p0 = latitudeAndlongitude.split("|")[0];
+            p1 = latitudeAndlongitude.split("|")[1];
+        }
+        var map = new BMap.Map("dituContent"); //在百度地图容器中创建一个地图
+        var point = new BMap.Point(p0, p1); //定义一个中心点坐标
+        map.centerAndZoom(point, 17); //设定地图的中心点和坐标并将地图显示在地图容器中
+
+        var traffic = new BMap.TrafficLayer();        // 创建交通流量图层实例    
+        map.addTileLayer(traffic);                    // 将图层添加到地图上   
+        window.map = map; //将map变量存储在全局
+    }
+
+    //地图事件设置函数：
+    function setMapEvent() {
+        map.enableDragging(); //启用地图拖拽事件，默认启用(可不写)
+        map.enableScrollWheelZoom(); //启用地图滚轮放大缩小
+        map.enableDoubleClickZoom(); //启用鼠标双击放大，默认启用(可不写)
+        map.enableKeyboard(); //启用键盘上下左右键移动地图
+    }
+
+    //地图控件添加函数：
+    function addMapControl() {
+        map.addControl(new BMap.NavigationControl());
+        map.addControl(new BMap.MapTypeControl());
+        map.addControl(new BMap.ScaleControl());
+        map.addControl(new BMap.OverviewMapControl());
+    }
+
+    //标注点数组
+    var markerArr = new Array();
+
+    //创建marker 如果不带参数就显示所有仪器
+    function addMarker() {
+        var id = '@(ViewData["EquipmentId"] == null || ViewData["EquipmentId"].ToString() == "" ? "" : ViewData["EquipmentId"].ToString())';
+        $.ajax({
+            type: 'post',
+            dataType: "json",
+            url: '@Url.Action("GetEquipmentSiteMapMarker", "SiteMap", new {XPath = orgXPath})',
+            data: "id=" + id,
+            success: function (msg) {
+                if (!msg) return;
+                for (var i = 0; i < msg.length; i++) {
+                    var item = msg[i];
+                    if (item.LatitudeAndlongitude != null && item.LatitudeAndlongitude.indexOf("|") != -1) {
+                        var p0 = item.LatitudeAndlongitude.split("|")[0];
+                        var p1 = item.LatitudeAndlongitude.split("|")[1];
+                        var point = new BMap.Point(p0, p1);
+                        if(item.MapIcon.src == "")
+                        {
+                            item.MapIcon.src = "/Content/images/Default_32.png";
+                            item.RemoteStatusStr = "";
+                        }
+                        var iconImg = createIcon(item.MapIcon);
+                        var marker = new BMap.Marker(point, { icon: iconImg });
+                        var iw = createInfoWindow(item);
+                        var label = new BMap.Label(item.RemoteStatusStr, { "offset": new BMap.Size(item.MapIcon.lb - item.MapIcon.x + 10, -20) });
+                        marker.setLabel(label);
+                        map.addOverlay(marker);
+                        label.setStyle({
+                            borderColor: "#808080",
+                            color: "#333",
+                            cursor: "pointer"
+                        });
+
+                        (function () {
+                            var _iw = createInfoWindow(item);
+                            var _marker = marker;
+                            _marker.addEventListener("click", function () {
+                                this.openInfoWindow(_iw);
+                            });
+                            _iw.addEventListener("open", function () {
+                                _marker.getLabel().hide();
+                            })
+                            _iw.addEventListener("close", function () {
+                                // _marker.getLabel().show();
+                            })
+                            label.addEventListener("click", function () {
+                                _marker.openInfoWindow(_iw);
+                            })
+                            if (id != "") {
+                                label.hide();
+                                _marker.openInfoWindow(_iw);
+                            }
+                        })()
+                    }
+                }
+            },
+            error: function () {
+                alert("获取数据出错，请再试一次.");
+            }
+        });
+
+    }
+    //创建InfoWindow
+    function createInfoWindow(item) {
+        var httpText = getEquipmentMapInfo(item);
+        var iw = new BMap.InfoWindow(httpText, { enableMessage: false }); //{enableMessage: false}不显示发短信的手机
+        return iw;
+    }
+
+    function getEquipmentMapInfo(item) {
+        return "<table style='width:200px;'>"
+            + "     <tr>"
+            + "         <td rowspan = '3' style='width:70px;height:60px;vertical-align:middle'>"
+            + "             <img align='middle' style='width:60px; height:60px' src='" + item.IconPath + "' />"
+            + "         </td>"
+            + "         <td colspan='2' style='font-size:13px; font-weight:bold; text-align:left'>" + item.Name + "</td>"
+            + "     </tr>"
+            + "     <tr>"
+            + "         <th>资产编号:</th>"
+            + "         <td>" + item.Label + "</td>"
+            + "     </tr>"
+            + "     <tr>"
+            + "         <th>设备型号:</th>"
+            + "         <td>" + item.Model + "</td>"
+            + "     </tr>"
+            + "     <tr>"
+            + "         <th>所属机构:</th>"
+            + "         <td colspan='3'>" + item.OrgName + "</td>"
+            + "     </tr>"
+            + "     <tr>"
+            + "         <th>放置地点:</th>"
+            + "         <td colspan='3'>" + item.RoomName + "</td>"
+            + "     </tr>"
+            + "     <tr>"
+            + "         <td colspan='4' style='text-align:right;'><a href='@(Url.Action("Show", "Equipment"))" + "/" + item.Id + "' style='text-decoration:underline;'>点击查看详情</a></td>"
+            + "     </tr>"
+            + "</table>";
+    }
+
+    //创建一个Icon
+    function createIcon(json) {
+        var icon = new BMap.Icon(json.src, new BMap.Size(json.w, json.h), { imageOffset: new BMap.Size(-json.l, -json.t), infoWindowOffset: new BMap.Size(json.lb + 5, 1), offset: new BMap.Size(json.x, json.h) })
+        return icon;
+    }
+    $(function () {
+        initMap();
+    });
+
+</script>
+
+}
+@section MainLeft
+{
+    <ul id="ulSiteMapTree"></ul>
+}
+@section MainRight
+{
+    <div id="dituContent" style='height:750px;'></div>
+}

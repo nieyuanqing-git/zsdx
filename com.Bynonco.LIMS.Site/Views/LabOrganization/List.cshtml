@@ -1,0 +1,60 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function getIsShowStop() {
+        var isShowStop = false;
+        var obj_checked = $("#btnShowIsStop").find(".icon-checked");
+        if (obj_checked.length > 0) isShowStop = true;
+        return isShowStop;
+    }
+    function doOnBeforeLoadTree(row, param) {
+        var isShowStop = getIsShowStop();
+        $("#tbLabOrganizationList").treegrid('options').url = '@Url.Action("GetTreeGridLabOrganizationList", "LabOrganization")' + "?ParentId=" + (row ? row.Id : "") + "&IsShowStop=" + (isShowStop ? "true" : "false") + "&date=" + new Date().getMilliseconds();
+    }
+</script>
+@{
+    var labOrganizationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetLabOrganizationPrivilige(User.Identity.Name);
+    var dataGrid = Html.JTreeGrid("tbLabOrganizationList")
+       .SetTreeGrid("Id", "Name", Url.Action("GetTreeGridLabOrganizationList", "LabOrganization"), "", false)
+       .SetHeight(650)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetPagination(false)
+       .SetShowPrintButton(false)
+       .SetOnBeforeLoad("doOnBeforeLoadTree(row);") ;
+    if (labOrganizationPrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetWidth(30).SetAlign(Align.center).SetSortable(false));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetWidth(30).SetAlign(Align.center).SetSortable(false));
+    }
+    dataGrid.SetShowAddButton(labOrganizationPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(labOrganizationPrivilige.IsEnableEdit);
+    if (labOrganizationPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddLabOrganizaton('');");
+       dataGrid.SetEditScript("doEditLabOrganizaton('');");
+       dataGrid.SetOnDblClickRow("doEditLabOrganizaton(row.Id);");
+    }
+    dataGrid.SetShowDeleteButton(labOrganizationPrivilige.IsEnableDelete);
+    if (labOrganizationPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteLabOrganizaton('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("父级机构编码", "ParentId").SetHidden(true).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型编码", "Type").SetHidden(true).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("考试管理", "ExaminationSettingOperate").SetWidth(80).SetAlign(Align.center).SetSortable(false).SetHidden(!labOrganizationPrivilige.IsEnableExamination));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("授权标记", "AuthorizationFlag").SetWidth(90).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("XPath", "XPath").SetWidth(80).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopNickName").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "LabOrganizationTypeName").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("下级机构数", "ChildrenCount").SetWidth(80).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("展示首页", "IsShowHomeNickName").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("允许注册自动添加", "IsAllowAutoAddNickName").SetWidth(105).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("经纬度", "LatitudeAndlongitude").SetWidth(120).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("不可预约", "IsUnAppointmentNickName").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("不可预约原因", "WhyUnAppointment").SetWidth(600).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("父级机构", "ParentName").SetWidth(120).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowIsStop();", IconCls = "icon-unchecked", Id = "btnShowIsStop", Text = "点击显示停用" });
+ }
+@(dataGrid.ToMvcString())

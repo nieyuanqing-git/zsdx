@@ -1,0 +1,118 @@
+﻿@model List<com.Bynonco.LIMS.Model.LabOrganization>
+@using com.Bynonco.LIMS.Utility;
+@{
+    Layout = "~/Views/Shared/_TwoColumnLayout.cshtml";
+    ViewBag.Title = "在线考试";
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var isLogin = Request.IsAuthenticated && ViewData["LoginUser"] != null;
+}
+@section ImportCssAndJs{
+    <link type="text/css" href="@Url.Content("~/Content/examination.css")" rel="stylesheet" />
+    <script type="text/javascript">
+        function doExamination(id) {
+            if (!id || id.trim() == "") {
+                $.messager.show({ title: '提示', msg: "请选择组织机构", showType: 'show' });
+                return false;
+            }
+            if ('@isLogin.ToString().ToLower()' == 'true') {
+                var url = '@Url.Action("Examination", "UserExamination")' + "?BusinessType=0&BusinessId=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+                ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+            }
+            else { backToLogin(); }
+        }
+        function doLoadExaminationPaperList(id)
+        {
+            if($("#divExamniation_" + id).length > 0)
+            {
+                $("#divExamniation_" + id).empty();
+                 $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetExaminationPaperList","LabOrganization")',
+                    data: {"id" : id, "date" : new Date().getMilliseconds()},
+                    success: function (msg) {
+                        $("#divExamniation_" + id).html(msg);
+                    }
+                });
+            }
+        }
+    </script>
+}
+@section MainLeft
+{
+    @Html.Partial("../ArticleCategory/HomeShowList")
+    @Html.Partial("../Home/FriendLink")
+}
+@section MainRight
+{
+    <h2 class="title">在线考试 -- 组织机构</h2>
+    <div class="content-box" id="divRightBox">
+    @{
+        var leftList = new List<com.Bynonco.LIMS.Model.LabOrganization>();
+        var rightList = new List<com.Bynonco.LIMS.Model.LabOrganization>();
+        if (Model != null && Model.Count() > 0)
+        {
+            int count = 0;
+            var parentId = Model[0].ParentId;
+            var topLabOrganization = Model.Where(p => p.ParentId == parentId);
+            if (topLabOrganization != null && topLabOrganization.Count() > 0)
+            {
+                foreach (var item in topLabOrganization)
+                {
+                    var isExamination = item.IsNeedExaminationBeforeAppointment.HasValue ? item.IsNeedExaminationBeforeAppointment.Value : false;
+                    if (isExamination)
+                    {
+                        if(count % 2 == 0)
+                        {
+                            leftList.Add(item);
+                        }
+                        else
+                        {
+                            rightList.Add(item);
+                        }
+                        count++;
+                    }
+                    var childLabOrganization = Model.Where(p => p.ParentId == item.Id);
+                    if (childLabOrganization != null && childLabOrganization.Count() > 0)
+                    {
+                        foreach (var childItem in childLabOrganization)
+                        {
+                            var childIsExamination = childItem.IsNeedExaminationBeforeAppointment.HasValue ? childItem.IsNeedExaminationBeforeAppointment.Value : false;
+                            if (childIsExamination)
+                            {
+                                if(count % 2 == 0)
+                                {
+                                    leftList.Add(childItem);
+                                }
+                                else
+                                {
+                                    rightList.Add(childItem);
+                                }
+                                count++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(leftList.Count() > 0 || rightList.Count() > 0)
+        {
+            <div class='examniation-box'>
+            @foreach(var item in leftList)
+            {
+                @Html.Partial("../LabOrganization/ExaminationForHome",item)
+            }
+            </div>
+            <div class='examniation-box'>
+            @foreach (var item in rightList)
+            {
+                @Html.Partial("../LabOrganization/ExaminationForHome", item)
+            }
+            </div>
+        }
+        else
+        {
+            <p>没有组织机构信息</p>
+        }
+    }
+    </div>
+}

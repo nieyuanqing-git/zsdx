@@ -1,0 +1,35 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+    var sampleRoleStr = ViewData["SampleRoleStr"];
+    var userEquipmentPrivilige = (UserEquipmentPrivilige)ViewData["UserPriviliges"];
+    var sendMailMode = ViewData["SendMailMode"].ToString();
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../SampleManage/SampleApplySearch")</div>
+</div>
+<div>@Html.Partial("../SampleManage/SampleApplyUnAuditDoubtList")</div>
+<div style="display:none">@Html.Partial("../SampleManage/SampleApplyScriptContainer")</div>
+<div style="display:none" id="divAuditDoubtEditDialog"></div>
+<script type="text/javascript">
+    var sampleRoleStr = "@sampleRoleStr";
+    var sendMailMode = "@sendMailMode";
+    var sampleUnAuditDoubtDialog;
+    function doAuditDoubts(id){
+        if(sampleUnAuditDoubtDialog)sampleUnAuditDoubtDialog.dialog("destroy");
+        var releaseEditUrl  = '@Url.Action("SampleApplyDoubtAuditEdit")' + "?sampleApplyid=" + id+ "&time=" + new Date().getMilliseconds();
+        $('#divAuditDoubtEditDialog').load(releaseEditUrl,function(){
+            sampleUnAuditDoubtDialog = @Html.JDialog("divAuditDoubtEdit").SetAutoDialog(false).SetModal(true).SetCancelScript("sampleUnAuditDoubtDialog.dialog('close');return false;").SetOkScript("doSave();").SetResizable(false).SetTitle("质疑受理").SetIconCls("icon-help").ToMvcString();
+        });  
+        return false;
+    }
+
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbSampleUnAuditDoubtList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleUnAuditDoubtList").datagrid("load", { "queryExpression": queryExpression.trim(),"time":new Date().getMilliseconds() });
+        return false;
+    }
+</script>

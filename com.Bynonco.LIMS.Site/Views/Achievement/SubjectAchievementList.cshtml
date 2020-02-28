@@ -1,0 +1,61 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+    var achievementPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAchievementPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSubjectAchievementList")
+        .SetUrl(Url.Action("GetSubjectAchievementList", "Achievement"))
+        .AddQueryParam("EquipmentId", equipmentId)
+        .AddQueryParam("QueryExpression", queryExpression)
+        .SetHeight(isPopDialog ? 350 : 650)
+        .SetSortName("StartTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(isPopDialog ? 10 : 20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目编号", "SubjectNum").SetWidth(80).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SubjectName").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("负责人", "SubjectChief").SetWidth(60).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("经费(万)", "SubjectFunds").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目别类", "SubjectTypeName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目来源", "SubjectComeName").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "StartTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(80).SetAlign(Align.center));
+    
+    dataGrid.SetShowAddButton(achievementPrivilige.IsEnableSubjectAchievementAdd);
+    if (achievementPrivilige.IsEnableSubjectAchievementAdd)
+    {
+        dataGrid.SetAddScript("doAddSubjectAchievement()");
+    }
+    dataGrid.SetShowEditButton(achievementPrivilige.IsEnableSubjectAchievementEdit);
+    if (achievementPrivilige.IsEnableSubjectAchievementEdit)
+    {
+        dataGrid.SetEditScript("doEditSubjectAchievement('')");
+        dataGrid.SetOnDblClickRow("doEditSubjectAchievement(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(achievementPrivilige.IsEnableSubjectAchievementDelete);
+    if (achievementPrivilige.IsEnableSubjectAchievementDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteSubjectAchievement('');");
+    }
+    dataGrid.SetShowExpertButton(achievementPrivilige.IsEnableSubjectAchievementExpert);
+    if (achievementPrivilige.IsEnableSubjectAchievementExpert)
+    {
+        dataGrid.SetExpertScript("doSubjectAchievementExportExcel();");
+    }
+    if (achievementPrivilige.IsEnableSubjectAchievementImportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSubjectAchievementImportExcel();", IconCls = "icon-import", Id = "btnImportExcel", Text = "导入" });
+    }
+}
+@(dataGrid.ToMvcString())

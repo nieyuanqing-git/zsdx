@@ -1,0 +1,48 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentDutyFreeQueryExpress() {
+        var queryExpression = "";
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression = "Name∽\"" + equipmentName.trim() + "\"";
+        }
+        var operationTimeStart = $("#SearchBuyDateStart").datebox("getValue").trim();
+        if (operationTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BuyDate>\"" + operationTimeStart + "\"";
+        }
+        var operationTimeEnd = $("#SearchBuyDateEnd").datebox("getValue").trim();
+        if (operationTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BuyDate<\"" + operationTimeEnd + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doResetEquipmentDutyFree() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchBuyDateStart").datebox("setValue", "");
+        $("#SearchBuyDateEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>    
+    <li>
+        <label>购置日期</label>
+        @Html.JDateTimePicker("SearchBuyDateStart").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchBuyDateEnd").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doEquipmentDutyFreeSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doResetEquipmentDutyFree();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,73 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+@{var equipmentPrivilige = Model == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.Id);}
+ <div class="search-grid hide" style="width:280px">
+    <div class="search-inner-box">
+        @Html.Partial("../Equipment/MarkingSearch")
+    </div>
+</div>
+<div>@Html.Partial("../Equipment/MarkingList")</div>    
+<div id="divEquipmentMarkingDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditEquipmentMarking(){
+        var selectedRow = $("#tbEquipmentMarkingList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditEquipmentMarking(selectedRow.Id);
+    }
+    function doAddOrEditEquipmentMarking(id) {
+        var equipmentId = $("#EquipmentId").val();
+        var url = '@Url.Action("EditEquipmentMarking","Equipment")' + "?id=" + id + "&EquipmentId=" + equipmentId +  "&date=" + new Date().getMilliseconds();
+        $("#divEquipmentMarkingDialog").load(url, function (data) {
+            doEquipmentMarkingDialog();
+        })
+        return false;
+    }
+    var equipmentMarkingDialog;
+    function doEquipmentMarkingDialog() {
+        if (equipmentMarkingDialog) {
+            equipmentMarkingDialog.dialog("destroy");
+        }
+        equipmentMarkingDialog =  @Html.JDialog("divEquipmentMarkingEdit").SetTitle("设备评论信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentMarkingDialog.dialog('close');return false;").SetModal(true).SetOkScript( equipmentPrivilige.IsEnableSaveMarking ? "doSaveEquipmentMarking();return false;" : "").ToMvcString();
+    }
+    function doDeleteEquipmentMarking(){
+        var selectedRows = $('#tbEquipmentMarkingList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteEquipmentMarking","Equipment")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                             $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doEquipmentMarkingSearch();
+                    }
+                });
+            });
+        }
+    }
+    function doEquipmentMarkingSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbEquipmentMarkingList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentMarkingList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        return false;
+    }
+</script>

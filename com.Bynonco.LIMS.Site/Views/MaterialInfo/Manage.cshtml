@@ -1,0 +1,13 @@
+﻿@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../MaterialInfo/Search")
+    </div>
+</div>
+<div>
+    @Html.Partial("../MaterialInfo/List")
+</div>
+@Html.Partial("../Supplier/SelectSupplierNoPagingContainer")
+@Html.Partial("../MaterialInfo/ScriptContainer")

@@ -1,0 +1,64 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divEditNMPUsedConfirmAdditionChargeItemDiaglog">
+    <table class="edit-table" style="width:100%;">
+        <tr>
+            <th><span class="required">*</span>数量</th>
+            <td>@Html.JValidateBox("txtNMPUsedConfirmAdditionChargeItemAmount").ToMvcString()</td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>价格(元)</th>
+            <td>@Html.JValidateBox("txtNMPUsedConfirmAdditionChargeItemPrice").ToMvcString()</td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    var editNMPUsedConfirmAdditionChargeItemDiaglog;
+    function doEditNMPUsedConfirmAdditionChargeItem(nmpAdditionChargeItemId) {
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        var amount = $("#hidNMPUsedConfirmAddtionChargeItemAmount" + nmpAdditionChargeItemId).val();
+        var price = $("#hidNMPUsedConfirmAddtionChargeItemPrice" + nmpAdditionChargeItemId).val();
+        $("#txtNMPUsedConfirmAdditionChargeItemAmount").val(amount);
+        $("#txtNMPUsedConfirmAdditionChargeItemPrice").val(price);
+        editNMPUsedConfirmAdditionChargeItemDiaglog = @Html.JDialog("divEditNMPUsedConfirmAdditionChargeItemDiaglog").SetTitle("编辑附加费用").SetIconCls("icon-Edit").SetAutoDialog(false).SetOkScript("doAcceptNMPUsedConfirmAdditionChargeItem(nmpAdditionChargeItemId);").SetCancelScript("editNMPUsedConfirmAdditionChargeItemDiaglog.dialog('close');return false;").SetModal(true).ToMvcString();
+        $.messager.progress("close");
+    }
+    function doAcceptNMPUsedConfirmAdditionChargeItem(nmpAdditionChargeItemId){
+        var amount = $("#txtNMPUsedConfirmAdditionChargeItemAmount").val();
+        var price = $("#txtNMPUsedConfirmAdditionChargeItemPrice").val();
+        var originalAmout= $("#hidOriginalNMPUsedConfirmAddtionChargeItemAmount" + nmpAdditionChargeItemId).val();
+        var originalPrice = $("#hidOriginalNMPUsedConfirmAddtionChargeItemPrice" + nmpAdditionChargeItemId).val();
+        if(amount.trim() == ""){
+            $.messager.show({ title: '提示', msg: "数量为空", showType: 'show' });
+            return false;
+        }
+        if(!amount.isPositiveInt()){
+            $.messager.show({ title: '提示', msg: "数量非法", showType: 'show' });
+            return false;
+        }
+        if(price.trim() == ""){
+            $.messager.show({ title: '提示', msg: "价格为空", showType: 'show' });
+            return false;
+        }
+        if(!price.isPositiveFloat()){
+            $.messager.show({ title: '提示', msg: "价格非法", showType: 'show' });
+            return false;
+        }
+        var isNMPUsedConfirmAdditionChargeItemAmountChanged = originalAmout!= amount && parseInt(originalAmout)!= parseInt(amount);
+        var isNMPUsedConfirmAdditionChargeItemPriceChanged = originalPrice != price  && parseFloat(originalPrice)!= parseInt(price);
+        $("#hidNMPUsedConfirmAddtionChargeItemAmountChanged" + nmpAdditionChargeItemId).val(isNMPUsedConfirmAdditionChargeItemAmountChanged);
+        $("#hidNMPUsedConfirmAddtionChargeItemPriceChanged" + nmpAdditionChargeItemId).val(isNMPUsedConfirmAdditionChargeItemPriceChanged);
+        $("#hidNMPUsedConfirmAddtionChargeItemAmount" + nmpAdditionChargeItemId).val(amount);
+        $("#hidNMPUsedConfirmAddtionChargeItemPrice" + nmpAdditionChargeItemId).val(price);
+        $("#spanNMPUsedConfirmAddtionChargeItemAmount" + nmpAdditionChargeItemId).html(amount);
+        $("#spanNMPUsedConfirmAddtionChargeItemPrice" + nmpAdditionChargeItemId).html(price);
+        editNMPUsedConfirmAdditionChargeItemDiaglog.dialog("close");
+        if(isNMPUsedConfirmAdditionChargeItemAmountChanged || isNMPUsedConfirmAdditionChargeItemPriceChanged){
+            if(typeof(doOnNMPUsedConfirmAdditionChargeItemDataChanged)=='function'){
+                doOnNMPUsedConfirmAdditionChargeItemDataChanged();
+            }
+        }
+    }
+</script>

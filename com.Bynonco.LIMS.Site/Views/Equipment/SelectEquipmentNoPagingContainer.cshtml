@@ -1,0 +1,92 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    var selectEquipmentDialog;
+    var curEquipmentIdsElement;
+    function doSelectEquipmentDialog(equipmentIdsElement,parameter) {
+        curEquipmentIdsElement = equipmentIdsElement;
+        var queryExpression = generateSelectedEquipmentQueryExpression(equipmentIdsElement);
+        var url = '@Url.Action("SelectEquipmentNoPaging","Equipment")';
+        if(selectEquipmentDialog) {
+            selectEquipmentDialog.dialog("destroy");
+        }
+        if(!parameter)parameter = {"queryExpression":queryExpression };
+        else parameter.queryExpression = queryExpression;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelectEquipment").load(url, parameter, function () {
+            $.messager.progress('close');
+            selectEquipmentDialog = @(Html.JDialog("divSelectEquipmentDialog").SetTitle("选择设备").SetAutoDialog(false).SetOkScript("getSelectedEquipments();").SetOnClose("selectEquipmentDialog.dialog('destroy');return false;").SetCancelScript("selectEquipmentDialog.dialog('destroy');").SetIconCls("icon-search").ToMvcString());
+        });
+        return false;
+    }
+    function generateSelectedEquipmentQueryExpression(equipmentIdsElement) {
+        var selectedEquipmentIds = document.getElementById(equipmentIdsElement).value;
+        if (selectedEquipmentIds.trim() == "") return "";
+        var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+        if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0) return "";
+        var queryExpression = "(";
+        for (var i = 0; i < selectedEquipmentIdsArray.length; i++) {
+            queryExpression += queryExpression == "(" ? "Id=\"" + selectedEquipmentIdsArray[i] + "\"" : "+" + "Id=\"" + selectedEquipmentIdsArray[i] + "\"";
+        }
+        queryExpression += ")";
+        
+        return queryExpression;
+    }
+    function doShowEquipmentSelectList() {
+        var queryExpression = generateSelectedEquipmentQueryExpression("SelectEquipmentId");
+        if(queryExpression == "") queryExpression = "Id=null";
+        $("#tbSelectEquipmentNoPagingList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSelectEquipmentNoPagingList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+    function doEquipmentEmptySlecet()
+    {
+        $.messager.confirm('提示', '确认清空所有选择设备?', function (r) {
+            if (!r) return;
+            $("#SelectEquipmentId").tokenInput("clear");
+            doInitSelectedEquipments() ;
+        });
+    }
+    function getSelectedEquipments() {
+        var selectedEquipmentJsonArray = new Array();
+         var selectedEquipmentIds = "";
+         var selectedEquipmentNames = "";
+         var isEnableSelectSampleSendTime = "false";
+         var selectedEquipments = $("#SelectEquipmentId").tokenInput("get");
+         if (selectedEquipments && selectedEquipments!="" && selectedEquipments.length > 0) {
+             for (var i = 0; i < selectedEquipments.length; i++) {
+                 selectedEquipmentIds += (selectedEquipmentIds == "" ? "" : ",") + selectedEquipments[i].id;
+                 selectedEquipmentNames += (selectedEquipmentNames == "" ? "" : ",") + selectedEquipments[i].text;
+                 selectedEquipmentJsonArray[i] = {Id:selectedEquipments[i].Id, Name:selectedEquipments[i].text};
+             }
+         }
+         if(selectEquipmentDialog)selectEquipmentDialog.dialog("destroy");
+         if(typeof(getSelectedEquipmentsCallBack) == 'function')getSelectedEquipmentsCallBack(selectedEquipmentNames,selectedEquipmentIds,selectedEquipmentJsonArray);
+    }
+   function doInitSelectedEquipments() {
+        var selectedEquipmentIds = $("#SelectEquipmentId").val();
+        var rows = $("#tbSelectEquipmentNoPagingList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (selectedEquipmentIds.indexOf(rows[i].Id) != -1)
+                    $("#tbSelectEquipmentNoPagingList").datagrid("selectRow", i);
+                else 
+                    $("#tbSelectEquipmentNoPagingList").datagrid("unselectRow", i);
+                
+            }
+        }
+    }
+    function doEquipmentSearch() {
+        var queryExpression = generateEquipmentQueryExpress();
+        var rows = $('#tbSelectEquipmentNoPagingList').datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = rows.length -1; i >=0 ; i--) {
+                $('#tbSelectEquipmentNoPagingList').datagrid("deleteRow",i);
+            }
+        }
+        $("#tbSelectEquipmentNoPagingList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSelectEquipmentNoPagingList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+</script>
+<div id="divSelectEquipment" style="display:none"></div>
+

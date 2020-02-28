@@ -1,0 +1,23 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divBindTutor">
+    <form id="frmBindTutor" action="#">
+        @Html.Hidden("StudentId",ViewData["StudentId"].ToString())
+        <table class="edit-table" style="width:100%">
+            <tr>
+                <th>请选择导师</th>
+                <td id="tdTutorId"> 
+                    @(Html.TokenInput("TutorId")
+                    .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                    .SetPrePopulate(ViewData["TutorJson"] == null || string.IsNullOrWhiteSpace(ViewData["TutorJson"].ToString()) ? null : ViewData["TutorJson"].ToString())
+                    .SetSingle(true)
+                    .ToMvcString())
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdTutorId ul.token-input-list-facebook").css("width", "302px");
+    });
+</script>

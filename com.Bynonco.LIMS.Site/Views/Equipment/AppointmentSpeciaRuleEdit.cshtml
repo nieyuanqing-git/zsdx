@@ -1,0 +1,42 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+    #tbAppointmentSpeciaRule th{text-align:right}
+</style>
+<form id="frmAppointmentSpeciaRuleEdit" action="#">
+    @Html.Hidden("AppointmentSpeciaRuleId", Model != null && Model.Equipment.AppointmentSpeciaRule != null ? Model.Equipment.AppointmentSpeciaRule.Id.ToString() : "")
+    <p><span class="icon icon-phone"></span>自定义预约规则</p>
+    <table id="tbAppointmentSpeciaRule">
+        <tr>
+            <td id="tbSelectAppointmentSpeciaRuleUsers">
+                <div> 用户(为空对所有用户生效)</div>
+                <div>
+                    @(Html.TokenInput("AppointmentSpeciaRuleUserIds")
+                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                    .SetPrePopulate(ViewData["AppointmentSpeciaRuleUsersJson"] == null || string.IsNullOrWhiteSpace(ViewData["AppointmentSpeciaRuleUsersJson"].ToString()) ? null : ViewData["AppointmentSpeciaRuleUsersJson"].ToString())
+                    .SetSingle(false)
+                    .SetPreventDuplicates(true)
+                    .SetWidth(200)
+                    .ToMvcString())
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div>自定义脚本(必填)</div>
+                <div>@Html.TextArea("Expression", Model != null && Model.Equipment.AppointmentSpeciaRule != null ? Model.Equipment.AppointmentSpeciaRule.Expression : "", new { style = "width:630px;height:300px;font-size:12px;font-weight-normal;border:1px solid #8496BA;" }) </div> 
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div>自定义脚本说明</div>
+                <div>@Html.TextArea("ReadableExpression", Model != null && Model.Equipment.AppointmentSpeciaRule != null ? Model.Equipment.AppointmentSpeciaRule.ReadableExpression : "", new { style = "width:630px;height:300px;font-size:12px;font-weight-normal;border:1px solid #8496BA;" })</div>
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#tbSelectAppointmentSpeciaRuleUsers ul.token-input-list-facebook").css("width", "630px");
+    });
+</script>

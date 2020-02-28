@@ -1,0 +1,80 @@
+﻿@{var isSingleSelect = ViewData["IsSingleSelect"] == null ? "false" : Convert.ToBoolean(ViewData["IsSingleSelect"]).ToString().ToLower();}
+<script type="text/javascript">
+    function getSelectedAppointmentTimeIds() {
+        var appointmentTimes = "";
+        var seletedAppointmentTimeElements = $("#divAppointmentTimes table.book tr td.booking");
+        if (seletedAppointmentTimeElements && seletedAppointmentTimeElements.length > 0) {
+            seletedAppointmentTimeElements.each(function () { appointmentTimes += appointmentTimes == "" ? $(this).attr("id") : "," + $(this).attr("id") });
+        }
+        return appointmentTimes;
+    }
+    function GetSelectedAppointmentTimes() {
+        var appointmentTimes = "";
+        var seletedAppointmentTimeElements = $("#divAppointmentTimes table.book tr td.booking");
+        if (seletedAppointmentTimeElements && seletedAppointmentTimeElements.length > 0) {
+            seletedAppointmentTimeElements.each(function () { appointmentTimes += appointmentTimes == "" ? $(this).attr("time") : "," + $(this).attr("time") });
+        }
+        return appointmentTimes;
+    }
+    function GetSelectedAppointmentDates() {
+        var appointmentDates = "";
+        var seletedAppointmentTimeElements = $("#divAppointmentTimes table.book tr td.booking");
+        if (seletedAppointmentTimeElements && seletedAppointmentTimeElements.length > 0) {
+            seletedAppointmentTimeElements.each(function () { appointmentDates += appointmentDates == "" ? $(this).attr("date") : "," + $(this).attr("date") });
+        }
+        return appointmentDates;
+    }
+    function getSelectedRownos() {
+        var rowNos = "";
+        var seletedAppointmentTimeElements = $("#divAppointmentTimes table.book tr td.booking");
+        if (seletedAppointmentTimeElements && seletedAppointmentTimeElements.length > 0) {
+            seletedAppointmentTimeElements.each(function () { rowNos += rowNos == "" ? $(this).attr("rowno") : "," + $(this).attr("rowno") });
+        }
+        return rowNos;
+    }
+    var isSingleSelect = "@isSingleSelect";
+    function doSelectAppointmentTime(element) {
+        var originalClassName = $(element).attr("class");
+        var newClassName = "";
+        var isSingleSelectStr = $(element).attr("isSingleSelect");
+        var singleSelectEelement = $("#tbAppointmentTimes tr td.booking[isSingleSelect='true']");
+        if (singleSelectEelement.length > 0 && isSingleSelectStr != "true") {
+            var beginDate = $(singleSelectEelement).attr("date");
+            var beginTime = $(singleSelectEelement).attr("time");
+            var endDate = $(singleSelectEelement).attr("endDate");
+            var endTime = $(singleSelectEelement).attr("endTime");
+            $.messager.alert('提示', beginDate + " " + beginTime + "~" + endDate + " " + endTime + "为单独选择的时间段，不能与其他时间段同时选择", 'warning');
+            return;
+        }
+        switch (originalClassName) {
+            case "valid":
+                newClassName = "booking";
+                break;
+            case "booking":
+                newClassName = "valid";
+                break;
+        }
+        var tip = $(element).attr("tip").trim();
+        if (tip != "" && originalClassName == "valid") {
+            $.messager.alert('提示', tip, 'warning');
+        }
+        if (isSingleSelect == "true" || isSingleSelectStr == "true") {
+            var selectedElements = $("#tbAppointmentTimes tr td.booking");
+            if (selectedElements.length > 0) {
+                $.each(selectedElements, function () {
+                    $(this).attr("class", "valid");
+                });
+            }
+        }
+        if (newClassName != "") $(element).attr("class", newClassName);
+    }
+    function doOnMouseOver(id) {
+        $("#tr_" + id + " td").css("background-color", "#fff");
+        $("#tr_" + id).css("background-color", "#fff");
+    }
+    function doOnMouseOut(id) {
+        var index = parseInt(id);
+        $("#tr_" + id + " td").css("background-color", "transparent");
+        $("#tr_" + id).css("background-color", "transparent");
+    }
+</script>

@@ -1,0 +1,243 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var animalAppointmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAnimalAppointmentPrivilige(User.Identity.Name);}
+<div id="divDelegateAnimalAppointmentEditDialog" style="display:none;"></div>
+<div id="divSelfAnimalAppointmentEditDialog" style="display:none;"></div>
+<div id="divViewAnimalAppointmentDialog" style="display:none;"></div>
+<div id="divAuditAnimalAppointmentDialog" style="display:none;"></div>
+<div id="divPurchaseAnimalAppointmentDialog" style="display:none;"></div>
+<div id="divInputAnimalQualifiedNoDialog" style="display:none;"></div>
+<script type="text/javascript">
+    var inputAnimalQualifiedNoDialog;
+    function doInputAnimalQualifiedNo(id,buyType){
+        if (inputAnimalQualifiedNoDialog) {
+            inputAnimalQualifiedNoDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divInputAnimalQualifiedNoDialog').load('@Url.Action("InputAnimalQualifiedNoContainer", "AnimalAppointment")',{ "id": id,"time":new Date().getMilliseconds()},function(data){
+            $.messager.progress("close");
+            inputAnimalQualifiedNoDialog = @(Html.JDialog("divInputAnimalQualifiedNo").SetAutoDialog(false).SetModal(true).SetOkScript("execInputAnimalQualifiedNo(id,buyType);").SetCancelScript("inputAnimalQualifiedNoDialog.dialog('close');return false;").SetTitle("登记合格证号").SetIconCls("icon-edit").ToMvcString());
+        });  
+        return false;
+    }
+    function execInputAnimalQualifiedNo(id,buyType){
+        var url = "";
+        switch(buyType.toString()){
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.DelegateBuy).ToString())":
+                url = '@Url.Action("InputDelegateAppointmentAnimalQualifiedNo", "AnimalAppointment")'
+                break;
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.SelfBuy).ToString())":
+                url = '@Url.Action("InputSelfAppointmentAnimalQualifiedNo", "AnimalAppointment")'
+                break;
+        }
+         $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: url,
+                data:$("#frmInputAnimalQualifiedNo").serialize()+ "&id=" + id + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress("close");
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    inputAnimalQualifiedNoDialog.dialog("close");
+                    doSearch();
+                }
+            });
+    }
+    function doExpertDelegateAppointment(){
+        var url = '@Url.Action("ExpertDelegateAppointment", "AnimalAppointment")'+"?time=" + new Date().getMilliseconds();
+        var queryExpression = generateQueryExpress();
+        url +="&queryExpression=" + queryExpression;
+        window.open(url,"_blank");
+    }
+    var purchaseDialog;
+    function doPurchaseAnimalAppointment(id,buyType){
+        if (purchaseDialog) {
+            purchaseDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divPurchaseAnimalAppointmentDialog').load('@Url.Action("PurchaseInputContainer", "AnimalAppointment")',{ "id": id,"status":status,"buyType":buyType,"time":new Date().getMilliseconds()},function(data){
+            $.messager.progress("close");
+            purchaseDialog = @(Html.JDialog("divPurchaseAnimalAppointment").SetAutoDialog(false).SetModal(true).SetOkScript("execPurchaseAnimalAppointment(id,buyType);").SetCancelScript("purchaseDialog.dialog('close');return false;").SetTitle("实验动物采购信息录入").SetIconCls("icon-save").ToMvcString());
+        });  
+        return false;
+    }
+    function execPurchaseAnimalAppointment(id,buyType){
+       var url = "";
+        switch(buyType.toString()){
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.DelegateBuy).ToString())":
+                url = '@Url.Action("PurchaseDelegateAppointment", "AnimalAppointment")'
+                break;
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.SelfBuy).ToString())":
+                url = '@Url.Action("PurchaseSelfAppointment", "AnimalAppointment")'
+                break;
+        }
+         $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: url,
+                data:$("#frmPurchaseAnimalAppointment").serialize()+"&buyType=" + buyType + "&id=" + id + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress("close");
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    purchaseDialog.dialog("close");
+                    doSearch();
+                }
+            });
+    }
+    var auditDialog;
+    function doAuditAnimalAppointment(id,status,buyType){
+        if (auditDialog) {
+            auditDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divAuditAnimalAppointmentDialog').load('@Url.Action("AuditInputContainer", "AnimalAppointment")',{ "id": id,"status":status,"buyType":buyType,"time":new Date().getMilliseconds()},function(data){
+            $.messager.progress("close");
+            auditDialog = @(Html.JDialog("divAuditAnimalAppointment").SetAutoDialog(false).SetModal(true).SetOkScript("execAuditAnimalAppointment(id,status,buyType);").SetCancelScript("auditDialog.dialog('close');return false;").SetTitle("实验动物采购申请单审核").SetIconCls("icon-ok").ToMvcString());
+        });  
+        return false;
+    }
+    function execAuditAnimalAppointment(id,status,buyType){
+        var url = "";
+        switch(buyType.toString()){
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.DelegateBuy).ToString())":
+                url = status=='@((int)com.Bynonco.LIMS.Model.Enum.AnimalAppointmentStatus.AuditedPass)'?'@Url.Action("AuditPassDelegateAppointment", "AnimalAppointment")':'@Url.Action("AuditNotPassDelegateAppointment", "AnimalAppointment")';
+                break;
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.SelfBuy).ToString())":
+                url = status=='@((int)com.Bynonco.LIMS.Model.Enum.AnimalAppointmentStatus.AuditedPass)'?'@Url.Action("AuditPassSelfAppointment", "AnimalAppointment")':'@Url.Action("AuditNotPassSelfAppointment", "AnimalAppointment")';
+                break;
+        }
+         $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: url,
+                data:$("#frmAuditAnimalAppointment").serialize()+"&status=" + status + "&id=" + id + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress("close");
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    auditDialog.dialog("close");
+                    doSearch();
+                }
+            });
+     }
+    var viewDialog;
+    function doViewAnimalAppointment(id,buyType){
+        var url = "";
+        switch(buyType.toString()){
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.DelegateBuy).ToString())":
+                url ='@Url.Action("ViewDelegateAppointment","AnimalAppointment")';
+                break;
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.SelfBuy).ToString())":
+                url ='@Url.Action("ViewSelfAppointment","AnimalAppointment")';
+                break;
+        }
+        if(viewDialog) viewDialog.dialog('destroy');
+        var url = url + "?id=" + id + "&animalBuyType=" + buyType + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divViewAnimalAppointmentDialog").load(url, function () {
+            $.messager.progress('close');
+            viewDialog = @(Html.JDialog("divAnimalAppointmentView").SetTitle("实验动物采购申请单").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("viewDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    var editDialog;
+    function doAddOrEditDelegateAnimalAppointment(id) {
+        if(editDialog) editDialog.dialog('destroy');
+        var url = (id != "" ? '@Url.Action("EditDelegateAppointment")' : '@Url.Action("AddDelegateAppointment")') + "?id=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divDelegateAnimalAppointmentEditDialog").load(url, function () {
+            $.messager.progress('close');
+            editDialog = @(Html.JDialog("divDelegateAnimalAppointmentEdit").SetTitle("实验动物代购申请").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("editDialog.dialog('close');return false;").SetModal(true).SetOkScript(animalAppointmentPrivilige.IsEnableSaveDelegateAppointment ? string.Format("doSave(id,'0',editDialog);") : "alert('无操作权限');").ToMvcString());
+        });
+    }
+    var selfEditDialog;
+    function doAddOrEditSelfAnimalAppointment(id) {
+        if(selfEditDialog) selfEditDialog.dialog('destroy');
+        var url = (id != "" ? '@Url.Action("EditSelfAppointment")' : '@Url.Action("AddSelfAppointment")') + "?id=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelfAnimalAppointmentEditDialog").load(url, function (data) {
+            $.messager.progress('close');
+            selfEditDialog = @(Html.JDialog("divSelfAnimalAppointmentEdit").SetTitle("实验动物自购申请").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("selfEditDialog.dialog('close');return false;").SetModal(true).SetOkScript(animalAppointmentPrivilige.IsEnableSaveSelfAppointment ? string.Format("doSave(id,'1',selfEditDialog);") : "alert('无操作权限');").ToMvcString());
+        });
+    }
+    function doPrintAnimalAppointment(id,buyType){
+        var url = "";
+        switch(buyType.toString()){
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.DelegateBuy).ToString())":
+                url ='@Url.Action("PrintDelegateAppointment","AnimalAppointment")';
+                break;
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.SelfBuy).ToString())":
+                url ='@Url.Action("PrintSelfAppointment", "AnimalAppointment")';
+                break;
+        }
+        url += "?time=" + new Date().getMilliseconds() + "&id=" + id;
+        window.open(url,"_blank");
+    }
+    function doCancelAnimalAppointment(id,buyType){
+        var url = "";
+        switch(buyType.toString()){
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.DelegateBuy).ToString())":
+                url ='@Url.Action("CancelDelegateAppointment","AnimalAppointment")';
+                break;
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.SelfBuy).ToString())":
+                url ='@Url.Action("CancelSelfAppointment", "AnimalAppointment")';
+                break;
+        }
+        $.messager.confirm('提示', '确认取消?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: { "id": id,"time":new Date().getMilliseconds() },
+                success: function (msg) {
+                    $.messager.progress("close");
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    function doSave(id,buyType,dialog){
+        var url = "";
+        var formId="";
+        switch(buyType.toString()){
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.DelegateBuy).ToString())":
+                url ='@Url.Action("SaveDelegateAppointment","AnimalAppointment")';
+                formId="frmDelegateAnimalAppointmentEdit";
+                break;
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AnimalBuyType.SelfBuy).ToString())":
+                url ='@Url.Action("SaveSelfAppointment","AnimalAppointment")';
+                formId="frmSelfAnimalAppointmentEdit";
+                break;
+        }
+        var subjectProjectName = $("#SubjectProjectId").combobox("getText");
+        var animalSourceName = $("#AnimalSourceId").combobox("getText");
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url + "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#" + formId).serialize()+ "&SubjectProjectName=" + subjectProjectName+ "&AnimalSourceName=" + animalSourceName,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+                dialog.dialog('close'); 
+            }
+        });
+        return false;
+    }
+</script>

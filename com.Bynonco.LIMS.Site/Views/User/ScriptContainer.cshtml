@@ -1,0 +1,263 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divMutiUserAuditPassDialog"></div>
+<div id="divMutiUserAuditReasonDialog"></div>
+<script type="text/javascript">
+    function doAddUser() {
+        var url = '@Url.Action("Edit", "User")' + "?date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+    function doEditUser(id) {
+        if (id == null || id.trim() == "") {
+            var selectedUsers = $("#tbUserList").datagrid("getSelections");
+            if(!selectedUsers || selectedUsers.length==0){
+                $.messager.show({ title: '提示', msg: "请选择要编辑的项", showType: 'show' });
+                return;
+            }
+            id = selectedUsers[0].Id;
+        }
+        var url = '@Url.Action("Edit", "User")' + "?id=" + encodeURI(id) + "&date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+    function doDeleteUser(id){
+        if (id == null || id.trim() == "") {
+            var selectedUsers = $("#tbUserList").datagrid("getSelections");
+            if(!selectedUsers || selectedUsers.length==0){
+                $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+                return;
+            }
+            id = selectedUsers[0].Id;
+        }
+        $.messager.confirm('提示', '是否确认删除用户?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "User")',
+                data: "id=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '删除成功', msg: msg, showType: 'show' });
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doBack() {
+        var url = '@Url.Action("Index", "User")' + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbUserList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doMutiAuditPass()
+    {
+        var mutiIds = generateSelectedIds().toString();
+        if (mutiIds == null) {
+            $.messager.show({ title: '提示', msg: "请选择要批量审核通过的项", showType: 'show' });
+            return false;
+        }
+        alert("等待开发");
+    }
+    var mutiAuditPassDialog;
+    function doMutiAuditPassDialog() {
+        if (mutiAuditPassDialog) {
+            mutiAuditPassDialog.dialog("destroy");
+        }
+        mutiAuditPassDialog =  @Html.JDialog("divMutiUserAuditPass").SetTitle("批量审核通过").SetIconCls("icon-pass").SetAutoDialog(false).SetCancelScript("mutiAuditPassDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveMutiAuditPass();").ToMvcString();
+    }
+    function doMutiAuditPass()
+    {
+        var mutiIds = generateSelectedIds().toString();
+        if (mutiIds == null || mutiIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要批量审核通过的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("MutiAuditPass", "User")'+ "?ids=" + mutiIds + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divMutiUserAuditPassDialog").load(url,function(){
+            doMutiAuditPassDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveMutiAuditPass(){
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveMutiAuditPass", "User")',
+            data: $("#frmMutiAuditPass").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                mutiAuditPassDialog.dialog("destroy");
+                doSearch();
+            }
+        });
+    }
+    var mutiAuditRejectDialog;
+    function doMutiAuditRejectDialog() {
+        if (mutiAuditRejectDialog) {
+            mutiAuditRejectDialog.dialog("destroy");
+        }
+        mutiAuditRejectDialog =  @Html.JDialog("divMutiUserAuditReason").SetTitle("批量审核不通过").SetIconCls("icon-reject").SetAutoDialog(false).SetCancelScript("mutiAuditRejectDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveMutiAuditReject();").ToMvcString();
+    }
+    function doMutiAuditReject()
+    {
+        var mutiIds = generateSelectedIds().toString();
+        if (mutiIds == null || mutiIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要批量审核不通过的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("MutiAuditReason", "User")'+ "?date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divMutiUserAuditReasonDialog").load(url,function(){
+            doMutiAuditRejectDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveMutiAuditReject(){
+        doSaveMutiAudit('@Url.Action("SaveMutiAuditReject", "User")');
+    }
+    var mutiAuditInvalidDialog;
+    function doMutiAuditInvalidDialog() {
+        if (mutiAuditInvalidDialog) {
+            mutiAuditInvalidDialog.dialog("destroy");
+        }
+        mutiAuditInvalidDialog =  @Html.JDialog("divMutiUserAuditReason").SetTitle("批量禁止登陆").SetIconCls("icon-invalid").SetAutoDialog(false).SetCancelScript("mutiAuditInvalidDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveMutiAuditInvalid();").ToMvcString();
+    }
+    function doMutiAuditInvalid()
+    {
+        var mutiIds = generateSelectedIds().toString();
+        if (mutiIds == null || mutiIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要批量禁止登陆的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("MutiAuditReason", "User")'+ "?ids=" + mutiIds + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divMutiUserAuditReasonDialog").load(url,function(){
+            doMutiAuditInvalidDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveMutiAuditInvalid(){
+        doSaveMutiAudit('@Url.Action("SaveMutiAuditInvalid", "User")');
+    }
+    var mutiAuditInBlackListDialog;
+    function doMutiAuditInBlackListDialog() {
+        if (mutiAuditInBlackListDialog) {
+            mutiAuditInBlackListDialog.dialog("destroy");
+        }
+        mutiAuditInBlackListDialog =  @Html.JDialog("divMutiUserAuditReason").SetTitle("批量禁止预约").SetIconCls("icon-invalid").SetAutoDialog(false).SetCancelScript("mutiAuditInBlackListDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveMutiAuditInBlackList();").ToMvcString();
+    }
+    function doMutiAuditInBlackList()
+    {
+        var mutiIds = generateSelectedIds().toString();
+        if (mutiIds == null || mutiIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要批量禁止登陆的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("MutiAuditReason", "User")'+ "?ids=" + mutiIds + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divMutiUserAuditReasonDialog").load(url,function(){
+            doMutiAuditInBlackListDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+   function doSaveMutiAuditInBlackList(){
+        doSaveMutiAudit('@Url.Action("SaveMutiAuditInBlackList", "User")');
+   }
+   function doSaveMutiAudit(url)
+   {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var forbidCause = $("#ForbidCause").val();
+        var mutiIds = generateSelectedIds().toString();
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { "ids": mutiIds ,"ForbidCause" : forbidCause, "date" : new Date().getMilliseconds()},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                if (mutiAuditRejectDialog) { mutiAuditRejectDialog.dialog("destroy");  }
+                if (mutiAuditInvalidDialog) { mutiAuditInvalidDialog.dialog("destroy");  }
+                if (mutiAuditInBlackListDialog) { mutiAuditInBlackListDialog.dialog("destroy");  }
+                doSearch();
+            }
+        });
+   }
+
+   function doBatchDelete()
+    {
+        $.messager.confirm('提示', '是否确认批量删除用户?', function (r) {
+            if (!r) return;
+        var mutiIds = generateSelectedIds().toString();        
+        if (mutiIds == null || mutiIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要批量删除的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("BatchDelete", "User")'+ "?ids=" + mutiIds + "&date=" + new Date().getMilliseconds();
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { "ids": mutiIds , "date" : new Date().getMilliseconds()},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }              
+                doSearch();
+            }
+        })
+        });
+    }
+
+    function doExportSlwUser()
+    {
+        $.messager.confirm('提示', '是否确认同步水控系统用户?', function (r) {
+            if (!r) return;
+        var mutiIds = generateSelectedIds().toString();
+        if (mutiIds == null || mutiIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要同步水控系统用户的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ExportSlwUser", "User")'+ "?ids=" + mutiIds + "&date=" + new Date().getMilliseconds();
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { "ids": mutiIds , "date" : new Date().getMilliseconds()},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }              
+                doSearch();
+            }
+        })
+        });
+    }
+</script>

@@ -1,0 +1,52 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+    var customerIsDepositPhoto = customer == null ? false : customer.GetIsDepositPhoto();
+    var depositRecordPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDepositRecordPrivilige(User.Identity.Name);
+    var isDepositRecordNeedPreAudit = ViewData["IsDepositRecordNeedPreAudit"] == null ? false : bool.Parse(ViewData["IsDepositRecordNeedPreAudit"].ToString());
+    var customerDepositSamplyNoDisplayName = customer == null ? "样品编号" : customer.GetDepositSamplyNoDisplayName();
+    var dataGrid = Html.JDataGrid("tbDepositRecordList")
+       .SetUrl(Url.Action("GetGridTesterViewDepositRecordList", "DepositRecord"))
+       .SetHeight(600)
+       .SetSortName("ApplyDate")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowAddButton(false)
+       .SetShowEditButton(false)
+       .SetShowDeleteButton(false)
+       .SetShowRefreshButton(false)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowDepositRecordInfo('');", IconCls = "icon-eye", Id = "btnShowDepositRecordInfo", Text = "查看" });
+    if (depositRecordPrivilige.IsEnableTesterExportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doTesterExportExcel();", IconCls = "icon-export", Id = "btnTesterExportExcel", Text = "导出" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearch();", IconCls = "icon-reload", Id = "btnReload", Text = "刷新" });
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("存款人", "UserName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerOrgName, "UserOrgName").SetHidden(true).SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("币种", "CurencyTypeStr").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerDepositSamplyNoDisplayName, "SampleNo").SetHidden(true).SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发票号", "InvoiceNo").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("金额", "DepositSum").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预审状态", "DepositRecordStatusNickName").SetHidden(!isDepositRecordNeedPreAudit).SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "HasCheckedNickName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "ApplyDateStr").SetWidth(150).SetAlign(Align.center));
+    if (customerIsDepositPhoto)
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("凭证号", "CertificateNum").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("附件", "DepositRecordPhotoStr").SetWidth(180).SetAlign(Align.center));
+    }
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("检测人", "TesterName").SetHidden(true).SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "CheckerName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核时间", "CheckTimeStr").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核备注", "CheckRemark").SetWidth(200).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(300).SetAlign(Align.left).SetSortable(false));
+}
+@(dataGrid.ToMvcString())

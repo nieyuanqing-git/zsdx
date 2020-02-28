@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "Authorize";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    DotNetOpenAuth.OAuth2.Messages.EndUserAuthorizationRequest AuthorizationRequest = ViewBag.AuthorizationRequest;
+}
+<h2>
+    Authorize</h2>
+是否授权 @ViewBag.Name 访问以下地址
+<hr />
+@foreach (string scope in AuthorizationRequest.Scope)
+{
+    @scope
+    <br />
+}
+@using (Html.BeginForm("AuthorizeResponse", "OAuthAuthorize"))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("isApproved")
+    @Html.Hidden("client_id", AuthorizationRequest.ClientIdentifier)
+    @Html.Hidden("redirect_uri", AuthorizationRequest.Callback)
+    @Html.Hidden("state", AuthorizationRequest.ClientState)
+    @Html.Hidden("scope", DotNetOpenAuth.OAuth2.OAuthUtilities.JoinScopes(AuthorizationRequest.Scope))
+    @Html.Hidden("response_type", AuthorizationRequest.ResponseType == DotNetOpenAuth.OAuth2.Messages.EndUserAuthorizationResponseType.AccessToken ? "token" : "code")
+    <div>
+        <input type="submit" value="Yes" onclick="document.getElementById('isApproved').value = true; return true;" />
+        <input type="submit" value="No" onclick="document.getElementById('isApproved').value = false; return true;" />
+    </div>
+}

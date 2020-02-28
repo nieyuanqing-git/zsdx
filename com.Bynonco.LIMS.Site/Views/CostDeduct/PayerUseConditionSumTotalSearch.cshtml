@@ -1,0 +1,58 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generatePayerUseConditionSumTotalQueryExpression() {
+        var queryExpression = "";
+        var payerName = $("#SearchPayerName").val().trim();
+        if (payerName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "PayerName∽\"" + payerName + "\"";
+        }
+        var payerOrgName = $("#SearchPayerOrgName").val().trim();
+        if (payerOrgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "PayerOrgName∽\"" + payerOrgName + "\"";
+        }
+        var beginAtStart = $("#SearchBeginAtStart").datebox("getValue").trim();
+        if (beginAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DeductAt>\"" + beginAtStart + " 00:00:00" + "\"";
+        }
+        var beginAtEnd = $("#SearchBeginAtEnd").datebox("getValue").trim();
+        if (beginAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DeductAt<\"" + beginAtEnd + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doPayerUseConditionSumTotalReset() {
+        $("#SearchPayerName").val("");
+        $("#SearchPayerOrgName").val("");
+        $("#SearchBeginAtStart").datebox("setValue", "");
+        $("#SearchBeginAtEnd").datebox("setValue", "");
+        return false;
+    }
+
+</script>
+<ul class="search">
+    <li>
+        <label style="width:60px">导师名称</label>
+        @Html.JValidateBox("SearchPayerName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">单位名称</label>
+        @Html.JValidateBox("SearchPayerOrgName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">开始时间</label>
+        @Html.JDateTimePicker("SearchBeginAtStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">结束时间</label>
+        @Html.JDateTimePicker("SearchBeginAtEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnPayerUseConditionSumTotalSearch", "查询").SetOnclick("doPayerUseConditionSumTotalSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnPayerUseConditionSumTotalReset", "清空").SetOnclick("doPayerUseConditionSumTotalReset();").ToMvcString()
+        @Html.JLinkButton("btnPayerUseConditionSumTotallClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

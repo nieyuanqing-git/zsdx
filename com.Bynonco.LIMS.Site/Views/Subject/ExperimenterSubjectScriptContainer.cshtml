@@ -1,0 +1,67 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSubject
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var subjectPrivilige = Model == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name, Model.Id, Convert.ToBoolean(ViewData["IsCooperative"]));
+}
+<div id="divExperimenterSubjectDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doAddOrEditExperimenterSubject(id,isCooperative) {
+        var subjectId= $("#SubjectId").val();
+        var url = '@Url.Action("EditExperimenterSubject","Subject")' + "?Id=" + id + "&date=" + new Date().getMilliseconds() + "&SubjectId=" + subjectId + "&isCooperative=" + isCooperative;
+        $("#divExperimenterSubjectDialog").load(url, function (data) {
+            doExperimenterSubjectDialog();
+        });
+        return false;
+    }
+    var experimenterSubjectDialog;
+    function doExperimenterSubjectDialog() {
+        if (experimenterSubjectDialog) {
+            experimenterSubjectDialog.dialog("destroy");
+        }
+        experimenterSubjectDialog =  @Html.JDialog("divExperimenterSubjectEdit").SetTitle("课题组成员信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("experimenterSubjectDialog.dialog('close');return false;").SetModal(true).SetOkScript(subjectPrivilige.IsEnableSaveExperimenterSubject?string.Format("doSaveExperimenterSubject('{0}');return false;",ViewData["IsCooperative"]==null?"false":ViewData["IsCooperative"].ToString().ToLower()):"alert('无操作权限');return false;").ToMvcString();
+    }
+    function doSaveExperimenterSubject(isCooperative) {
+        var subjectId= $("#SubjectId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveExperimenterSubject","Subject")',
+            data: $("#frmExperimenterSubjectEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&SubjectId=" + subjectId + "&isCooperative=" + isCooperative,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                experimenterSubjectDialog.dialog('close');
+                doExperimenterSubjectSearch();
+            }
+        });
+    }
+    function doDeleteExperimenterSubject(id,isCooperative){
+        var subjectId= $("#SubjectId").val();
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteExperimenterSubject","Subject")',
+                data:{"date": new Date().getMilliseconds(),"Ids": id,"SubjectId":subjectId,"isCooperative":isCooperative },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doExperimenterSubjectSearch();
+                }
+            });
+        });
+    }
+    function doExperimenterSubjectSearch() {
+        $("#tbExperimenterSubjectList").datagrid("reload");
+        return false;
+    }
+</script>

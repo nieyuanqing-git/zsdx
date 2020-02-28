@@ -1,0 +1,233 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isShowSearchUserStatus = ViewData["IsShowSearchUserStatus"] == null ? false : bool.Parse(ViewData["IsShowSearchUserStatus"].ToString());
+    var isIE11Browser = Request.Browser.Type.ToString().ToLower().IndexOf("mozilla") >= 0;//处理兼容
+    var is360Browser = Request.Browser.Type.IndexOf("Chrome") >= 0;//处理兼容
+  }
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression = "(UserName∽\"" + userName.trim() + "\"+Label∽\"" + userName + "\")";
+        }
+        var card = $("#SearchCard").val().trim();
+        if (card != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RealCard=\"" + card + "\"";
+        }
+        var email = $("#SearchEmail").val().trim();
+        if (email != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Email∽\"" + email + "\"";
+        }
+        var phoneNumber = $("#SearchPhoneNumber").val().trim();
+        if (phoneNumber != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(PhoneNumber∽\"" + phoneNumber + "\"+FixedPhone∽\"" + phoneNumber + "\")";
+        }
+        var tutorName = $("#SearchTutorName").val().trim();
+        if (tutorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "TutorName∽\"" + tutorName + "\"";
+        }
+        var identityCardNo = $("#SearchIdentityCardNo").val().trim();
+        if (identityCardNo != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "IdentityCardNo∽\"" + identityCardNo + "\"";
+        }
+        var registerTimeStart = $("#SearchRegisterTimeStart").datebox("getValue").trim();
+        if (registerTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RegisterTime>\"" + registerTimeStart + "\"";
+        }
+        var registerTimeEnd = $("#SearchRegisterTimeEnd").datebox("getValue").trim();
+        if (registerTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RegisterTime<\"" + registerTimeEnd + " 23:59:59\"";
+        }
+        var organizationXPath = $("#SearchOrganizationXPath").val().trim();
+        if (organizationXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OrganizationXPath→\"" + organizationXPath + "\"";
+        }
+        var userTypeXPath = $("#SearchUserTypeXPath").val().trim();
+        if (userTypeXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserTypeXPath→\"" + userTypeXPath + "\"";
+        }
+        var tagId = $("#SearchTagId").combobox("getValue");
+        if (tagId != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "TagId=\"" + tagId + "\"";
+        }
+        if ($("#SearchUserStatus").length > 0) {
+            var userStatus = $("#SearchUserStatus").combobox("getValue");
+            if (userStatus != "") {
+                queryExpression += (queryExpression == "" ? "" : "*") + "UserStatus=\"" + userStatus + "\"";
+            }
+        }
+        var speciality = $("#SearchSpeciality").val().trim();
+        if (speciality != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Speciality∽\"" + speciality + "\"";
+        }
+        var grade = $("#SearchGrade").val().trim();
+        if (grade != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Grade∽\"" + grade + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#SearchUserName").val("");
+        $("#SearchCard").val("");
+        $("#SearchTutorName").val("");
+        $("#SearchEmail").val("");
+        $("#SearchPhoneNumber").val("");
+        $("#SearchIdentityCardNo").val("");
+        $("#SearchRegisterTimeStart").datebox("setValue", "");
+        $("#SearchRegisterTimeEnd").datebox("setValue", "");
+        $("#SearchOrganizationId").val('@Guid.Empty.ToString()');
+        $("#SearchOrganizationXPath").val("");
+        $("#SearchUserTypeId").combotree("setValue", "");
+        $("#SearchUserTypeXPath").val("");
+        $("#SearchTagId").combobox("setValue", "");
+        if ($("#SearchUserStatus").length > 0) {
+            $("#SearchUserStatus").combobox("setValue", "");
+        }
+        $("#SearchSpeciality").val("");
+        $("#SearchGrade").val("");
+        return false;
+    }
+
+    function getSearchOrganizationXPath(element) {
+        $("#SearchOrganizationXPath").val("");
+        var organizationId = element.value;
+        if (organizationId != "" && !organizationId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: organizationId }, function (data) {
+                if (data && data != "")
+                    $("#SearchOrganizationXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    function getSearchUserTypeXPath() {
+        $("#SearchUserTypeXPath").val("");
+        var userTypeId = $("#SearchUserTypeId").combotree("getValue");
+        if (userTypeId != "" && !userTypeId.isDefaultGuid()) {
+            var urlGetUserTypeById = '@Url.Action("GetUserTypeById","UserType")';
+            $.post(urlGetUserTypeById, { id: userTypeId }, function (data) {
+                if (data && data != "")
+                    $("#SearchUserTypeXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    
+</script>
+<ul class="search">
+    <li>
+        <label>名称</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>卡号</label>
+        @Html.JValidateBox("SearchCard").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>导师</label>
+        @Html.JValidateBox("SearchTutorName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>手机号</label>
+        @Html.JValidateBox("SearchPhoneNumber").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>邮箱</label>
+        @Html.JValidateBox("SearchEmail").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>专业</label>
+        @Html.JValidateBox("SearchSpeciality").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>年级</label>
+        @Html.JValidateBox("SearchGrade").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    @if (isShowSearchUserStatus)
+    {
+    <li>
+        <label>状态</label>
+        @(Html.JComboBox("SearchUserStatus")
+            .SetEditable(false)
+            .SetData(ViewData["SearchUserStatusJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    }
+    <li>
+        <label>机构</label>
+        @Html.DropDownList("SearchOrganizationId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:155px;", onchange = "getSearchOrganizationXPath(this);" })
+        @Html.Hidden("SearchOrganizationXPath")
+
+    </li>
+    <li>
+        <label>身份</label>
+        @(Html.JComboTree("SearchUserTypeId")
+            .SetData(ViewData["SearchUserTypeJson"])
+            .SetMultiple(false)
+            .SetWidth(155)
+            .SetExpandAll(true)
+            .SetOnChange("getSearchUserTypeXPath();")
+            .ToMvcString())
+        @Html.Hidden("SearchUserTypeXPath")
+    </li>
+    <li>
+        <label>类型</label>
+        @(Html.JComboBox("SearchTagId")
+            .SetEditable(false)
+            .SetData(ViewData["SearchTagJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li>
+        <label>证件号码</label>
+        @Html.JValidateBox("SearchIdentityCardNo").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>注册时间</label>
+        @Html.JDateTimePicker("SearchRegisterTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchRegisterTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+
+<script type="text/javascript">
+    function CardReaded(card) {
+        doReset();
+        $("#SearchCard").val(card);
+        if (typeof (doSearch) == 'function') doSearch();
+        return 1;
+    }
+    function DeviceChanged(isConnected) {
+        if (isConnected == 0) $.messager.show({ title: '提示', msg: '读卡器已拔出', showType: 'show' });
+        else $.messager.show({ title: '提示', msg: '读卡器已连接', showType: 'show' });
+        return 1;
+    }
+    $(function () {
+        if (document.UsbICReader != undefined) {
+            if ("@(isIE11Browser.ToString().ToLower())" == "true") {
+                $("#UsbICReader").bind("CardReaded", CardReaded); //支持ie11 mozilla
+                $("#UsbICReader").bind("DeviceChanged", DeviceChanged);
+            }
+            else if ("@(is360Browser.ToString().ToLower())" == "true") {
+                $("#UsbICReader").bind("CardReaded", CardReaded); //支持360
+                $("#UsbICReader").bind("DeviceChanged", DeviceChanged);
+            } else {
+                document.UsbICReader.attachEvent("CardReaded", CardReaded);
+                document.UsbICReader.attachEvent("DeviceChanged", DeviceChanged);
+            }
+
+        }
+    });
+</script>

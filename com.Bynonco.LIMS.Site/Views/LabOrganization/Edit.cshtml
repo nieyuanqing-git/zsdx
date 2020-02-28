@@ -1,0 +1,181 @@
+﻿@model com.Bynonco.LIMS.Model.LabOrganization
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+
+<script type="text/javascript">
+    function doOnNameChanged(){
+        $("#InputStr").val("");
+    }
+    function doOnParentChanged(element) {
+        $("#AuthorizationFlag").val("");
+        var labOrgId = element.value;
+        if (labOrgId != "" && !labOrgId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labOrgId }, function (data) {
+                if (data && data != "")
+                    $("#AuthorizationFlag").val(data.AuthorizationFlag);
+            }, 'json');
+        }
+    }
+    function doOnLabOrganizationTypeLoadSuccess(){  
+        if ($("#Id").val().trim() == "")
+        {
+            var selectedLabOrganization = $("#tbLabOrganizationList").treegrid("getSelected");
+            if (selectedLabOrganization && selectedLabOrganization.Id && !selectedLabOrganization.Id.trim() == "" && !selectedLabOrganization.Id.isDefaultGuid()) 
+            {
+                if(selectedLabOrganization.Type.toString() == "@((int)LabOrganizationType.LabRoom)")
+                {
+                    var currentType = "@((int)LabOrganizationType.LabRoom)";
+                    var currentTypeName = "@(LabOrganizationType.LabRoom.ToCnName())";
+                    $("#Type").combobox("setValue",currentType);
+                    $("#tdLabOrganizationEdit #tdType span input.combo-text.validatebox-text").val(currentTypeName);
+                    return;
+                }
+            }
+        }
+        $("#tdLabOrganizationEdit #tdType span input.combo-text.validatebox-text").val("@ViewData["TypeName"].ToString()");  
+    }
+</script>
+<div id="divLabOrganizationEdit">
+ <form id="frmLabOrganizationEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdLabOrganizationEdit" class="edit-table"  style="width:650px;">
+         <tr>
+            <th><span class="required">*</span>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetRequired(true).SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+                @Html.JValidateBox("InputStr").AddClass("hide").SetValue(Model == null ? "" : Model.InputStr).SetWidth(200).ToMvcString()
+            </td>
+            <th><span class="required">*</span>是否停用</th>
+            <td>
+                @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+         <tr>
+            <th><span class="required">*</span>类型</th>
+            <td id="tdType">
+                @(Html.JComboBox("Type")
+                .SetEditable(false)
+                .SetData(ViewData["TypesJson"])
+                .SetValue(Model==null || Model.LabOrganizationType == com.Bynonco.LIMS.Model.Enum.LabOrganizationType.Organziton ? "0" : "1")
+                .SetOnLoadSuccess("setTimeout('doOnLabOrganizationTypeLoadSuccess();', 500);")
+                .SetWidth(205).SetRequired(false).ToMvcString())
+            </td>
+            <th>父级机构</th>
+            <td id="tdParentId">
+                @if (Model != null)
+                {
+                     @Html.DropDownList("ParentId", (IEnumerable<SelectListItem>)ViewData["ParentSelectListItem"], new { style = "width:208px;", disabled="disabled", onchange = "doOnParentChanged(this);" })
+                 }
+                else
+                {
+                    @Html.DropDownList("ParentId", (IEnumerable<SelectListItem>)ViewData["ParentSelectListItem"], new { style = "width:208px", onchange = "doOnParentChanged(this);" })
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>负责人</th>
+            <td colspan="3" id="tdDirectorIds" style="padding-left:2px;">
+                @Html.TokenInput("DirectorIds").SetUrl(Url.Action("GetUserListByKeyWord", "User")).SetPrePopulate(ViewData["DirectorJson"] == null || string.IsNullOrWhiteSpace(ViewData["DirectorJson"].ToString()) ? null : ViewData["DirectorJson"].ToString()).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>单位编码</th>
+            <td>@Html.JValidateBox("Code").SetValue(Model == null ? "" : Model.Code).SetWidth(200).ToMvcString()</td>
+            <th>XPath</th>
+            <td>@Html.JValidateBox("XPath").SetValue(Model == null ? "" : Model.XPath).SetWidth(200).SetDisabled(true).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>电话</th>
+            <td>@Html.JValidateBox("Phone").SetValue(Model == null ? "" : Model.Phone).SetWidth(200).SetValidateType(ValidateType.fixTelephoneNo).ToMvcString()</td>
+            <th>传真</th>
+            <td>@Html.JValidateBox("Fax").SetValue(Model == null ? "" : Model.Fax).SetWidth(200).SetValidateType(ValidateType.fixTelephoneNo).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>地址</th>
+            <td colspan="3">@Html.JValidateBox("Address").SetValue(Model == null ? "" : Model.Address).SetWidth(505).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th rowspan="2">授权标记</th>
+            <td colspan="3">@Html.JValidateBox("AuthorizationFlag").SetValue(Model == null ? "" : Model.AuthorizationFlag).SetWidth(505).ToMvcString()</td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <span class='required'>建议格式:授权服务端IP + 端口 (如:127.0.0.1:80 或者 127.0.0.1)</span>
+            </td>
+        </tr>
+        <tr>
+            <th>经纬度</th>
+            <td colspan="3">
+                @Html.JValidateBox("LatitudeAndlongitude").SetValue(Model == null ? "" : Model.LatitudeAndlongitude).SetWidth(505).ToMvcString()
+                @Html.JLinkButton("btnSelectLatitudeAndlongitude", "").SetIconCls("icon-point").SetPlain(true).SetOnclick("doSetSiteMapPoint('" + (Model == null ? "": Model.Id.ToString()) + "');return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>关联机构</th>
+            <td id="tdRelationOrgIds" colspan="3">
+                @(Html.TokenInput("RelationOrgIds")
+                .SetUrl(Url.Action("GetLabOrganizationListByKeyWord", "LabOrganization"))
+                .SetPrePopulate(ViewData["RelationOrgJson"] == null ? null : ViewData["RelationOrgJson"].ToString())
+                .SetSingle(false)
+                .SetWidth(505)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>不可预约原因</th>
+            <td colspan="3">
+                @Html.TextArea("WhyUnAppointment", Model == null ? "" : Model.WhyUnAppointment, new { style = "font-size:12px;text-decoration:none;height:60px;width:505px;margin-right:5px;" })
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" style="padding:0;border:0;">
+                <table class="edit-table"  style="width:598px;">
+                    <tr>
+                        <td>@Html.CheckBox("IsKeyLab", Model == null ? false : Model.IsKeyLab)</td>
+                        <th>是否重点实验室</th>
+                         <td>@Html.CheckBox("IsShowHome", Model == null ? false : Model.IsShowHome.HasValue ? Model.IsShowHome.Value : false)</td>
+                        <th style="width:74px;">展示首页</th>
+                        <td>@Html.CheckBox("IsAllowAutoAdd", Model == null ? false : Model.IsAllowAutoAdd.HasValue ? Model.IsAllowAutoAdd.Value : false)</td>
+                        <th>允许注册添加</th>
+                       <td>@Html.CheckBox("IsUnAppointment", Model == null ? false : Model.IsUnAppointment.HasValue? Model.IsUnAppointment.Value:false)</td>
+                        <th>是否不可预约</th>
+                        <td>@Html.CheckBox("IsUserNeedTutorAudit", Model == null ? false : Model.IsUserNeedTutorAudit)</td>
+                        <th>用户是否需要导师审核</th>
+                        <td>@Html.CheckBox("IsUserNeedAdminAudit", Model == null ? true : Model.IsUserNeedAdminAudit)</td>
+                        <th>用户是否需要管理员审核</th>
+                        
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>Logo
+            </th>
+            <td>
+                <input id="fileLabOrganizationLogo" type="file" name="fileLabOrganizationLogo" class="addfile" onchange="ajaxFileUploadLabOrganizationLogo();return false;"/>
+                <br />
+                <img id="imgOrganizationLogo" src='@(Model == null || Model.Logo == "" ? "" : Url.Content("~/" + Model.Logo))' style='height:30px;'/>
+                @Html.Hidden("Logo", Model == null ? "" : Model.Logo)
+                @Html.JLinkButton("btnCleanLogo", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("doCleanLogo();return false;").ToMvcString()
+            </td>
+            <th>申请表模板
+            </th>
+            <td>
+                <input id="fileLabOrganizationUserApplyFormDoc" type="file" name="fileLabOrganizationUserApplyFormDoc" class="addfile" onchange="ajaxFileUploadLabOrganizationUserApplyFormDoc();return false;"/>
+                <br />
+                <a id='fileUserApplyFormDocPath' href='@(Model == null || string.IsNullOrWhiteSpace(Model.UserApplyFormDoc) ? "javascript:;" : Url.Content("~/" + Model.UserApplyFormDoc))' target="_blank" class='@(Model == null || string.IsNullOrWhiteSpace(Model.UserApplyFormDoc) ? "hide" : "")'>(点击查看用户申请表模板)</a>
+                @Html.Hidden("UserApplyFormDoc", Model == null ? "" : Model.UserApplyFormDoc)
+                @Html.JLinkButton("btnCleanUserApplyFormDoc", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("doCleanUserApplyFormDoc();return false;").ToMvcString()
+            </td>
+        </tr>
+       
+    </table>
+  </form>
+</div> 
+<script type ="text/javascript">
+    $(function () {
+        $("#tdDirectorIds ul.token-input-list-facebook").attr("style", "width: 553px; height:32px !important;");
+        $("#tdRelationOrgIds ul.token-input-list-facebook").attr("style", "width: 510px; height:32px !important;");
+    });
+</script>

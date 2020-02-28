@@ -1,0 +1,34 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+@{
+    var ethicsSettingPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEthicsSettingPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbShowLinksWhenApplyPassList")
+    .SetUrl(Url.Action("GetShowLinksWhenApplyPassList", "EthicsSetting"))
+    .SetPagination(false)
+    .SetCollapsible(false)
+    .SetHeight(230)
+    .SetWidth(600)
+    .AddCostomerAttribute("FixWidth", "true")
+    .SetTitle("审核通过显示的链接")
+    .SetIconCls("")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("链接名称", "Name").SetSortable(false).SetWidth(200).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("链接地址", "URL").SetSortable(false).SetWidth(380).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(ethicsSettingPrivilige.IsEnableAddShowLinksWhenApplyPass);
+    if (ethicsSettingPrivilige.IsEnableAddShowLinksWhenApplyPass)
+    {
+        dataGrid.SetAddScript("doAddOrEditShowLinksWhenApplyPass('','');");
+    }
+    dataGrid.SetShowEditButton(ethicsSettingPrivilige.IsEnableEditShowLinksWhenApplyPass);
+    if (ethicsSettingPrivilige.IsEnableEditShowLinksWhenApplyPass)
+    {
+        dataGrid.SetEditScript("doEditShowLinksWhenApplyPass();");
+        dataGrid.SetOnDblClickRow("doAddOrEditShowLinksWhenApplyPass(rowData.Name,rowData.URL);");
+    }
+    dataGrid.SetShowDeleteButton(ethicsSettingPrivilige.IsEnableDeleteShowLinksWhenApplyPass);
+    if (ethicsSettingPrivilige.IsEnableDeleteShowLinksWhenApplyPass)
+    {
+        dataGrid.SetDeleteScript("doDeleteShowLinksWhenApplyPass();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

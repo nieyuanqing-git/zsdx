@@ -1,0 +1,51 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewMaterialBroken
+
+<div id="divMaterialBrokenView">
+@if (Model != null)
+{
+    <table  class="edit-table"  style="width:530px;height:auto">
+        <tr>
+            <th>报废单号</th>
+            <td>@Model.BrokenNum</td>
+            <th>状态</th>
+            <td>@Model.StatusStr</td>
+        </tr>
+        <tr>
+            <th>报废人</th>
+            <td>@Model.BrokenUserName</td>
+            <th>报废时间</th>
+            <td>@Model.BrokenTimeStr</td>
+        </tr>
+        <tr>
+            <th>详情</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.ItemDetail)</td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.Remark)</td>
+        </tr>
+        <tr>
+            <th>创建人</th>
+            <td>@Model.CreaterName</td>
+            <th>创建时间</th>
+            <td>@Model.CreateTimeStr</td>
+        </tr>
+        <tr>
+            <th>修改人</th>
+            <td>@Model.UpdateUserName</td>
+            <th>修改时间</th>
+            <td>@Model.UpdateTimeStr</td>
+        </tr>
+        <tr>
+            <th>审核人</th>
+            <td>@Model.AuditUserName</td>
+            <th>审核时间</th>
+            <td>@Model.AuditTimeStr</td>
+        </tr>
+    </table>
+}
+else
+{
+    @:无效信息
+}
+</div> 

@@ -1,0 +1,10 @@
+﻿@{
+    var version = ViewData["FileVersion"] == null ? "" : ViewData["FileVersion"].ToString().Trim();
+    var dateTime = DateTime.Now;
+}
+<div class="foot-left-bg"></div>
+<div class="foot-right">
+<p class="foot-right-first">联系电话: 0731-572572&nbsp;&nbsp;&nbsp;&nbsp;管理员: 张晶莹<br />
+Email: zhangjingying@gfkd.mth<br />
+国防科技大学.教保处<br />@(version)</p>
+</div>

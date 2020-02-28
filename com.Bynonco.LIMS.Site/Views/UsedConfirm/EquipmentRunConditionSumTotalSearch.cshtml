@@ -1,0 +1,128 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentRunConditionSumTotalQueryExpression() {
+        var queryExpression = "";
+        var userId = $("#SearchERCUserId").val().trim();
+        if (userId != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserId=\"" + userId + "\"";
+        }
+        var selectedStudent = $("#cbxERCQueryStudent").combobox("getValues");
+        var selectedStudentIds = selectedStudent.toString().split(",");
+        if (selectedStudentIds.length > 1 || (selectedStudentIds[0].trim() != "" && selectedStudentIds[0].trim() != "@(Guid.Empty.ToString())" && selectedStudentIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedStudentIds.length; i++) {
+                if (selectedStudentIds[i].trim() == "" || selectedStudentIds[i].trim() == "@(Guid.Empty.ToString())") { index++; continue; }
+                var queryExpressionTemp = "UserId=\"" + selectedStudentIds[i].trim() + "\"";
+                queryExpression += (i == index ? queryExpressionTemp : "+" + queryExpressionTemp);
+            }
+            queryExpression += ")";
+        }
+        var equipmentName = $("#SearchERCEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+
+        var labRoomXPath = $("#SearchERCLabRoomXPath").val().trim();
+        if (labRoomXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "LabRoomXPath→\"" + labRoomXPath + "\"";
+        }
+        var subjectDirectorName = $("#SearchERCSubjectDirectorName").val().trim();
+        if (subjectDirectorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(TutorName∽\"" + subjectDirectorName + "\"+UserName∽\"" + subjectDirectorName + "\")";
+        }
+        var beginAtStart = $("#SearchERCBeginAtStart").datebox("getValue").trim();
+        if (beginAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt>\"" + beginAtStart + " 00:00:00" + "\"";
+        }
+        var beginAtEnd = $("#SearchERCBeginAtEnd").datebox("getValue").trim();
+        if (beginAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt<\"" + beginAtEnd + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doEquipmentRunConditionSumTotalReset() {
+        $('#SearchERCUserId').tokenInput('clear');
+        $("#SearchERCSubjectDirectorName").val("");
+        $("#SearchERCLabRoomXPath").val("");
+        $("#cbxERCQueryStudent").combobox("setValue", "@Guid.Empty.ToString()");
+        $("#SearchERCLabRoomId").val('@Guid.Empty.ToString()');
+        $("#SearchERCBeginAtStart").datebox("setValue", "");
+        $("#SearchERCBeginAtEnd").datebox("setValue", "");
+        return false;
+    }
+
+    function getEquipmentRunConditionSumTotalSearchLabRoomXPath(element) {
+        $("#SearchERCLabRoomXPath").val("");
+        var labRoomId = element.value;
+        if (labRoomId != "" && !labRoomId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labRoomId }, function (data) {
+                if (data && data != "")
+                    $("#SearchERCLabRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+</script>
+<ul>
+    <li style="float:left; width:550px;*width:580px;">
+        <ul style='padding-top:5px;height:28px;'>
+                <li style="float:left;vertical-align:middle;">
+                <label style="margin-right:5px;display: inline-block; width: 60px;padding-top:5px;">使用者</label>
+            </li>
+            <li style="float:left;" id='liSearchERCUserId'>
+                @(Html.TokenInput("SearchERCUserId")
+                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                    .SetSingle(true)
+                    .SetWidth(152)
+                    .ToMvcString())
+            </li>
+            <li style="float:left;">
+                @Html.JLinkButton("btnClearSearchERCUserId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#SearchERCUserId').tokenInput('clear');return false;").ToMvcString()
+            </li>
+            <li style="float:left;vertical-align:middle;padding-left:10px;">
+                <label style='display: inline-block; width: 70px; '>时间范围</label>
+                @Html.JDateTimePicker("SearchERCBeginAtStart").SetWidth(90).ToMvcString()
+                ～
+                @Html.JDateTimePicker("SearchERCBeginAtEnd").SetWidth(90).ToMvcString()
+            </li>
+            <div class="clear-both"></div>
+        </ul>
+        <ul style='padding-top:5px;height:28px;'>
+            <li style="float:left;vertical-align:middle;">
+                <label style='display: inline-block;width: 60px;'>课题负责人</label>
+                @Html.JValidateBox("SearchERCSubjectDirectorName").SetWidth(120).ToMvcString()
+            </li>
+            <li style="float:left;vertical-align:middle;padding-left:10px;">
+                <label style='display: inline-block;width: 70px;'>课题组成员</label>
+                @Html.JComboBox("cbxERCQueryStudent").SetWidth(155).SetData(ViewData["StudentJson"]).SetMutiSelect(true).ToMvcString()
+            </li>
+            <div class="clear-both"></div>
+        </ul>
+        <ul style='padding-top:5px;height:28px;'>
+            <li style="float:left;">
+                <label style='display: inline-block; width: 60px;'>设备名称</label>
+                @Html.JValidateBox("SearchERCEquipmentName").SetWidth(120).ToMvcString()
+            </li>
+            <li style="float:left;padding-left:10px;">
+                <label style='display: inline-block; width: 70px; '>单位地点</label>
+                @Html.DropDownList("SearchERCLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px;", onchange = "getEquipmentRunConditionSumTotalSearchLabRoomXPath(this);" })
+                @Html.Hidden("SearchERCLabRoomXPath")
+            </li>
+            <li style="float:left;padding-left:10px;">
+                @Html.JLinkButton("btnEquipmentRunConditionSumTotalReset", "清空").SetOnclick("doEquipmentRunConditionSumTotalReset();").ToMvcString()
+            </li>
+            <div class="clear-both"></div>
+        </ul>
+        </li>
+    <li style="float:left; width:80px;">
+        <a href='#' onclick='doEquipmentRunConditionSumTotalSearch();return false;'><span style='display: block; height: 80px; text-align: center; vertical-align: middle; line-height: 80px; border: 1px solid rgb(204, 204, 204); font-size: 20px; background: none repeat scroll 0px 0px rgb(239, 239, 239); width: 60px;'>统计</span></a>
+    </li>
+</ul>
+<div class="clear-both"></div>
+<script type="text/javascript">
+    $(function () {
+        $("#liSearchERCUserId ul.token-input-list-facebook").css("width", "95px");
+    });
+</script>

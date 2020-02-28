@@ -1,0 +1,108 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../TemperatureHumidity/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../TemperatureHumidity/List")
+</div>
+<div id="divTemperatureHumiditySetupDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateTemperatureHumidityQueryExpress();
+        $("#tbTemperatureHumiditySetupList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbTemperatureHumiditySetupList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var temperatureHumiditySetupDialog;
+    function doTemperatureHumiditySetupDialog() {
+        if (temperatureHumiditySetupDialog) {
+            temperatureHumiditySetupDialog.dialog("destroy");
+        }
+        temperatureHumiditySetupDialog =  @Html.JDialog("divTemperatureHumiditySetupEdit").SetTitle("温度湿度预警设置").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("temperatureHumiditySetupDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveTemperatureHumiditySetup();").ToMvcString();
+    }
+    function doAddTemperatureHumiditySetup(id) {        
+       doAddOrEditTemperatureHumiditySetup(id);
+    }
+    function doEditTemperatureHumiditySetup(id) {
+       if(!id || id.trim()==""){
+           var selectedTemperatureHumiditySetup = $("#tbTemperatureHumiditySetupList").datagrid("getSelected");
+           if(!selectedTemperatureHumiditySetup || selectedTemperatureHumiditySetup.Id=="" || selectedTemperatureHumiditySetup.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择仪器", showType: 'show' });
+              return false;
+           }
+           id = selectedTemperatureHumiditySetup.Id;
+       }
+       doAddOrEditTemperatureHumiditySetup(id);
+    }
+    function doAddOrEditTemperatureHumiditySetup(id){
+        var url = '@Url.Action("Edit","TemperatureHumidity")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divTemperatureHumiditySetupDialog").load(url,function(){
+            doTemperatureHumiditySetupDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveTemperatureHumiditySetup(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","TemperatureHumidity")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmTemperatureHumiditySetupEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                 $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+            }
+        });
+   }
+   function doDeleteTemperatureHumiditySetup(id){
+        if(!id || id.trim() == ""){
+              var selectedTemperatureHumiditySetup = $("#tbTemperatureHumiditySetupList").datagrid("getSelected");
+                if(!selectedTemperatureHumiditySetup || selectedTemperatureHumiditySetup.Id.trim() == "" || selectedTemperatureHumiditySetup.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedTemperatureHumiditySetup.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "TemperatureHumidity")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+
+   function doControlIndex()
+  {          
+        var selectedTemperatureHumiditySetup = $("#tbTemperatureHumiditySetupList").datagrid("getSelected");
+        if(!selectedTemperatureHumiditySetup || selectedTemperatureHumiditySetup.Id=="" || selectedTemperatureHumiditySetup.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择仪器", showType: 'show' });
+            return false;
+        }
+        var id = selectedTemperatureHumiditySetup.EquipmentId;
+        var url = '@Url.Action("ControlIndex", "TemperatureHumidity")' + "?Id=" + id + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+   }
+</script>

@@ -1,0 +1,23 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<div class="edit-operate">
+    @Html.JLinkButton("btnSaveExaminationDefaultSetting", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("btnSaveExaminationDefaultSetting();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function btnSaveExaminationDefaultSetting() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveExaminationDefaultSetting", "Equipment")' + "?date=" + new Date().getMilliseconds(),
+            data: $("#frmExaminationDefaultSettingEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+</script>

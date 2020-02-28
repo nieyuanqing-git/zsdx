@@ -1,0 +1,66 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentQueryExpress() {
+        var queryExpression = "";
+        var equipmentName = $("#SearchEqName").val().trim();
+        if (equipmentName!= "") {
+            queryExpression += "Name∽\"" + equipmentName + "\"";
+        }
+        var model = $("#SearchModel").val();
+        if (model.trim() != "") {
+            queryExpression += (queryExpression == "" ? "Model∽\"" + model + "\"" : "*Model∽\"" + model + "\"");
+        }
+        var orgName = $("#SearchOrgName").val().trim();
+        if (orgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OrgName∽\"" + orgName + "\"";
+        }
+        var roomName = $("#SearchRoomName").val().trim();
+        if (roomName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RoomName∽\"" + roomName + "\"";
+        }
+        var useType = $("#SearchUseType").combobox("getValue");
+        if (useType != "" && useType != "-1") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UseType=\"" + useType + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doEquipmentQueryReset() {
+        $("#SearchEqName").val("");
+        $("#SearchModel").val("");
+        $("#SearchOrgName").val("");
+        $("#SearchRoomName").val("");
+        $("#SearchUseType").combobox("setValue", "");
+        return false;
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEqName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>设备型号</label>
+        @Html.JValidateBox("SearchModel").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>所属机构</label>
+        @Html.JValidateBox("SearchOrgName").SetHeight(20).SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>所在地点</label>
+        @Html.JValidateBox("SearchRoomName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>使用方式</label>
+        @Html.JComboBox("SearchUseType").SetData(ViewData["UseTypeJson"]).SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentSearch", "查询").SetOnclick("doEquipmentSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnEquipmentReset", "清空").SetOnclick("doEquipmentQueryReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnEquipmentClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

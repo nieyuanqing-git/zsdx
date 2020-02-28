@@ -1,0 +1,133 @@
+﻿@model com.Bynonco.LIMS.Model.UserExamination
+@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+    .Answer-Table td{border: 1px solid #D3D8DE;width:60px;}
+</style>
+@if (Model != null && Model.UserExaminationQuestionList != null && Model.UserExaminationQuestionList.Count() > 0)
+{
+    var userExaminationQuestionList = Model.UserExaminationQuestionList;
+    
+    <div>
+        <p style="font-weight:bold;font-size:14px;">
+            <span style="margin-right:20px">@Model.Name</span>
+            @Html.JLinkButton("btnSubmitTestingTop", "交卷").SetIconCls("icon-examination").SetPlain(true).SetOnclick("doSubmitTesting();return false;").ToMvcString()
+        </p>
+        <p style="font-weight:bold;font-size:14px;">[答题卡]
+            <span style="font-weight:normal">
+                总分:&nbsp; @(Model.TotalScore)分&nbsp;&nbsp;
+                考试时间: &nbsp;@(Model.TotalTime)分钟&nbsp;&nbsp;
+                通过条件:&nbsp;@(Model.PassTypeStr + Model.PassStandardStr)
+            </span>
+        </p>
+        <form id="frmUserExaminationAnswer" action="#">
+            @Html.Hidden("UserExaminationId", Model.Id)
+            <table cellpadding="0" cellspacing="0" border="0" style="margin-left:20px;" class="Answer-Table">
+            @for (int i = 0; i < userExaminationQuestionList.Count(); i++)
+            {
+                if (i % 10 == 0)
+                {
+                    if (i != 0)
+                    {
+                        @:</tr>
+                    }
+                    @:<tr>
+                }
+                var item = userExaminationQuestionList[i];
+                <td>
+                    <span>@(i + 1)</span>.&nbsp;
+                    <span id='lb@(item.TrainningQuestionId)' style="font-weight:bold;"></span>
+                    @Html.Hidden("a_" + item.TrainningQuestionId.ToString())
+                </td>
+                if (i == userExaminationQuestionList.Count() - 1)
+                {
+                    @:</tr>
+                }
+            }
+            </table>
+        </form> 
+    </div>      
+    <p style="font-weight:bold;font-size:14px;">[考题]</p>
+    <div style="padding: 0 10px 10px;">
+        @for (int i = 0; i < userExaminationQuestionList.Count(); i++)
+        {
+            var item = userExaminationQuestionList[i];
+            ViewData["QuestionNo"] = i + 1;
+            @Html.Partial("../TrainningQuestion/ViewQuestionInfo", item.ViewTrainningQuestion)
+        }
+    </div> 
+    @Html.Partial("../UserExamination/SubmitTestingOperate")
+    <div id="isTestingTime"></div>     
+    <script type="text/javascript">
+    var timeRest = @(ViewData["TimeRest"] == null ? 0 : Int32.Parse(ViewData["TimeRest"].ToString()));
+    var endtimeStr = '@(ViewData["EndTime"] == null ? "" : ViewData["EndTime"].ToString())';
+    var mysetTimeout;
+    function countdown() {
+        if ($("#isTestingTime").length > 0) {
+            mysetTimeout = setTimeout("countdown()", 1000);
+            if (timeRest >= 0) {
+                var msg = Math.floor(timeRest / 60) + ":" + timeRest % 60;
+                msg = "<span style='font-size:18px;color:red;'>" + msg + "</span>";
+                $.messager.show({
+                    title: '考试倒计时',
+                    msg: msg,
+                    showType: 'fade',
+                    timeout: 1300,
+                    width:100,
+                    height:80,
+                    style:{
+					    left:'',
+                        top:'',
+                        right:0,
+                        bottom:-document.body.scrollTop-document.documentElement.scrollTop
+				    }
+                });
+                timeRest--;
+            }
+            else if(endtimeStr != "")
+            {
+                var msg = "<span style='font-size:18px;'>交卷时间: <span style='color:red;'>" + endtimeStr + "</span></span>";
+                msg +="<br /><br />请及时交卷,否则成绩将无效!";
+                $.messager.show({
+                    title: '交卷提醒',
+                    msg: msg,
+                    showType: 'fade',
+                    timeout: 1300,
+                    width:250,
+                    height:120,
+                    style:{
+					    left:'',
+                        top:'',
+                        right:0,
+                        bottom:-document.body.scrollTop-document.documentElement.scrollTop
+				    }
+                });
+            }
+        }
+    }
+    $(function () {
+        if (mysetTimeout)
+            clearTimeout(mysetTimeout);
+        countdown();
+
+        $(".Trainning-Question").change(function(){
+            var objName = $(this).attr("name");
+            var objlbName = objName.replace("question","lb");
+            var objAnswerName = objName.replace("question","a_");
+
+            var type = $(this).attr("type");
+            var objval = $(this).val();
+            if(type == "checkbox")
+            {
+                objval = ""; 
+                $("input[name='" + objName + "']:checked").each(function(){
+                    objval += $(this).val();
+                });
+            }
+            $("#" + objlbName).empty();
+            $("#" + objlbName).append(objval);
+            $("#" + objAnswerName).val(objval);
+        });
+    });
+    </script>
+}
+    

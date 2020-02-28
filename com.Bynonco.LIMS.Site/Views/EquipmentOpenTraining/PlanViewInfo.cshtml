@@ -1,0 +1,10 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenTrainingPlan
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+<tr>
+    <td>@(Model == null ? "" : Model.Name)</td>
+    <td style='text-align:center;'>@(Model == null || !Model.TrainingHours.HasValue ? "" : Math.Round(Model.TrainingHours.Value,2).ToString())</td>
+    <td style='text-align:center;'>@(Model == null || !Model.UserCount.HasValue ? "" : Model.UserCount.ToString())</td>
+    <td style='text-align:center;'>@(Model == null || !Model.PlanMoney.HasValue ? "" : Math.Round(Model.PlanMoney.Value,2).ToString())</td>
+    <td style='text-align:center;'>@(Model == null ? "" : Model.LeaseHolder)</td>
+</tr>

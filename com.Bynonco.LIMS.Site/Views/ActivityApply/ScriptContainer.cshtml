@@ -1,0 +1,286 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+}
+<div id="divActivityApplyEditDialog" style="display:none;"></div>
+<div id="divActivityApplyViewDialog" style="display:none;"></div>
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $(this).attr("class", "tabs-selected");
+            doSearchActivityApply();
+        });
+    });
+    function doSearchActivityApply() {
+        var queryExpression = generateActivityApplyQueryExpress();
+        if("@(queryExpression)" != "") 
+            queryExpression += (queryExpression == "" ? "" : "*") + "@(queryExpression)";
+        if($(".tabs").find("li.tabs-selected").length > 0)
+        {
+            var status = $(".tabs").find("li.tabs-selected").attr("status");
+            if(status != undefined && status != '') 
+                queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+        }
+        $("#tbActivityApply").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbActivityApply").datagrid("load", { "queryExpression": queryExpression.trim()});
+    }
+    var viewActivityApplyDialog;
+    function doViewActivityApplyDialog() {
+        if (viewActivityApplyDialog) {
+            viewActivityApplyDialog.dialog("destroy");
+        }
+        viewActivityApplyDialog =  @(Html.JDialog("divActivityApplyView")
+            .SetTitle("业务活动申请表查看")
+            .SetIconCls("icon-eye")
+            .SetAutoDialog(false)
+            .SetOnClose("viewActivityApplyDialog.dialog('destroy');return false;")
+            .SetCancelScript("viewActivityApplyDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .ToMvcString());
+    }
+    function doViewActivityApply(id)
+    {
+        var url = '@Url.Action("ViewInfo", "ActivityApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divActivityApplyViewDialog").load(url,function(){
+            doViewActivityApplyDialog();
+            $.messager.progress('close');
+        })
+    }
+    var activityApplyDialog;
+    function doActivityApplyDialog() {
+        if (activityApplyDialog) {
+            activityApplyDialog.dialog("destroy");
+        }
+        activityApplyDialog =  @(Html.JDialog("divActivityApplyEdit")
+            .SetTitle("业务活动申请表编辑")
+            .SetIconCls("icon-edit")
+            .SetAutoDialog(false)
+            .SetOnClose("activityApplyDialog.dialog('destroy');return false;")
+            .SetCancelScript("activityApplyDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetOkScript("doSaveActivityApply();")
+            .ToMvcString());
+    }
+    function doAddActivityApply()
+    {
+        doAddOrEditActivityApply();
+    }
+    function doEditActivityApply(id) {
+       if(!id || id.trim()==""){
+            var selectedActivityApply = $("#tbActivityApplyList").datagrid("getSelected");
+            if(!selectedActivityApply || selectedActivityApply.Id=="" || selectedActivityApply.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择业务活动申请表", showType: 'show' });
+                return false;
+            }
+            id = selectedActivityApply.Id;
+       }
+       doAddOrEditActivityApply(id);
+    }
+    function doAddOrEditActivityApply(id)
+    {
+        var url = '';
+        if(!id || id =="")
+        {
+            url = '@Url.Action("Add", "ActivityApply")'+ "?date=" + new Date().getMilliseconds();
+        }
+        else url = '@Url.Action("Edit", "ActivityApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divActivityApplyEditDialog").load(url,function(){
+            doActivityApplyDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doSaveActivityApply() {
+        var url = '@Url.Action("Save","ActivityApply")';
+        return doSaveOrAuditActivityApply(url);
+    }
+    function doSaveOrAuditActivityApply(url)
+    {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmActivityApplyEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错,") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                doSearchActivityApply();
+                try{activityApplyDialog.dialog('destroy'); }catch(e){}
+                try{groupAdminAuditActivityApplyDialog.dialog('destroy'); }catch(e){}
+                try{directorAuditActivityApplyDialog.dialog('destroy'); }catch(e){}
+                try{operatorAuditActivityApplyDialog.dialog('destroy'); }catch(e){}
+            }
+        });
+        return false;
+    }
+
+    var groupAdminAuditActivityApplyDialog;
+    function doGroupAdminAuditActivityApplyDialog() {
+        if (groupAdminAuditActivityApplyDialog) {
+            groupAdminAuditActivityApplyDialog.dialog("destroy");
+        }
+        groupAdminAuditActivityApplyDialog =  @(Html.JDialog("divActivityApplyEdit")
+            .SetTitle("仪器组群负责人审核")
+            .SetIconCls("icon-admin")
+            .SetAutoDialog(false)
+            .SetOnClose("groupAdminAuditActivityApplyDialog.dialog('destroy');return false;")
+            .SetCancelScript("groupAdminAuditActivityApplyDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton() { Handler = "doGroupAdminAuditPassActivityApply();return false;", Id = "btnGroupAdminAuditPassActivityApply", Text = "审核通过", IconCls = "icon-ok"})
+            .AddButton(new ToolBarButton() { Handler = "doGroupAdminAuditRejectActivityApply();return false;", Id = "btnGroupAdminAuditRejectActivityApply", Text = "审核不通过", IconCls = "icon-no"})
+            .ToMvcString());
+    }
+    function doGroupAdminAuditActivityApply(id)
+    {
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("GroupAdminAudit", "ActivityApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divActivityApplyEditDialog").load(url,function(){
+            doGroupAdminAuditActivityApplyDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doGroupAdminAuditPassActivityApply(){
+        var url = '@Url.Action("GroupAdminAuditPass","ActivityApply")';
+        return doSaveOrAuditActivityApply(url);
+    }
+    function doGroupAdminAuditRejectActivityApply(){
+        var url = '@Url.Action("GroupAdminAuditReject","ActivityApply")';
+        return doSaveOrAuditActivityApply(url);
+    }
+
+    var directorAuditActivityApplyDialog;
+    function doDirectorAuditActivityApplyDialog() {
+        if (directorAuditActivityApplyDialog) {
+            directorAuditActivityApplyDialog.dialog("destroy");
+        }
+        directorAuditActivityApplyDialog =  @(Html.JDialog("divActivityApplyEdit")
+            .SetTitle("中心主任审核审核")
+            .SetIconCls("icon-director")
+            .SetAutoDialog(false)
+            .SetOnClose("directorAuditActivityApplyDialog.dialog('destroy');return false;")
+            .SetCancelScript("directorAuditActivityApplyDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton() { Handler = "doDirectorAuditPassActivityApply();return false;", Id = "btnDirectorAuditPassActivityApply", Text = "审核通过", IconCls = "icon-ok"})
+            .AddButton(new ToolBarButton() { Handler = "doDirectorAuditRejectActivityApply();return false;", Id = "btnDirectorAuditRejectActivityApply", Text = "审核不通过", IconCls = "icon-no"})
+            .ToMvcString());
+    }
+    function doDirectorAuditActivityApply(id)
+    {
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("DirectorAudit", "ActivityApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divActivityApplyEditDialog").load(url,function(){
+            doDirectorAuditActivityApplyDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doDirectorAuditPassActivityApply(){
+        var url = '@Url.Action("DirectorAuditPass","ActivityApply")';
+        return doSaveOrAuditActivityApply(url);
+    }
+    function doDirectorAuditRejectActivityApply(){
+        var url = '@Url.Action("DirectorAuditReject","ActivityApply")';
+        return doSaveOrAuditActivityApply(url);
+    }
+
+    var operatorAuditActivityApplyDialog;
+    function doOperatorAuditActivityApplyDialog() {
+        if (operatorAuditActivityApplyDialog) {
+            operatorAuditActivityApplyDialog.dialog("destroy");
+        }
+        operatorAuditActivityApplyDialog =  @(Html.JDialog("divActivityApplyEdit")
+            .SetTitle("经办人审核")
+            .SetIconCls("icon-operator")
+            .SetAutoDialog(false)
+            .SetOnClose("operatorAuditActivityApplyDialog.dialog('destroy');return false;")
+            .SetCancelScript("operatorAuditActivityApplyDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton() { Handler = "doOperatorAuditPassActivityApply();return false;", Id = "btnOperatorAuditPassActivityApply", Text = "审核通过", IconCls = "icon-ok"})
+            .AddButton(new ToolBarButton() { Handler = "doOperatorAuditRejectActivityApply();return false;", Id = "btnOperatorAuditRejectActivityApply", Text = "审核不通过", IconCls = "icon-no"})
+            .ToMvcString());
+    }
+    function doOperatorAuditActivityApply(id)
+    {
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("OperatorAudit", "ActivityApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divActivityApplyEditDialog").load(url,function(){
+            doOperatorAuditActivityApplyDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doOperatorAuditPassActivityApply(){
+        var url = '@Url.Action("OperatorAuditPass","ActivityApply")';
+        return doSaveOrAuditActivityApply(url);
+    }
+    function doOperatorAuditRejectActivityApply(){
+        var url = '@Url.Action("OperatorAuditReject","ActivityApply")';
+        return doSaveOrAuditActivityApply(url);
+    }
+
+    function doDeleteActivityApply(id) {
+        if(!id || id.trim()==""){
+            var selectedActivityApply = $("#tbActivityApplyList").datagrid("getSelected");
+            if(!selectedActivityApply || selectedActivityApply.Id=="" || selectedActivityApply.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择业务活动申请表", showType: 'show' });
+                return false;
+            }
+            id = selectedActivityApply.Id;
+        }
+        $.messager.confirm('提示', '确认删除业务活动申请表?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","ActivityApply")',
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchActivityApply();
+                }
+            });
+        });
+        return false;
+    }
+    function doExportExcelActivityApply()
+    {
+        var queryExpression = generateActivityApplyQueryExpress();
+        if($(".tabs").find("li.tabs-selected").length > 0)
+        {
+            var status = $(".tabs").find("li.tabs-selected").attr("status");
+            if(status != undefined && status != '') 
+                queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+        }
+        var  url = '@Url.Action("ExportExcel","ActivityApply",new {ServerQueryExpression = queryExpression})' + "&queryExpression=" + queryExpression;
+        window.open(url,'_blank');
+    }
+    function doExportDocActivityApply(id)
+    {
+        var url = '@Url.Action("ExportDoc","ActivityApply")' + "?Id=" + id;
+        window.open(url,'_blank');
+    }
+</script>

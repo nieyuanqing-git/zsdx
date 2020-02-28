@@ -1,0 +1,129 @@
+﻿@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var loginJumpTypeHref = ViewData["LoginJumpTypeHref"] == null ? "" : ViewData["LoginJumpTypeHref"].ToString().Trim();
+    var isCasLoginMode = Convert.ToBoolean(ViewData["IsCasLoginMode"]);
+}
+<input type="hidden" id="isLocalOuterLogin" />
+<script type="text/javascript">
+    var isSchoolInnerOrOuterLoginMode = '@(ViewData["IsSchoolInnerOrOuterLoginMode"].ToString().ToLower())' == "true";
+    var isCasLoginMode = '@(isCasLoginMode.ToString().ToLower())' == "true";
+    $(function () {
+        doIniLoginForm();
+        $("#LoginPassword").val("");
+        $("#LoginName").val("");
+    });
+    function doIniLoginForm() {
+        $(".edit-info .textinp").focus(function () {
+            $(".text-over").removeClass('text-over');
+            $(this).parents(".text-box").addClass('text-over');
+        });
+        $(".edit-info .textinp").blur(function () {
+            $(this).parents(".text-box").removeClass('text-over');
+        });
+
+        $("#frmLogin").find("#LoginPassword").keypress(function (e) {
+            if (e.keyCode == 13) {
+                doLoginSubmit();
+            }
+        });
+    }
+    function doBeforeLoginSubmit() {
+        var isOk = true;
+        var errorMsg = "";
+        var loginType = $("#HomeLoginType").combobox("getValue");
+        if (isSchoolInnerOrOuterLoginMode) {
+            if (!loginType || loginType.trim() == "") {
+                errorMsg = "请选择登录类型";
+                isOk = false;
+            }
+        }
+        if (isOk && $("#frmLogin").find("#LoginName").val().trim() == "") {
+            errorMsg = "请输入用户名"
+            isOk = false;
+        }
+        if (isOk && $("#frmLogin").find("#LoginPassword").val().trim() == "") {
+            errorMsg = "请输入密码"
+            isOk = false;
+        }
+        if (!isOk) {
+            $.messager.show({ title: '提示', msg: errorMsg, showType: 'show' });
+            return false;
+        }
+        else {
+            $("#frmLogin").find("#imgLoading").removeClass("hide");
+            if (isSchoolInnerOrOuterLoginMode && loginType == "1") {
+                loadUserCheck();
+            }
+            else {
+                doLoginSubmit();
+            }
+            return false;
+        }
+    }
+    function doLoginSubmit() {
+        var loginType = $("#HomeLoginType").combobox("getValue");
+        var isLocalOuterLogin = $("#isLocalOuterLogin").length > 0 ? $("#isLocalOuterLogin").val() : "";
+        if (isLocalOuterLogin == undefined) isLocalOuterLogin = "false";
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("LoginSubmit","Account")',
+            data: $("#frmLogin").serialize() + "&loginType=" + loginType + "&date=" + new Date() + "&isLocalOuterLogin=" + isLocalOuterLogin,
+            success: function (data) {
+                $("#frmLogin").find("#imgLoading").addClass("hide");
+                try {
+                    if (data && data.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                        return;
+                    }
+                }
+                catch (e) { }
+                if ('@loginJumpTypeHref' == "") {
+                    location.reload();
+                }
+                else {
+                    window.location.href = '@loginJumpTypeHref'
+                }
+                return false;
+            }
+        });
+        return false;
+    }
+    function funFaile() {
+        $("#frmLogin").find("#imgLoading").addClass("hide");
+        $.messager.show({ title: '提示', msg: "公共数据库验证密码失败, 请确认您的用户名和密码.", showType: 'show' });
+    }
+    function funTrue() {
+        if ($("#frmLogin").find("#LoginName").length > 0 && $("#frmLogin").find("#LoginName").val() != "") {
+            doLoginSubmit();
+        }
+        else {
+            doTopLoginSubmit();
+        }
+    }
+
+    function loadUserCheck() {
+        var username = $("#frmLogin").find("#LoginName").val();
+        var password = $("#frmLogin").find("#LoginPassword").val();
+        var s = document.createElement("SCRIPT");
+        s.src = "http://applicationjw.ecnu.edu.cn/axis2/UserCheck?username="
+                            + username + "&password=" + password;
+        document.body.appendChild(s);
+    }
+    function doLogOffSubmit() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("LogOff","Account")',
+            data: "XPath=" + '@orgXPath' + "&date=" + new Date(),
+            success: function (data) {
+                if (isCasLoginMode) {
+                    casLogout();
+                }
+                else {
+                    location.reload();
+                }
+                return false;
+            }
+        });
+        return false;
+    }
+</script>

@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dictCodePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDictCodePrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbDictCodeList")
+    .SetUrl(Url.Action("GetGridDictCodeList", "DictCodeType", new { time = DateTime.Now.Millisecond.ToString() }))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetShowAddButton(false)
+    .SetShowDeleteButton(false)
+    .SetShowEditButton(false)
+    .SetShowRefreshButton(false)
+    .SetShowPrintButton(false)
+    .SetMutiSelect(false)
+    .SetSingleSelect(true);
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled =  !dictCodePrivilige.IsEnableAdd, Handler = "doAddDictCode();", IconCls = "icon-add", Id = "btnAddDictCode", Text = "增加" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = !dictCodePrivilige.IsEnableEdit, Handler = "doEditDictCode();", IconCls = "icon-edit", Id = "btnEditDictCodeEdit", Text = "编辑" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = !dictCodePrivilige.IsEnableDelete, Handler = "doDictCodeDelete();", IconCls = "icon-cancel", Id = "btnDeleteDictCodeEdit", Text = "删除" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDictCodeSearch();", IconCls = "icon-reload", Id = "btnDeleteDictCodeRefresh", Text = "刷新" });
+    if (dictCodePrivilige.IsEnableEdit)
+    {
+        dataGrid.SetOnDblClickRow("doEditDictCode(rowData.Id);");
+    }
+    dataGrid.SetSortName("Name");
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("代码", "Code").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("键值", "Value").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopNickName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扩展字段1", "Ext1").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扩展字段2", "Ext2").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扩展字段3", "Ext3").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扩展字段4", "Ext4").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扩展字段5", "Ext5").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扩展字段6", "Ext6").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扩展字段7", "Ext7").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扩展字段8", "Ext8").SetWidth(150).SetAlign(Align.left));
+ }
+ @(dataGrid.ToMvcString())

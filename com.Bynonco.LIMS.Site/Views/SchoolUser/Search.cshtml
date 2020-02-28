@@ -1,0 +1,61 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateSchoolUserQueryExpress() {
+        var queryExpression = "";
+        var schoolUserName = $("#SearchSchoolUserName").val().trim();
+        if (schoolUserName != "") {
+            queryExpression = "(Name∽\"" + schoolUserName.trim() + "\"+LoginName∽\"" + schoolUserName.trim() + "\")";
+        }
+        var schoolUserTutorName = $("#SearchSchoolUserTutorName").val().trim();
+        if (schoolUserTutorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "TutorName∽\"" + schoolUserTutorName.trim() + "\"";
+        }
+        var schoolUserOrganizationName = $("#SearchSchoolUserOrganizationName").val().trim();
+        if (schoolUserOrganizationName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OrganizationName∽\"" + schoolUserOrganizationName.trim() + "\"";
+        }
+        var schoolUserIsHandled = $("#SearchSchoolUserIsHandled").combobox("getValue");
+        if(schoolUserIsHandled == "0")
+            queryExpression += (queryExpression == "" ? "" : "*") + "IsHandled=false";
+        else if(schoolUserIsHandled == "1")
+            queryExpression += (queryExpression == "" ? "" : "*") + "IsHandled=true";
+        return queryExpression;
+    }
+    function btnResetSchoolUser() {
+        $("#SearchSchoolUserName").val("");
+        $("#SearchSchoolUserTutorName").val("");
+        $("#SearchSchoolUserOrganizationName").val("");
+        $("#SearchSchoolUserIsHandled").combobox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>用户</label>
+        @Html.JValidateBox("SearchSchoolUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>导师</label>
+        @Html.JValidateBox("SearchSchoolUserTutorName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>所属单位</label>
+        @Html.JValidateBox("SearchSchoolUserOrganizationName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>已处理</label>
+        @(Html.JComboBox("SearchSchoolUserIsHandled")
+            .SetEditable(false)
+            .SetData(ViewData["YesOrNotJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSchoolUserSearch", "查询").SetOnclick("doSearchSchoolUser();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnSchoolUserReset", "清空").SetOnclick("btnResetSchoolUser();").ToMvcString()
+        @Html.JLinkButton("btnSchoolUserClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

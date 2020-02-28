@@ -1,0 +1,24 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var equipmentNoticeId = ViewData["EquipmentNoticeId"] == null ? default(Guid).ToString() : ViewData["EquipmentNoticeId"].ToString();
+      var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+      var dataGrid = Html.JDataGrid("tbEquipmentNoticeAttachmentList")
+        .SetUrl(@Url.Action("GetEquipmentNoticeAttachmentList", "Equipment"))
+        .AddQueryParam("queryExpression", string.Format("EquipmentNoticeId=\"{0}\"", equipmentNoticeId))
+        .SetHeight(200)
+        .SetShowRefreshButton(false)
+        .SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteIcon);
+        if (equipmentPrivilige.IsEnableDeleteNoticeAttachment)
+        {
+            dataGrid.SetDeleteScript("doDeleteAttachment();");
+        }
+        dataGrid.SetShowPrintButton(false);
+        dataGrid.SetPagination(false);
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetWidth(252).SetAlign(Align.center).SetHidden(true));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "FileName").SetWidth(300).SetAlign(Align.left));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "FlleExtension").SetWidth(89).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("大小", "FileSizeStr").SetWidth(150).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

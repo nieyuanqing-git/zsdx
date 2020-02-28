@@ -1,0 +1,51 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+    var articleCategoryPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetArticleCategoryPrivilige(User.Identity.Name);
+    var dataGrid = Html.JTreeGrid("tbArticleCategoryList")
+       .SetTreeGrid("Id", "Name", Url.Action("GetTreeGridArticleCategoryList", "ArticleCategory", new { orgId = ViewBag.SelectedOrgId }), "", false)
+       .SetHeight(300)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetPagination(false)
+       .SetShowPrintButton(false);
+    if (articleCategoryPrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetWidth(30).SetAlign(Align.center).SetSortable(false));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetWidth(30).SetAlign(Align.center).SetSortable(false));
+    }
+    dataGrid.SetShowAddButton(articleCategoryPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(articleCategoryPrivilige.IsEnableEdit);
+    if (articleCategoryPrivilige.IsEnableEdit)
+    {
+        dataGrid.SetAddScript("doAddArticleCategory('');");
+        dataGrid.SetEditScript("doEditArticleCategory('');");
+        dataGrid.SetOnDblClickRow("doEditArticleCategory(row.Id);");
+    }
+    dataGrid.SetOnSelect("doOnArticleCategorySelected(rowData);");
+    dataGrid.SetShowDeleteButton(articleCategoryPrivilige.IsEnableDelete);
+    if (articleCategoryPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteArticleCategory('');");
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doViewArticle();", IconCls = "icon-eye", Id = "btnViewArticle", Text = "查看文章" });
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("父级编码", "ParentId").SetHidden(true).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文章数", "ArticleCount").SetWidth(50).SetAlign(Align.left).SetSortable(false));
+    if (customer.GetIsShowExaminationSystemSpecialRelativeInfo())
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("只在考试系统显示", "IsForExaminationStr").SetWidth(100).SetAlign(Align.center).SetSortable(false));
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("XPath", "XPath").SetHidden(true).SetWidth(120).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("下级数", "ChildrenCount").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("父级分类", "ParentName").SetHidden(true).SetWidth(120).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerOrgName, "LabOrganizationName").SetWidth(100).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("首页显示", "HomeLocationStr").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("展示方式", "HomeLocationShowTypeNickName").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopNickName").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left).SetSortable(false));
+ }
+@(dataGrid.ToMvcString())

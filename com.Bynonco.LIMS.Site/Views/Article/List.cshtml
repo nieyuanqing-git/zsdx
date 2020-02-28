@@ -1,0 +1,45 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+@{
+    var articlePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetArticlePrivilige(User.Identity.Name);
+    var dataGrid=Html.JDataGrid("tbArticleList")
+    .SetUrl(Url.Action("GetGridViewArticleList", "Article", new { queryExpression = ViewBag.queryExpression as string }))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetShowPrintButton(false)
+    .SetSortName("PublishAt")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+    dataGrid.SetShowAddButton(articlePrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(articlePrivilige.IsEnableEdit);
+    if (articlePrivilige.IsEnableEdit)
+    {
+        dataGrid.SetAddScript("doAddArticle('');");
+        dataGrid.SetEditScript("doEditArticle('');");
+        dataGrid.SetOnDblClickRow("doEditArticle(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(articlePrivilige.IsEnableDelete);
+    if (articlePrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteArticle('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("主题", "Title").SetWidth(250).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("作者", "Author").SetWidth(60).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发布时间", "PublishAtStr").SetWidth(150).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文章分类", "ArticleCategoryNameStr").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发布人", "PublisherName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("浏览数", "HaveReadCount").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否显示", "IsShowStr").SetWidth(70).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否置顶", "IsTopStr").SetWidth(70).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否登录阅读", "IsEnableReadBeforeLoginStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("首页展示内容", "IsHomeShowContentNickName").SetWidth(80).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left).SetSortable(false));
+    if (articlePrivilige.IsEnableEditShow)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doEditShow('N');", IconCls = "icon-export", Id = "btnEditShow", Text = "撤销显示" });
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doEditShow('Y');", IconCls = "icon-export", Id = "btnEditNoShow", Text = "显示" });
+    }   
+}
+@(dataGrid.ToMvcString())

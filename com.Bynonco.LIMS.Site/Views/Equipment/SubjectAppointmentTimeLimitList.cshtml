@@ -1,0 +1,32 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbSubjectAppointmentTimeLimitList")
+    .SetUrl(Url.Action("GetGridSubjectAppointmentTimeLimitList", "Equipment"))
+    .AddQueryParam("queryExpression",string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("时间限制", "Desription").SetSortable(false).SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("课题组", "SubjectName").SetSortable(false).SetWidth(350).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetSortable(false).SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddSubjectAppointmentTimeLimit);
+    if (equipmentPrivilige.IsEnableAddSubjectAppointmentTimeLimit)
+    {
+        dataGrid.SetAddScript("doAddOrEditSubjectAppointmentTimeLimit('');");   
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditSubjectAppointmentTimeLimit);
+    if (equipmentPrivilige.IsEnableEditSubjectAppointmentTimeLimit)
+    {
+        dataGrid.SetEditScript("doEditSubjectAppointmentTimeLimit();");
+        dataGrid.SetOnDblClickRow("doAddOrEditSubjectAppointmentTimeLimit(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteSubjectAppointmentTimeLimit);
+    if (equipmentPrivilige.IsEnableDeleteSubjectAppointmentTimeLimit)
+    {
+        dataGrid.SetDeleteScript("doDeleteSubjectAppointmentTimeLimit();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

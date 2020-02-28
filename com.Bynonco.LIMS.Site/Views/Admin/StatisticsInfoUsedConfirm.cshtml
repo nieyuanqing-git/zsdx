@@ -1,0 +1,67 @@
+﻿@model com.Bynonco.LIMS.Model.Business.StatisticsInfo
+@if (Model != null && (Model.IsShowManageUsedConfirm || Model.IsShowPersonalUsedConfirm || Model.IsShowExperimenterSubjectUsedConfirm))
+{
+    <p><span class="icon icon-usedconfirm">&nbsp;</span>使用情况</p>
+    <table class="edit-info admin-statistics">
+        @if (Model.IsShowManageUsedConfirm)
+        {
+        <tr>
+            <td class='col-first'><span class="icon icon-globe" title='管理相关' style='margin-right: 0;'>&nbsp;</span></td>
+            @if (Model.IsShowUsingRecord)
+            {
+                <th><a href="#" onclick="doLoadUsingRecord();return false;">当前正在使用的设备</a></th>
+                <td class='@(Model.IsShowTodayUsedRecord ? "" : "col-last")'>
+                    <a href="#" onclick="doLoadUsingRecord();return false;">@Model.UsingRecord</a>
+                </td>
+            }
+            @if (Model.IsShowTodayUsedRecord)
+            {
+                <th><a href="#" onclick="doLoadTodayUsedRecord();return false;">今天的设备使用历史</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadTodayUsedRecord();return false;">@Model.TodayUsedRecord</a>
+                </td>
+            }
+        </tr>
+        }
+        @if (Model.IsShowExperimenterSubjectUsedConfirm)
+        {
+        <tr class='@(Model.IsShowManageUsedConfirm ? "nofirst" : "")'>
+            <td class='col-first'><span class="icon icon-subject" title='课题组相关' style='margin-right: 0;'>&nbsp;</span></td>
+            @if (Model.IsShowExperimenterSubjectUsingRecord)
+            {
+                <th><a href="#" onclick="doLoadExperimenterSubjectUsingRecord();return false;">当前正在使用的设备</a></th>
+                <td class='@(Model.IsShowExperimenterSubjectTodayUsedRecord ? "" : "col-last")'>
+                    <a href="#" onclick="doLoadExperimenterSubjectUsingRecord();return false;">@Model.ExperimenterSubjectUsingRecord</a>
+                </td>
+            }
+            @if (Model.IsShowExperimenterSubjectTodayUsedRecord)
+            {
+                <th><a href="#" onclick="doLoadExperimenterSubjectTodayUsedRecord();return false;">今天的设备使用历史</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadExperimenterSubjectTodayUsedRecord();return false;">@Model.ExperimenterSubjectTodayUsedRecord</a>
+                </td>
+            }
+        </tr>
+        }
+        @if (Model.IsShowPersonalUsedConfirm)
+        {
+        <tr class='@(Model.IsShowManageUsedConfirm || Model.IsShowExperimenterSubjectUsedConfirm ? "nofirst" : "")'>
+            <td class='col-first'><span class="icon icon-user" title='个人相关' style='margin-right: 0;'>&nbsp;</span></td>
+            @if (Model.IsShowPersonalUsingRecord)
+            {
+                <th><a href="#" onclick="doLoadPersonalUsingRecord();return false;">当前正在使用的设备</a></th>
+                <td class='@(Model.IsShowPersonalTodayUsedRecord ? "" : "col-last")'>
+                    <a href="#" onclick="doLoadPersonalUsingRecord();return false;">@Model.PersonalUsingRecord</a>
+                </td>
+            }
+            @if (Model.IsShowPersonalTodayUsedRecord)
+            {
+                <th><a href="#" onclick="doLoadPersonalTodayUsedRecord();return false;">今天的设备使用历史</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadPersonalTodayUsedRecord();return false;">@Model.PersonalTodayUsedRecord</a>
+                </td>
+            }
+        </tr>
+        }
+    </table>
+}

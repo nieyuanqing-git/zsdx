@@ -1,0 +1,23 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSelectAnimal" style="width:880px; height:600px; overflow-x:hidden;">
+    <div class="search-grid hide">
+        <div class="search-inner-box">@Html.Partial("../Animal/Search")</div>
+    </div>
+    <div>@Html.Partial("../Animal/SelectAnimalNoPagingList")</div>
+</div>
+<script type="text/javascript">
+    function doAnimalSearch() {
+        var queryExpression = generateAnimalQueryExpress();
+        if (curQueryExpression && curQueryExpression != "") {
+            queryExpression += queryExpression != "" ? "*" + curQueryExpression : curQueryExpression;
+        }
+        var url = $("#tbAnimalList").datagrid("options").url;
+        var pos = url.indexOf("?");
+        if (pos != -1) {
+            var url = url.substring(0, pos);
+        }
+        $("#tbAnimalList").datagrid("options").url = url;
+        $("#tbAnimalList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbAnimalList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+    }    
+</script>

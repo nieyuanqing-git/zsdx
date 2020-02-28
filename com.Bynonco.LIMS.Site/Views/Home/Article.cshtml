@@ -1,0 +1,91 @@
+﻿@model com.Bynonco.LIMS.Model.Enum.ArticleCategoryHomeLocation
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var customer = CustomerFactory.GetCustomer();
+    var contentHeight = Model.ToString().StartsWith("First") || Model.ToString().StartsWith("Third") || customer.GetIsShowSecondLineCenter153() ? 153 : 186;
+    bool isEmpty = true;
+
+    if (ViewData[Model.ToString() + "ArticleCategory"] != null)
+    {
+        var articleCategoryList = (List<ArticleCategory>)ViewData[Model.ToString() + "ArticleCategory"];
+        if (articleCategoryList != null && articleCategoryList.Count() > 0)
+        {
+            isEmpty = false;
+            var count = articleCategoryList.Count();
+            if (count == 1)
+            {
+                var currentArticleCategory = articleCategoryList[0];
+                var currentArticleList = (List<Article>)ViewData[currentArticleCategory.Id.ToString()];
+                var routeArticleCategoryValue = new { ArticleCategoryId = currentArticleCategory.Id, XPath = orgXPath };
+                var firstArticleId = currentArticleList == null || currentArticleList.Count() == 0 ? Guid.Empty : currentArticleList[0].Id;
+                var moreUrl = currentArticleCategory.HomeLocationShowTypeEnum == ArticleCategoryHomeLocationShowType.Content ? Url.Action("Show", "Article", new { id = firstArticleId, ArticleCategoryId = currentArticleCategory.Id, XPath = orgXPath }) : Url.Action("ShowList", "Article", routeArticleCategoryValue);
+                <h2 class='title'>
+                    <span>@currentArticleCategory.Name</span>
+                    <a href='@moreUrl' class='more'>更多>></a>
+                </h2>
+                    <div class="content-box content-box-@contentHeight">
+                        @if (currentArticleList != null)
+                        {
+                            switch (currentArticleCategory.HomeLocationShowTypeEnum)
+                            {
+                                case ArticleCategoryHomeLocationShowType.List:
+                                    @Html.Partial("../Home/ArticleList", currentArticleList)
+                                    break;
+                                case ArticleCategoryHomeLocationShowType.Content:
+                                    @Html.Partial("../Home/ArticleContent", currentArticleList)
+                                    break;
+                            }
+                        }
+                    </div>
+            }
+            else
+            {
+                <h2 class='title-gray'>
+                    @for (int i = 0; i < articleCategoryList.Count(); i++)
+                        {
+                            var articleCategory = articleCategoryList[i];
+                            var articleList = (List<Article>)ViewData[articleCategory.Id.ToString()];
+                            var routeArticleCategoryValue = new { ArticleCategoryId = articleCategory.Id, XPath = orgXPath };
+                            var firstArticleId = articleList == null || articleList.Count() == 0 ? Guid.Empty : articleList[0].Id;
+                            var moreUrl = articleCategory.HomeLocationShowTypeEnum == ArticleCategoryHomeLocationShowType.Content ? Url.Action("Show", "Article", new { id = firstArticleId, ArticleCategoryId = articleCategory.Id, XPath = orgXPath }) : Url.Action("ShowList", "Article", routeArticleCategoryValue);
+                        <a href='#' class='tag-title @(i == 0 ? "first current" : "")' id='tag@(articleCategory.Id)'>@articleCategory.Name</a>
+                            <a href='@moreUrl' class='more @(i == 0 ? "" : "hide")' id='more@(articleCategory.Id)'>更多>></a>
+                    }
+                </h2>
+                    <div class="content-box content-box-@contentHeight">
+                        @for (int i = 0; i < articleCategoryList.Count(); i++)
+                        {
+                            var articleCategory = articleCategoryList[i];
+                            var articleList = (List<Article>)ViewData[articleCategory.Id.ToString()];
+                            <div id='box@(articleCategory.Id)' class='tag-box @(i == 0 ? "" : "hide")'>
+                                @if (articleList != null)
+                                {
+                                    switch (articleCategory.HomeLocationShowTypeEnum)
+                                    {
+                                        case ArticleCategoryHomeLocationShowType.List:
+                                            @Html.Partial("../Home/ArticleList", articleList)
+                                            break;
+                                        case ArticleCategoryHomeLocationShowType.Content:
+                                            @Html.Partial("../Home/ArticleContent", articleList)
+                                            break;
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+            }
+        }
+    }
+    if (isEmpty)
+    {
+        <h2 class='title'>
+            <span>没有文章列表</span>
+        </h2>
+            <div class="content-box content-box-@contentHeight">
+
+            </div>
+    }
+}

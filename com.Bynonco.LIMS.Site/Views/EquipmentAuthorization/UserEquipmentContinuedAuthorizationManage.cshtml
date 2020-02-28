@@ -1,0 +1,107 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var userId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString();
+}
+<div id='divUserEquipmentContinuedAuthorizationManage' style='@(isPopDialog ? "width:800px;" : "")'>
+    @Html.Partial("../EquipmentAuthorization/UserEquipmentContinuedAuthorizationList")
+</div>
+<div id="divUserEquipmentContinuedAuthorizationDialog" style="display:none"></div>
+
+<script type="text/javascript">
+    function generateUserEquipmentContinuedAuthorizationSelectedIds() {
+        var ids = [];
+        var rows = $("#tbUserEquipmentContinuedAuthorizationList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+
+    function doDeleteUserEquipmentContinuedAuthorization(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateUserEquipmentContinuedAuthorizationSelectedIds().toString(): ids;
+        if (delIds == null || delIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否删除该周期性授权信息?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UserEquipmentContinuedAuthorizationDelete", "EquipmentAuthorization",new { date=DateTime.Now.Millisecond})',
+                data: { "ids": delIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    SearchUserEquipmentContinuedAuthorization();
+                }
+            });
+        });
+        return false;
+    }
+
+    var userEquipmentContinuedAuthorizationDialog;
+    function doUserEquipmentContinuedAuthorizationDialog() {
+        if (userEquipmentContinuedAuthorizationDialog) {
+            userEquipmentContinuedAuthorizationDialog.dialog("destroy");
+        }
+        userEquipmentContinuedAuthorizationDialog =  @Html.JDialog("divUserEquipmentContinuedAuthorizationEdit").SetTitle("设备周期性授权信息").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("userEquipmentContinuedAuthorizationDialog.dialog('destroy');return false;").SetCancelScript("userEquipmentContinuedAuthorizationDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveUserEquipmentContinuedAuthorization();").ToMvcString();
+    }
+    function doAddOrEditUserEquipmentContinuedAuthorization(id){
+        var equipmentId = '@(ViewData["EquipmentId"]==null? "" :ViewData["EquipmentId"].ToString())';
+        var userId = '@(ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString())';
+        var url = '@Url.Action("UserEquipmentContinuedAuthorizationEdit","EquipmentAuthorization")';
+        $("#divUserEquipmentContinuedAuthorizationDialog").load(url,{"id":id,"EquipmentId":equipmentId,"UserId":userId,"date":new Date().getMilliseconds()},function(){
+            doUserEquipmentContinuedAuthorizationDialog();
+        })
+        return false;
+    }
+    function doAddUserEquipmentContinuedAuthorization(id) {
+       doAddOrEditUserEquipmentContinuedAuthorization(id);
+    }
+    function doEditUserEquipmentContinuedAuthorization(id) {
+       if(!id || id.trim()==""){
+           var selectedUserEquipmentContinuedAuthorization = $("#tbUserEquipmentContinuedAuthorizationList").datagrid("getSelected");
+           if(!selectedUserEquipmentContinuedAuthorization || selectedUserEquipmentContinuedAuthorization.Id=="" || selectedUserEquipmentContinuedAuthorization.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedUserEquipmentContinuedAuthorization.Id;
+       }
+       doAddOrEditUserEquipmentContinuedAuthorization(id);
+    }
+    function doSaveUserEquipmentContinuedAuthorization(){
+        if($("#tdUserEquipmentContinuedAuthorizationEdit #UserId").val().trim() == ""){
+             $.messager.show({ title: '提示', msg: "用户为空", showType: 'show' });
+             return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("UserEquipmentContinuedAuthorizationSave","EquipmentAuthorization",new { date=DateTime.Now.Millisecond})',
+            data: $("#frmUserEquipmentContinuedAuthorizationEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                userEquipmentContinuedAuthorizationDialog.dialog('close');
+                SearchUserEquipmentContinuedAuthorization();
+            }
+        });
+    }
+    function SearchUserEquipmentContinuedAuthorization()
+    {
+        var queryExpression = "";
+        $("#tbUserEquipmentContinuedAuthorizationList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUserEquipmentContinuedAuthorizationList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+</script>

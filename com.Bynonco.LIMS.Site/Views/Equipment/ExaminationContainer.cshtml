@@ -1,0 +1,22 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;  
+@{
+    Layout = ViewBag.Layout;
+    ViewData["EquipmentId"] = Model == null ? "" : Model.Id.ToString();
+}
+@Html.JTab("divExaminationContainer").SetBorder(false).ToMvcString() 
+<div id="divExaminationContainer">
+    <div title="试卷" id="divTrainningExaminationTag">
+        @Html.Partial("../TrainningExamination/List")
+        @Html.Partial("../TrainningExamination/ScriptContainer")
+    </div>
+    <div title="考试记录" id="divUserExaminationTag">
+        <div class="search-grid hide">
+            <div class="search-inner-box">
+                @Html.Partial("../UserExamination/EquipmentExaminationSearch")
+            </div>
+        </div>
+        @Html.Partial("../UserExamination/EquipmentExaminationList")
+        @Html.Partial("../UserExamination/ScriptContainer")
+    </div>
+</div>

@@ -1,0 +1,75 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewMaterialOutput
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divMaterialOutputView">
+@if (Model != null)
+{
+    <table class="edit-table"  style="width:530px;height:auto">
+        <tr>
+            <th>出库单号</th>
+            <td>@Model.OutputNum</td>
+            <th>领用单号</th>
+            <td>@Model.RecipientNum</td>
+        </tr>
+        <tr>
+            <th>领用人</th>
+            <td>@Model.OutputUserName</td>
+            <th>领用时间</th>
+            <td>@Model.OutputTimeStr</td>
+        </tr>
+        <tr>
+            <th>课题组</th>
+            <td>@Model.SubjectName</td>
+            <th>项目名称</th>
+            <td>@Model.SubjectProjectName</td>
+        </tr>
+         <tr>
+            <th>详情</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.ItemDetail)</td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.Remark)</td>
+        </tr>
+        <tr>
+            <th>创建人</th>
+            <td>@Model.CreaterName</td>
+            <th>创建时间</th>
+            <td>@Model.CreateTimeStr</td>
+        </tr>
+        <tr>
+            <th>修改人</th>
+            <td>@Model.UpdateUserName</td>
+            <th>修改时间</th>
+            <td>@Model.UpdateTimeStr</td>
+        </tr>
+        @if (Model.StatusEnum != MaterialOutputStatus.UnDeduct)
+        {
+        <tr>
+            <th>扣费金额</th>
+            <td>@(Model.DeductCurrency.HasValue ? Model.DeductCurrency.Value : 0)</td>
+            <th>状态</th>
+            <td>@Model.StatusEnum.ToCnName()</td>
+        </tr>
+        <tr>
+            <th>扣费人</th>
+            <td>@Model.DeductUserName</td>
+            <th>扣费</th>
+            <td>@Model.DeductTimeStr</td>
+        </tr>
+        }
+        else
+        {
+        <tr>
+            <th>状态</th>
+            <td colspan='3'>
+                @Model.StatusEnum.ToCnName()
+            </td>
+        </tr>
+        }
+    </table>
+}
+else
+{
+    @:无效信息
+}
+</div>

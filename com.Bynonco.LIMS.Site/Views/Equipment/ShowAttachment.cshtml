@@ -1,0 +1,40 @@
+﻿@model IList<com.Bynonco.LIMS.Model.EquipmentAttachment>
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    DataGridSettings dataGridSettings = (DataGridSettings)ViewData["DataGridSettings"];
+    if (Model != null && Model.Count() > 0)
+    {
+        var paginationTop = Html.JPagination("PageAttachmentListTop")
+            .SetTotal(dataGridSettings.Total)
+            .SetPageSize(dataGridSettings.PageSize)
+            .SetPageNumber(dataGridSettings.PageIndex)
+            .SetOnSelectPage("doSelectAttachmentPageTop(pageNumber, pageSize);");
+        @(paginationTop.ToMvcString()) 
+        <ul>
+        @for (int i=0; i < Model.Count() ; i++)
+        {
+            var item = Model[i];
+            <li class='@(i % 2 == 0 ? "" : "alt-row") @(i==0? "first-row" : "") border-b' style="padding:10px 20px;">
+                @System.Web.Mvc.MvcHtmlString.Create(item.FileNameStr)
+                <span style="font-size:12px;color:#ddd;margin-left:10px;">[@item.FileSizeStr]</span>
+            </li>
+        }
+        </ul>
+       
+        var pagination = Html.JPagination("PageAttachmentList")
+            .SetTotal(dataGridSettings.Total)
+            .SetPageSize(dataGridSettings.PageSize)
+            .SetPageNumber(dataGridSettings.PageIndex)
+            .SetOnSelectPage("doSelectAttachmentPage(pageNumber, pageSize);");
+        @(pagination.ToMvcString()) 
+    }
+    else
+    {
+        <p>没有相关附件信息</p>
+    }
+}
+<script type="text/javascript">
+    $(function () {
+        SetTagNums('@dataGridSettings.Total', "ShowAttachmentTitle", "附件下载");
+    });
+</script>

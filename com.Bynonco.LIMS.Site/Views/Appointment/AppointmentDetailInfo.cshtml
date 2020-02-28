@@ -1,0 +1,291 @@
+﻿@model com.Bynonco.LIMS.Model.Appointment
+@using com.Bynonco.LIMS.Model.Enum; 
+@using com.Bynonco.LIMS.Utility; 
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var chargeStandard = ViewData["ChargeStandard"] == null ? null : (com.Bynonco.LIMS.Model.ChargeStandard)ViewData["ChargeStandard"];
+    var usedConfirm = ViewData["UsedConfirm"] == null ? null : (com.Bynonco.LIMS.Model.UsedConfirm)ViewData["UsedConfirm"];
+    var costDeduct = ViewData["CostDeduct"] == null ? null : (com.Bynonco.LIMS.Model.CostDeduct)ViewData["CostDeduct"];
+    var customer = CustomerFactory.GetCustomer();
+    var isShowSampleNo = customer == null ? true : customer.GetIsShowAppointmentSampleInfo(); var isShowSampleTarget = customer == null ? true : customer.GetIsShowAppointmentSampleTarget();
+    var isShowSampleStuff = customer == null ? true : customer.GetIsShowAppointmentSampleStuff();
+    var isShowSampleSize = customer == null ? true : customer.GetIsShowAppointmentSampleSize();
+    var isShowSampleCount = (customer == null ? true : customer.GetIsShowAppointmentSampleInfo()) || (chargeStandard != null && chargeStandard.ChargeTypeEnum == com.Bynonco.LIMS.Model.Enum.ChargeType.BySampleCount);
+ }
+  <style type="text/css">
+      #divAppointmentDetailInfoContainer table{width:560px;}
+      #divAppointmentDetailInfoContainer div{margin-top:0px;}
+      #divAppointmentDetailInfoContainer div p{font-weight:bold;font-size:14px; text-align:center}
+ </style>
+<div id="divAppointmentDetailInfoContainer" style="width:620px;height:550px;">   
+    <div style="margin-top:0px">                                                                                                                                                                                                                          <div>
+        <p>设备概要信息</p>
+        <table class="edit-table">
+            <tr>
+                <th>设备名称</th>
+                <td>
+                    @Model.Equipment.Name
+                </td>
+                <th>固定资产编号</th>
+                <td>
+                    @Model.Equipment.Label
+                </td>
+            </tr>
+            <tr>
+                <th>型号</th>
+                <td>
+                    @Model.Equipment.Model
+                </td>
+                <th>放置地点</th>
+                <td>
+                    @(Model.Equipment.LabRoom != null ? Model.Equipment.LabRoom.Name : Model.Equipment.LabRoomName)
+                </td>
+            </tr>
+            <tr>
+                <th>收费方式</th>
+                <td>
+                    @(chargeStandard == null ? "" : chargeStandard.ChargeTypeEnum.ToCnName())
+                </td>
+                <th>价格</th>
+                <td>
+                    @(chargeStandard == null ? "" : chargeStandard.StandardPrice.ToString("0.00"))
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <p>预约时间</p>
+        <table class="edit-table">
+            <tr>
+                <th>开始时间</th>
+                <th>结束时间</th>
+                <th>时长</th>
+            </tr>
+            <tr>
+                <td style="text-align:center">@Model.BeginTimeStr</td>
+                <td style="text-align:center">@Model.EndTimeStr</td>
+                <td style="text-align:center">@Model.DurationStr</td>
+            </tr>
+        </table>
+    </div>                                                                                                                                                                                  <div>
+        <p>预约信息</p>
+        <table class="edit-table">
+            <tr>
+                <th>申请日期</th>
+                <td>
+                    @Model.ApplyTime.Value.ToString("yyyy-MM-dd HH:mm")
+                </td>
+                <th>付费方式</th>
+                <td>
+                    @Model.PaymentMethodEnum.ToCnName()
+                </td>
+            </tr>
+            <tr>
+                <th>课题组名称</th>
+                <td>
+                    @(Model.Subject != null ? Model.Subject.Name : "")
+                </td>
+                <th>导师姓名</th>
+                <td>
+                    @(Model.User.Tutor == null ? "" : Model.User.Tutor.UserName)
+                </td>
+            </tr>
+            <tr>
+                <th>使用性质</th>
+                <td>
+                    @Model.UseNatureEnum.ToCnName()
+                </td>
+                <th>联系电话</th>
+                <td>
+                    @Model.PhoneNumber
+                </td>
+            </tr>
+            <tr>
+                @if (isShowSampleNo)
+                {
+
+                    <th>样品编号</th>
+                    <td>
+                        @Model.SampleNo
+                    </td> 
+                }
+                @if (isShowSampleCount)
+                {
+                    <th>样品数</th>
+                    <td>
+                        @Model.SampleCount
+                    </td> 
+                }
+            </tr>
+            <tr>
+                @if (isShowSampleStuff)
+                {
+                    <th>样品材料</th>
+                    <td>
+                        @Model.SampleStuff
+                    </td> 
+                }
+                @if (isShowSampleSize)
+                {
+                    <th>样品尺寸</th>
+                    <td>
+                        @Model.SampleSize
+                    </td> 
+                }
+            </tr>
+            @if (isShowSampleTarget)
+            {
+                <tr>
+                    <th>样品目的</th>
+                    <td colspan="3">
+                        @Model.Target
+                    </td> 
+                </tr>
+            }
+            <tr>
+                <th>项目名称</th>
+                <td colspan="3">
+                    @(Model.SubjectProject != null ? Model.SubjectProject.Name : "")
+                </td>
+            </tr>
+            <tr>
+                <th>不可使用原因</th>
+                <td colspan="3">@Model.WhyUnuseable</td>
+            </tr>
+            @if (Model.IsNeedAudit.HasValue && Model.IsNeedAudit.Value && Model.AuditStatusEnum != AppointmentAuditStatus.UnAudit)
+            {
+                
+                <tr>
+                    <th>审核人</th>
+                    <td>
+                        @(Model.Auditor != null ? Model.Auditor.Name : "")
+                    </td>
+                    <th>审核不通过原因</th>
+                    <td>
+                        @(StringUtility.ToHtmlBr(Model.AuditingNoPassWhy ?? ""))
+                    </td>
+                </tr>
+            }
+            <tr>
+                <th>实验内容</th>
+                <td colspan="3">
+                    <div class="htmlArea">@(StringUtility.ToHtmlBr(Model.ExperimentationContent))</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <p>使用记录</p>
+        <table class="edit-table">
+            <tr>
+                <th>使用时间</th>
+                <td>
+                    @(usedConfirm != null ? usedConfirm.BeginAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "")
+                    ～
+                    @(usedConfirm != null && usedConfirm.EndAt.HasValue ? usedConfirm.EndAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "")
+                </td>
+            </tr>
+            <tr>
+                <th>使用时长</th>
+                <td>
+                    @(usedConfirm != null ? usedConfirm.DurationStr : "")
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <p>扣费记录</p>
+        <table class="edit-table">
+             <tr>
+                <th>是否预扣费</th>
+                <td>
+                    @(Model.IsPredictCostDeduct.HasValue && Model.IsPredictCostDeduct.Value ? "是" : "否")
+                </td>
+            </tr>
+            <tr>
+                <th>是否开发基金扣费</th>
+                <td>
+                    @(costDeduct != null && costDeduct.IsOpenFundCostDeduct ? "是" : "否")
+                </td>
+            </tr>
+            <tr>
+                <th>计费方式</th>
+                <td>
+                    @(costDeduct != null ? costDeduct.CostDeductTypeEnum.ToCnName() : "")
+                </td>
+            </tr>
+            <tr>
+                <th>计费价格</th>
+                <td>
+                    @(Model.Fee.Value.ToString("0.00"))
+                </td>
+            </tr>
+            <tr>
+                <th>时长</th>
+                <td>
+                    @(Model.DurationStr)分钟
+                </td>
+            </tr>
+            <tr>
+                <th>费用</th>
+                <td>
+                    @(costDeduct != null ? costDeduct.Fee.ToString("0.00") : "")
+                </td>
+            </tr>
+            <tr>
+                <th>扣费时间</th>
+                <td>
+                    @(costDeduct != null ? costDeduct.DeductAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "")
+                </td>
+            </tr>
+        </table>
+    </div>
+    @if (Model.AppointmentEquipmentParts != null && Model.AppointmentEquipmentParts.Count > 0)
+    {
+        <div>
+            <p>备注选项</p>
+            <table class="edit-table">
+            @foreach (var appointmentEquipmentPart in Model.AppointmentEquipmentParts)
+            {
+                <tr>
+                    <th>@appointmentEquipmentPart.EquipmentPart.Name</th>
+                    <td>@(appointmentEquipmentPart.FeeStr) 元</td>
+                </tr>
+            }
+            </table>
+       </div>
+    }
+    @if (Model.AppointmentEquipmentUseConditions != null && Model.AppointmentEquipmentUseConditions.Count > 0)
+    {
+        <div>
+                <p>运行参数</p>
+                <table class="edit-table">
+                @foreach (var appointmentEquipmentUseCondition in Model.AppointmentEquipmentUseConditions)
+                {
+                    <tr>
+                        <th>@appointmentEquipmentUseCondition.EquipmentUseCondition.Name</th>
+                        <td>@appointmentEquipmentUseCondition.Val</td>
+                        <td>@(appointmentEquipmentUseCondition.FeeStr) 元</td>
+                    </tr>
+                }
+                </table>
+        </div>
+    }
+    @if (Model.AppointmentEquipmentAddtionChargeItems != null && Model.AppointmentEquipmentAddtionChargeItems.Count > 0)
+    {
+        <div>
+            <p>附加费用</p>
+            <table class="edit-table">
+            @foreach (var appointmentEquipmentAddtionChargeItem in Model.AppointmentEquipmentAddtionChargeItems)
+            {
+                <tr>
+                    <th>@appointmentEquipmentAddtionChargeItem.EquipmentAdditionChargeItem.Name</th>
+                    <td>@(appointmentEquipmentAddtionChargeItem.FeeStr) 元</td>
+                </tr>
+            }
+            </table>
+       </div>
+    }
+</div>
+

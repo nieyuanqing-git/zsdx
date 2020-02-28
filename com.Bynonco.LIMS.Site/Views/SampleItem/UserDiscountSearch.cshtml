@@ -1,0 +1,51 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var sampleItemName = $("#txtQuerySampleItemName").val();
+        if (sampleItemName.trim() != "") {
+            queryExpression += "SampleItemName∽\"" + sampleItemName.trim() + "\"";
+        }
+
+        var userName = $("#txtQueryUserName").val();
+        if (userName.trim() != "") {
+            queryExpression += "UserName∽\"" + userName.trim() + "\"";
+        }
+
+        var isStop = $("#cbxQueryIsStop").combobox("getValue").trim();
+        if (isStop != "-1") {
+            var isStopStr = isStop == "0" ? "false" : "true";
+            queryExpression += (queryExpression == "" ? "IsStop=" + isStopStr : "*IsStop=" + isStopStr);
+        }
+        return queryExpression;
+    }
+
+    function doQueryReset() {
+        $("#txtQuerySampleItemName").val("");
+        $("#txtQueryUserName").val("");
+        $("#cbxQueryIsStop").combobox("setValue", "-1");
+        return false;
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>项目名称</label>
+        @Html.JValidateBox("txtQuerySampleItemName").SetHeight(20).SetWidth(150).ToMvcString()
+    </li>
+     <li>
+        <label>用户名称</label>
+        @Html.JValidateBox("txtQueryUserName").SetHeight(20).SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>是否停用</label>
+        @Html.JComboBox("cbxQueryIsStop").SetWidth(50).SetData(ViewData["IsStopJson"]).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnQueryReset", "清空").SetOnclick("doQueryReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

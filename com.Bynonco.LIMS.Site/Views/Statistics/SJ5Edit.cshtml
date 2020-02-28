@@ -1,0 +1,150 @@
+﻿@model com.Bynonco.LIMS.Model.SJ5
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+.edit-table td {border: 0;}
+.edit-table td.tdInfo {width:30px;}
+.edit-table .icon {
+    height: 16px;
+    line-height: 16px;
+    margin-right: 5px;
+    padding-bottom: 2px;
+    padding-right: 16px;
+    width: 16px;
+}
+</style>
+<div id="divSJ5Edit">
+ <form id="frmSJ5Edit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("SJ5StatisticsId", Model == null ? "" : Model.SJ5StatisticsId.ToString())
+    <table id="tdSJ5Edit" class="edit-table"  style="width:485px;">
+        <tr>
+            <th>学校代码</th>
+            <td>
+                @Html.JValidateBox("SchoolCode").SetValue(Model == null ? (ViewData["SchoolCode"] == null ? "" : ViewData["SchoolCode"].ToString().Trim()) : Model.SchoolCode.Trim()).SetWidth(50).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="学校代码: 数据格式为字符型，长度为5"></span>
+            </td>
+        
+            <th>人员编号</th>
+            <td>
+                @Html.JValidateBox("UserNum").SetValue(Model == null ? "" : Model.UserNum.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="人员编号：数据格式为字符型，长度为7。学校人事部门的人员编号，校内具有唯一性。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>实验室编号</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomNum").SetValue(Model == null ? "" : Model.ExperimentRoomNum.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验室编号：数据格式为字符型，长度为10。学校自编的实验室编号，校内具有唯一性。"></span>
+            </td>
+            <th>实验室名称</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomName").SetValue(Model == null ? "" : Model.ExperimentRoomName.Trim()).SetWidth(150).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="实验室名称：数据格式为字符型，长度为50。填写汉字名称。超过25个汉字应缩写。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>姓名</th>
+            <td>
+                @Html.JValidateBox("UserName").SetValue(Model == null ? "" : Model.UserName.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="姓名：数据格式为字符型，长度为8。超过4个汉字应缩写。"></span>
+            </td>
+            <th>性别</th>
+            <td>
+                @Html.JValidateBox("Sex").SetValue(Model == null ? "" : Model.Sex.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="性别：数据格式为字符型，长度为1。按代码填写：1．男；　2．女。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>出生年月</th>
+            <td>
+                @Html.JValidateBox("Birthday").SetValue(Model == null ? "" : Model.Birthday.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="出生年月：数据格式为字符型，长度为6。前四位表示年，后两位表示月，如194904表示1949年4月出生。"></span>
+            </td>
+            <th>所属学科</th>
+            <td>
+                @Html.JValidateBox("Subject").SetValue(Model == null ? "" : Model.Subject.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="数据格式为字符型，长度为4。按照最新版的《中国普通高等学校本科专业设置大全》填写二级类代码(前四位)。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>专业技术职务</th>
+            <td>
+                @Html.JValidateBox("Speciality").SetValue(Model == null ? "" : Model.Speciality.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="专业技术职务：数据格式为字符型，长度为3。按照《专业技术职务代码》（GB/T 8561-2001）填写，增加“A00”：工人；“A10”：技师；“A11”：高级技师。未定专业技术职务，填“0”。"></span>
+            </td>
+            <th>文化程度</th>
+            <td>
+                @Html.JValidateBox("Degree").SetValue(Model == null ? "" : Model.Degree.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="文化程度：数据格式为字符型，长度为2。按照《文化程度代码》（GB/T 4658-1984）填写，只填国家承认并取得毕（肄）业证书的最高学历。增加 “03”：博士；“04”：硕士。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>专家类别</th>
+            <td>
+                @Html.JValidateBox("ProfessorType").SetValue(Model == null ? "" : Model.ProfessorType.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="数据格式为字符型，长度为2。具有国家认可的学术地位的人员。用代码表示：00．无；1．院士；2．长江学者；3．杰出青年基金获得者；4．国家级教学名师；5．省级教学名师。可复选，如：某专家既为长江学者又为国家级教学名师，应填为：“24”。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th colspan='6'>国内培训</th>
+        </tr>
+        <tr>
+            <th>学历教育实践</th>
+            <td>
+                @Html.JValidateBox("DomesticTeachingHours").SetValue(Model == null ? "" : Model.DomesticTeachingHours.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="国内培训（学历教育时间）：数据格式为数值型，长度为3。本学年国内学历教育时间，以天为单位。"></span>
+            </td>
+            <th>非学历教育实践</th>
+            <td>
+                @Html.JValidateBox("DomesticUnTeachingHours").SetValue(Model == null ? "" : Model.DomesticUnTeachingHours.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="国内培训（非学历教育时间）：数据格式为数值型，长度为3。本学年国内非学历教育时间，以天为单位。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th colspan='6'>国外培训</th>
+        </tr>
+        <tr>
+            <th>学历教育实践</th>
+            <td>
+                @Html.JValidateBox("ForeignTeachingHours").SetValue(Model == null ? "" : Model.ForeignTeachingHours.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="国外培训（学历教育时间）：数据格式为数值型，长度为3。本学年国外学历教育时间，以天为单位。"></span>
+            </td>
+            <th>非学历教育实践</th>
+            <td>
+                @Html.JValidateBox("ForeignUnTeachingHours").SetValue(Model == null ? "" : Model.ForeignUnTeachingHours.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="国外培训（非学历教育时间）：数据格式为数值型，长度为3。本学年国外非学历教育时间，以天为单位。"></span>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

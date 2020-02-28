@@ -1,0 +1,236 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var backUrl = Server.HtmlDecode(ViewData["BackUrl"].ToString());
+    var sampleRoleStr = ViewData["SampleRoleStr"];
+    var sendMailMode = ViewData["SendMailMode"].ToString();
+    var whichSampleStausDisableEdit = ViewData["WhichSampleStausDisableEdit"];
+    var userPriviligesJson = ViewData["UserPriviligesJson"].ToString();
+}
+<script type="text/javascript">
+    var newIds = "";
+    var sampleRoleStr = "@sampleRoleStr";
+    var backUrl = "@backUrl";
+    var sendMailMode = "@sendMailMode";
+    var whichSampleStausDisableEdit = "@whichSampleStausDisableEdit";
+    var userPriviligesJson = eval("(" + "@userPriviligesJson".toJson() + ")");
+    var sampleApplyInfo = null;
+    var curOperate = "";
+    var curSelectedIds = "";
+    function doBack() {
+        var url  = backUrl + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+    function doSelectSampleBusinessTypeCallBack(selectedSampleBusinessType){
+        doAddSampleApply('',selectedSampleBusinessType,true);
+    }
+    function doAddSampleApply(id,selectedSampleBusinessType,isEdit,isAudit) {
+        var url  = '@Url.Action("SampleApplyInnerOrOuter","SampleManage")' + "?id=" + id + "&sampleRoleStr=" + sampleRoleStr + "&selectedSampleBusinessType=" + "" + selectedSampleBusinessType + "&backUrl=" + encodeURI(backUrl) + "&time=" + new Date().getMilliseconds();
+        url += "&isEdit=" + isEdit + "&isAudit=" + isAudit;
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+
+    function doEdit(id, selectedSampleBusinessType) {
+        doAddSampleApply(id,selectedSampleBusinessType,true,false);  
+    }
+
+    function doAudit(id,selectedSampleBusinessType){
+        doAddSampleApply(id,selectedSampleBusinessType,false,true);
+    }
+
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbSampleUnAutitList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleUnAutitList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+
+    
+
+    function doOperateValidate(){
+        var id = $("#Id").val();
+        if( id == null || id.trim()=="") return false;
+        return true;
+   }
+
+    function  generateSelectedIds(operate){
+        var rows = $("#tbSampleUnAutitList").datagrid("getSelections");
+        var ids ="";
+        if(!rows || rows.length==0){
+            $.messager.show({ title: '提示', msg: '请选择要操作的记录', showType: 'show' });
+            return false;
+        }
+        for(var i =0; i < rows.length;i++){
+            var statusStr = rows[i].Status.toString();
+            switch(operate){
+                case "Agree":
+                    if (statusStr != "@((int)SampleApplyStatus.UnAudit)" && statusStr != "@((int)SampleApplyStatus.ApplyCancel)" && statusStr != "@((int)SampleApplyStatus.RefuseCancel)" && statusStr != "@((int)SampleApplyStatus.Accepted)") {
+                        $.messager.show({ title: '提示', msg: "申请单【"+ rows[i].SampleNo + "】序号【" + rows[i].RowNo + "】当前状态【" + rows[i].StatusName + "】下不可进行同意操作", showType: 'show' });
+                        curSelectedIds = ""; return false;
+                    }
+                    break;
+                case "Refuse":
+                    if (statusStr != "@((int)SampleApplyStatus.UnAudit)" && statusStr != "@((int)SampleApplyStatus.Audited)" && statusStr != "@((int)SampleApplyStatus.ApplyCancel)" && statusStr != "@((int)SampleApplyStatus.Canceled)" && statusStr != "@((int)SampleApplyStatus.Accepted)") {
+                        $.messager.show({ title: '提示', msg: "申请单【"+ rows[i].SampleNo + "】序号【" + rows[i].RowNo + "】当前状态【" + rows[i].StatusName + "】下不可进行否决操作", showType: 'show' });
+                        curSelectedIds = ""; return false;
+                    }
+                    break;
+                case "Accept":
+                    if (statusStr != "@((int)SampleApplyStatus.UnAudit)") {
+                        $.messager.show({ title: '提示', msg: "申请单【" + rows[i].SampleNo + "】序号【" + rows[i].RowNo + "】当前状态【" + rows[i].StatusName + "】下不可进行确认收样操作", showType: 'show' });
+                        curSelectedIds = ""; return false;
+                    }
+                    break;
+                case "RefuseAccept":
+                    if (statusStr != "@((int)SampleApplyStatus.UnAudit)") {
+                        $.messager.show({ title: '提示', msg: "申请单【" + rows[i].SampleNo + "】序号【" + rows[i].RowNo + "】当前状态【" + rows[i].StatusName + "】下不可进行拒绝收样操作", showType: 'show' });
+                        curSelectedIds = ""; return false;
+                    }
+                    break;
+                case "ReportConfirm":
+                    if (statusStr != "@((int)SampleApplyStatus.Obtained)" && statusStr != "@((int)SampleApplyStatus.Released)") {
+                        $.messager.show({ title: '提示', msg: "申请单【" + rows[i].SampleNo + "】序号【" + rows[i].RowNo + "】当前状态【" + rows[i].StatusName + "】下不可进行已发报告操作", showType: 'show' });
+                        curSelectedIds = ""; return false;
+                    }
+                    break;
+                }
+            ids += i == 0 ? rows[i].Id : "," + rows[i].Id;
+        }
+        curSelectedIds = ids;
+    }
+    function doBatchOperate(operate){
+        curOperate = operate;
+        generateSelectedIds(curOperate);
+        if(curSelectedIds == "") return false;
+        doShowConfirmDialog();
+        return false;   
+    }
+    function doAgree(id) {
+        curOperate = "Agree";
+        var status = curStatus.toString();
+        if (status == "@((int)SampleApplyStatus.UnAudit)" || status == "@((int)SampleApplyStatus.Accepted)") $("#Status").combobox("setValue", '@((int)SampleApplyStatus.Audited)');
+        if(status == "@((int)SampleApplyStatus.ApplyCancel)" || status == "@((int)SampleApplyStatus.RefuseCancel)") $("#Status").combobox("setValue","@((int)SampleApplyStatus.Canceled)");
+        doShowConfirmDialog();
+        return false;
+    }
+   
+    function doBatchAgree(){
+        doBatchOperate("Agree");
+    }
+
+    function doRefuse(id){
+        curOperate = "Refuse";
+        if(!doOperateValidate()) return false;
+        var status = curStatus.toString();
+        if(status == "@((int)SampleApplyStatus.UnAudit)" || status == "@((int)SampleApplyStatus.Audited)") $("#Status").combobox("setValue","@((int)SampleApplyStatus.Canceled)");
+        if(status == "@((int)SampleApplyStatus.Canceled)") $("#Status").combobox("setValue","@((int)SampleApplyStatus.RefuseCancel)");
+        doShowConfirmDialog();
+        return false;   
+    }
+
+    function doBatchRefuse() {
+        doBatchOperate("Refuse");
+    }
+
+    function doReportConfirm(id) {
+        curOperate = "ReportConfirm";
+        curSelectedIds = id;
+        doShowConfirmDialog();
+        return false;
+    }
+    function doBatchReportConfirm() {
+        doBatchOperate("ReportConfirm");
+    }
+    function doAccept(id){
+        curOperate = "Accept";
+        if ($("#Status").length > 0) {
+            if (!doOperateValidate()) return false;
+            var status = curStatus.toString();
+            if (status == "@((int)SampleApplyStatus.UnAudit)" && $("#Status").length > 0) {
+                $("#Status").combobox("setValue", "@((int)SampleApplyStatus.Accepted)");
+            }
+        }
+        else {
+            curSelectedIds = id;
+        }
+        doShowConfirmDialog();
+        return false;
+    }
+    function doBatchAccept() {
+        doBatchOperate("Accept");
+    }
+    function doRefuseAccept(id) {
+        curOperate = "RefuseAccept";
+        if ($("#Status").length > 0) {
+            if (!doOperateValidate()) return false;
+            var status = curStatus.toString();
+            if (status == "@((int)SampleApplyStatus.UnAudit)" && $("#Status").length > 0) {
+                $("#Status").combobox("setValue", "@((int)SampleApplyStatus.RefuseAccept)");
+            }
+        }
+        else {
+            curSelectedIds = id;
+        }
+        doShowConfirmDialog();
+        return false;
+    }
+    function doBatchRefuseAccept() {
+        doBatchOperate("RefuseAccept");
+    }
+    function doConirmCallBack(){
+        var confirmRemark = $("#OpreateRemark").val();
+        $("#hidRemark").val(confirmRemark);
+        if(!doSubmit(curOperate,curSelectedIds)) {
+            confirmDialog.dialog("close");//只是为了让代码按照一定顺序执行
+        }
+        return  false;
+    }
+    function doConfirmCancelCallBack(){
+        $("#Status").combobox("setValue",curStatus);
+        confirmDialog.dialog("close");
+        return  false;
+    }
+
+    function doSubmit(operate, ids) {
+        var remark = $("#OpreateRemark").val();
+        var manualSampleNos = "";
+        var id = "";
+        var tagId = "";
+        var attchments = "";
+        var isBatch = ids != null && ids.trim() != "";
+        if(!isBatch){
+            if (!validateManaualSampleNos()) return false;
+            id = $("#Id").val();
+            tagId = $("#TagId").combobox("getValue"); 
+            var manualSampleNos = getManaualSampleNos();
+            var rows = $("#tbAttchmentList").datagrid("getRows");
+            if (rows && rows.length > 0) {
+                for (var i = 0; i < rows.length; i++) {
+                    var attachment = rows[i].Id + "#" + rows[i].FileName + "." + rows[i].FlleExtension + "#" + rows[i].FileSizeStr;
+                    attchments += attchments == "" ? attachment : "," + attachment;
+                } 
+            }
+        }
+        $.messager.progress({title: '提示',msg: '正在请求数据,请稍候……'});
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Operate")' + "?sampleRoleStr=" + sampleRoleStr + "&op=" + operate + "&time=" + new Date().getMilliseconds(),
+            data: isBatch ? $("form").serialize() + "&ids=" + (curSelectedIds == "" ? id : curSelectedIds) + "&attchments=" + attchments + "&Remark=" + remark : $("form").serialize() + "&attchments=" + attchments + "&ManualSampleNos=" + manualSampleNos + "&TagIdCopy=" + tagId + "&Remark=" + remark,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                if (isBatch) { doSearch(); }
+                if (sendMailMode.toString() == "@((int)SendMailMode.Manual)" && msg.indexOf(",") == -1) {
+                    doSendMessage(msg, false);
+                }
+                else if (!isBatch) { doBack(); }
+            }
+        });
+        ids = "";
+        return false;
+    }
+</script>

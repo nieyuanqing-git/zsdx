@@ -1,0 +1,39 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewCostDeduct
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+<div id="divManualCostDeductDetail" style="overflow:hidden">
+    <table class="edit-table" style="width:350px;height:300px;">
+        <tr>
+            <th>名目</th>
+            <td>@Model.Title</td>
+        </tr>
+        <tr>
+            <th>使用者</th>
+            <td>@Model.UserName</td>
+        </tr>
+        <tr>
+            <th>付费方式</th>
+            <td>@Model.PaymentMethodEnum.ToCnName()</td>
+        </tr>
+        <tr>
+            <th>课题组</th>
+            <td>@Model.SubjectName</td>
+        </tr>
+         <tr>
+            <th>项目名称</th>
+            <td>@Model.SubjectProjectName</td>
+        </tr>
+        <tr>
+            <th>金额</th>
+            <td>@Model.RealFee.Value.ToString("0.00元")</td>
+        </tr>
+        <tr>
+            <th>付费人</th>
+            <td>@Model.PayerName</td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>@Model.Remark</td>
+        </tr>
+    </table>
+</div>

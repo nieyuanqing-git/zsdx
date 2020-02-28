@@ -1,0 +1,42 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimal
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divInAnimal">
+    <form id="frmInAnimal" action="#">
+        <table class="edit-table">
+            <tr>
+                <th>动物名称</th>
+                <td>@Model.Name</td>
+            </tr>
+            <tr>
+                <th>入库时间</th>
+                <td>@Model.InDateStr</td>
+            </tr>
+            <tr>
+                <th>入库人</th>
+                <td>@Model.InOperatorName</td>
+            </tr>
+             <tr>
+                <th><span class="required">*</span>位置信息</th>
+                <td>
+                    <span id="spanAnimalCagePosition">@(Model == null ? "" : Model.AnimalPos)</span>
+                    @Html.Hidden("AnimalCageRowNo", Model == null || !Model.AnimalCageRowNo.HasValue ? "" : Model.AnimalCageRowNo.Value.ToString())
+                    @Html.Hidden("AnimalCageColNo", Model == null || !Model.AnimalCageColNo.HasValue ? "" : Model.AnimalCageColNo.Value.ToString())
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>笼子编号</th>
+                <td>
+                    @Html.Hidden("AnimalCageId", Model == null || !Model.AnimalCageId.HasValue ? "" : Model.AnimalCageId.Value.ToString())
+                    @Html.JValidateBox("AnimalCageName").SetReadOnly(true).SetValue(Model == null ? "" : Model.AnimalCageName).SetWidth(300).SetValidateType(ValidateType.none).ToMvcString()
+                    @(Html.JLinkButton("btnSelectAnimalCage", "选择").SetIconCls("icon-ok").SetOnclick(string.Format("doSelectAnimalCage('{0}','AnimalCageId','AnimalCageRowNo','AnimalCageColNo');", Model != null ? Model.Id.ToString() : "")).SetPlain(true).ToMvcString())
+                </td>
+            </tr>
+            <tr>
+                <th>入库备注</th>
+                <td>
+                    @Html.TextArea("InRemark", Model == null ? "" : Model.InRemark, 3, 60, null)
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>

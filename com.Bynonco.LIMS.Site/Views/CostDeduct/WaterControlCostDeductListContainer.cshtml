@@ -1,0 +1,12 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{string widthStr = ViewData["Width"] != null ? "width:" + ViewData["Width"].ToString() + "px" : "";}
+<div  id="divManualCostDeduct" style="@widthStr">
+    <div class="search-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../CostDeduct/WaterControlDeductSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../CostDeduct/WaterControlDeductList")</div>
+    <div style="display:none">@Html.Partial("../CostDeduct/WaterControlDeductScriptContainer")</div>
+</div>
+

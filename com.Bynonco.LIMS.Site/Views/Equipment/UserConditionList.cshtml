@@ -1,0 +1,46 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbEquipmentUseConditionList")
+    .SetUrl(Url.Action("GetGridEquipmentUseConditionList", "Equipment"))
+    .AddQueryParam("queryExpression", string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("ControlCategory")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("计费价格", "Price").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否使用折扣比", "IsUseDiscountStr").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("计费是否乘以机时", "IsMutiplyByDurationStr").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否预约显示", "IsEnableSelectWhenAppointmentStr").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("等于什么值扣费", "WhichValuesCharged").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("控件类型", "ControlCategoryName").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("数据类型", "DataCategoryName").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("控件宽度", "ControlWidth").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("控件高度", "ControlHeight").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("值域(下拉框专用)", "Vals").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否必填", "IsRequiredStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("校验正则表达式", "ValidateRegExpression").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("默认值", "ControlDefaultValue").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("排序号", "OrderNo").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddEquipmentUseCondition);
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditEquipmentUseCondition);
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteEquipmentUseCondition);
+    if (equipmentPrivilige.IsEnableAddEquipmentUseCondition)
+    {
+        dataGrid.SetAddScript("doAddOrEditEquipmentUseCondition('');");
+    }
+    if (equipmentPrivilige.IsEnableEditEquipmentUseCondition)
+    {
+        dataGrid.SetEditScript("doEditEquipmentUseCondition();");
+        dataGrid.SetOnDblClickRow("doAddOrEditEquipmentUseCondition(rowData.Id);");
+    }
+    if (equipmentPrivilige.IsEnableDeleteEquipmentUseCondition)
+    {
+        dataGrid.SetDeleteScript("doDeleteEquipmentUseCondition();");
+    }
+}
+@(dataGrid.ToMvcString()) 

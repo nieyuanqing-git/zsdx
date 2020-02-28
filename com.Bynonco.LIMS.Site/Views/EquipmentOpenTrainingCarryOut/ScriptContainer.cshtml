@@ -1,0 +1,259 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEquipmentOpenTrainingCarryOutDialog" style="display:none"></div>
+<div id="divViewEquipmentOpenTrainingCarryOutDialog" style="display:none"></div>
+<div id="divAuditEquipmentOpenTrainingCarryOutDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSemesterOnSelect(record) {
+        doSearchEquipmentOpenTrainingCarryOut(record.Id);
+    }
+    function doGetSelectSemesterId() {
+        var selectSemesterId = $("#SelectSemesterId").combobox("getValue");
+        if (!selectSemesterId || selectSemesterId == "" || selectSemesterId.isDefaultGuid()) {
+            return "";
+        }
+        return selectSemesterId;
+    }
+    function doSearchEquipmentOpenTrainingCarryOut(semesterId) {
+        if (!semesterId || semesterId.trim() == "") { 
+            semesterId = doGetSelectSemesterId();
+        }
+        var queryExpression = generateEquipmentOpenTrainingCarryOutQueryExpress();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetGridViewEquipmentOpenTrainingCarryOutList", "EquipmentOpenTrainingCarryOut")',
+            data: { "semesterId": semesterId ,"queryExpression":queryExpression },
+            success: function (data) {
+                $('#tbEquipmentOpenTrainingCarryOutList').datagrid('loadData', { total: 0, rows: [] });
+                $('#tbEquipmentOpenTrainingCarryOutList').datagrid('loadData', data);
+                try { $.messager.progress('close'); } catch (e) { }
+            }
+        });
+    }
+    var equipmentOpenTrainingCarryOutDialog;
+    function doEquipmentOpenTrainingCarryOutDialog() {
+        if (equipmentOpenTrainingCarryOutDialog) {
+            equipmentOpenTrainingCarryOutDialog.dialog("destroy");
+        }
+        equipmentOpenTrainingCarryOutDialog =  @Html.JDialog("divEquipmentOpenTrainingCarryOutEdit").SetTitle("培训实施计划信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentOpenTrainingCarryOutDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveEquipmentOpenTrainingCarryOut();").ToMvcString();
+    }
+    function doAddEquipmentOpenTrainingCarryOut(id) {
+       var semesterId = doGetSelectSemesterId();
+       if (!semesterId || semesterId.trim() == "") {
+          $.messager.show({ title: '提示', msg: "学期为空为空", showType: 'show' });
+       }
+       doAddOrEditEquipmentOpenTrainingCarryOut(id,semesterId);
+    }
+    function doEditEquipmentOpenTrainingCarryOut(id,semesterId) {
+       if(!id || id.trim()=="" || !semesterId || semesterId.trim() == ""){
+           var selectedEquipmentOpenTrainingCarryOut = $("#tbEquipmentOpenTrainingCarryOutList").datagrid("getSelected");
+           if(!selectedEquipmentOpenTrainingCarryOut || selectedEquipmentOpenTrainingCarryOut.Id=="" || selectedEquipmentOpenTrainingCarryOut.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择培训实施计划", showType: 'show' });
+              return false;
+           }
+           id = selectedEquipmentOpenTrainingCarryOut.Id;
+           semesterId = selectedEquipmentOpenTrainingCarryOut.SemesterId;
+       }
+       doAddOrEditEquipmentOpenTrainingCarryOut(id,semesterId);
+    }
+    function doAddOrEditEquipmentOpenTrainingCarryOut(id,semesterId){
+        var url = '@Url.Action("Edit","EquipmentOpenTrainingCarryOut")'+ "?id=" + id + "&semesterId=" + semesterId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentOpenTrainingCarryOutDialog").load(url,function(){
+            doEquipmentOpenTrainingCarryOutDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveEquipmentOpenTrainingCarryOut(){
+        if($("#SemesterId").val().trim() == ""){
+              $.messager.show({ title: '提示', msg: "学期为空", showType: 'show' });
+              return false;
+        }
+        if($("#EquipmentOpenTrainingId").val().trim() == ""){
+              $.messager.show({ title: '提示', msg: "设备应用知识培训申请为空", showType: 'show' });
+              return false;
+        }
+        var  equipmentOpenTrainingCarryOutPlanIds = '';
+        $("#tdPlanItems").find(".tdId").find('input:hidden').each(function(){
+            if(!$(this).hasClass("combo-value"))
+                equipmentOpenTrainingCarryOutPlanIds += (equipmentOpenTrainingCarryOutPlanIds == "" ? "" : ",") + $(this).val();
+        });
+        if(equipmentOpenTrainingCarryOutPlanIds == '')
+        {
+            $.messager.show({ title: '提示', msg: "培训安排为空", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","EquipmentOpenTrainingCarryOut")' ,
+            data: $("#frmEquipmentOpenTrainingCarryOutEdit").serialize() + "&EquipmentOpenTrainingCarryOutPlanIds=" + equipmentOpenTrainingCarryOutPlanIds,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                equipmentOpenTrainingCarryOutDialog.dialog('close');
+                doSearchEquipmentOpenTrainingCarryOut();
+            }
+        });
+   }
+   function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentOpenTrainingCarryOutList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+   function doDeleteEquipmentOpenTrainingCarryOut(ids){
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedIds().toString(): ids;
+        if (delIds == null || delIds=="") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "EquipmentOpenTrainingCarryOut")'+ "?date=" + new Date().getMilliseconds(),
+                data: { "ids": delIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchEquipmentOpenTrainingCarryOut();
+                }
+            });
+        });
+        return false;
+    }
+    var viewEquipmentOpenTrainingCarryOutDialog;
+    function doViewEquipmentOpenTrainingCarryOutDialog() {
+        if (viewEquipmentOpenTrainingCarryOutDialog) {
+            viewEquipmentOpenTrainingCarryOutDialog.dialog("destroy");
+        }
+        viewEquipmentOpenTrainingCarryOutDialog =  @Html.JDialog("divEquipmentOpenTrainingCarryOutView").SetTitle("培训实施计划信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewEquipmentOpenTrainingCarryOutDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doViewEquipmentOpenTrainingCarryOutInfo(id)
+    {
+        if(!id || id.trim()==""){
+            var selectedEquipmentOpenTrainingCarryOut = $("#tbEquipmentOpenTrainingCarryOutList").datagrid("getSelected");
+            if(!selectedEquipmentOpenTrainingCarryOut || selectedEquipmentOpenTrainingCarryOut.Id=="" || selectedEquipmentOpenTrainingCarryOut.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg:"请选择培训实施计划记录", showType: 'show' });
+                return false;
+            }
+            id = selectedEquipmentOpenTrainingCarryOut.Id;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewInfo","EquipmentOpenTrainingCarryOut")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewEquipmentOpenTrainingCarryOutDialog").load(url,function(){
+            doViewEquipmentOpenTrainingCarryOutDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    var auditEquipmentOpenTrainingCarryOutDialog;
+    function doAuditEquipmentOpenTrainingCarryOutDialog() {
+        if (auditEquipmentOpenTrainingCarryOutDialog) {
+            auditEquipmentOpenTrainingCarryOutDialog.dialog("destroy");
+        }
+        auditEquipmentOpenTrainingCarryOutDialog =  @(Html.JDialog("divEquipmentOpenTrainingCarryOutAudit")
+        .SetTitle("培训实施计划审核")
+        .SetIconCls("icon-pass")
+        .SetAutoDialog(false)
+        .SetCancelScript("auditEquipmentOpenTrainingCarryOutDialog.dialog('destroy');return false;")
+        .AddButton(new ToolBarButton() { Handler = "doEquipmentOpenTrainingCarryOutWaitingAudit();return false;", Id = "btnEquipmentOpenTrainingCarryOutWaitingAudit", Text = "置为待审", IconCls = "icon-info" })
+        .AddButton(new ToolBarButton() { Handler = "doEquipmentOpenTrainingCarryOutAuditPass();return false;", Id = "btnEquipmentOpenTrainingCarryOutAuditPass", Text = "审核通过", IconCls = "icon-ok"})
+        .AddButton(new ToolBarButton() { Handler = "doEquipmentOpenTrainingCarryOutAuditReject();return false;", Id = "btnEquipmentOpenTrainingCarryOutAuditReject", Text = "审核不通过", IconCls = "icon-no"})
+        .SetModal(true)
+        .SetShowOkButton(false)
+        .ToMvcString());
+    }
+    function doAuditEquipmentOpenTrainingCarryOut(ids)
+    {
+        var auditIds = ids == null || ids.trim() == "" ? generateSelectedIds().toString(): ids;
+        if (auditIds == null || auditIds=="") {
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Audit","EquipmentOpenTrainingCarryOut")'+ "?ids=" + auditIds + "&date=" + new Date().getMilliseconds();
+        $("#divAuditEquipmentOpenTrainingCarryOutDialog").load(url,function(){
+            doAuditEquipmentOpenTrainingCarryOutDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+     function doEquipmentOpenTrainingCarryOutWaitingAudit(){
+        var url = '@Url.Action("WaitingAudit","EquipmentOpenTrainingCarryOut")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+    function doEquipmentOpenTrainingCarryOutAuditPass(){
+        var url = '@Url.Action("AuditPass","EquipmentOpenTrainingCarryOut")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+    function doEquipmentOpenTrainingCarryOutAuditReject(){
+        var url = '@Url.Action("AuditReject","EquipmentOpenTrainingCarryOut")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+    function doSaveOrAuditMaterialPurchase(url)
+    {
+        var ids = $("#frmEquipmentOpenTrainingCarryOutAudit").find("#Ids").val().trim();
+        var auditRemark = $("#frmEquipmentOpenTrainingCarryOutAudit").find("#AuditRemark").val();
+        if(ids == ""){
+              $.messager.show({ title: '提示', msg:"审核项为空", showType: 'show' });;
+              return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { "ids": ids ,"auditRemark": auditRemark },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearchEquipmentOpenTrainingCarryOut();
+                auditEquipmentOpenTrainingCarryOutDialog.dialog('destroy');
+            }
+        });
+    }
+    function doExportExcelEquipmentOpenTrainingCarryOut() 
+    {
+        var semesterId = doGetSelectSemesterId();
+        if(semesterId == ""){
+              $.messager.show({ title: '提示', msg:"学期为空", showType: 'show' });;
+              return false;
+        }
+        var queryExpression = generateEquipmentOpenTrainingCarryOutQueryExpress();
+        queryExpression = (queryExpression == "" ? "" : "*") + "SemesterId=\"" + semesterId + "\"";
+        var url = '@Url.Action("ExportExcel","EquipmentOpenTrainingCarryOut")' + "?queryExpression=" + queryExpression;
+        window.open(url, '_blank');
+    }
+    function doExportDocEquipmentOpenTrainingCarryOut(id)
+    {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenTrainingCarryOutList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要导出结题报告书的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("ExportWord","EquipmentOpenTrainingCarryOut")/' + id;
+        window.open(url,'_blank');
+        return false;
+    }
+</script>

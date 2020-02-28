@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function doOpenFundApplyExcelSearch() {
+        var queryExpression = generateOpenFundApplyExcelQueryExpress();
+        $("#tbOpenFundApplyExcelList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbOpenFundApplyExcelList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        return false;
+    }
+    function doDealOpenFundApplyExcel() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DealOpenFundApplyExcel","OpenFundApply")',
+            data: { "date": new Date().getMilliseconds() },
+            success: function (msg) {
+                $.messager.progress('close');
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                doOpenFundApplyExcelSearch();
+            }
+        });
+    }
+    function doCleanOpenFundApplyExcel() {
+        $.messager.confirm('提示', '是否确定清空下列Excel数据?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("CleanOpenFundApplyExcel","OpenFundApply")',
+                data: { "date": new Date().getMilliseconds() },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错,") == 0) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    doOpenFundApplyExcelSearch();
+                }
+            });
+        });
+        return false;
+    }
+</script>

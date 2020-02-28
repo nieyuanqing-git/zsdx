@@ -1,0 +1,16 @@
+﻿@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("Search")</div>
+</div>
+<div>@Html.Partial("SelfAppointmentList")</div>
+<div>@Html.Partial("ScriptContainer")</div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbSelfAnimalAppointmentList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSelfAnimalAppointmentList").datagrid("reload", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+</script>

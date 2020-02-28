@@ -1,0 +1,112 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    ViewBag.Title = "仪器设备";
+    Layout = "~/Views/Shared/_SimpleSPLayout.cshtml";
+}
+@section ImportCssAndJs
+{
+    <script type="text/javascript">
+        var perPageSize = 10;
+        function getSearchOrganizationXPath(element) {
+                $("#SearchOrganizationXPath").val("");
+                var organizationId = element.value;
+                if (organizationId != "" && !organizationId.isDefaultGuid()) {
+                    var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+                $.post(urlGetLabOrganizationById, { id: organizationId }, function (data) {
+                    if (data && data != "")
+                        $("#SearchOrganizationXPath").val(data.XPath);
+                }, 'json');
+            }
+        }
+        function generateQueryExpression() {
+            var queryExpression = "";
+            var equipmentName = $("#SearchEquipmentName").val().trim();
+            if (equipmentName != "") {
+                queryExpression += "Name∽\"" + equipmentName + "\"";
+            }
+            var model = $("#SearchEquipmentModel").val();
+            if (model.trim() != "") {
+                queryExpression += (queryExpression == "" ? "Model∽\"" + model + "\"" : "*Model∽\"" + model + "\"");
+            }
+            var scopeOfApplication = $("#SearchScopeOfApplication").val().trim();
+            if (scopeOfApplication != "") {
+                queryExpression += (queryExpression == "" ? "" : "*") + "ScopeOfApplication∽\"" + scopeOfApplication + "\"";
+            }
+            var organizationXPath = $("#SearchOrganizationXPath").val().trim();
+            if (organizationXPath != "") {
+                queryExpression += (queryExpression == "" ? "" : "*") + "OrgXPath→\"" + organizationXPath + "\"";
+            }
+            return queryExpression;
+            
+        }
+        function doSearch() {
+            doLoadEquipmentList(1, perPageSize);
+        }
+
+        function doClearSearch() {
+            $("#SearchEquipmentName").val("");
+            $("#SearchEquipmentModel").val("");
+            $("#SearchScopeOfApplication").val("");
+            $("#SearchOrganizationXPath").val("");
+            $("#SearchOrganizationId").val("@Guid.Empty");
+           
+            doSearch();
+        }
+    </script>
+}
+@section MainFull
+{
+<h2 class="title">
+    <span>查询条件</span>
+    <a href="#" onclick="doClearSearch();return false;">清空</a>
+</h2>
+<div class="content-box ">
+    <div class="search-advanced-box">
+        <div class="edit-info">
+            <div class="tit">设备名称</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                        @Html.JValidateBox("SearchEquipmentName").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+                    </strong>
+                </div>
+            </div>
+            <div class="tit">型号</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                        @Html.JValidateBox("SearchEquipmentModel").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="edit-info">
+            <div class="tit">设备功能</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                        @Html.JValidateBox("SearchScopeOfApplication").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+                    </strong>
+                </div>
+            </div>
+            <div class="tit">组织机构</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong>
+                        @Html.DropDownList("SearchOrganizationId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:233px", @class = "textinp",onchange = "getSearchOrganizationXPath(this);" })
+                        @Html.Hidden("SearchOrganizationXPath")
+                    </strong>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+        <div class="search-advanced-button-box">
+            <a onclick="doSearch();return false;" href="#" title="点击搜索">&nbsp;</a>
+        </div>
+    <div class="clear-both"></div>
+</div>
+<div class="content-box" style="background:none;padding:25px 25px 0">
+    @Html.Partial("../Equipment/SPPaginationListContainer")
+</div>
+}

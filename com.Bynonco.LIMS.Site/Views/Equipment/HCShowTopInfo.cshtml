@@ -1,0 +1,120 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using System.Text;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Utility;
+<style type="text/css">
+a.l-btn-color{display: inline-block;margin-bottom: 5px;}
+</style>
+@{
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+    StringBuilder sbOperate = new StringBuilder();
+    if (!isHome && !string.IsNullOrWhiteSpace(Model.AppointmentOperate)) { sbOperate.Append(Model.AppointmentOperate); }
+    if (!isHome && !string.IsNullOrWhiteSpace(Model.SampleApplyOperate)) { sbOperate.Append(Model.SampleApplyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ModifyOperate)) { sbOperate.Append(Model.ModifyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.TranningApplyOperate)) { sbOperate.Append(Model.TranningApplyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ReportBrokenOperate)) { sbOperate.Append(Model.ReportBrokenOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.MarkingOperate)) { sbOperate.Append(Model.MarkingOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.FocusOperate)) { sbOperate.Append(Model.FocusOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CancelFocusOperate)) { sbOperate.Append(Model.CancelFocusOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ExaminationManageOperate)) { sbOperate.Append(Model.ExaminationManageOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CameraPlayOperate)) { sbOperate.Append(Model.CameraPlayOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CameraPlayRecordOperate)) { sbOperate.Append(Model.CameraPlayRecordOperate); }
+    var standardPrice = (ViewData["StandardPrice"] == null ? "--" : ((double)ViewData["StandardPrice"]).ToString("F0")) + "元";
+    var equipmentChargeType = ViewData["ChargeType"] == null ? com.Bynonco.LIMS.Model.Enum.ChargeType.None : (com.Bynonco.LIMS.Model.Enum.ChargeType)ViewData["ChargeType"];
+    var name = Model == null ? "" : Model.Name;
+    name += Model == null || Model.Model == "" ? "" : " (" + Model.Model + ")";
+    var cutName = ShortcutStringUtility.GetSubString(name, 55, "..");
+
+    var equipmentOrgName = Model == null || string.IsNullOrWhiteSpace(Model.OrgName) ? "" : Model.OrgName;
+    var roomName = Model == null ? "" : Model.RoomName;
+    if (!string.IsNullOrWhiteSpace(equipmentOrgName) && !string.IsNullOrWhiteSpace(roomName) && (!string.IsNullOrWhiteSpace(orgName) && orgName != equipmentOrgName))
+    {
+        roomName = equipmentOrgName + " > " + roomName;
+    }
+    else if (string.IsNullOrWhiteSpace(roomName))
+    {
+        roomName = equipmentOrgName + roomName;
+    }
+    <div class="topTitle clearfix">
+        <h2 title="@name">@cutName</h2>
+        <div class="TopOperate">
+        </div>
+    </div>
+    
+    var relativePic = Model == null ? "" : Model.RelativePic.Replace("；", ";");
+    string[] relativePicList = relativePic.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+    var firstImg = "../../UploadFiles/EquipmentIcons/noIcon.png";
+    if (relativePicList.Count() > 0)
+    {
+        firstImg = "../.." + relativePicList[0];
+    }
+    <div class="img-box">
+        <div class="clearfix">
+            <a href="@firstImg" class="jqzoom" rel='gal1'  title="" >
+                <img src="@firstImg"  title=""  style="border: 1px solid #CCC;padding:1px;width:346px;height:246px;">
+            </a>
+        </div>
+        <div class="clearfix" >
+	        <ul class="clearfix" >
+		        <li style='width: 60px;float:left;'><a class="zoomThumbActive" href='javascript:void(0);' rel="{gallery: 'gal1', smallimage: '@firstImg',largeimage: '@firstImg'}"><img src='@firstImg' class="smallimage"></a></li>
+                @for (int i = 1; i < relativePicList.Count(); i++)
+                {
+                    var imgPath = "../.." + relativePicList[i];
+		            <li style='width: 60px;float:left;'><a href='javascript:void(0);' rel="{gallery: 'gal1', smallimage: '@imgPath',largeimage: '@imgPath'}"><img src='@imgPath' class="smallimage"></a></li>
+                }
+                <div class='clear-both'></div>
+	        </ul>
+	    </div>
+    </div>
+    <div class="info-box">
+        <div style="margin-bottom: 20px; padding-top: 10px; ">
+            @Html.Partial("../Equipment/AppointmentEquipmentTotalInfo")
+        </div>
+        <div class="clear-both"></div>
+        <p><span>设备型号</span>@(Model == null ? "" : Model.Model)</p>
+        @*<p><span>所属单位</span>@(Model == null ? "" : Model.OrgName)</p>
+        <p><span>使用性质</span>@(Model == null || Model.UseDirection == null ? "" : Model.UseDirectionEnum.ToCnName())</p>
+        <p><span>所属分类</span>@(Model == null || Model.Equipment == null ? "" : Model.Equipment.CategoryNames)</p>*@
+        <p><span>当前状态</span>
+            <img id="imgLodingList@(Model == null ? "" : Model.Id.ToString())" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" class="hide" />
+        </p>
+        <p><span>当前使用者</span>
+            <img id="imgLodingUserList@(Model == null ? "" : Model.Id.ToString())" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" class="hide" />
+        </p>
+        <p><span>联系人</span>@(Model == null || Model.Equipment == null ? "" : Model.Equipment.LinkManNames)</p>
+        <p><span>联系电话</span>@(Model == null ? "" : Model.LinkTelNo)</p>
+        @*<p><span>联系邮箱</span>@(Model == null ? "" : Model.AdminEmail)</p>*@
+        <p><span>放置地点</span>@roomName</p>
+        <p><span class='title'>IP地址:</span>
+            @System.Web.Mvc.MvcHtmlString.Create(Model == null ? "" : Model.RemoteStatusNickName)
+            @(Model == null || string.IsNullOrWhiteSpace(Model.IP) ? "" :  (Model == null || string.IsNullOrWhiteSpace(Model.RemoteStatusNickName) ? Model.IP : "(" + Model.IP + ")"))
+        </p>
+        @if(sbOperate.ToString() != "")
+        {
+            <p style="margin-top:10px;padding:10px 0 10px 32px; ">
+                @System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())
+            </p>
+        }
+    </div>
+   
+    <div class="clear-both"></div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('.jqzoom').jqzoom({
+            zoomType: 'standard',
+            zoomWidth: 330,
+            zoomHeight: 250,
+            preloadText: '加载图片中...',
+            lens: true,
+            preloadImages: false,
+            alwaysOn: false,
+            title: false
+        });
+        GetEquipmentCurStatusInfo('@(Model == null ? "" : Model.Id.ToString())');
+        $("p span.tree-folder").css("width", "16px");
+    });
+
+
+</script>

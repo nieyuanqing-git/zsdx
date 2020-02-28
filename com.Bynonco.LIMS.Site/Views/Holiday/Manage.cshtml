@@ -1,0 +1,80 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var holidayPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetHolidayPrivilige(User.Identity.Name);
+}
+<div>@Html.Partial("List")</div>    
+<div id="divHolidayDialog" style="display:none"></div>
+<div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>
+<script type="text/javascript">
+    function doEditHoliday(){
+        var selectedRow = $("#tbHolidayList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditHoliday(selectedRow.Id);
+    }
+    function doAddOrEditHoliday(id) {
+        var url = '@Url.Action("Edit","Holiday")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divHolidayDialog").load(url, function (data) {
+            doHolidayDialog();
+        });
+        return false;
+    }
+    var holidayDialog;
+    function doHolidayDialog() {
+        if (holidayDialog) {
+            holidayDialog.dialog("destroy");
+        }
+        holidayDialog =  @Html.JDialog("divHolidayEdit").SetTitle("节假日信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("holidayDialog.dialog('close');return false;").SetModal(true).SetOkScript(holidayPrivilige.IsEnableSave ? "doSaveHoliday();return false;" : "alter('无操作权限');").ToMvcString();
+    }
+    function doSaveHoliday() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","Holiday")',
+            data: $("#frmHolidayEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                holidayDialog.dialog('close');
+                doHolidaySearch();
+            }
+        });
+    }
+    function doDeleteHoliday(){
+        var selectedRows = $('#tbHolidayList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Delete", "Holiday")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                             $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doHolidaySearch();
+                    }
+                });
+            });
+        }
+    }
+    function doHolidaySearch() {
+        $("#tbHolidayList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbHolidayList").datagrid("load");
+        return false;
+    }
+</script>

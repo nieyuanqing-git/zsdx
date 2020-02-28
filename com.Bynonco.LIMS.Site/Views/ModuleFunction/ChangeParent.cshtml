@@ -1,0 +1,34 @@
+﻿@model com.Bynonco.LIMS.Model.ModuleFunction
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+<div id="divModuleFunctionChangeParent">
+@if (Model != null)
+{
+    var parentItem = Model.GetParent();
+    <form id="frmModuleFunctionChangeParent" action="#">
+    @Html.Hidden("Id", Model.Id.ToString())
+    @Html.Hidden("ParentId", !Model.ParentId.HasValue ? "" : Model.ParentId.Value.ToString())
+        <table class="edit-table"  style="width:350px;">
+            <tr>
+                <th>名称</th>
+                <td>@(Model == null ? "" : Model.Name)</td>
+            </tr>
+            <tr>
+                <th>父级模块(旧)</th>
+                <td>@(parentItem == null ? "" : parentItem.Name)</td>
+            </tr>
+            <tr>
+                <th>父级模块(新)</th>
+                <td id="tdNewParentId">
+                    @(Html.JComboTree("NewParentId")
+                    .SetData(ViewData["ParentJson"])
+                    .SetExpandAll(false)
+                    .SetMultiple(false)
+                    .SetWidth(255)
+                    .ToMvcString())
+                </td>
+            </tr>
+        </table>
+    </form>
+}
+</div> 

@@ -1,0 +1,380 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+}
+<div id="divMaterialPurchaseDialog" style="display:none"></div>
+<div id="divViewMaterialPurchaseDialog" style="display:none"></div>
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $(this).attr("class", "tabs-selected");
+            doMaterialPurchaseSearch();
+        });
+    });
+    function doMaterialPurchaseSearch() {
+        var queryExpression = generateMaterialPurchaseQueryExpress();
+        if("@(queryExpression)" != "") 
+            queryExpression += (queryExpression == "" ? "" : "*") + "@(queryExpression)";
+        if($(".tabs").find("li.tabs-selected").length > 0)
+        {
+            var status = $(".tabs").find("li.tabs-selected").attr("status");
+            if(status != undefined && status != '') 
+                queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+        }
+        $("#tbMaterialPurchaseList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbMaterialPurchaseList").datagrid("load", { "queryExpression": queryExpression.trim()});
+        return false;
+    }
+    var materialPurchaseDialog;
+    function doMaterialPurchaseDialog() {
+        if (materialPurchaseDialog) {
+            materialPurchaseDialog.dialog("destroy");
+        }
+        materialPurchaseDialog =  @Html.JDialog("divMaterialPurchaseEdit").SetTitle("耗材采购单信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("materialPurchaseDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveMaterialPurchase();").ToMvcString();
+    }
+    function doAddOrEditMaterialPurchase(id){
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Edit","MaterialPurchase")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialPurchaseDialog").load(url,function(){
+            doMaterialPurchaseDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAddMaterialPurchase(id) {
+       doAddOrEditMaterialPurchase(id);
+    }
+    function doEditMaterialPurchase(id) {
+       if(!id || id.trim()==""){
+           var selectedMaterialPurchase = $("#tbMaterialPurchaseList").datagrid("getSelected");
+           if(!selectedMaterialPurchase || selectedMaterialPurchase.Id=="" || selectedMaterialPurchase.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材采购单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialPurchase.Id;
+       }
+       doAddOrEditMaterialPurchase(id);
+    }
+    function doSaveMaterialPurchase(){
+        var url = '@Url.Action("Save","MaterialPurchase")';
+        doSaveOrAuditMaterialPurchase(url);
+   }
+   function doSaveOrAuditMaterialPurchase(url)
+   {
+        if($("#PurchaseNum").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"采购单号为空", showType: 'show' });;
+          return false;
+        }
+        if($("#ApplyUserId").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"采购人为空", showType: 'show' });;
+          return false;
+        }
+        if($("#EquipmentGroupId").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"仪器组群为空", showType: 'show' });;
+          return false;
+        }
+        if($("#ApplyTime").datetimebox("getValue") == ""){
+          $.messager.show({ title: '提示', msg:"采购时间为空", showType: 'show' });;
+          return false;
+        }
+        if($("#MaterialInfoIds").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"采购项目为空", showType: 'show' });;
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmMaterialPurchaseEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doMaterialPurchaseSearch();
+                try{materialPurchaseDialog.dialog('destroy'); }catch(e){}
+                try{groupAdminAuditMaterialPurchaseDialog.dialog('destroy'); }catch(e){}
+                try{directorAuditMaterialPurchaseDialog.dialog('destroy'); }catch(e){}
+                try{operatorAuditMaterialPurchaseDialog.dialog('destroy'); }catch(e){}
+            }
+        });
+   }
+
+   function doDeleteMaterialPurchase(id){
+        if(!id || id.trim() == ""){
+              var selectedMaterialPurchase = $("#tbMaterialPurchaseList").datagrid("getSelected");
+                if(!selectedMaterialPurchase || selectedMaterialPurchase.Id.trim() == "" || selectedMaterialPurchase.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的采购单", showType: 'show' });
+                    return false;
+                }
+                id = selectedMaterialPurchase.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "MaterialPurchase")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doMaterialPurchaseSearch();
+                }
+            });
+        });
+        return false;
+   }
+
+   var viewMaterialPurchaseDialog;
+   function doViewMaterialPurchaseDialog() {
+        if (viewMaterialPurchaseDialog) {
+            viewMaterialPurchaseDialog.dialog("destroy");
+        }
+        viewMaterialPurchaseDialog =  @Html.JDialog("divMaterialPurchaseView").SetTitle("耗材采购单信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewMaterialPurchaseDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doViewMaterialPurchaseInfo(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedMaterialPurchase = $("#tbMaterialPurchaseList").datagrid("getSelected");
+           if(!selectedMaterialPurchase || selectedMaterialPurchase.Id=="" || selectedMaterialPurchase.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材采购单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialPurchase.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewInfo","MaterialPurchase")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewMaterialPurchaseDialog").load(url,function(){
+            doViewMaterialPurchaseDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    var groupAdminAuditMaterialPurchaseDialog;
+    function doGroupAdminAuditMaterialPurchaseDialog() {
+        if (groupAdminAuditMaterialPurchaseDialog) {
+            groupAdminAuditMaterialPurchaseDialog.dialog("destroy");
+        }
+        groupAdminAuditMaterialPurchaseDialog =  @(Html.JDialog("divMaterialPurchaseEdit")
+            .SetTitle("仪器组群负责人审核")
+            .SetIconCls("icon-admin")
+            .SetAutoDialog(false)
+            .SetOnClose("groupAdminAuditMaterialPurchaseDialog.dialog('destroy');return false;")
+            .SetCancelScript("groupAdminAuditMaterialPurchaseDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton() { Handler = "doGroupAdminAuditPassMaterialPurchase();return false;", Id = "btnGroupAdminAuditPassMaterialPurchase", Text = "审核通过", IconCls = "icon-ok"})
+            .AddButton(new ToolBarButton() { Handler = "doGroupAdminAuditRejectMaterialPurchase();return false;", Id = "btnGroupAdminAuditRejectMaterialPurchase", Text = "审核不通过", IconCls = "icon-no"})
+            .ToMvcString());
+    }
+    function doGroupAdminAuditMaterialPurchase(id)
+    {
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("GroupAdminAudit", "MaterialPurchase")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divMaterialPurchaseDialog").load(url,function(){
+            doGroupAdminAuditMaterialPurchaseDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doGroupAdminAuditPassMaterialPurchase(){
+        var url = '@Url.Action("GroupAdminAuditPass","MaterialPurchase")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+    function doGroupAdminAuditRejectMaterialPurchase(){
+        var url = '@Url.Action("GroupAdminAuditReject","MaterialPurchase")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+
+    var directorAuditMaterialPurchaseDialog;
+    function doDirectorAuditMaterialPurchaseDialog() {
+        if (directorAuditMaterialPurchaseDialog) {
+            directorAuditMaterialPurchaseDialog.dialog("destroy");
+        }
+        directorAuditMaterialPurchaseDialog =  @(Html.JDialog("divMaterialPurchaseEdit")
+            .SetTitle("技术负责人审核审核")
+            .SetIconCls("icon-boss")
+            .SetAutoDialog(false)
+            .SetOnClose("directorAuditMaterialPurchaseDialog.dialog('destroy');return false;")
+            .SetCancelScript("directorAuditMaterialPurchaseDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton() { Handler = "doDirectorAuditPassMaterialPurchase();return false;", Id = "btnDirectorAuditPassMaterialPurchase", Text = "审核通过", IconCls = "icon-ok"})
+            .AddButton(new ToolBarButton() { Handler = "doDirectorAuditRejectMaterialPurchase();return false;", Id = "btnDirectorAuditRejectMaterialPurchase", Text = "审核不通过", IconCls = "icon-no"})
+            .ToMvcString());
+    }
+    function doDirectorAuditMaterialPurchase(id)
+    {
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("DirectorAudit", "MaterialPurchase")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divMaterialPurchaseDialog").load(url,function(){
+            doDirectorAuditMaterialPurchaseDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doDirectorAuditPassMaterialPurchase(){
+        var url = '@Url.Action("DirectorAuditPass","MaterialPurchase")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+    function doDirectorAuditRejectMaterialPurchase(){
+        var url = '@Url.Action("DirectorAuditReject","MaterialPurchase")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+
+    var operatorAuditMaterialPurchaseDialog;
+    function doOperatorAuditMaterialPurchaseDialog() {
+        if (operatorAuditMaterialPurchaseDialog) {
+            operatorAuditMaterialPurchaseDialog.dialog("destroy");
+        }
+        operatorAuditMaterialPurchaseDialog =  @(Html.JDialog("divMaterialPurchaseEdit")
+            .SetTitle("经办人审核")
+            .SetIconCls("icon-operator")
+            .SetAutoDialog(false)
+            .SetOnClose("operatorAuditMaterialPurchaseDialog.dialog('destroy');return false;")
+            .SetCancelScript("operatorAuditMaterialPurchaseDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton() { Handler = "doOperatorAuditPassMaterialPurchase();return false;", Id = "btnOperatorAuditPassMaterialPurchase", Text = "审核通过", IconCls = "icon-ok"})
+            .AddButton(new ToolBarButton() { Handler = "doOperatorAuditRejectMaterialPurchase();return false;", Id = "btnOperatorAuditRejectMaterialPurchase", Text = "审核不通过", IconCls = "icon-no"})
+            .ToMvcString());
+    }
+    function doOperatorAuditMaterialPurchase(id)
+    {
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("OperatorAudit", "MaterialPurchase")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divMaterialPurchaseDialog").load(url,function(){
+            doOperatorAuditMaterialPurchaseDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doOperatorAuditPassMaterialPurchase(){
+        var url = '@Url.Action("OperatorAuditPass","MaterialPurchase")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+    function doOperatorAuditRejectMaterialPurchase(){
+        var url = '@Url.Action("OperatorAuditReject","MaterialPurchase")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+
+    var inputRejectMaterialPurchaseDialog;
+    function doInputorAuditMaterialPurchaseDialog() {
+        if (inputRejectMaterialPurchaseDialog) {
+            inputRejectMaterialPurchaseDialog.dialog("destroy");
+        }
+        inputRejectMaterialPurchaseDialog =  @(Html.JDialog("divMaterialPurchaseInputReject")
+            .SetTitle("验收入库不通过")
+            .SetIconCls("icon-no")
+            .SetAutoDialog(false)
+            .SetOnClose("inputRejectMaterialPurchaseDialog.dialog('destroy');return false;")
+            .SetCancelScript("inputRejectMaterialPurchaseDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton() { Handler = "doSaveInputRejectMaterialPurchase();return false;", Id = "btnOperatorAuditPassMaterialPurchase", Text = "验收入库不通过", IconCls = "icon-no"})
+            .ToMvcString());
+    }
+    function doInputRejectMaterialPurchase(id)
+    {
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择要验收入库不通过的项", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("InputRejectContainer", "MaterialPurchase")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divMaterialPurchaseDialog").load(url,function(){
+            doInputorAuditMaterialPurchaseDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doSaveInputRejectMaterialPurchase()
+    {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("InputReject", "MaterialPurchase")',
+            data: $("#frmMaterialPurchaseInputReject").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doMaterialPurchaseSearch();
+                inputRejectMaterialPurchaseDialog.dialog('destroy'); 
+            }
+        });
+    }
+    var balanceRejectMaterialPurchaseDialog;
+    function doBalanceAuditMaterialPurchaseDialog() {
+        if (balanceRejectMaterialPurchaseDialog) {
+            balanceRejectMaterialPurchaseDialog.dialog("destroy");
+        }
+        balanceRejectMaterialPurchaseDialog =  @(Html.JDialog("divMaterialPurchaseBalanceReject")
+            .SetTitle("报销结账不通过")
+            .SetIconCls("icon-no")
+            .SetAutoDialog(false)
+            .SetOnClose("balanceRejectMaterialPurchaseDialog.dialog('destroy');return false;")
+            .SetCancelScript("balanceRejectMaterialPurchaseDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton() { Handler = "doSaveBalanceRejectMaterialPurchase();return false;", Id = "btnOperatorAuditPassMaterialPurchase", Text = "报销结账不通过", IconCls = "icon-no"})
+            .ToMvcString());
+    }
+    function doBalanceRejectMaterialPurchase(id)
+    {
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择要报销结账不通过的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("BalanceRejectContainer", "MaterialPurchase")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divMaterialPurchaseDialog").load(url,function(){
+            doBalanceAuditMaterialPurchaseDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doSaveBalanceRejectMaterialPurchase()
+    {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("BalanceReject", "MaterialPurchase")',
+            data: $("#frmMaterialPurchaseBalanceReject").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doMaterialPurchaseSearch();
+                balanceRejectMaterialPurchaseDialog.dialog('destroy'); 
+            }
+        });
+    }
+
+    function doExportMaterialPurchase(id) {
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择要导出的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ExportExcel", "MaterialPurchase")' + "?Id=" + id;
+        window.open(url, '_blank');
+    }
+</script>

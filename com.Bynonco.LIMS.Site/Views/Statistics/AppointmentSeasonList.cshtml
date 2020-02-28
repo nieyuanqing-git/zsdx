@@ -1,0 +1,34 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "所属单位" : customer.GetLabOrganizationName();
+
+    var dataGrid = Html.JDataGrid("tbAppointmentStatisticsList")
+    .SetUrl(Url.Action("GetGridAppointmentStatistics", "Statistics"))
+    .SetShowFooter(true)
+    .SetMutiSelect(false)
+    .SetSingleSelect(true)
+    .SetPagination(true)
+    .SetPageSize(10)
+    .SetHeight(550)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "EquipmentId").SetHidden(true).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "EquipmentIcon").SetWidth(50).SetAlign(Align.center).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentNameStr").SetWidth(200).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerOrgName, "EquipmentOrgName").SetWidth(150).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("放置地点", "RoomName").SetWidth(150).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("第一季度", "FirstQuarterHour").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("第二季度", "SecondQuarterHour").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("第三季度", "ThirdQuarterHour").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("第四季度", "FourthQuarterHour").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总计", "TotalHour").SetWidth(150).SetAlign(Align.center))
+    .SetShowAddButton(false)
+    .SetShowPrintButton(false)
+    .SetShowRefreshButton(false)
+    .SetShowSearchButton(false)
+    .AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowAppointmentChartLine();", IconCls = "icon-chartline", Id = "btnShowAppointmentChartLine", Text = "曲线图" })
+    .AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowAppointmentChartColumn();", IconCls = "icon-chartbar", Id = "btnShowAppointmentChartColumn", Text = "柱形图" })
+    .AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowAppointmentChartPie();", IconCls = "icon-chartpie", Id = "btnShowChartAppointmentPie", Text = "饼形图" })
+    .AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportExcel();", IconCls = "icon-export", Id = "btnExportExcel", Text = "导出" });
+}
+@(dataGrid.ToMvcString()) 

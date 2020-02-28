@@ -1,0 +1,127 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSJ2Dialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSJ2Search() {
+        var sJ2StatisticsId = doGetSJ2StatisticsSelected('');
+        var queryExpression = generateSJ2QueryExpress();
+        if (sJ2StatisticsId && sJ2StatisticsId != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "SJ2StatisticsId=\"" + sJ2StatisticsId + "\"";
+            $("#tbSJ2List").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbSJ2List").datagrid("load", { "queryExpression": queryExpression });
+        }
+        else {
+            $("#tbSJ2List").datagrid('loadData', { total: 0, rows: [] });
+        }
+    }
+    function generateSJ2SelectedIds() {
+        var ids = [];
+        var rows = $("#tbSJ2List").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    var sJ2Dialog;
+    function doSJ2Dialog() {
+        if (sJ2Dialog) {
+            sJ2Dialog.dialog("destroy");
+        }
+        sJ2Dialog =  @Html.JDialog("divSJ2Edit").SetTitle("教学科研仪器设备增减变动情况表(SJ2)").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("sJ2Dialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveSJ2();").ToMvcString();
+    }
+    function doAddSJ2() {
+        var id = doGetSJ2StatisticsSelected('');
+         if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择SJ2统计报表", showType: 'show' });
+            return false;
+        }
+        doAddOrEditSJ2('');
+    }
+    function doEditSJ2(id) {
+       if (!id || id.trim() == "") {
+            id = generateSJ2SelectedIds();
+            if (!id || id.length == 0) {
+                $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+                return false;
+            }
+            if (id && id.length > 1) {
+                $.messager.show({ title: '提示', msg: "不能多项编辑", showType: 'show' });
+                return false;
+            }
+            id = id.toString();
+        }
+        doAddOrEditSJ2(id);
+    }
+    function doAddOrEditSJ2(id){
+        var url = '@Url.Action("SJ2Edit","Statistics")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSJ2Dialog").load(url,function(){
+            doSJ2Dialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveSJ2(){
+        if($("#frmSJ2Edit").find("#SJ2StatisticsId").val() == "")
+            $("#frmSJ2Edit").find("#SJ2StatisticsId").val(doGetSJ2StatisticsSelected(''));
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SJ2Save","Statistics")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmSJ2Edit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                sJ2Dialog.dialog('close');
+                doSJ2Search();
+            }
+        });
+   }
+   function doOperateSJ2(ids, url, operateName) {
+        if(!url || url=="") return;
+        if(!operateName || operateName=="") operateName = "操作";
+        var opeIds = ids == null || ids.trim() == "" ? generateSJ2SelectedIds().toString() : ids;
+        if (opeIds == null || opeIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要" + operateName + "的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认' + operateName + '?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                url: url,
+                data: { "ids": opeIds },
+                success: function (msg) {
+                $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ2Search();
+                }
+            });
+        });
+        return false;
+    }
+    function doDeleteSJ2(ids){
+        var url = '@Url.Action("SJ2Delete", "Statistics")'
+        doOperateSJ2(ids,url,"删除");
+    }
+    function doAuditPassSJ2(ids){
+        var url = '@Url.Action("SJ2AuditPass", "Statistics")'
+        doOperateSJ2(ids,url,"审核通过");
+    }
+    function doAuditRejectSJ2(ids){
+        var url = '@Url.Action("SJ2AuditReject", "Statistics")'
+        doOperateSJ2(ids,url,"审核不通过");
+    }
+    function doAuditWaittingSJ2(ids){
+        var url = '@Url.Action("SJ2AuditWaitting", "Statistics")'
+        doOperateSJ2(ids,url,"置为待审");
+    }
+    
+</script>

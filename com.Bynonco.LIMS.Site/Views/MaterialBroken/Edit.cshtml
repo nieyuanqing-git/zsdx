@@ -1,0 +1,130 @@
+﻿@model com.Bynonco.LIMS.Model.MaterialBroken
+@using com.Bynonco.LIMS.Model.View; 
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var materialBrokenItemList = ViewData["ViewMaterialBrokenItemList"] == null ? null : (List<ViewMaterialBrokenItem>)ViewData["ViewMaterialBrokenItemList"];
+}
+<div id="divMaterialBrokenEdit">
+ <form id="frmMaterialBrokenEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdMaterialBrokenEdit" class="edit-table"  style="width:730px;height:auto">
+        <tr>
+            <th><span class="required">* </span>报废单号</th>
+            <td>
+                @Html.JValidateBox("BrokenNum").SetValue(Model == null ? DateTime.Now.ToString("yyyyMMddHHmmssfff") : Model.BrokenNum).SetWidth(200).ToMvcString()
+            </td>
+            <th><span class="required">* </span>状态</th>
+            <td>
+                @(Html.JComboBox("Status")
+                    .SetEditable(false)
+                    .SetData(ViewData["MaterialBrokenStatusJson"])
+                    .SetWidth(205)
+                    .SetDisabled(true)
+                    .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>报废人</th>
+            <td id="tdBrokenUser">
+                @(Html.TokenInput("BrokenUserId")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["BrokenUserJson"] == null || string.IsNullOrWhiteSpace(ViewData["BrokenUserJson"].ToString()) ? null : ViewData["BrokenUserJson"].ToString())
+                .SetSingle(true)
+                .SetWidth(200)
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>报废时间</th>
+            <td>
+                @Html.JDateTimePicker("BrokenTime").SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.BrokenTime.ToString("yyyy-MM-dd")).SetWidth(205).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>@Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:96%;height:80px" })</td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>报废项目</th>
+            <td colspan='3'>
+                @Html.JLinkButton("btnSelectMaterialInfo", "新增").SetIconCls("icon-add").SetPlain(true).SetOnclick("doSelectMaterialBrokenMaterialInfo();return false;").ToMvcString()
+                @Html.Hidden("MaterialInfoIds", Model == null ? "" : Model.MaterialBrokenItemIds)
+                <table id="tbMaterialBrokenItemList" cellpadding="0" cellspacing="0" border="0" class="edit-table">
+                    <tr>
+                        <th style='width:30px;'></th>
+                        <th >名称</th>
+                        <th style='width:80px;'>库存量</th>
+                        <th style='width:80px;'>报警值</th>
+                        <th style='width:100px;'><span class="required">* </span>报废量</th>
+                    </tr>
+                    @if (materialBrokenItemList != null && materialBrokenItemList.Count() > 0)
+                    {
+                        foreach (var item in materialBrokenItemList)
+                        {
+                            @Html.Partial("../MaterialBroken/ItemEdit", item)
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+
+
+<script type="text/javascript">
+    $(function() {
+        $("#tdBrokenUser ul.token-input-list-facebook").css("width", "205px");
+    });
+
+    function getSelectedMaterialInfosCallBack(selectedMaterialInfoNames, selectedMaterialInfoIds, selectedMaterialInfoJsonArray) {
+        //$("#MaterialInfoIds").val('');
+        if (selectedMaterialInfoIds != "") {
+            var selectedMaterialInfoIdsArray = selectedMaterialInfoIds.split(",");
+            var selectedMaterialInfoNamesArray = selectedMaterialInfoNames.split(",");
+            if (!selectedMaterialInfoIdsArray || selectedMaterialInfoIdsArray.length == 0 || !selectedMaterialInfoNamesArray || selectedMaterialInfoNamesArray.length == 0) return;
+            for (var i = 0; i < selectedMaterialInfoIdsArray.length && i < selectedMaterialInfoNamesArray.length; i++) {
+                var materialInfoIds = $("#MaterialInfoIds").val();
+                if (materialInfoIds.indexOf(selectedMaterialInfoIdsArray[i]) < 0) {
+                    materialInfoIds += (materialInfoIds == "" ? "" : ",") + selectedMaterialInfoIdsArray[i];
+                    $("#MaterialInfoIds").val(materialInfoIds);
+                    doAddMaterialBrokenItem(selectedMaterialInfoIdsArray[i]);
+                }
+            }
+        }
+    }
+
+    function doSelectMaterialBrokenMaterialInfo() {
+        doSelectMaterialInfoDialog('MaterialInfoIds', { "SelectMaterialInfoMode": '@((int) com.Bynonco.LIMS.Model.Enum.SelectMaterialInfoMode.ManagementMaterialInfo)' });
+        return false;
+    }
+    function doAddMaterialBrokenItem(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        if ($("#Id_" + materialInfoId).length > 0) return;
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("GetViewMaterialBrokenItem","MaterialBroken")',
+            data: { "materialInfoId": materialInfoId, "materialBrokenId": $("#Id").val() },
+            success: function (data) {
+                $("#tbMaterialBrokenItemList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemoveMaterialBrokenItem(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        $("#tr_" + materialInfoId).remove();
+        var materialInfoIds = $("#MaterialInfoIds").val();
+        materialInfoIds = materialInfoIds.replace("," + materialInfoId, "").replace(materialInfoId + ",", "").replace(materialInfoId, ",")
+        $("#MaterialInfoIds").val(materialInfoIds);
+    }
+    function doChangeMaterialBrokenItemAmount(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        var unitPrice = $("#UnitPrice_" + materialInfoId);
+        var purchaseValue = $("#BrokenValue_" + materialInfoId);
+        var amount = $("#Amount_" + materialInfoId);
+        if (unitPrice.length == 0 || purchaseValue.length == 0 || amount.length == 0) return;
+        if (unitPrice.val().trim() == "" || purchaseValue.val().trim() == "") return;
+        var amountVal = parseFloat(unitPrice.val().trim()) * purchaseValue.val().trim();
+        amount.val(amountVal);
+    }
+</script>

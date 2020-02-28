@@ -1,0 +1,24 @@
+﻿@model com.Bynonco.LIMS.Model.Business.StatisticsInfo
+@if (Model != null && Model.IsShowAuditExperimenterSubject)
+{
+    <p><span class="icon icon-subject">&nbsp;</span>课题组</p>
+    <table class="edit-info admin-statistics">
+        <tr>
+            <td class='col-first'><span class="icon icon-subject" title='课题组相关' style='margin-right: 0;'>&nbsp;</span></td>
+            @if (Model.IsShowAuditWaittingExperimenterSubject)
+            {
+                <th><a href="#" onclick="doLoadAuditWaittingExperimenterSubject();return false;">等待审核成员</a></th>
+                <td class='@(Model.IsShowAuditRejectExperimenterSubject ? "" : "col-last")'>
+                    <a href="#" onclick="doLoadAuditWaittingExperimenterSubject();return false;">@Model.AuditWaittingExperimenterSubject</a>
+                </td>
+            }
+            @if (Model.IsShowAuditRejectExperimenterSubject)
+            {
+                <th><a href="#" onclick="doLoadAuditRejectExperimenterSubject();return false;">停用成员</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadAuditRejectExperimenterSubject();return false;">@Model.AuditRejectExperimenterSubject</a>
+                </td>
+            }
+        </tr>
+    </table>
+}

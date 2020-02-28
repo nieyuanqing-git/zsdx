@@ -1,0 +1,157 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var userEquipmentPriviligePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserEquipmentPriviligePrivilige(User.Identity.Name);
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../UserEquipmentPrivilige/Search")</div>
+</div>
+<div>@Html.Partial("../UserEquipmentPrivilige/List")</div>
+<div id="divEditDialog" style="display:none"></div>
+<script type="text/javascript">
+    var equipmentJson;
+    var dialog;
+    function doAddOrEdit(id) {
+        if(dialog)dialog.dialog("destroy");
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = (id!=""?'@Url.Action("Edit")':'@Url.Action("Add")') + "?id=" + id + "&time=" + new Date().getMilliseconds();
+        $("#divEditDialog").load(url, function () {
+            $.messager.progress('close');
+            dialog=@(Html.JDialog("divUserEquipmentPriviligeEdit").SetTitle("用户设备权限信息").SetIconCls("icon-save").SetAutoDialog(false).SetModal(true).SetOkScript(userEquipmentPriviligePrivilige.IsEnableSave?"doSave();":"alert('无操作权限');").SetCancelScript("dialog.dialog('close');return false;").ToMvcString());
+        });
+        return false;
+    }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbUserEquipmentPriviligeList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    function doDelete(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedIds() : ids;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete")'+ "?time=" + new Date().getMilliseconds(),
+                data: "ids=" + delIds,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    function doSave() {
+        var selectUser = "";
+        var users = $("#UserIds").tokenInput("get");
+        if(users && users.length >0 ) selectUser = users[0].id;
+        var isUnSelectUser = selectUser.trim() == "";
+        var selectWorkGroup = $("#WorkGroupId").combobox('getValue');
+        var selectWorkGroupText = $("#WorkGroupId").combobox('getText');
+        var isUnSelectWorkGroup = (!selectWorkGroup || selectWorkGroup.trim() == "" || selectWorkGroupText == selectWorkGroup || selectWorkGroup == "00000000-0000-0000-0000-000000000000");
+        if (isUnSelectUser && isUnSelectWorkGroup) {
+            $.messager.show({ title: '提示', msg: '用户和工作组不能同时为空', showType: 'show' });
+            return false;
+        }
+        var isUnSelectSampleId = curSampleItemIds.trim() == "";
+        var isUnSelectEquipment = curdEquipmentIds.trim() == "";
+        if (!isUnSelectSampleId) {
+            if (isUnSelectEquipment) {
+                $.messager.show({ title: '提示', msg: "项目不为空,请选择设备", showType: 'show' });
+                return false;
+            }
+        }
+        var isDirector = $("#IsDirector").attr("checked");
+        if (isDirector && isDirector == "checked") {
+            if (isUnSelectEquipment) {
+                $.messager.show({ title: '提示', msg: "勾选了负责人,请选择设备", showType: 'show' });
+                return false;
+            }
+            if (isUnSelectUser) {
+                $.messager.show({ title: '提示', msg: "勾选了负责人,请选择用户", showType: 'show' });
+                return false;
+            }
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save")'+ "?time=" + new Date().getMilliseconds(),
+            data: $("form").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+                dialog.dialog("close");
+            }
+        });
+        return false;
+    }
+    function doBatchStart(){
+         var ids = generateSelectedIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg: "请选择要启用的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认启用?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("BatchStart")'+ "?time=" + new Date().getMilliseconds().toString(),
+                data: "ids=" + ids,
+                success: function (msg) {
+                    $.messager.progress("close");
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    function doBatchStop(){
+        var ids = generateSelectedIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg: "请选择要停用的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认停用?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("BatchStop")'+ "?time=" + new Date().getMilliseconds().toString(),
+                data: "ids=" + ids,
+                success: function (msg) {
+                    $.messager.progress("close");
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbUserEquipmentPriviligeList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUserEquipmentPriviligeList").datagrid("load", { "queryExpression": queryExpression.trim(),"time":new Date().getMilliseconds() });
+    }    
+</script>

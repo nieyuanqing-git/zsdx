@@ -1,0 +1,67 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsShowRememberMe = customer == null ? true : customer.GetIsLoginShowRememberMe();
+}
+<form id="frmGFKJDXLogin" name="frmGFKJDXLogin" action="http://id.gfkd.mtn/SSO/SignIn.aspx?ReturnUrl=http://dygx.gfkd.mtn/SSOController.aspx" method="post" onsubmit='return doCheckGFKJDXLoginSubmit();'>
+    <div class="edit-info">
+        <div class="bdmain">
+            <span style="float: left; height: 35px; line-height: 35px; padding-right: 10px;" id='spHomeLoginName'>账&nbsp;&nbsp;户</span>
+            <div class="text-box">
+                <strong>
+                    @Html.JValidateBox("loginName").SetWidth(140).SetHeight(27).AddClass("textinp").ToMvcString()
+                </strong>
+            </div>
+        </div>
+    </div>
+    <div class="edit-info">
+        <div class="bdmain">
+            <span style="float: left; height: 35px; line-height: 35px; padding-right: 10px;"  id='spHomeLoginPassword'>密&nbsp;&nbsp;码</span>
+            <div class="text-box">
+                <strong>
+                    @Html.JValidateBox("password").SetHeight(27).SetPasswordMode(true).SetWidth(140).AddClass("textinp").ToMvcString()
+                </strong>
+            </div>
+        </div>
+    </div>
+    <div class="edit-info">
+        <div class="bdmain" style="padding:0 10px;width: 190px;">
+            <input type='submit' id="btnHomeSubmit" name='btnHomeSubmit' value='提交' style='display:none' />
+            <a class="botton" href="javascript:" onclick="doGFKJDXLoginSubmit();" style="margin-left:20px">
+                <span>
+                    <span>登&nbsp;&nbsp;录</span>
+                </span>
+            </a>
+            <a class="botton botton-gray" href="@Url.Action("Register", "Account")" style="margin-left:20px">
+                <span>
+                    <span>注&nbsp;&nbsp;册</span>
+                </span>
+            </a>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#frmGFKJDXLogin").find("#LoginPassword").val("");
+        $("#frmGFKJDXLogin").find("#LoginName").val("");
+    });
+    function doCheckGFKJDXLoginSubmit() {
+        var isOk = true;
+        if ($("#frmGFKJDXLogin").find("#loginName").val().trim() == "") {
+            errorMsg = "请输入统一身份认证用户名"
+            isOk = false;
+        }
+        if (isOk && $("#frmGFKJDXLogin").find("#password").val().trim() == "") {
+            errorMsg = "请输入统一身份认证密码"
+            isOk = false;
+        }
+        if (!isOk) {
+            $.messager.show({ title: '提示', msg: errorMsg, showType: 'show' });
+        }
+        return isOk;
+    }
+    function doGFKJDXLoginSubmit() {
+        $("#btnHomeSubmit").click();
+    }
+</script>

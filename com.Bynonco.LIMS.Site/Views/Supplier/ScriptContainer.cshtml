@@ -1,0 +1,89 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSupplierDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearchSupplier() {
+        var queryExpression = generateSupplierQueryExpress();
+        $("#tbSupplierList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSupplierList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var supplierDialog;
+    function doSupplierDialog() {
+        if (supplierDialog) {
+            supplierDialog.dialog("destroy");
+        }
+        supplierDialog =  @Html.JDialog("divSupplierEdit").SetTitle("供应商信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("supplierDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveSupplier();").ToMvcString();
+    }
+    function doAddSupplier(id) {
+       doAddOrEditSupplier(id);
+    }
+    function doEditSupplier(id) {
+       if(!id || id.trim()==""){
+           var selectedSupplier = $("#tbSupplierList").datagrid("getSelected");
+           if(!selectedSupplier || selectedSupplier.Id=="" || selectedSupplier.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择供应商", showType: 'show' });
+              return false;
+           }
+           id = selectedSupplier.Id;
+       }
+       doAddOrEditSupplier(id);
+    }
+    function doAddOrEditSupplier(id){
+        var url = '@Url.Action("Edit","Supplier")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSupplierDialog").load(url,function(){
+            doSupplierDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveSupplier(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","Supplier")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmSupplierEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                supplierDialog.dialog('close');
+                doSearchSupplier();
+            }
+        });
+   }
+   function doDeleteSupplier(id){
+        if(!id || id.trim() == ""){
+              var selectedSupplier = $("#tbSupplierList").datagrid("getSelected");
+                if(!selectedSupplier || selectedSupplier.Id.trim() == "" || selectedSupplier.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedSupplier.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Supplier")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchSupplier();
+                }
+            });
+        });
+        return false;
+   }
+</script>

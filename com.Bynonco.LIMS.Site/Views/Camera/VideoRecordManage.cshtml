@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var cameraId = ViewData["CameraId"] == null ? "" : ViewData["CameraId"].ToString();
+    var relationId = ViewData["RelationId"] == null ? "" : ViewData["RelationId"].ToString();
+}
+<div id='divVideoRecordManage' style='@(isPopDialog ? "width:800px;" : "")'>
+    <div class="z-panel-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../Camera/VideoRecordSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../Camera/VideoRecordList")</div>
+</div>
+<script type="text/javascript">
+    function doDownloadVideoRecord(id,fileName) {
+        var url = '@Url.Action("DownloadVideoRecord","Camera")' + '?Id=' + id + '&FileName=' + fileName
+        window.open(url, '_blank');
+    }
+    function doCameraVideoRecordSearch() {
+        var queryExpression = generateCameraVideoRecordQueryExpress();
+        var createTimeStart = $("#SearchCreateTimeStart").datebox("getValue").trim();
+        var createTimeEnd = $("#SearchCreateTimeEnd").datebox("getValue").trim();
+        $("#tbCameraVideoRecordList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbCameraVideoRecordList").datagrid("load", { "queryExpression": queryExpression.trim(), "CameraId": "@cameraId", "RelationId": "@relationId", "CreateTimeStart": createTimeStart, "CreateTimeEnd": createTimeEnd, "time": new Date().getMilliseconds() });
+        return false;
+    }
+    function doReloadCameraVideoRecordList() {
+        $("#tbCameraVideoRecordList").datagrid("reload");
+    }
+</script>

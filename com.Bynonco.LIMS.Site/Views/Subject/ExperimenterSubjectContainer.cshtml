@@ -1,0 +1,7 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSubject
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Hidden("SubjectId", Model == null ? "" : Model.Id.ToString())
+<div>
+     @Html.Partial("ExperimenterSubjectList")
+     @Html.Partial("ExperimenterSubjectScriptContainer")
+</div>

@@ -1,0 +1,67 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model.Business;
+@{
+    var appointmentTotal = ViewData["AppointmentTotal"] == null ? null : (AppoitmentTotalInfo)ViewData["AppointmentTotal"];
+}
+<style type="text/css">
+    #ulEquipmentAppointmentTotal li{ display:inline; float:left; padding:5px; font-weight:bold}
+    #ulEquipmentAppointmentTotal li a{ font-weight:bold; text-decoration:none; color:#FF9933}
+</style>
+<ul id="ulEquipmentAppointmentTotal">
+    <li>
+        @EquipmentAppointmentTotalType.TodayTotal.ToCnName():
+    </li>
+    <li>
+        @System.Web.Mvc.MvcHtmlString.Create(appointmentTotal.TodayCountStr)
+    </li>
+    <li>
+        @EquipmentAppointmentTotalType.DoingTotal.ToCnName():
+    </li>
+    <li>
+        @System.Web.Mvc.MvcHtmlString.Create(appointmentTotal.DoingCountStr)
+    </li>
+    <li>
+        @EquipmentAppointmentTotalType.DoneTotal.ToCnName():
+    </li>
+    <li>
+        @System.Web.Mvc.MvcHtmlString.Create(appointmentTotal.DoneCountStr)
+    </li>
+    <li>
+        @EquipmentAppointmentTotalType.MissTotal.ToCnName():
+    </li>
+    <li>
+        @System.Web.Mvc.MvcHtmlString.Create(appointmentTotal.MissCountStr)
+    </li>
+    <li>
+        @EquipmentAppointmentTotalType.ChangeTotal.ToCnName():  
+    </li>
+    <li>
+        @System.Web.Mvc.MvcHtmlString.Create(appointmentTotal.ChangedCountStr)
+    </li>
+    <li>
+        @EquipmentAppointmentTotalType.CancelTotal.ToCnName():
+    </li>
+    <li>
+        @System.Web.Mvc.MvcHtmlString.Create(appointmentTotal.CancelCountStr)
+    </li>
+    <li>
+        @EquipmentAppointmentTotalType.WaitingAudit.ToCnName():
+    </li>
+    <li>
+        @System.Web.Mvc.MvcHtmlString.Create(appointmentTotal.WaitingAuditCountStr)
+    </li>
+
+    <li>
+        @EquipmentAppointmentTotalType.Audited.ToCnName():
+    </li>
+    <li>
+        @System.Web.Mvc.MvcHtmlString.Create(appointmentTotal.AuditedCountStr)
+    </li>
+
+    <li>
+        @EquipmentAppointmentTotalType.AllTotal.ToCnName():
+    </li>
+    <li>
+        @System.Web.Mvc.MvcHtmlString.Create(appointmentTotal.TotalCountStr)
+    </li>
+</ul>

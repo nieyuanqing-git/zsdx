@@ -1,0 +1,276 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var isToSystemSJ3Index = ViewData["IsToSystemSJ3Index"] == null ? "false" : ViewData["IsToSystemSJ3Index"];
+    }
+<div class="edit-operate">
+    @Html.JLinkButton("btnSaveSJBasic", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveSJ3();return false;").ToMvcString()
+    @Html.JLinkButton("btnBackSJList", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doBackSJ3List();return false;").ToMvcString()
+</div>
+<div id="divSJ3ThesisListDialog"></div>
+<div id="divSJ3PatentListDialog"></div>
+<div id="divSJ3AwardsListDialog"></div>
+<div id="divSJ3SubjectAchievementListDialog"></div>
+<div id="divSJ3EquipmentTrainningListDialog"></div>
+<div id="divSJ3StatisticsUsedHourListDialog"></div>
+<script type="text/javascript">
+    $(function () {
+        $("#sj3HelpTitle").click(function () {
+            if ($("#sj3HelpInfo").hasClass("hide"))
+                $("#sj3HelpInfo").removeClass("hide");
+            else
+                $("#sj3HelpInfo").addClass("hide");
+        });
+    });
+    function doBackSJ3List() {
+        var url = ""
+        alert('@isToSystemSJ3Index');
+        if('@isToSystemSJ3Index'=="true")
+            url = '@Url.Action("SJ3Index", "System")';
+        else
+            url = '@Url.Action("StatisticsReportIndex", "Statistics")' + "?TagAction=SJ3Manage&TagController=Statistics&date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doSaveSJ3(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SJ3Save","Statistics")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmSJ3Edit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doBackSJ3List();
+            }
+        });
+    }
+
+    var sJ3ThesisListDialog;
+    function doSJ3ThesisListDialog() {
+        if (sJ3ThesisListDialog) {
+            sJ3ThesisListDialog.dialog("destroy");
+        }
+        sJ3ThesisListDialog =  @Html.JDialog("divThesisList").SetTitle("发表论文列表").SetIconCls("icon-thesis").SetAutoDialog(false).SetCancelScript("sJ3ThesisListDialog.dialog('destroy');return false;").SetOnClose("sJ3ThesisListDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doGetSJThesisList();").ToMvcString();
+    }
+    function doManageThesisListDialog(sJ3StatisticsId,equipmentId){
+        var url = '@Url.Action("SJ3ThesisList","Statistics")'+ "?SJ3StatisticsId=" + sJ3StatisticsId + "&EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSJ3ThesisListDialog").load(url,function(){
+            $.messager.progress('close');
+            doSJ3ThesisListDialog();
+        })
+        return false;
+    }
+
+    function doGetSJThesisList()
+    {
+        $("#ThesisThreeSearch").val('0');
+        $("#ThesisPublication").val('0');
+        var sJ3StatisticsId = $("#frmSJ3Edit").find("#SJ3StatisticsId").val();
+        var equipmentId = $("#frmSJ3Edit").find("#SJ3EquipmentId").val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSJ3ThesisCount", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+            data: {"SJ3StatisticsId": sJ3StatisticsId, "EquipmentId" :equipmentId },
+            dataType: 'json',
+            success: function (msg) {
+                $.messager.progress('close');
+                $("#ThesisThreeSearch").val(msg.ThesisThreeSearch);
+                $("#ThesisPublication").val(msg.ThesisPublication);
+                sJ3ThesisListDialog.dialog("destroy");
+            }
+        });
+    }
+    
+    var sJ3PatentListDialog;
+    function doSJ3PatentListDialog() {
+        if (sJ3PatentListDialog) {
+            sJ3PatentListDialog.dialog("destroy");
+        }
+        sJ3PatentListDialog =  @Html.JDialog("divPatentList").SetTitle("发明专利列表").SetIconCls("icon-patent").SetAutoDialog(false).SetCancelScript("sJ3PatentListDialog.dialog('destroy');return false;").SetOnClose("sJ3PatentListDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doGetSJPatentList();").ToMvcString();
+    }
+    function doManagePatentListDialog(sJ3StatisticsId,equipmentId){
+        var url = '@Url.Action("SJ3PatentList","Statistics")'+ "?SJ3StatisticsId=" + sJ3StatisticsId + "&EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSJ3PatentListDialog").load(url,function(){
+            $.messager.progress('close');
+            doSJ3PatentListDialog();
+        })
+        return false;
+    }
+
+    function doGetSJPatentList()
+    {
+        $("#PatentTutor").val('0');
+        $("#PatentStudent").val('0');
+        var sJ3StatisticsId = $("#frmSJ3Edit").find("#SJ3StatisticsId").val();
+        var equipmentId = $("#frmSJ3Edit").find("#SJ3EquipmentId").val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSJ3PatentCount", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+            data: {"SJ3StatisticsId": sJ3StatisticsId, "EquipmentId" :equipmentId },
+            dataType: 'json',
+            success: function (msg) {
+                $.messager.progress('close');
+                $("#PatentTutor").val(msg.PatentTutor);
+                $("#PatentStudent").val(msg.PatentStudent);
+                sJ3PatentListDialog.dialog("destroy");
+            }
+        });
+    }
+
+    var sJ3AwardsListDialog;
+    function doSJ3AwardsListDialog() {
+        if (sJ3AwardsListDialog) {
+            sJ3AwardsListDialog.dialog("destroy");
+        }
+        sJ3AwardsListDialog =  @Html.JDialog("divAwardsList").SetTitle("获奖情况列表").SetIconCls("icon-awards").SetAutoDialog(false).SetCancelScript("sJ3AwardsListDialog.dialog('destroy');return false;").SetOnClose("sJ3AwardsListDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doGetSJAwardsList();").ToMvcString();
+    }
+    function doManageAwardsListDialog(sJ3StatisticsId,equipmentId){
+        var url = '@Url.Action("SJ3AwardsList","Statistics")'+ "?SJ3StatisticsId=" + sJ3StatisticsId + "&EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSJ3AwardsListDialog").load(url,function(){
+            $.messager.progress('close');
+            doSJ3AwardsListDialog();
+        })
+        return false;
+    }
+
+    function doGetSJAwardsList()
+    {
+        $("#AwardsCountry").val('0');
+        $("#AwardsProvince").val('0');
+        var sJ3StatisticsId = $("#frmSJ3Edit").find("#SJ3StatisticsId").val();
+        var equipmentId = $("#frmSJ3Edit").find("#SJ3EquipmentId").val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSJ3AwardsCount", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+            data: {"SJ3StatisticsId": sJ3StatisticsId, "EquipmentId" :equipmentId },
+            dataType: 'json',
+            success: function (msg) {
+                $.messager.progress('close');
+                $("#AwardsCountry").val(msg.AwardsCountry);
+                $("#AwardsProvince").val(msg.AwardsProvince);
+                sJ3AwardsListDialog.dialog("destroy");
+            }
+        });
+    }
+
+    var sJ3SubjectAchievementListDialog;
+    function doSJ3SubjectAchievementListDialog() {
+        if (sJ3SubjectAchievementListDialog) {
+            sJ3SubjectAchievementListDialog.dialog("destroy");
+        }
+        sJ3SubjectAchievementListDialog =  @Html.JDialog("divSubjectAchievementList").SetTitle("科研项目列表").SetIconCls("icon-subjectachievement").SetAutoDialog(false).SetCancelScript("sJ3SubjectAchievementListDialog.dialog('destroy');return false;").SetOnClose("sJ3SubjectAchievementListDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doGetSJSubjectAchievementList();").ToMvcString();
+    }
+    function doManageSubjectAchievementListDialog(sJ3StatisticsId,equipmentId){
+        var url = '@Url.Action("SJ3SubjectAchievementList","Statistics")'+ "?SJ3StatisticsId=" + sJ3StatisticsId + "&EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSJ3SubjectAchievementListDialog").load(url,function(){
+            $.messager.progress('close');
+            doSJ3SubjectAchievementListDialog();
+        })
+        return false;
+    }
+
+    function doGetSJSubjectAchievementList()
+    {
+        $("#ProjectScientificResearch").val('0');
+        var sJ3StatisticsId = $("#frmSJ3Edit").find("#SJ3StatisticsId").val();
+        var equipmentId = $("#frmSJ3Edit").find("#SJ3EquipmentId").val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSJ3SubjectAchievementCount", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+            data: {"SJ3StatisticsId": sJ3StatisticsId, "EquipmentId" :equipmentId },
+            dataType: 'json',
+            success: function (msg) {
+                $.messager.progress('close');
+                $("#ProjectScientificResearch").val(msg.ProjectScientificResearch);
+                sJ3SubjectAchievementListDialog.dialog("destroy");
+            }
+        });
+    }
+
+    var sJ3EquipmentTrainningListDialog;
+    function doSJ3EquipmentTrainningListDialog() {
+        if (sJ3EquipmentTrainningListDialog) {
+            sJ3EquipmentTrainningListDialog.dialog("destroy");
+        }
+        sJ3EquipmentTrainningListDialog =  @Html.JDialog("divEquipmentTrainningList").SetTitle("培训人员列表").SetIconCls("icon-users").SetAutoDialog(false).SetCancelScript("sJ3EquipmentTrainningListDialog.dialog('destroy');return false;").SetOnClose("sJ3EquipmentTrainningListDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doGetSJEquipmentTrainningList();").ToMvcString();
+    }
+    function doManageEquipmentTrainningListDialog(sJ3StatisticsId,equipmentId){
+        var url = '@Url.Action("SJ3EquipmentTrainningList","Statistics")'+ "?SJ3StatisticsId=" + sJ3StatisticsId + "&EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSJ3EquipmentTrainningListDialog").load(url,function(){
+            $.messager.progress('close');
+            doSJ3EquipmentTrainningListDialog();
+        })
+        return false;
+    }
+
+    function doGetSJEquipmentTrainningList()
+    {
+        $("#TrainingStudent").val('0');
+        $("#TrainingTutor").val('0');
+        $("#TrainingOther").val('0');
+        var sJ3StatisticsId = $("#frmSJ3Edit").find("#SJ3StatisticsId").val();
+        var equipmentId = $("#frmSJ3Edit").find("#SJ3EquipmentId").val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSJ3EquipmentTrainningCount", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+            data: {"SJ3StatisticsId": sJ3StatisticsId, "EquipmentId" :equipmentId },
+            dataType: 'json',
+            success: function (msg) {
+                $.messager.progress('close');
+                $("#TrainingStudent").val(msg.TrainingStudent);
+                $("#TrainingTutor").val(msg.TrainingTutor);
+                $("#TrainingOther").val(msg.TrainingOther);
+                sJ3EquipmentTrainningListDialog.dialog("destroy");
+            }
+        });
+    }
+
+    var sJ3StatisticsUsedHourListDialog;
+    function doSJ3StatisticsUsedHourListDialog() {
+        if (sJ3StatisticsUsedHourListDialog) {
+            sJ3StatisticsUsedHourListDialog.dialog("destroy");
+        }
+        sJ3StatisticsUsedHourListDialog =  @Html.JDialog("divSJ3StatisticsUsedHourList").SetTitle("使用机时情况列表").SetIconCls("icon-usedconfirm").SetAutoDialog(false).SetCancelScript("sJ3StatisticsUsedHourListDialog.dialog('destroy');return false;").SetOnClose("sJ3StatisticsUsedHourListDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doGetSJ3StatisticsUsedHourList();").ToMvcString();
+    }
+    function doManageSJ3StatisticsUsedHourListDialog(sJ3StatisticsId,equipmentId){
+        var url = '@Url.Action("SJ3StatisticsUsedHourList","Statistics")'+ "?SJ3StatisticsId=" + sJ3StatisticsId + "&EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSJ3StatisticsUsedHourListDialog").load(url,function(){
+            $.messager.progress('close');
+            doSJ3StatisticsUsedHourListDialog();
+        })
+        return false;
+    }
+
+    function doGetSJ3StatisticsUsedHourList()
+    {
+        $("#UsedHourEducation").val('0');
+        $("#UsedHourScientificResearch").val('0');
+        $("#UsedHourSocialServices").val('0');
+        $("#UsedHourOpen").val('0');
+        var sJ3StatisticsId = $("#frmSJ3Edit").find("#SJ3StatisticsId").val();
+        var equipmentId = $("#frmSJ3Edit").find("#SJ3EquipmentId").val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSJ3StatisticsUsedHourCount", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+            data: {"SJ3StatisticsId": sJ3StatisticsId, "EquipmentId" :equipmentId },
+            dataType: 'json',
+            success: function (msg) {
+                $.messager.progress('close');
+                $("#UsedHourEducation").val(msg.UsedHourEducation);
+                $("#UsedHourScientificResearch").val(msg.UsedHourScientificResearch);
+                $("#UsedHourSocialServices").val(msg.UsedHourSocialServices);
+                $("#UsedHourOpen").val(msg.UsedHourOpen);
+                sJ3StatisticsUsedHourListDialog.dialog("destroy");
+            }
+        });
+    }
+</script>

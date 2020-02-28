@@ -1,0 +1,138 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+    bool isFirstSelected = false;
+}
+ <ul class="tabs" style="border-bottom:0;">
+    @if (statisticsPrivilige.IsEnableSJ1Manage)
+    {
+        <li class='@(!isFirstSelected ? "tabs-selected" : "")'><a id="lnkSJ1" class="tabs-inner" href="javascript:void(0)" onclick="doLoadSJ1(this);"><span class="tabs-title">SJ1</span><span class="tabs-icon"></span></a></li>
+        isFirstSelected = true;
+    }
+    @if (statisticsPrivilige.IsEnableSJ2Manage)
+    {
+        <li class='@(!isFirstSelected ? "tabs-selected" : "")'><a id="lnkSJ2" class="tabs-inner" href="javascript:void(0)" onclick="doLoadSJ2(this);"><span class="tabs-title">SJ2</span><span class="tabs-icon"></span></a></li>
+        isFirstSelected = true;
+    }
+    @if (statisticsPrivilige.IsEnableSJ3Manage)
+    {
+        <li class='@(!isFirstSelected ? "tabs-selected" : "")'><a id="lnkSJ3" class="tabs-inner" href="javascript:void(0)" onclick="doLoadSJ3(this);"><span class="tabs-title">SJ3</span><span class="tabs-icon"></span></a></li>
+        isFirstSelected = true;
+    }
+    @if (statisticsPrivilige.IsEnableSJ4Manage)
+    {
+        <li class='@(!isFirstSelected ? "tabs-selected" : "")'><a id="lnkSJ4" class="tabs-inner" href="javascript:void(0)" onclick="doLoadSJ4(this);"><span class="tabs-title">SJ4</span><span class="tabs-icon"></span></a></li>
+    isFirstSelected = true;
+    }
+    @if (statisticsPrivilige.IsEnableSJ5Manage)
+    {
+        <li class='@(!isFirstSelected ? "tabs-selected" : "")'><a id="lnkSJ5" class="tabs-inner" href="javascript:void(0)" onclick="doLoadSJ5(this);"><span class="tabs-title">SJ5</span><span class="tabs-icon"></span></a></li>
+    isFirstSelected = true;
+    }
+    @if (statisticsPrivilige.IsEnableSJ6Manage)
+    {
+        <li class='@(!isFirstSelected ? "tabs-selected" : "")'><a id="lnkSJ6" class="tabs-inner" href="javascript:void(0)" onclick="doLoadSJ6(this);"><span class="tabs-title">SJ6</span><span class="tabs-icon"></span></a></li>
+    isFirstSelected = true;
+    }
+    @if (statisticsPrivilige.IsEnableSJ7Manage)
+    {
+        <li class='@(!isFirstSelected ? "tabs-selected" : "")'><a id="lnkSJ7" class="tabs-inner" href="javascript:void(0)" onclick="doLoadSJ7(this);"><span class="tabs-title">SJ7</span><span class="tabs-icon"></span></a></li>
+    isFirstSelected = true;
+    }
+    @if (statisticsPrivilige.IsEnableSZ1Manage)
+    {
+        <li class='@(!isFirstSelected ? "tabs-selected" : "")'><a id="lnkSZ1" class="tabs-inner" href="javascript:void(0)" onclick="doLoadSZ1(this);"><span class="tabs-title">SZ1</span><span class="tabs-icon"></span></a></li>
+        isFirstSelected = true;
+    }
+    @if (statisticsPrivilige.IsEnableSZ2Manage)
+    {
+        <li class='@(!isFirstSelected ? "tabs-selected" : "")'><a id="lnkSZ2" class="tabs-inner" href="javascript:void(0)" onclick="doLoadSZ2(this);"><span class="tabs-title">SZ2</span><span class="tabs-icon"></span></a></li>
+        isFirstSelected = true;
+    }
+</ul>
+<div class='clear-both'></div>
+<div id="divStatisticsDoc"></div>
+<script type="text/javascript">
+    function doLoadSJ1(obj) {
+        var url = '@Url.Action("SJ1Manage", "Statistics")';
+        doLoadStatisticsDoc(obj, url);
+        $('#lnkSJ1 span.tabs-title').html("教学科研仪器设备表(SJ1)");
+        return false;
+    }
+    function doLoadSJ2(obj) {
+        var url = '@Url.Action("SJ2Manage", "Statistics")';
+        doLoadStatisticsDoc(obj, url);
+        $('#lnkSJ2 span.tabs-title').html("教学科研仪器设备增减变动情况表(SJ2)");
+        return false;
+    }
+    function doLoadSJ3(obj) {
+        var url = '@Url.Action("SJ3Manage", "Statistics")';
+        doLoadStatisticsDoc(obj, url);
+        $('#lnkSJ3 span.tabs-title').html("贵重仪器设备表(SJ3)");
+        return false;
+    }
+    function doLoadSJ4(obj) {
+        var url = '@Url.Action("SJ4Manage", "Statistics")';
+        doLoadStatisticsDoc(obj, url);
+        $('#lnkSJ4 span.tabs-title').html("教学实验项目表(SJ4)");
+        return false;
+    }
+    function doLoadSJ5(obj) {
+        var url = '@Url.Action("SJ5Manage", "Statistics")';
+        doLoadStatisticsDoc(obj, url);
+        $('#lnkSJ5 span.tabs-title').html("专任实验室人员表(SJ5)");
+        return false;
+    }
+    function doLoadSJ6(obj) {
+        var url = '@Url.Action("SJ6Manage", "Statistics")';
+        doLoadStatisticsDoc(obj, url);
+        $('#lnkSJ6 span.tabs-title').html("实验室基本情况表(SJ6)");
+        return false;
+    }
+    function doLoadSJ7(obj) {
+        var url = '@Url.Action("SJ7Manage", "Statistics")';
+        doLoadStatisticsDoc(obj, url);
+        $('#lnkSJ7 span.tabs-title').html("实验室经费情况表(SJ7)");
+        return false;
+    }
+    function doLoadSZ1(obj) {
+        var url = '@Url.Action("SZ1Manage", "Statistics")';
+        doLoadStatisticsDoc(obj, url);
+        $('#lnkSZ1 span.tabs-title').html("高等学校实验室综合信息表(SZ1)");
+        return false;
+    }
+    function doLoadSZ2(obj) {
+        var url = '@Url.Action("SZ2Manage", "Statistics")';
+        doLoadStatisticsDoc(obj, url);
+        $('#lnkSZ2 span.tabs-title').html("高等学校实验室综合信息表(SZ2)");
+        return false;
+    }
+    function doLoadStatisticsDoc(obj, url) {
+        $('#lnkSJ1 span.tabs-title').html("SJ1");
+        $('#lnkSJ2 span.tabs-title').html("SJ2");
+        $('#lnkSJ3 span.tabs-title').html("SJ3");
+        $('#lnkSJ4 span.tabs-title').html("SJ4");
+        $('#lnkSJ5 span.tabs-title').html("SJ5");
+        $('#lnkSJ6 span.tabs-title').html("SJ6");
+        $('#lnkSJ7 span.tabs-title').html("SJ7");
+        $('#lnkSZ1 span.tabs-title').html("SZ1");
+        $('#lnkSZ2 span.tabs-title').html("SZ2");
+        $(obj).parent().addClass("tabs-selected");
+        $(obj).parent().siblings().removeClass("tabs-selected");
+        $("#divStatisticsDoc").empty();
+        ajaxloadbegin();
+        $.ajax({
+            type: "Post",
+            url: url,
+            success: function (data) {
+                $("#divStatisticsDoc").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        $('li.tabs-selected').find('a').click();
+    });
+</script>

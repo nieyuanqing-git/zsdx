@@ -1,0 +1,67 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div class="home-search-box" style='margin-top:10px;'>
+    <div id="searchQA" class="search-box">
+        <div class="edit-info">
+            <div class="tit">状态</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong id='trStatus'>
+                        @(Html.JComboBox("Status")
+                            .SetEditable(false)
+                            .SetData(ViewData["StatusJson"])
+                            .SetOnSelect("objfocus(this);")
+                            .SetWidth(80).ToMvcString())
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="edit-info" style='margin-left:5px;'>
+            <div class="tit">提问者</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong id='trCreator'>
+                        @(Html.TokenInput("CreatorId")
+                            .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                            .SetSingle(true).SetWidth(115)
+                            .SetOnAdd("objfocus(this);")
+                            .AddClass("textinp")
+                            .ToMvcString())
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="edit-info" style='margin-left:5px;'>
+            <div class="tit">提问时间</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong id='trCreateTimeStart'>
+                        @Html.JDateTimePicker("CreateTimeStart").SetWidth(90).ToMvcString()
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="edit-info">
+            <div class="tit">～</div>
+            <div class="bdmain">
+                <div class="text-box">
+                    <strong id='trCreateTimeEnd'>
+                        @Html.JDateTimePicker("CreateTimeEnd").SetWidth(90).ToMvcString()
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="edit-info">
+            <input class="botton" type="submit" onclick="doSearch();" value="查 询" />
+        </div>
+        <div class="clear-both"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#trStatus input.combo-text").css("width", "60px");
+        $("#trCreator ul.token-input-list-facebook").css("width", "120px");
+        $("#trCreateTimeStart input.combo-text").css("width", "70px");
+        $("#trCreateTimeEnd input.combo-text").css("width", "70px");
+    });
+</script>

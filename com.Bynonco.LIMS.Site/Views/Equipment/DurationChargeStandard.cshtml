@@ -1,0 +1,40 @@
+﻿@model com.Bynonco.LIMS.Model.Business.DurationChargeStandard
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Utility;
+@{
+     var id = Guid.NewGuid().ToString();
+     var beginTimeHour = Model != null ? TimeUtility.GetHourByTimeNumer(Model.StartTime).ToString() : "";
+     var endTimeHour = Model != null ? TimeUtility.GetHourByTimeNumer(Model.EndTime).ToString() : "";
+     var beginTimeMinute = Model != null ? TimeUtility.GetMinuteByTimeNumer(Model.StartTime).ToString() : "";
+     var endTimeMinute = Model != null ? TimeUtility.GetMinuteByTimeNumer(Model.EndTime).ToString() : "";
+ }
+<div id="@("div" + id)" style="margin-top:1px; margin-bottom:1px">
+    <table class="edit-table" style="width:100%">
+        <tr>
+            <th>开始时间</th>
+            <td>@(Html.JComboBox("BeginTimeHour_" + id).SetData(ViewData["HourJson"]).SetWidth(150).ToMvcString())小时</td>
+            <td>@(Html.JComboBox("BeginTimeMinute_" + id).SetData(ViewData["MinuteJson"]).SetWidth(150).ToMvcString())分钟</td>
+            <td rowspan="3" style="margin-left:10px; border-left:none">
+                @Html.JLinkButton("btnDelete" + id, "删除").SetOnclick(string.Format("doDeleteDurationChargeStandar('{0}');return false;", id)).SetIconCls("icon-remove").SetPlain(true).ToMvcString()
+            </td>
+        </tr>
+            <tr>
+            <th>结束时间</th>
+            <td>@(Html.JComboBox("EndTimeHour_" + id).SetData(ViewData["HourJson"]).SetWidth(150).ToMvcString())小时</td>
+            <td>@(Html.JComboBox("EndTimeMinute_" + id).SetData(ViewData["MinuteJson"]).SetWidth(150).ToMvcString())分钟</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>价格</th>
+            <td colspan="2">@(Html.JValidateBox("Price_" + id).SetValidateType(ValidateType.number).SetWidth(145).SetValue(Model == null ? "" : Model.Price.ToString()).SetInvalidMessage("请输入有效的价格").ToMvcString())元</td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#BeginTimeHour_" + "@id").combobox("setValue", "@beginTimeHour");
+        $("#BeginTimeMinute_" + "@id").combobox("setValue", "@beginTimeMinute");
+        $("#EndTimeHour_" + "@id").combobox("setValue", "@endTimeHour");
+        $("#EndTimeMinute_" + "@id").combobox("setValue", "@endTimeMinute");
+    });
+</script>

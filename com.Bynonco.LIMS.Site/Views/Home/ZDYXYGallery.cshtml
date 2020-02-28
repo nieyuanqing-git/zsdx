@@ -1,0 +1,40 @@
+﻿@{
+    var articleList = ViewData["PicArticleList"] == null ? null : (IList<com.Bynonco.LIMS.Model.Article>)ViewData["PicArticleList"];
+    var orgXPath = ViewData["OrgXpath"] as string;
+}
+<ul id="myGallery" style='width:502px;'>
+    @{
+        if(articleList != null && articleList.Count() > 0)
+        {
+            foreach(var article in articleList)
+            {
+                string relativePic = article.RelativePic;
+                if(relativePic != "")
+                {
+                    relativePic = relativePic.IndexOf(",") != -1 ? relativePic.Substring(0, relativePic.IndexOf(",")) : relativePic; 
+                    <li><img class='gallery-img' src="@Url.Content("~" + relativePic)" alt="@article.Title" title="@article.Title" data-description="" href='@Url.Action("Show", "Article", new { id = article.Id, ArticleCategoryId = article.ArticleCategoryId, XPath = orgXPath  })'/></li>
+                }
+            }
+        }
+        else
+        {
+            <li><img class='gallery-img'  src="@Url.Content("~/Content/images/Logo.png")" title='' href='#' alt="Logo" /></li>
+        }
+    }
+</ul>
+<script type="text/javascript">
+    $(function () {
+        $('#myGallery').galleryView({
+            transition_speed: 1000,
+            transition_interval: 3000,
+            panel_width: 480,
+            panel_height: 270,
+            show_filmstrip: false,
+            panel_animation: 'slide',
+            show_infobar: false,
+            autoplay: true,
+            enable_overlays: true
+
+        });
+    });
+</script>

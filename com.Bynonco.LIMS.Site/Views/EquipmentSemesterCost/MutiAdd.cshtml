@@ -1,0 +1,51 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divEquipmentSemesterCostMutiAdd"> 
+<form id="frmEquipmentSemesterCostMutiAdd" action="#">
+    <table class="edit-table" style='width:640px;'>
+         <tr>
+            <th><span class="required">*</span>学期</th>
+            <td>
+                @Html.Hidden("SemesterId", ViewData["SemesterId"] == null ? "" : ViewData["SemesterId"].ToString())
+                @(ViewData["SemesterName"] == null ? "" : ViewData["SemesterName"].ToString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器设备</th>
+            <td id="tdEquipmentIds">
+                @(Html.TokenInput("EquipmentIds")
+                    .SetUrl(Url.Action("GetEquipmentGroupManageViewEquipmentListByKeyWord", "Equipment"))
+                    .SetSingle(false)
+                    .SetWidth(400)
+                    .ToMvcString())
+            </td>
+            <td style='width:70px;text-align:center;border:0;'>
+                @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectUserManagementEquipment();return false;").ToMvcString()
+            </td>
+            <td style='width:70px;text-align:center;border:0;'>
+                @Html.JLinkButton("btnCleanEquipment", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanEquipment();return false;").ToMvcString()
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>
+<div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>
+<script type="text/javascript">
+    function doCleanEquipment() {
+        $("#frmEquipmentSemesterCostMutiAdd #EquipmentIds").tokenInput("clear");
+    }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+        $("#frmEquipmentSemesterCostMutiAdd #EquipmentIds").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#frmEquipmentSemesterCostMutiAdd #EquipmentIds").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+    function doSelectUserManagementEquipment() {
+        doSelectEquipmentDialog('EquipmentIds', { "SelectEquipmentMode": '@((int)com.Bynonco.LIMS.Model.Enum.SelectEquipmentMode.EquipmentGroup)' });
+        return false;
+    }
+</script>

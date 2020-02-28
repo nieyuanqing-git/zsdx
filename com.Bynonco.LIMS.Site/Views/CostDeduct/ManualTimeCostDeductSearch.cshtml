@@ -1,0 +1,48 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateManualTimeDeductQueryExpression() {        
+        var queryExpression = "";
+        var searchEquipmentName = $("#SearchEquipmentName").val().trim();
+        if (searchEquipmentName != "") {
+            queryExpression = "EquipmentName∽\"" + searchEquipmentName.trim() + "\"";
+        }
+        var searchCostYear = $("#SearchCostYear").val().trim(); 
+        if (searchCostYear != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CostYear=\"" + searchCostYear + "\"";
+        }
+        var searchCostMonth = $("#SearchCostMonth").val().trim(); 
+        if (searchCostMonth != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CostMonth=\"" + searchCostMonth + "\"";
+        }     
+        return queryExpression;
+    }
+
+    function doManualTimeDeductReset() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchCostYear").val("");
+        $("#SearchCostMonth").val("");       
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="width:60px;">设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">年份</label>
+        @Html.JValidateBox("SearchCostYear").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">月份</label>
+        @Html.JValidateBox("SearchCostMonth").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnManualTimeDeductSearch", "查询").SetOnclick("doManualTimeDeductSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnManualTimeDeductReset", "清空").SetOnclick("doManualTimeDeductReset();").ToMvcString()
+        @Html.JLinkButton("btnManualTimeDeductClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

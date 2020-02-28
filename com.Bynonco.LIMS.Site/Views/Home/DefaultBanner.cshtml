@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var orgLogo  = ViewData["OrgLogo"];
+    var hotEquipmentList = ViewData["HotEquipmentList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewEquipmentTotal>)ViewData["HotEquipmentList"];
+    var systemType = ViewData["SystemType"] == null ? com.Bynonco.LIMS.Model.Enum.SystemType.ShareE : (com.Bynonco.LIMS.Model.Enum.SystemType)ViewData["SystemType"];
+}
+<div class='banner-box'>
+    <div class='logo-box'>
+        <a href='@Url.Action("Index", "Home", routeCurrentXPathValue)' class='logo'>
+            <img src="@Url.Content("~/" + orgLogo)" alt='@(orgName + "首页")'  height='60px'/>
+        </a>
+    </div>
+    @if (systemType== com.Bynonco.LIMS.Model.Enum.SystemType.ShareE)
+    {
+        <div class='top-search-box'>
+            <div class='search-input-box'>
+                <input type="text" id='topSearchEquipmentName' />
+                <a href="#" onclick='doTopSearchEquipment();return false;'>&nbsp;</a>
+            </div>
+            <div class='hot-search-box'>
+                <span>热门搜索:&nbsp;</span>
+                @if (hotEquipmentList != null && hotEquipmentList.Count() > 0)
+                {
+                    for (int i =0 ;i <hotEquipmentList.Count() && i < 2; i++)
+                    {
+                        var item = hotEquipmentList[i];
+                        var url = Url.Action("Show", "Equipment", new { Id = item.Id, XPath = orgXPath });
+                        <a href='@url' title='@item.EquipmentName'>@ShortcutStringUtility.GetSubString(item.EquipmentName,20,"")</a>
+                    }
+                }
+            </div>
+        </div>
+    }
+</div>
+<script type="text/javascript">
+    function doTopSearchEquipment() {
+        if ($("#topSearchEquipmentName").val().trim() != "") {
+            var url = '@Url.Action("ShowList", "Equipment", new { XPath = orgXPath })' + "&EquipmentName=" + $("#topSearchEquipmentName").val().trim();
+            url = encodeURI(url);
+            location.href = url;
+        }
+    }
+
+</script>

@@ -1,0 +1,60 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var sampleItemPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSampleItemPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSampleItemList")
+        .SetUrl(Url.Action("GetGridViewSampleItemList", new { time = DateTime.Now.Millisecond.ToString() }))
+        .SetHeight(650)
+        .SetPageSize(20)
+        .SetShowAddButton(sampleItemPrivilige.IsEnableAdd);
+        if (sampleItemPrivilige.IsEnableBatchStart)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStart();return false;", IconCls = "icon-play", Id = "btnBatchStart", Text = "启用" });
+        }
+        if(sampleItemPrivilige.IsEnableBatchStop)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStop();return false;", IconCls = "icon-stop", Id = "btnBatchStop", Text = "停用" });
+        }
+        if (sampleItemPrivilige.IsEnableBatchUpdateInfo)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchUpdateInfo();return false;", IconCls = "icon-note", Id = "btnBatchUpdateInfo", Text = "批量更新" });
+        }
+        if(sampleItemPrivilige.IsEnableAdd)
+        {
+            dataGrid.SetAddScript("doAddOrEdit('');");
+        }
+        if (sampleItemPrivilige.IsEnableEdit)
+        {
+            dataGrid.SetOnDblClickRow("doAddOrEdit(rowData.Id);");
+        }
+        if (sampleItemPrivilige.IsEnableImportExcel)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doImportExcel();", IconCls = "icon-import", Id = "btnImportExcel", Text = "导入" });
+        }
+        if (sampleItemPrivilige.IsEnableDelete)
+        {
+            dataGrid.SetDeleteScript("doDelete('');");
+        }
+        dataGrid.SetShowDeleteButton(sampleItemPrivilige.IsEnableDelete)
+        .SetShowPrintButton(true)
+        .SetSortName("OrderNo")
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch()");
+        if(sampleItemPrivilige.IsEnableEdit)
+        {
+            dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetWidth(50).SetAlign(Align.center));
+        }
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "Name").SetWidth(200).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目价格(元)", "UnitPrice").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预计机时(小时)", "UnitUsedHour").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("样品形态", "SampleStatusNames").SetWidth(150).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所属设备", "EquipmentNames").SetWidth(300).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("收费方式", "ChargeCategoryStr").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("小数位", "RoundDigits").SetWidth(50).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("排序号", "OrderNo").SetWidth(50).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("助记符", "InputStr").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("说明", "Directions").SetWidth(600).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(600).SetAlign(Align.left));
+  }
+  @(dataGrid.ToMvcString())

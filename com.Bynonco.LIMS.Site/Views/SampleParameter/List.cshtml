@@ -1,0 +1,42 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var sampleParameterPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSampleParameterPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSampleParameterList")
+    .SetUrl(Url.Action("GetGridSampleParameterList", "SampleParameter"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()")
+    .SetSortName("ControlCategory")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentNames").SetSortable(false).SetWidth(150).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SampleItemNames").SetSortable(false).SetWidth(150).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("形态名称", "SampleStatusNames").SetSortable(false).SetWidth(150).SetAlign(Align.left).SetHidden(true))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("控件类型", "ControlCategoryName").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("数据类型", "DataCategoryName").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("控件宽度", "ControlWidth").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("控件高度", "ControlHeight").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("值域(下拉框专用)", "Vals").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否必填", "IsRequiredStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("校验正则表达式", "ValidateRegExpression").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("默认值", "ControlDefaultValue").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("排序号", "OrderNo").SetWidth(150).SetAlign(Align.center));
+    dataGrid.SetShowAddButton(sampleParameterPrivilige.IsEnableAddSampleParameter);
+    dataGrid.SetShowEditButton(sampleParameterPrivilige.IsEnableEditSampleParameter);
+    dataGrid.SetShowDeleteButton(sampleParameterPrivilige.IsEnableDeleteSampleParameter);
+    if (sampleParameterPrivilige.IsEnableAddSampleParameter)
+    {
+        dataGrid.SetAddScript("doAddOrEditSampleParameter('');");
+    }
+    if (sampleParameterPrivilige.IsEnableEditSampleParameter)
+    {
+        dataGrid.SetEditScript("doEditSampleParameter();");
+        dataGrid.SetOnDblClickRow("doAddOrEditSampleParameter(rowData.Id);");
+    }
+    if (sampleParameterPrivilige.IsEnableDeleteSampleParameter)
+    {
+        dataGrid.SetDeleteScript("doDeleteSampleParameter();");
+    }
+}
+@(dataGrid.ToMvcString()) 

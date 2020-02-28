@@ -1,0 +1,150 @@
+﻿@model com.Bynonco.LIMS.Model.Message
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+    bool isAnyAdmin = ViewData["IsAnyAdmin"] == null ? false : (bool)ViewData["IsAnyAdmin"];
+    int businessType = Model == null ? -1 : Model.BusinessType;
+}
+<style type="text/css">
+    .edit-box table.edit-info{ width:670px;}
+    .layout-center .main-content .edit-box table.edit-info th{ width:70px;}
+    .layout-center .main-content .edit-box .edit-operate{ margin-top:15px;}
+    .inner-title{display:inline-block;width:50px;}
+</style>
+@Html.Partial("../Message/ScriptContainer")
+
+<div class="edit-box">
+    <form id="frmMessageEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-info">
+        <tr>
+            <th rowspan="@(isAnyAdmin ? "5" : "3")">收件人</th>
+            <td class="@(isAnyAdmin ? "" : "hide")">
+                <div class="float_l">
+                    @Html.RadioButton("BusinessType", ((int)MessageBusinessType.All).ToString(), businessType == (int)MessageBusinessType.All, new { @class = "BusinessType", @id = "BusinessTypeAll" })
+                    <label class="inner-title">所有人</label>
+                </div>
+                <div class="float_l margin-l-10"></div>
+            </td>
+        </tr>
+        <tr class="@(isAnyAdmin ? "" : "hide")">
+            <td id="tdBusinessOrganization">
+                <div class="float_l">
+                    @Html.RadioButton("BusinessType", ((int)MessageBusinessType.Organization).ToString(), businessType == (int)MessageBusinessType.Organization, new { @class = "BusinessType", @id = "BusinessTypeLabOrganization" })
+                    <label class="inner-title">组织机构</label>
+                </div>
+                <div class='pane-BusinessType float_l margin-l-10 @(businessType == (int)MessageBusinessType.Organization ? "" : "hide")'>
+                    @(Html.JComboTree("BusinessOrganizationId")
+                    .SetData(ViewData["BusinessOranizationJson"])
+                    .SetValue(ViewData["BusinessOrganizationId"] == null ? "" : ViewData["BusinessOrganizationId"].ToString())
+                    .SetOnLoadSuccess("setTimeout('doOnBusinessOrganizationLoadSuccess();', 500);")
+                    .SetMultiple(false)
+                    .SetWidth(320)
+                    .SetExpandAll(true)
+                    .SetOnChange("doOnOrganizationChange();")
+                    .ToMvcString())
+                </div>
+            </td>
+        </tr>
+        <tr class="@(isAnyAdmin ? "" : "hide")">
+            <td id="tdBusinessWorkGroup">
+                <div class="float_l">
+                    @Html.RadioButton("BusinessType", ((int)MessageBusinessType.WorkGroup).ToString(), businessType == (int)MessageBusinessType.WorkGroup, new { @class = "BusinessType", @id = "BusinessTypeWorkGroup" })
+                    <label class="inner-title">角色</label>
+                </div>
+                <div class='pane-BusinessType float_l margin-l-10 @(businessType == (int)MessageBusinessType.WorkGroup ? "" : "hide")'>
+                    @(Html.JComboBox("BusinessWorkGroupId")
+                    .SetEditable(false)
+                    .SetData(ViewData["BusinessWorkGroupJson"])
+                    .SetOnLoadSuccess("setTimeout('doOnBusinessWorkGroupLoadSuccess();', 500);")
+                    .SetWidth(320)
+                    .ToMvcString())
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td id="tdBusinessSubject">
+                <div class="float_l">
+                    @Html.RadioButton("BusinessType", ((int)MessageBusinessType.Subject).ToString(), businessType == (int)MessageBusinessType.Subject, new { @class = "BusinessType", @id = "BusinessTypeSubject" })
+                    <label class="inner-title">课题组</label>
+                </div>
+                <div class='pane-BusinessType float_l margin-l-10 @(businessType == (int)MessageBusinessType.Subject ? "" : "hide")'>
+                    @(Html.TokenInput("BusinessSubjectId")
+                    .SetUrl(Url.Action(isAnyAdmin ? "GetSubjectListByKeyWord" : "GetUserRelevantSubjectListByKeyWord", "Subject"))
+                    .SetSingle(true)
+                    .SetWidth(320)
+                    .SetPrePopulate(ViewData["BusinessrSubjectJson"] == null || string.IsNullOrWhiteSpace(ViewData["BusinessrSubjectJson"].ToString()) ? null : ViewData["BusinessrSubjectJson"].ToString())
+                    .ToMvcString())
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td id="tdBusinessUser">
+                <div class="float_l">
+                    @Html.RadioButton("BusinessType", ((int)MessageBusinessType.User).ToString(), businessType == (int)MessageBusinessType.User, new { @class = "BusinessType", @id = "BusinessTypeUser" })
+                    <label class="inner-title">个人用户</label>
+                </div>
+                <div class='pane-BusinessType float_l margin-l-10 @(businessType == (int)MessageBusinessType.User ? "" : "hide")'>
+                    @(Html.TokenInput("ReceiverIds")
+                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                    .SetSingle(false)
+                    .SetWidth(252)
+                    .SetPrePopulate(ViewData["ReceiveUserListJson"] == null || string.IsNullOrWhiteSpace(ViewData["ReceiveUserListJson"].ToString()) ? null : ViewData["ReceiveUserListJson"].ToString())
+                    .ToMvcString())
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>标题</th>
+            <td>
+                @Html.JValidateBox("Subject").SetValue(Model == null ? "" : Model.Subject).SetWidth(400).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>重要级别</th>
+            <td id="tdGrade">
+                @(Html.JComboBox("Grade")
+                .SetData(ViewData["GradeJson"])
+                .SetValue(Model == null ? "" : Model.Grade.ToString())
+                .SetOnLoadSuccess("setTimeout('doOnMessageGradeLoadSuccess();', 500);")
+                .SetWidth(405)
+                .ToMvcString())
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        
+       <tr>
+            <td colspan="2">
+               @Html.EditorFor(m => m.ContentHTML)
+               @Html.Hidden("ContentNotHTML")
+            </td>
+       </tr>
+    </table>
+  </form>
+  <div class="edit-operate">
+       @Html.JLinkButton("btnSendMessage", "发送").SetIconCls("icon-mail").SetPlain(true).SetOnclick("doSendMessage();return false;").ToMvcString()
+       @Html.JLinkButton("btnSaveMessage", "保存草稿").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveMessage();return false;").ToMvcString()
+       @Html.JLinkButton("btnBack", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doBack();return false;").ToMvcString()
+  </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdBusinessUser ul.token-input-list-facebook").css("width", "320px");
+        $("#tdBusinessSubject ul.token-input-list-facebook").css("width", "320px");
+        $(".BusinessType").change(function () {
+            $(".pane-BusinessType").addClass("hide");
+            $(this).parent().siblings().removeClass("hide");
+        });
+    });
+    function doOnBusinessOrganizationLoadSuccess() {
+        $("#tdBusinessOrganization span input.combo-text.validatebox-text").val('@(ViewData["BusinessOrganizationName"] == null ? "" : ViewData["BusinessOrganizationName"].ToString())');
+    }
+    function doOnBusinessWorkGroupLoadSuccess() {
+        $("#tdBusinessWorkGroup span input.combo-text.validatebox-text").val('@(ViewData["BusinessWorkGroupName"] == null ? "" : ViewData["BusinessWorkGroupName"].ToString())');
+    }
+    function doOnMessageGradeLoadSuccess() {
+        $("#tdGrade span input.combo-text.validatebox-text").val('@ViewData["GradeName"]');
+    }
+</script>

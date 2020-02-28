@@ -1,0 +1,34 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewMaterialPurchaseItem
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+@if (Model != null)
+{
+    var infoId = Model.MaterialInfoId;
+    <tr id='tr_@(infoId)'>
+        <td>
+            @Html.Hidden("Id_" + infoId, Model == null ? "" : Model.Id.ToString())
+            @Html.JLinkButton("btnRemoveMaterialPurchaseItem_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveMaterialPurchaseItem('" + infoId + "');return false;").ToMvcString()
+        </td>
+        <td>@(Model.Name)</td>
+        <td>@(Model.StockValueStr)</td>
+        <td>@(Model.WarningValueStr)</td>
+        <td>
+            @Html.JValidateBox("UnitPrice_" + infoId).SetValue(Model == null ? "" : Math.Round(Model.UnitPrice,2).ToString()).SetOnChange("doChangeMaterialPurchaseItemAmount('" + infoId + "');return false;").SetWidth(50).ToMvcString()
+            @(Model.PriceTypeValue)
+        </td>
+        <td>
+            @Html.JValidateBox("PurchaseValue_" + infoId).SetValue(Model == null ? "" : Model.PurchaseValue.ToString()).SetOnChange("doChangeMaterialPurchaseItemAmount('" + infoId + "');return false;").SetWidth(50).ToMvcString()
+        </td>
+        <td>
+            @Html.JValidateBox("Amount_" + infoId).SetValue(Model == null ? "" : Math.Round(Model.Amount,2).ToString()).SetWidth(50).ToMvcString()
+            @(Model.PriceTypeValue)
+        </td>
+        <td>
+            @Html.JValidateBox("SupplierName_" + infoId).SetValue(Model == null ? "" : Model.SupplierName).SetWidth(80).ToMvcString()
+            @Html.JLinkButton("btnSelectMaterialSupplier_" + infoId, "").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectMaterialSupplier('" + infoId + "');return false;").ToMvcString()
+        </td>
+        <td>
+            @Html.JValidateBox("SupplierPhone_" + infoId).SetValue(Model == null ? "" : Model.SupplierPhone).SetWidth(80).ToMvcString()
+        </td>
+    </tr>
+}

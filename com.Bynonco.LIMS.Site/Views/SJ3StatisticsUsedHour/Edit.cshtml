@@ -1,0 +1,64 @@
+﻿@model com.Bynonco.LIMS.Model.SJ3StatisticsUsedHour
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divSJ3StatisticsUsedHourEdit">
+ <form id="frmSJ3StatisticsUsedHourEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("SJ3StatisticsId", Model == null ? ViewData["SJ3StatisticsId"] == null ? "" : ViewData["SJ3StatisticsId"].ToString() : Model.SJ3StatisticsId.ToString())
+    @Html.Hidden("EquipmentId", Model == null ? ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString() : Model.EquipmentId.ToString())
+    <table id="tdSJ3StatisticsUsedHourEdit" class="edit-table"  style="width:420px;">
+        <tr>
+            <th><span class="required">* </span>使用类型</th>
+            <td>
+                @(Html.JComboBox("UseDirection")
+                .SetData(ViewData["UseDirectionJson"])
+                .SetWidth(205)
+                .ToMvcString())
+            </td>
+        </tr>
+         <tr>
+            <th><span class="required">* </span>使用者</th>
+            <td id='tdUsedHourUserId'>
+                 @(Html.TokenInput("UsedHourUserName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(true)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doUsedHourUserIdChange();")
+                    .SetOnDelete("doUsedHourUserIdChange();")
+                    .SetPrePopulate(ViewData["UsedHourUserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UsedHourUserJson"].ToString()) ? null : ViewData["UsedHourUserJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("UsedHourUserId", Model == null || !Model.UserId.HasValue ? "" : Model.UserId.Value.ToString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>开始时间</th>
+            <td>
+                @Html.JDateTimePicker("BeginAt").SetMode(DateTimePickerMode.dateTime).SetWidth(205).SetValue(Model == null || !Model.BeginAt.HasValue ? "" : Model.BeginAt.Value.ToString("yyyy-MM-dd HH:mm:ss")).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>结束时间</th>
+            <td>
+                @Html.JDateTimePicker("EndAt").SetMode(DateTimePickerMode.dateTime).SetWidth(205).SetValue(Model == null || !Model.EndAt.HasValue ? "" : Model.EndAt.Value.ToString("yyyy-MM-dd HH:mm:ss")).ToMvcString()
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdUsedHourUserId ul.token-input-list-facebook").css("width", "205px");
+    });
+    function doUsedHourUserIdChange() {
+        $("#UsedHourUserId").val("");
+        var userIdList = $("#UsedHourUserName").tokenInput("get");
+        if (userIdList && userIdList.length > 0) {
+            var userIds = "";
+            for (var i = 0; i < userIdList.length; i++) {
+                if (userIds != "") userIds += ",";
+                userIds += userIdList[i].id;
+            }
+            $("#UsedHourUserId").val(userIds);
+        }
+    }
+</script>

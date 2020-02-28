@@ -1,0 +1,45 @@
+﻿@model com.Bynonco.LIMS.Model.WorkGroup
+@using com.Bynonco.JqueryEasyUI.Core;
+
+<script type="text/javascript">
+    function doOnNameChanged() {
+        $("#InputStr").val("");
+    }
+</script>
+
+<div id="divWorkGroupEdit"> 
+    <form id="frmWorkGroupEdit" action="#">
+        @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+        <table id="tbWorkGroupEdit" class="edit-table" style="width:385px;">
+            <tr>
+                <th>名称</th>
+                <td>
+                    @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>助记符</th>
+                <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(200).ToMvcString()</td>
+            </tr>
+            <tr>
+                <th>是否默认组</th>
+                <td>
+                    @Html.CheckBox("IsDefault", Model == null ? false : Model.IsDefault)
+                </td>
+            </tr>
+            <tr>
+                <th>是否停用</th>
+                <td>
+                    @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+                </td>
+            </tr>
+            <tr>
+                <th>备注</th>
+                <td>
+                    @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:60px;width:295px;margin-right:5px;" })
+                </td>
+            </tr>
+        </table>
+      </form>
+</div>

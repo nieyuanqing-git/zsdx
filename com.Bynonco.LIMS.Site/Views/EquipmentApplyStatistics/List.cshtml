@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var equipmentApplyStatisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentApplyStatisticsPrivilige(User.Identity.Name);}
+<script type="text/javascript">
+    $(function () {
+        $('#tbEquipmentApplySummaryStaticsList').datagrid({
+            iconCls: 'icon-save',
+            url: '@Url.Action("GetViewEquipmentApplySummaryStatList","EquipmentApplyStatistics")',
+            remoteSort: false,
+            idField: 'code',
+            frozenColumns: [[
+                    { title: 'Id', field: 'Id', width: 100, sortable: true, align: 'center', hidden: true },
+	                { title: '经费来源', field: 'FundsSource', width: 100, sortable: true, align: 'center' },
+                    { title: '仪器名称', field: 'Name', width: 200, sortable: true, align: 'center' },
+                    { title: '学校仪器编号', field: 'CategoryCode', width: 100, sortable: true, align: 'center' }
+				]],
+            columns: [[
+			            { title: '服务收费', colspan: 3 },
+					    { field: 'WorthOfWY', title: '购置单价<br />(万元)', width: 100, align: 'center', rowspan: 2 },
+                        { field: 'Country', title: '原产国/生产厂', width: 100, rowspan: 2, align: 'center' },
+					    { field: 'EquipmentAdminName', title: '管理员', width: 80, rowspan: 2, sortable: true, align: 'center' },
+					    { field: 'EquipmentAdminLinkTelNo', title: '联系电话', width: 120, rowspan: 2, align: 'center' }
+				      ],
+                      [
+					    { field: 'ChargeStatndardOfSampleNum', title: '元/样', width: 80, align: 'center', rowspan: 2 },
+                        { field: 'ChargeStatndardOfHour', title: '元/小时', width: 80, rowspan: 2, align: 'center' },
+					    { field: 'ChargeStatndardOfDay', title: '元/天', width: 80, rowspan: 2, sortable: true, align: 'center' }
+				     ]],
+            pagination: false,
+            rownumbers: true,
+            toolbar: [
+                {
+                    id: 'btnExpert',
+                    text: '导出',
+                    @(!equipmentApplyStatisticsPrivilige.IsEnableExpert?"disabled:true,":"")
+                    iconCls: 'icon-export',
+                    handler: function () {
+                        doEquipmentApplySummaryStaticsExpert();
+                }
+            }]
+        });
+    });
+	</script>
+    <table id="tbEquipmentApplySummaryStaticsList"></table>

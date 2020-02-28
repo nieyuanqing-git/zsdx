@@ -1,0 +1,19 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<style type="text/css">
+    #divSelectYear{ padding:15px 20px; vertical-align:middle;}
+    #divSelectYear span.span-title{ font-size:14px; padding-right:3px;vertical-align:middle;}
+</style>
+<div class="layout-center-full">
+    <div  id="divSelectYear"  style="border:1px solid #D3D3D3;border-bottom:0;"> 
+        @Html.Partial("../Statistics/AppointmentSearch")
+    </div>
+    <div>
+        @Html.Partial("../Statistics/AppointmentYearList")
+    </div>
+</div>
+<div id="divAppointmentSearchDialog" style="display:none"></div>
+@Html.Hidden("StatisticsType", "year")
+@Html.Partial("../Statistics/AppointmentScriptContainer")

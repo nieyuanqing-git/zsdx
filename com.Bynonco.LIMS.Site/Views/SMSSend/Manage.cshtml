@@ -1,0 +1,98 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../SMSSend/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../SMSSend/List")
+</div>
+<div id="divSMSSendDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearchSMSSend() {
+        var queryExpression = generateSMSSendQueryExpress();
+        $("#tbSMSSendList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSMSSendList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var sMSSendDialog;
+    function doSMSSendDialog() {
+        if (sMSSendDialog) {
+            sMSSendDialog.dialog("destroy");
+        }
+        sMSSendDialog =  @Html.JDialog("divSMSSendAdd").SetTitle("手机短信信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("sMSSendDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveSMSSend();").ToMvcString();
+    }
+    function doAddSMSSend() {
+       var url = '@Url.Action("Add","SMSSend")'+ "?date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSMSSendDialog").load(url,function(){
+            doSMSSendDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+   
+    function doSaveSMSSend(){
+        if($("#UserIds").val().trim() == ""){
+            $.messager.show({ title: '提示', msg: "收件人为空", showType: 'show' });
+            return false;
+        }
+        if($("#Title").val().trim() == ""){
+            $.messager.show({ title: '提示', msg: "标题为空", showType: 'show' });
+            return false;
+        }
+        if($("#SMSBody").val().trim() == ""){
+            $.messager.show({ title: '提示', msg: "短信内容为空", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","SMSSend")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmSMSSendAdd").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                sMSSendDialog.dialog('close');
+                doSearchSMSSend();
+            }
+        });
+   }
+   function doDeleteSMSSend(ids){
+        var opeIds = ids == null || ids.trim() == "" ? generateSMSSendSelectedIds().toString() : ids;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "SMSSend")',
+                data: { "ids": opeIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchSMSSend();
+                }
+            });
+        });
+        return false;
+   }
+   function generateSMSSendSelectedIds() {
+        var ids = [];
+        var rows = $("#tbSMSSendList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+</script>

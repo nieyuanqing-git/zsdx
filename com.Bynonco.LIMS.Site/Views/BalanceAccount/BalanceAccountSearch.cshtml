@@ -1,0 +1,67 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var balanceAccountPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetBalanceAccountPrivilige(User.Identity.Name);
+}
+<script type="text/javascript">
+    function generateBalanceAccountQueryExpression() {
+        var queryExpression = "";
+        var beginAt = $("#SearchBeginAt").datebox("getValue").trim();
+        if (beginAt != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt>\"" + beginAt + " 00:00:00" + "\"";
+        }
+        var endAt = $("#SearchEndAt").datebox("getValue").trim();
+        if (endAt != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EndAt<\"" + endAt + " 23:59:59" + "\"";
+        }
+        if ($("#SearchBalanceNo").size() > 0) {
+            var balanceNo = $("#SearchBalanceNo").val().trim();
+            if (balanceNo != "") {
+                queryExpression += (queryExpression == "" ? "" : "*") + "BalanceNo∽\"" + balanceNo + "\"";
+            }
+            var summaryBalanceNo = $("#SearchSummaryBalanceNo").val().trim();
+            if (summaryBalanceNo != "") {
+                queryExpression += (queryExpression == "" ? "" : "*") + "SummaryBalanceNo∽\"" + summaryBalanceNo + "\"";
+            }
+        }
+        return queryExpression;
+    }
+
+    function doBalanceAccountReset() {
+        if ($("#SearchBalanceNo").size() > 0) {
+            $("#SearchBalanceNo").val("");
+            $("#SearchSummaryBalanceNo").val("");
+        }
+        $("#SearchBeginAt").datebox("setValue", "");
+        $("#SearchEndAt").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    @if (balanceAccountPrivilige.IsEnableExportBalanceAccountDetailDoc)
+    {
+        <li>
+            <label>汇总单号</label>
+            @Html.JValidateBox("SearchSummaryBalanceNo").SetWidth(150).ToMvcString()
+        </li>
+        <li>
+            <label>结算单号</label>
+            @Html.JValidateBox("SearchBalanceNo").SetWidth(150).ToMvcString()
+        </li>
+    }
+    <li>
+        <label>开始时间</label>
+        @Html.JDateTimePicker("SearchBeginAt").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchEndAt").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnBalanceAccountSearch", "查询").SetOnclick("doBalanceAccountSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnBalanceAccountReset", "清空").SetOnclick("doBalanceAccountReset();").ToMvcString()
+        @Html.JLinkButton("btnBalanceAccountClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

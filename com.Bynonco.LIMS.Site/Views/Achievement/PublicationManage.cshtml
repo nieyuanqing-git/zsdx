@@ -1,0 +1,153 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Achievement/PublicationSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../Achievement/PublicationList")
+</div>
+<div id="divPublicationDialog"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbPublicationList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbPublicationList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    var publicationDialog;
+    function doPublicationDialog() {
+        if (publicationDialog) {
+            publicationDialog.dialog("destroy");
+        }
+        publicationDialog =  @Html.JDialog("divPublicationEdit").SetTitle("出版论著信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("publicationDialog.dialog('destroy');return false;").SetOnClose("publicationDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSavePublication();").ToMvcString();
+    }
+    function doAddOrEditPublication(id){
+        var url = '@Url.Action("PublicationEdit","Achievement")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divPublicationDialog").load(url,function(){
+            $.messager.progress('close');
+            doPublicationDialog();
+        })
+        return false;
+    }
+    function doAddPublication(id) {
+       doAddOrEditPublication(id);
+    }
+    function doEditPublication(id) {
+       if(!id || id.trim()==""){
+           var selectedSubject = $("#tbPublicationList").datagrid("getSelected");
+           if(!selectedSubject || selectedSubject.Id=="" || selectedSubject.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择出版论著", showType: 'show' });
+              return false;
+           }
+           id = selectedSubject.Id;
+       }
+       doAddOrEditPublication(id);
+    }
+    function doSavePublication(){
+        if ($("#PublicationName").val().trim() == "" || !$("#PublicationName").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"请输入论著名称",showType: 'show' });
+            return false;
+        }
+        if ($("#UserName").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入作者姓名",showType: 'show' });
+            return false;
+        }
+
+        if ($("#PublicationRole").combobox("getValue").trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入角色",showType: 'show' });
+            return false;
+        }
+
+        if ($("#AuthorNo").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入作者排序",showType: 'show' });
+            return false;
+        }
+        else {
+
+            var type = "^[0-9]*[1-9][0-9]*$";
+            var re = new RegExp(type);
+            if ($("#AuthorNo").val().match(re) == null) {
+            $.messager.show({ title: '提示', msg:"作者排序格式错误，请输入正确的数字",showType: 'show' });
+                return false;
+            }
+        }
+
+        if ($("#TotalWords").val().trim() == "" || !$("#TotalWords").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"请输入著作总字数",showType: 'show' });
+            return false;
+        }
+        if ($("#MyWords").val().trim() == "" || !$("#MyWords").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"请输入撰写字数",showType: 'show' });
+            return false;
+        }
+        if ($("#PublishingHouse").val().trim() == "" || !$("#PublishingHouse").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"请输入出版单位",showType: 'show' });
+            return false;
+        }
+        if ($("#PublishingNum").val().trim() == "" || !$("#PublishingHouse").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"请输入出版号",showType: 'show' });
+            return false;
+        }
+        if ($("#PublishingTime").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入出版时间",showType: 'show' });
+            return false;
+        }
+        if ($("#Department").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入单位",showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("PublicationSave","Achievement")' ,
+            data: $("#frmPublicationEdit").serialize() + "&attamentFiles=" + generateAttachmentFiles() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                publicationDialog.dialog('destroy');
+                doSearch();
+            }
+        });
+   }
+   function doDeletePublication(id){
+        if(!id || id.trim() == ""){
+              var selectedSubject = $("#tbPublicationList").datagrid("getSelected");
+                if(!selectedSubject || selectedSubject.Id.trim() == "" || selectedSubject.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedSubject.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("PublicationDelete", "Achievement")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function doPublicationExportExcel()
+    {
+        var url='@Url.Action("PublicationExportExcel","Achievement")';
+        window.open(url,'_blank');
+    }
+</script>
+ 

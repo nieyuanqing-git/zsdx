@@ -1,0 +1,19 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    bool isEnableSubmit = (bool)ViewData["IsEnableSave"] && 
+        (Model == null || (Model!=null && com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer().GetIsShowSampleSubmitOpWhenAuditing())); 
+ }
+<div id="divSampleApplyOperate" style="text-align:center">
+     @Html.JLinkButton("btnSubmit", "提交").SetOnclick("doSubmit('Save');return false;").SetIconCls("icon-save").SetVisible(isEnableSubmit).ToMvcString()
+     @Html.JLinkButton("btnAgree", "同意").SetOnclick(string.Format("doAgree('{0}');return false;", Model != null ? Model.Id.ToString() : "")).SetIconCls("icon-ok").SetVisible((bool)ViewData["IsEnableAgree"] && Model != null).ToMvcString()
+     @Html.JLinkButton("btnRefuse", "否决").SetOnclick(string.Format("doRefuse('{0}');return false;", Model != null ? Model.Id.ToString() : "")).SetIconCls("icon-no").SetVisible((bool)ViewData["IsEnableRefuse"] && Model != null).ToMvcString()
+     @Html.JLinkButton("btnAccept", "确认收样").SetOnclick(string.Format("doAccept('{0}');return false;", Model != null ? Model.Id.ToString() : "")).SetIconCls("icon-ok").SetVisible((bool)ViewData["IsEnableAccept"] && Model != null).ToMvcString()
+     @Html.JLinkButton("btnRefuseAccept", "拒绝收样").SetOnclick(string.Format("doRefuseAccept('{0}');return false;", Model != null ? Model.Id.ToString() : "")).SetIconCls("icon-no").SetVisible((bool)ViewData["IsEnableRefuseAccept"] && Model != null).ToMvcString()
+     @Html.JLinkButton("btnCharge", "扣费").SetOnclick(string.Format("doCharge('{0}');return false;", Model != null ? Model.Id.ToString() : "")).SetVisible((bool)ViewData["IsEnableCharge"] && Model != null).SetIconCls("icon-yen").ToMvcString()
+     @Html.JLinkButton("btnPrint", "打印").SetOnclick(string.Format("doPrint();return false;", Model != null ? Model.Id.ToString() : "")).SetIconCls("icon-print").SetDisabled(Model == null).ToMvcString()
+     @Html.JLinkButton("btnBack", "返回").SetOnclick("doBack();return false;").SetIconCls("icon-back").ToMvcString()
+</div>

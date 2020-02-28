@@ -1,0 +1,17 @@
+﻿@model IList<com.Bynonco.LIMS.Model.View.ViewEquipment>
+@using com.Bynonco.LIMS.Utility;
+@{      
+    Layout = "~/Views/Shared/ZJDXHomeLayout/HomeLayout.cshtml";
+    ViewBag.Title = "仪器展示";
+}
+@section MainFull
+{
+    @if(Model != null && Model.Count() > 0)
+    {
+        @Html.Partial("../Equipment/SearchResult",Model)
+    }
+    else
+    {
+        <p>没有查询到相关仪器设备.</p>
+    }
+}

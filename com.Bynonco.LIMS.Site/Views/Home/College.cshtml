@@ -1,0 +1,56 @@
+﻿@using com.Bynonco.LIMS.Utility
+<div class='college-box'>
+    @{
+        IList<com.Bynonco.LIMS.Model.LabOrganization> labOrganizationList = ViewData["SubLabOrganizationList"] == null ? null : (IList<com.Bynonco.LIMS.Model.LabOrganization>)ViewData["SubLabOrganizationList"];
+        var subTitleLength = 24;
+    }
+    @if (labOrganizationList != null && labOrganizationList.Count() > 0)
+    {
+        <ul class="college-list">
+            
+            @for (int i = 0; i < labOrganizationList.Count() && i < 5; i++)
+            {
+                var item = labOrganizationList[i];
+                var name = "".PadLeft((item.XPath.Length - 6) * 2 / 3, '-') + item.Name;
+                var cutName = ShortcutStringUtility.GetSubString(name, subTitleLength, "..");
+                <li><a href="@Url.Action("Index", "Home", new { XPath = item.XPath })" title='@item.Name'>@cutName</a></li>
+            }
+            @if (labOrganizationList.Count() == 6)
+            {
+                var item = labOrganizationList[5];
+                var name = "".PadLeft((item.XPath.Length - 6) * 2 / 3, '-') + item.Name;
+                var cutName = ShortcutStringUtility.GetSubString(name, subTitleLength, "..");
+                <li><a href="@Url.Action("Index", "Home", new { XPath = item.XPath })" title='@item.Name'>@cutName</a></li>
+            }
+            else if (labOrganizationList.Count() > 6)
+            {
+                <li class='more-college'><a href='#' class='more-item'>更多平台<span class='menu-right'></span></a>
+                    <ul class='more-college-box hide'>
+                        @for (int i = 5; i < labOrganizationList.Count(); i++)
+                        {
+                            var item = labOrganizationList[i];
+                            var name = "".PadLeft((item.XPath.Length - 6) * 2 / 3, '-') + item.Name;
+                            var cutName = ShortcutStringUtility.GetSubString(name, subTitleLength, "..");
+                            <li class='@(i == 5 ? "first" : "")'><a href="@Url.Action("Index", "Home", new { XPath = item.XPath })" title='@item.Name'>@cutName</a></li>
+                        }
+                    </ul>
+                </li>
+            }
+        </ul>
+        <script type="text/javascript">
+            $(function () {
+                $(".college-box .college-list li").mouseover(function () {
+                    $(this).siblings().removeClass("current");
+                    $(this).addClass("current");
+                    if ($(this).hasClass("more-college"))
+                        $(this).find(".more-college-box").removeClass("hide");
+                });
+                $(".college-box .college-list li").mouseout(function () {
+                    $(this).removeClass("current")
+                    if ($(this).hasClass("more-college"))
+                        $(this).find(".more-college-box").addClass("hide");
+                });
+            });
+        </script>
+    }
+</div>

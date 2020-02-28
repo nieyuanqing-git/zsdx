@@ -1,0 +1,74 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@{
+    var nmpPrivilige = Model != null ?
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.Id);}
+@Html.Hidden("NMPId", Model == null ? "" : Model.Id.ToString())
+<div>@Html.Partial("DurationChargeStandardList")</div>
+<div id="divDurationChargeStandardDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doAddOrEditDurationChargeStandard() {
+        var id = '@(Model.GetNMP().ChargeStandard != null ? Model.GetNMP().ChargeStandard.Id.ToString() : "")'
+        var url = '@Url.Action("EditDurationChargeStandard","NMP")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divDurationChargeStandardDialog").load(url, function (data) {
+            doNMPDurationChargeStandardDialog();
+        })
+        return false;
+    }
+    var nmpDurationChargeStandardDialog;
+    function doNMPDurationChargeStandardDialog() {
+        if (nmpDurationChargeStandardDialog) {
+            nmpDurationChargeStandardDialog.dialog("destroy");
+        }
+        nmpDurationChargeStandardDialog =  @Html.JDialog("divDurationChargeStandardEdit").SetTitle("分段计费信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("nmpDurationChargeStandardDialog.dialog('close');return false;").SetModal(true).SetOkScript(nmpPrivilige.IsEnableSaveDurationChargeStandard ? "doSaveDurationChargeStandard();return false;" : "").ToMvcString();
+    }
+    function doSaveDurationChargeStandard() {
+        var nmpId= $("#NMPId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveDurationChargeStandard","NMP")',
+            data: $("#frmDurationChargeStandardEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&NMPId=" + nmpId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                nmpDurationChargeStandardDialog.dialog('close');
+                doDurationChargeStandarSearch();
+            }
+        });
+    }
+    function doDeleteDurationChargeStandard(){
+        var nmpId= $("#NMPId").val();
+        var selectedRows = $('#tbNMPDurationChargeStandardList').datagrid("getSelections");
+        var beginTimes = "";
+        if(selectedRows && selectedRows.length > 0){
+            for(var i = 0;i < selectedRows.length;i++){
+                beginTimes += beginTimes == "" ? selectedRows[i].StartTime : "," + selectedRows[i].StartTime;
+            }
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteDurationChargeStandard","NMP")',
+                data:{"date": new Date().getMilliseconds(),"BeginTimes": beginTimes,"NMPId": nmpId},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doDurationChargeStandarSearch();
+                }
+            });
+        }
+    }
+    function doDurationChargeStandarSearch() {
+        $("#tbNMPDurationChargeStandardList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbNMPDurationChargeStandardList").datagrid("reload");
+        return false;
+    }
+</script>

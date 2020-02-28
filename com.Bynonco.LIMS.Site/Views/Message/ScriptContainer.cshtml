@@ -1,0 +1,332 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            doSearch();
+        });
+    });
+    function doSearch() {
+        var queryExpression = "";
+        try
+        {
+            if(typeof(generateQueryExpress) == 'function') queryExpression = generateQueryExpress();
+        }
+        catch(e){}
+        if($(".tabs .tabs-selected"))
+        {
+            var tabId = $(".tabs .tabs-selected").attr("id");
+            var queryMsgType = "";
+            switch(tabId)
+            {
+                case "liRecieverAll":
+                    queryMsgType = "MsgType=-\"" + "@((int)com.Bynonco.LIMS.Model.Enum.MsgType.Draft)" + "\"";
+                    break;
+                case "liUserMsg":
+                    queryMsgType = "MsgType=" + "@((int)com.Bynonco.LIMS.Model.Enum.MsgType.UserMsg)";
+                    break;
+                case "liAppointmentAuditMsg":
+                    queryMsgType = "MsgType=" + "@((int)com.Bynonco.LIMS.Model.Enum.MsgType.AppointmentAudit)";
+                    break;
+                case "liDepositAlert":
+                    queryMsgType = "MsgType=" + "@((int)com.Bynonco.LIMS.Model.Enum.MsgType.DepositAlert)";
+                    break;
+                case "liDeductInform":
+                    queryMsgType = "MsgType=" + "@((int)com.Bynonco.LIMS.Model.Enum.MsgType.DeductInform)";
+                    break;
+                case "liBalanceInform":
+                    queryMsgType = "MsgType=" + "@((int)com.Bynonco.LIMS.Model.Enum.MsgType.BalanceInform)";
+                    break;
+                case "liPunishInform":
+                    queryMsgType = "MsgType=" + "@((int)com.Bynonco.LIMS.Model.Enum.MsgType.PunishInform)";
+                    break;
+                case "liRegisterInform":
+                    queryMsgType = "MsgType=" + "@((int)com.Bynonco.LIMS.Model.Enum.MsgType.RegisterInform)";
+                    break;
+                case "liSampleOutcomeInform":
+                    queryMsgType = "MsgType=" + "@((int)com.Bynonco.LIMS.Model.Enum.MsgType.SampleOutcomeInform)";
+                    break;
+                case "liEquipmentBlackListInform":
+                    queryMsgType = "MsgType=" + "@((int)com.Bynonco.LIMS.Model.Enum.MsgType.EquipmentBlackListInform)";
+                    break;
+            }
+            if (queryMsgType != "")
+                queryExpression += (queryExpression == "" ? "" : "*") + queryMsgType;
+        }
+        $("#tbMessageList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbMessageList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+
+    var viewMessageDialog;
+    function doViewMessageDialog() {
+        if (viewMessageDialog) {
+            viewMessageDialog.dialog("destroy");
+        }
+        viewMessageDialog =  @Html.JDialog("divViewMessage").SetTitle("查看消息").SetIconCls("icon-view").SetAutoDialog(false).SetCancelScript("viewMessageDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewMessageDialog.dialog('close');return false;").ToMvcString();
+    }
+    function doViewReceiveMessage(id,receiveId)
+    {
+        if(!id || id.trim()=="" || !receiveId || receiveId.trim() == ""){
+           var selectedViewMessage = $("#tbMessageList").datagrid("getSelected");
+           if(!selectedViewMessage || selectedViewMessage.Id=="" || selectedViewMessage.Id.isDefaultGuid()) {
+              $.messager.alert('提示', '请选择要查看的消息', 'warning');
+              return false;
+           }
+           id = selectedViewMessage.MessageId;
+           receiveId = selectedViewMessage.Id;
+        }
+        var url = '@Url.Action("MessageView", "Message")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        if(receiveId && receiveId != "") url += "&ReceiveId=" + receiveId;
+        $("#divViewMessageDialog").load(url,function(){
+            doViewMessageDialog();
+            doSearch();
+        })
+        return false;
+    }
+    function doViewSendMessage(id) {
+        if(!id || id.trim()==""){
+           var selectedViewMessage = $("#tbMessageList").datagrid("getSelected");
+           if(!selectedViewMessage || selectedViewMessage.Id=="" || selectedViewMessage.Id.isDefaultGuid()) {
+              $.messager.alert('提示', '请选择要查看的消息', 'warning');
+              return false;
+           }
+           id = selectedViewMessage.Id;
+        }
+        var url = '@Url.Action("MessageView", "Message")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewMessageDialog").load(url,function(){
+            doViewMessageDialog();
+        })
+        return false;
+    }
+
+    function generateSelectedIds() {
+        var rows = $("#tbMessageList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            var ids = [];
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+            return ids.toString();
+        }
+        return null;
+    }
+
+    function doSetReaded(ids){
+        if(ids == null || ids.trim() == "") ids = generateSelectedIds();
+        if (ids == null || ids.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要设置已读的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认设置消息已读?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SetReaded", "Message")',
+                data: { "ids": ids },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '设置消息已读成功', msg: msg, showType: 'show' });
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSetNotReaded(ids){
+        if(ids == null || ids.trim() == "") ids = generateSelectedIds();
+        if (ids == null || ids.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要设置未读的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认设置消息未读?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SetNotReaded", "Message")',
+                data: { "ids": ids },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '设置消息未读成功', msg: msg, showType: 'show' });
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+     function doEditMessage(id) {
+        if(!id || id.trim()==""){
+           var selectedViewMessage = $("#tbMessageList").datagrid("getSelected");
+           if(!selectedViewMessage || selectedViewMessage.Id=="" || selectedViewMessage.Id.isDefaultGuid()) {
+              $.messager.alert('提示', '请选择要编辑的草稿', 'warning');
+              return false;
+           }
+           id = selectedViewMessage.Id;
+        }
+        if(id && id.trim()!="")
+        {
+            var url = '@Url.Action("Edit", "Message")' + "?id=" + id.trim() + "&date=" + new Date().getMilliseconds();
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+    }
+    function doReplyReceiveMessage(id){
+        if(!id || id.trim()==""){
+           var selectedViewMessage = $("#tbMessageList").datagrid("getSelected");
+           if(!selectedViewMessage || selectedViewMessage.Id=="" || selectedViewMessage.Id.isDefaultGuid()) {
+              $.messager.alert('提示', '请选择要回复的消息', 'warning');
+              return false;
+           }
+           id = selectedViewMessage.MessageId;
+        }
+        if(id && id.trim()!="")
+        {
+            var url = '@Url.Action("Reply", "Message")' + "?id=" + id.trim() + "&date=" + new Date().getMilliseconds();
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+    }
+    function doAddMessage() {
+        var url = '@Url.Action("Edit", "Message")' + "?date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+
+    function doBack()
+    {
+        var url = '@Url.Action("Index", "Message")' + "?date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+
+    function doDeleteReceiveMessage(ids)
+    {
+        if(ids == null || ids.trim() == "") ids = generateSelectedIds();
+        if (ids == null || ids.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的收件消息", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认删除选择项?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteReceive", "Message")',
+                data: { "ids": ids },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '删除收件消息成功', msg: msg, showType: 'show' });
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doDeleteSendMessage(ids)
+    {
+        if(ids == null || ids.trim() == "") ids = generateSelectedIds();
+        if (ids == null || ids.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的发件消息", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认删除选择项?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteMessageSend", "Message")',
+                data: { "ids": ids },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '删除发件消息成功', msg: msg, showType: 'show' });
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doDeleteDraftMessage(ids)
+    {
+        if(ids == null || ids.trim() == "") ids = generateSelectedIds();
+        if (ids == null || ids.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的草稿消息", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认删除选择项?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteMessageDraft", "Message")',
+                data: { "ids": ids },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '删除草稿消息成功', msg: msg, showType: 'show' });
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSaveOrSendMessage(isSend) {
+        if ($("#Subject").val().trim() == "") {
+            $.messager.alert('提示', '标题为空', 'warning');
+            return false;
+        }
+        if ($("#tdGrade span input.combo-text.validatebox-text").val().trim() == "") {
+            $.messager.alert('提示', '重要级别为空', 'warning');
+            return false;
+        }
+        var contentHTML = CKEDITOR.instances.ContentHTML.getData();
+        var contentNotHTML = CKEDITOR.instances.ContentHTML.document.getBody().getText();
+        $("#ContentHTML").val(contentHTML);
+        $("#ContentNotHTML").val(contentNotHTML);
+        var url = '@Url.Action("Save", "Message", new { date = DateTime.Now.Millisecond })';
+        var backurl = '@Url.Action("Index", "Message")' + "?TagAction=DraftManage&TagController=Message&date=" + new Date().getMilliseconds();
+        if (isSend == true) {
+            url = '@Url.Action("Send", "Message", new { date = DateTime.Now.Millisecond })';
+            backurl = '@Url.Action("Index", "Message")' + "?TagAction=SendManage&TagController=Message&date=" + new Date().getMilliseconds();
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: url,
+            data: $("#frmMessageEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                ajaxActionLink(backurl, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return true;
+    }
+    function doSaveMessage() {
+        doSaveOrSendMessage(false);
+    }
+    function doSendMessage() {
+        doSaveOrSendMessage(true);
+    }
+</script>
+

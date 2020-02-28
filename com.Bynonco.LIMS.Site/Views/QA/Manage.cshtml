@@ -1,0 +1,122 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../QA/Search")
+    </div>
+</div>
+<div id="divQAList">
+    @Html.Partial("../QA/List")
+</div>
+<div id="divQADialog" style="display:none"></div>
+
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbQAList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbQAList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+    }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbQAList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDeleteQA(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedIds().toString() : ids;
+        if (delIds == null) {
+            $.messager.alert('提示', '请选择要删除的项', 'warning');
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.ajax({
+                url: '@Url.Action("Delete", "QA",new { date=DateTime.Now.Millisecond})',
+                data: { "ids": delIds },
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.alert('提示', msg, 'warning');
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+    var QADialog;
+    function doQADialog(dialogType) {
+        if (QADialog) {
+            QADialog.dialog("destroy");
+        }
+        switch(dialogType)
+        {
+            case "Answer":
+                QADialog = @(Html.JDialog("divQAAnswer").SetTitle("问题回答").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("QADialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveQAAnswer();").ToMvcString());
+                break;
+            case "View":
+                QADialog = @(Html.JDialog("divQAView").SetTitle("查看信息").SetIconCls("icon-save").SetAutoDialog(false).SetShowCancelButton(false).SetModal(true).SetOkScript("QADialog.dialog('close');return false;;").ToMvcString());
+                break;
+            default:
+                alert("请选择操作项");
+         }
+    }
+    function doAnswerOrViewQA(id,dialogType){
+        if(!id || id.trim()==""){
+           id=generateSelectedIds();
+           if (!id||id.length==0)
+           {
+                $.messager.alert('提示', '请选择要操作项', 'warning');
+                return false;
+            }
+            if (id&&id.length>1)
+            {
+                $.messager.alert('提示', '不能多项操作', 'warning');
+                return false;
+            }
+           id =id.toString();
+       }
+        var url = '';
+        switch(dialogType)
+        {
+            case "Answer":
+                url ='@(Url.Action("Answer","QA"))';
+                break;
+            case"View":
+                url ='@(Url.Action("QAView","QA"))';
+                break;
+        }
+        $("#divQADialog").load(url,{id:id,time:new Date().getMilliseconds()},function(){
+            doQADialog(dialogType);
+        })
+        return false;
+    }
+   function doSaveQAAnswer()
+   {
+        if($("#Content").val().trim() == ""){
+             $.messager.alert('提示', '答案为空', 'warning');
+             return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("SaveAnswer","QA",new { date=DateTime.Now.Millisecond})',
+            data: $("#frmQAAnswer").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                QADialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+</script>

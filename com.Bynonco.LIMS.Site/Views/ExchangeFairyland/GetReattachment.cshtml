@@ -1,0 +1,71 @@
+﻿@model IEnumerable<com.Bynonco.LIMS.Model.ExchangeFairylandComment>
+@using com.Bynonco.LIMS.Model;
+@{
+    var isManageLabOrganization = ViewData["IsManageLabOrganization"] == null ? false : bool.Parse(ViewData["IsManageLabOrganization"].ToString());
+    var loginUser = ViewData["LoginUser"] == null ? null : (com.Bynonco.LIMS.Model.User)ViewData["LoginUser"];
+}
+@if (Model != null && Model.Count() > 0)
+{
+    int k=0;
+    foreach (var itemModel in Model)
+    {
+        List<ExchangeFairylandComment> gradationToModeList = new List<ExchangeFairylandComment>();
+        com.Bynonco.LIMS.BLL.BLLFactory.CreateExchangeFairylandCommentBLL().GetReplyedComments(itemModel,
+            ViewBag.reattachmentInOriginalList as List<ExchangeFairylandComment>, gradationToModeList);
+        var itemList = gradationToModeList.OrderBy(p => p.CreateTime);
+        <div class='comment @(k % 2 == 0 ? "" : "alt-row")'>
+            
+            <div class="coment-foot">
+            <ul>
+                <li><img src="@Url.Content("~/" + itemModel.Creator.RelativePic)" class="pic" /></li>
+                <li><strong>@(itemModel.Creator.Name)</strong></li>
+                <li style='color:#ccc;'> ( @(itemModel.CreateTime.ToString("yyyy.MM.dd HH:mm")) )</li>
+                <li class="right">
+                @if(loginUser != null)
+                {
+                    <a href="javascript:void(0);" onclick="showLogin('@(itemModel.id)')" class="fastre">回复</a>
+                }
+                </li>
+                <li class="right">
+                @if (isManageLabOrganization || (loginUser != null && itemModel.CreatorId == loginUser.Id))
+                {
+                    <a onclick="doDeleteReattachment('@Url.Action("DeleteReattachment", "ExchangeFairyland", new { id = itemModel.id })')" href="javascript:void(0);" class="delete">删除</a>
+                }
+                </li>
+            </ul>
+            <div class="clear-both"></div>
+            @if (itemList.Count() > 0)
+            {
+                <div class="quote">
+                    <blockquote>
+                    @{
+                        int i = 0;
+                        foreach (var item in itemList)
+                        {
+                            <div style="padding-left:@(5*i)px; color:#AAA;" class="comment-from">
+                                <span style='color:#aaa;'>@(item.Creator.Name) ( @(item.CreateTime.ToString("yyyy.MM.dd HH:mm")) )</span><br />
+                                @Html.Raw(item.Contents)
+                            </div>
+                            i++;
+                        }
+                    }
+                    </blockquote>
+                </div>
+            }
+            <p style='padding-left:60px;'>@Html.Raw(itemModel.Contents)</p>
+        </div>
+            
+            <span id="v_@(itemModel.id)"></span>
+            <span style='clear:both'></span>
+      </div>
+        k++;
+    }
+}
+
+<script type="text/javascript">
+    $(function(){
+        if (@(Model.Count())<6){
+            $("#showMoreDiv").css("display", "none");
+        }
+    });
+</script>

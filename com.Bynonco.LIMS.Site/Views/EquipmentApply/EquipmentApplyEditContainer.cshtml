@@ -1,0 +1,33 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<style type="text/css">div.tabs-containe{background-color:transparent;}</style>
+@Html.JTab("divEquipmentApply").SetBorder(false).ToMvcString() 
+<div id="divMainContentBox" class="main-content">
+    <div class="layout-center-full">
+        <div class="edit-box">
+           <form id="frmEquipmentApplyEdit">
+                @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())  
+                <div id="divEquipmentApply">
+                    <div title="设备基本信息" id="divEquipmentBasic" style="padding-bottom:10px">
+                        @Html.Partial("../EquipmentApply/EquipmentApplyBasicInfo")
+                    </div>
+                    <div title="设备图标信息" id="divEquipmentIcon">
+                        @Html.Partial("../EquipmentApply/EquipmentApplyIcon")
+                        @Html.Partial("../EquipmentApply/EquipmentApplyIconEdit")
+                    </div>
+                    <div title="设备机组主要人员" id="divEquipmentGroupServer">
+                        @Html.Partial("../EquipmentApply/EquipmentGroupServer")
+                    </div>
+                </div>
+                <div style="display:none" title="开放服务机时统计" id="divEquipmentServiceHoursStat">
+                      @Html.Partial("../EquipmentApply/EquipmentServiceHoursStat")
+                </div>
+           </form>
+           @Html.Partial("../EquipmentApply/EquipmentApplyOperate")
+        </div>
+        <div style="display:none">@Html.Partial("../EquipmentApply/ScriptContainer")</div>
+    </div>
+</div>

@@ -1,0 +1,145 @@
+﻿@model com.Bynonco.LIMS.Model.SJ2
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+.edit-table td {border: 0;}
+.edit-table td.tdInfo {width:30px;}
+.edit-table .icon {
+    height: 16px;
+    line-height: 16px;
+    margin-right: 5px;
+    padding-bottom: 2px;
+    padding-right: 16px;
+    width: 16px;
+}
+</style>
+<div id="divSJ2Edit">
+ <form id="frmSJ2Edit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("SJ2StatisticsId", Model == null ? "" : Model.SJ2StatisticsId.ToString())
+    <table id="tdSJ2Edit" class="edit-table"  style="width:585px;">
+        <tr>
+            <th>学校代码</th>
+            <td>
+                @Html.JValidateBox("SchoolCode").SetValue(Model == null ? (ViewData["SchoolCode"] == null ? "" : ViewData["SchoolCode"].ToString().Trim()) : Model.SchoolCode.Trim()).SetWidth(50).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="学校代码: 数据格式为字符型，长度为5"></span>
+            </td>
+        </tr>
+        <tr>
+            <th colspan='12'>上学年末实有数</th>
+        </tr>
+        <tr>
+            <th rowspan='2'>台件</th>
+            <td rowspan='2'>
+                @Html.JValidateBox("LastYearEquipmentCount").SetValue(Model == null ? "" : Model.LastYearEquipmentCount.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td rowspan='2' class='tdInfo'>
+                <span class="icon icon-info-blue" title="上学年末实有数（台件）：数据格式为数值型，长度为8。上学年末实有仪器设备台件数。"></span>
+            </td>
+            <th rowspan='2'>金额(万元)</th>
+            <td rowspan='2'>
+                @Html.JValidateBox("LastYearEquipmentMoney").SetValue(Model == null ? "" : Model.LastYearEquipmentMoney.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td rowspan='2' class='tdInfo'>
+                <span class="icon icon-info-blue" title="上学年末实有数（金额）：数据格式为数值型，长度为11。上学年末实有仪器设备金额数。"></span>
+            </td>
+            <th colspan='6'>其中10万元(含)以上</th>
+        </tr>
+        <tr>
+            <th>台件</th>
+            <td>
+                @Html.JValidateBox("LastYearEquipmentCount10").SetValue(Model == null ? "" : Model.LastYearEquipmentCount10.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="上学年末实有数中10万元（含）以上（台件）：数据格式为数值型，长度为6。上学年末实有10万元（含）以上仪器设备台件数。"></span>
+            </td>
+            <th>金额(万元)</th>
+            <td>
+                @Html.JValidateBox("LastYearEquipmentMoney10").SetValue(Model == null ? "" : Model.LastYearEquipmentMoney10.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="上学年末实有数中10万元（含）以上（金额）：数据格式为数值型，长度为9。上学年末实有10万元（含）以上仪器设备金额数。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th colspan='6'>本学年增加数</th>
+            <th colspan='6'>本学年减少数</th>
+        </tr>
+        <tr>
+            <th>台件</th>
+            <td>
+                @Html.JValidateBox("EquipmentNewCount").SetValue(Model == null ? "" : Model.EquipmentNewCount.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="本学年增加数（台件）：数据格式为数值型，长度为6。指新购、校外调入、接受捐赠、自制的仪器设备，不包括校内单位之间转入的仪器设备，应为本学年全校实际增加仪器设备台件数。"></span>
+            </td>
+            <th>金额(万元)</th>
+            <td>
+                @Html.JValidateBox("EquipmentNewMoney").SetValue(Model == null ? "" : Model.EquipmentNewMoney.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="本学年增加数（金额）：数据格式为数值型，长度为9。指新购、校外调入、接受捐赠、自制的仪器设备，不包括校内单位之间转入的仪器设备，应为本学年全校实际增加的仪器设备金额数。"></span>
+            </td>
+            <th>台件</th>
+            <td>
+                @Html.JValidateBox("EquipmentReduceCount").SetValue(Model == null ? "" : Model.EquipmentReduceCount.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="本学年减少数（台件）：数据格式为数值型，长度为6。指报废、丢失、退库、捐出、调出校外的仪器设备，不包括校内单位之间转出的仪器设备，应为本学年全校实际减少的仪器设备台件数。"></span>
+            </td>
+            <th>金额(万元)</th>
+            <td>
+                @Html.JValidateBox("EquipmentReduceMoney").SetValue(Model == null ? "" : Model.EquipmentReduceMoney.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="本学年减少数（金额）：数据格式为数值型，长度为9。指报废、丢失、退库、捐出、调出校外的仪器设备，不包括校内单位之间转出的仪器设备，应为本学年全校实际减少的仪器设备金额数。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th colspan='12'>本学年末实有数</th>
+        </tr>
+        <tr>
+            <th rowspan='2'>台件</th>
+            <td rowspan='2'>
+                @Html.JValidateBox("EquipmentTotalCount").SetValue(Model == null ? "" : Model.EquipmentTotalCount.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td rowspan='2' class='tdInfo'>
+                <span class="icon icon-info-blue" title="本学年末实有数（台件）：数据格式为数值型，长度为8。本学年末仪器设备实有台件数。"></span>
+            </td>
+            <th rowspan='2'>金额(万元)</th>
+            <td rowspan='2'>
+                @Html.JValidateBox("EquipmentTotalMoney").SetValue(Model == null ? "" : Model.EquipmentTotalMoney.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td rowspan='2' class='tdInfo'>
+                <span class="icon icon-info-blue" title="本学年末实有数（金额）：数据格式为数值型，长度为11。 本学年末仪器设备实有金额数。"></span>
+            </td>
+            <th colspan='6'>其中10万元(含)以上</th>
+        </tr>
+        <tr>
+            <th>台件</th>
+            <td>
+                @Html.JValidateBox("EquipmentTotalCount10").SetValue(Model == null ? "" : Model.EquipmentTotalCount10.Trim()).SetWidth(60).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="学年末实有数中10万元（含）以上（台件）：数据格式为数值型，长度为6。"></span>
+            </td>
+            <th>金额(万元)</th>
+            <td>
+                @Html.JValidateBox("EquipmentTotalMoney10").SetValue(Model == null ? "" : Model.EquipmentTotalMoney10.Trim()).SetWidth(80).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="本学年末实有数中10万元（含）以上（金额）：数据格式为数值型，长度为9。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th rowspan='2'>备注：</th>
+            <td colspan='11'>上学年末实有数 + 本学年增加数 - 本学年减少数 = 本学年末实有数</td>
+        </tr>
+        <tr>
+            <td colspan='11'>金额以万元为单位，保留两位小数。</td>
+        
+        </tr>
+    </table>
+  </form>
+</div> 

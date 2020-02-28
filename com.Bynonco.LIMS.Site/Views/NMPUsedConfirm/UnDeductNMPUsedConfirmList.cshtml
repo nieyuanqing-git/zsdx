@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var nmpUsedConfirmPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPUsedConfirmPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbUnDedcutViewNMPUsedConfirmList")
+    .SetUrl(Url.Action("GetGridUnDedcutViewNMPUsedConfirmList", "NMPUsedConfirm", new { userId = ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "" }))
+    .SetHeight(550)
+    .SetPageSize(10)
+    .SetSortName("BeginAt")
+    .SetSortOrder(SortOrder.desc)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(52).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "NMPEquipmentNameStr").SetWidth(350).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("放置地点", "LabRoomName").SetWidth(150).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用者", "UserName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "TutorName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "BeginAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("时长(分钟)", "Duration").SetWidth(70).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("登记者", "CreaterNameStr").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "PhoneNumber").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("工位名称", "NMPName").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("课题组", "SubjectName").SetWidth(300).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SubjectProjectName").SetWidth(300).SetAlign(Align.left))
+    .SetShowDeleteButton(nmpUsedConfirmPrivilige.IsEnableDeleteNMPUsedConfirm)
+    .SetDeleteScript("doBatchDeleteNMPUsedConfirm('tbUnDedcutViewNMPUsedConfirmList');")
+    .SetShowAddButton(nmpUsedConfirmPrivilige.IsEnableAddNMPUsedConfirm && ViewData["UserId"] == null)//个人中心不显示新增按钮
+    .SetAddScript("doEditNMPUsedConfirm('');")
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+    if (nmpUsedConfirmPrivilige.IsEnableExportUnDeductNMPUsedConfirmList)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportUnDeductNMPUsedConfirmList();", IconCls = "icon-export", Id = "btnExportUnDeductNMPUsedConfirmList", Text = "导出" });
+    }
+}
+@(dataGrid.ToMvcString()) 

@@ -1,0 +1,78 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@{
+    var dataGrid = Html.JDataGrid("tbSampleApplyList")
+     .SetUrl(Url.Action("GetGridPersonalViewSampleApplyList","SampleManage", new { time = DateTime.Now.Millisecond.ToString() }))
+     .SetHeight(570)
+     .SetPageSize(10)
+     .SetSortName("OperateDate")
+     .SetSortOrder(SortOrder.desc)
+     .SetShowSearchButton(true)
+     .SetSearchScript("doShowSearch()");
+    dataGrid.SetShowAddButton(true);
+    dataGrid.SetAddScript("doAdd();");
+    dataGrid.SetShowPrintButton(false);
+    dataGrid.SetShowRefreshButton(false);
+    dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchCancel();", IconCls = "icon-undo", Id = "btnBatchCancel", Text = "撤销" });
+    if ((bool)ViewData["IsTurtor"])
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler =string.Format( "doBatchTutorAuditPass('{0}');", ViewData["LoginUserId"].ToString()), IconCls = "icon-ok", Id = "btnBatchTutorAuditPass", Text = "同意" });
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler = string.Format("doBatchTutorAuditNotPass('{0}');", ViewData["LoginUserId"].ToString()), IconCls = "icon-remove", Id = "btnBatchTutorAuditNotPass", Text = "否决" });
+    }
+    
+    dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doSearch();", IconCls = "icon-reload", Id = "btnRefreshNew", Text = "刷新" });
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusName").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "Status").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "ApplicantIcon").SetWidth(50).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("送样单号", "SampleNoStr").SetWidth(252).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("序号", "RowNo").SetWidth(30).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请人", "ApplicantNameStr").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SampleItemName").SetWidth(170).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("样品数", "Quatity").SetWidth(40).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实际<br />完成样品数", "RealQuatityStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实际<br />检测机时", "DurationStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("收费情况", "ChargeStatusStr").SetWidth(80).SetAlign(Align.center));
+    if ((bool)ViewData["IsSampleApplyNeedTutorAudit"])
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师审核情况", "TutorAuditStr").SetWidth(80).SetAlign(Align.center));
+    }
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注信息", "Remark").SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentName").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "ApplyDateStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("价格", "Price").SetWidth(50).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扣费金额", "Fee").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("取件方式", "GetResultWayName").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("完成时间", "FinishDateStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("来样状态", "SmapleStatusName").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("其他", "SampleStatusReamrk").SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预计完成时间", "PredictResultTimeStr").SetWidth(120).SetAlign(Align.center));
+    if ((bool)ViewData["IsNeedConfirmAcceptSample"])
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("确认收样人", "AccepterName").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("确认收样时间", "AcceptDateStr").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("拒绝收样人", "RefuseAcceptOperaterName").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("拒绝收样时间", "RefuseAcceptDateStr").SetWidth(120).SetAlign(Align.center));
+       
+    }
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("登记人", "RegisterName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("登记时间", "RegisterTimeStr").SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("分析人", "AnalisyserName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("分析时间", "AnalisysTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("分析备注", "AnalisysRemark").SetWidth(250).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发布人", "ReleaserName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发布时间", "ReleaseTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发布备注", "ReleaseTimeRemark").SetWidth(250).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("质疑人", "DoubterName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("质疑时间", "DoubtTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("质疑备注", "DoubtRemark").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("质疑审核人", "DoubtAuditorName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("质疑审核时间", "DoubtAuditTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("质疑审核备注", "DoubtAuditRemark").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("课题组", "SubjectName").SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SubjectProjectName").SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核备注", "AuditingNoPassWhy").SetWidth(300).SetAlign(Align.left));
+ }
+
+@(dataGrid.ToMvcString())

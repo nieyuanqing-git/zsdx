@@ -1,0 +1,25 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JDataGrid("tbEquipmentList")
+    .SetUrl(Url.Action("GetViewEquipmentListWidthoutIniOperate", "Equipment"))
+    .AddQueryParam("QueryExpression",ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString())
+    .SetPagination(false)
+    .SetSortName("CategoryXPath A,Name")
+    .SetSingleSelect(true)
+    .SetMutiSelect(false)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "IconNickName").SetSortable(false).SetWidth(45).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器名称", "NameNickName").SetWidth(150).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("厂家", "Factory").SetWidth(90).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("放置地点", "RoomName").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系人", "LinkUserName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "LinkTelNo").SetWidth(100).SetAlign(Align.center))
+    .SetShowSearchButton(false)
+    .SetShowAddButton(false)
+    .SetShowEditButton(false)
+    .SetShowRefreshButton(false)
+    .SetShowPrintButton(false)
+    .SetOnDblClickRow("doShowDetailInfo(rowData.Id);");
+}
+@(dataGrid.ToMvcString()) 

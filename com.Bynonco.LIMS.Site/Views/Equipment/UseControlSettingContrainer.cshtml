@@ -1,0 +1,12 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@{
+    Layout = ViewBag.Layout;
+    var isPop = ViewData["IsPop"] == null ? false : bool.Parse(ViewData["IsPop"].ToString());
+}
+<div >
+<div class='@(isPop ? "" : "layout-center-full")' id='divUseControlSetting'>
+    <div class="edit-box">
+        @Html.Partial("UseControlSetting")
+        @Html.Partial("UseControlSettingOperate")
+    </div>
+</div>

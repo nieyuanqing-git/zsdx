@@ -1,0 +1,176 @@
+﻿<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        var userId = '@(ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString())';
+        $("#tbUserEquipmentList").datagrid('loadData', { total: 0, rows: [] });
+        if (userId != "")
+            $("#tbUserEquipmentList").datagrid("load", { "queryExpression": queryExpression.trim(),"UserId": userId });
+        else
+            $("#tbUserEquipmentList").datagrid("load", { "queryExpression": queryExpression.trim()});
+    }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbUserEquipmentList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDelete(ids) {
+        var deleteIds = !ids || ids.trim() == "" ? generateSelectedIds().toString() : ids;
+        if (deleteIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确定删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                url: '@Url.Action("Delete", "UserEquipment", new { date = DateTime.Now.Millisecond })',
+                data: { "ids": deleteIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+    }
+    function doAuditPass(ids) {
+        var auditIds = !ids || ids.trim() == "" ? generateSelectedIds().toString() : ids;
+        if (auditIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要审核通过的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确定审核通过?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                url: '@Url.Action("Pass", "UserEquipment", new { date = DateTime.Now.Millisecond })',
+                data: { "ids": auditIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+    }
+    function doAuditReject(ids) {
+        var auditIds = !ids || ids.trim() == "" ? generateSelectedIds().toString() : ids;
+        if (auditIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要审核不通过的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确定审核不通过?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                url: '@Url.Action("Reject", "UserEquipment", new { date = DateTime.Now.Millisecond })',
+                data: { "ids": auditIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function onEquipmentTipped() {
+        var rows = $("#tbUserEquipmentList").datagrid("getRows");
+        if (!rows || rows.length == 0) return;
+        for (var i = 0; i < rows.length; i++) {
+            var elements = $("tr.datagrid-row[datagrid-row-index=" + i.toString() + "] td[field=EquipmentName] div.datagrid-cell");
+            Tipped.create(elements, '@Url.Action("Tip","Equipment")' + "?time" + new Date().getMilliseconds(), { ajax: { cache: true, data: { id: rows[i].EquipmentId }, type: 'get' }, skin: 'light', hook: 'topleft', offset: { x: 100, y: -5} });
+
+            var elementsUser = $("tr.datagrid-row[datagrid-row-index=" + i.toString() + "] td[field=UserNameStr] div.datagrid-cell");
+            Tipped.create(elementsUser, '@Url.Action("Tip","User")' + "?time" + new Date().getMilliseconds(), { ajax: { cache: true, data: { id: rows[i].UserId }, type: 'get' }, skin: 'light', hook: 'topleft', offset: { x: 100, y: -5} });
+        }
+    }
+
+    function doAddUserEquipment() {
+        var userId = '@(ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString())';
+        if (userId == "") {
+            doShowSearchXPanel();
+        }
+        else {
+            var userTypeId = getUserTypeId();
+            if (userTypeId == "") return;
+            var tutorId = getTutorId();
+            var selectEquipmentMode = $("#SelectEquipmentMode").val();
+            doSelectEquipmentDialog('EquipmentIds', { "UserTypeId": userTypeId, "TutorId": tutorId, "SelectEquipmentMode": selectEquipmentMode });
+        }
+    }
+    function doResetAddPanel() {
+        $("#TutorId").val("");
+        $("#TutorName").val("");
+        $("#UserTypeId").combotree("setValue", "");
+        $("#EquipmentIds").val("");
+    }
+    function doCloseAddPanel() {
+        $(".z-panel-grid").addClass("hide");
+    }
+
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+        $("#EquipmentIds").val(selectedEquipmentIds);
+        var userId = $("#UserId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save", "UserEquipment")',
+            data: "EquipmentIds=" + selectedEquipmentIds + "&UserId=" + userId + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '新增成功', msg: "保存成功", showType: 'show' });
+                $("#EquipmentIds").val(msg);
+                doSearch();
+            }
+        });
+    }
+    function doOnUserChange() {
+        var userId = $("#UserId").val();
+        if (userId == "") {
+            $("#TutorId").val("");
+            $("#TutorName").val("");
+            $("#UserTypeId").combotree("setValue", "");
+            $("#EquipmentIds").val("");
+        }
+        else {
+            var url = '@Url.Action("GetUserJsonById", "User", new { date = DateTime.Now.Millisecond })';
+            $.post(url, { "UserId": userId }, function (data) {
+                if (data == null || data == "") return;
+                if (data.length < 1) return;
+                $("#TutorId").val(data[0].TutorId == null ? "" : data[0].TutorId);
+                $("#TutorName").val(data[0].TutorName == null ? "" : data[0].TutorName)
+                $("#UserTypeId").combotree("setValue", data[0].UserTypeId == null ? "" : data[0].UserTypeId);
+                $("#EquipmentIds").val(data[0].EquipmentIds);
+            }, 'json');
+        }
+    }
+    function getUserTypeId() {
+        var userTypeId = $("#UserTypeId").combotree("getValue").trim();
+        if (userTypeId == "" || userTypeId.isDefaultGuid()) {
+            $.messager.show({ title: '警告', msg: '请选择用户身份', showType: 'show' });
+        }
+        return userTypeId;
+    }
+    function getTutorId() {
+        return $("#TutorId").val().trim();
+    }
+</script>

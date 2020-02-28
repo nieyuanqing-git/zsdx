@@ -1,0 +1,13 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSubject   
+@using com.Bynonco.JqueryEasyUI.Core;  
+@Html.Hidden("SubjectId", Model == null ? "" : Model.Id.ToString())
+@Html.JTab("divUserSubjectsRelevantContainer").SetBorder(false).ToMvcString()  
+<div style="border: 1px solid #CCCCCC;;padding:5px">@Html.Partial("SimpleBasicInfo")</div>
+<div style="background-color: #ECEDF1;padding-top:10px;">
+    <div id="divUserSubjectsRelevantContainer">
+        <div title="课题组成员">
+            @Html.Partial("MyExperimenterSubjectList")
+            @Html.Partial("ExperimenterSubjectScriptContainer")
+        </div>
+    </div>
+</div>

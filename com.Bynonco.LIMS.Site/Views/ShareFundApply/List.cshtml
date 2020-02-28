@@ -1,0 +1,48 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var shareFundApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetShareFundApplyPrivilige(User.Identity.Name);    
+    var dataGrid = Html.JDataGrid("tbShareFundApplyList")
+       .SetUrl(Url.Action("GetGridViewShareFundApplyList", "ShareFundApply"))
+       .SetHeight(650)
+       .SetSortName("StartTime")
+       .SetPageSize(10)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    if (shareFundApplyPrivilige.IsEnableAdd)
+    {
+       dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = string.Format("doAddShareFundApply('');"), IconCls = "icon-add", Id = "btnAddShareFundApply", Text = "申请" });
+       //dataGrid.SetAddScript("doAddShareFundApply('');");
+    }
+    dataGrid.SetShowExpertButton(shareFundApplyPrivilige.IsEnableExportExcel);
+    if (shareFundApplyPrivilige.IsEnableExportExcel)
+    {
+        dataGrid.SetExpertScript("doExportExcel();");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("头像", "Icon").SetWidth(45).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "ProjectNameStr").SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请人", "ApplyUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "PhoneNumber").SetWidth(85).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("负责人", "AdminUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请设备机时", "ItemDetail").SetWidth(250).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目类别", "ProjectType").SetWidth(80).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "StartTimeStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndTimeStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请基金比例", "ApplyProportion").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("批准基金比例", "AuditProportion").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreaterName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "AuditUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核时间", "AuditTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请理由", "Reason").SetWidth(300).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

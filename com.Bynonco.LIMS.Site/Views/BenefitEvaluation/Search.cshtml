@@ -1,0 +1,59 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core
+<script type="text/javascript">
+    function generateEvaluationTableQueryExpress() {
+        var queryExpression = "EquipmentLabel=-null";
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += "*EquipmentName∽\"" + equipmentName + "\"";
+        }
+        var organizationName = $("#SearchOrganizationName").val().trim();
+        if (organizationName != "") {
+            queryExpression += "*OrganizationName∽\"" + organizationName + "\"";
+        }
+        var year = $("#SearchYear").val().trim();
+        if (year != "") {
+            queryExpression += "*EvaluationYear=\"" + year + "\"";
+        }
+        var status = $("#SearchAuditStatus").combobox('getValue');
+        if (status == "-1") {
+            queryExpression += "*AuditStatus=\"NULL\"";
+        } else {
+            queryExpression += "*AuditStatus=\"" + status + "\"";
+        }
+        return queryExpression;
+    }
+    function doEvaluationTableReset() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchOrganizationName").val("");
+        $("#SearchYear").val("");
+        $("#SearchAuditStatus").combobox("clear");
+        return false;
+    }
+</script>
+
+<ul class="search">
+    <li>
+        <label>仪器设备</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>单位</label>
+        @Html.JValidateBox("SearchOrganizationName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>年份</label>
+        @Html.JValidateBox("SearchYear").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>状态</label>
+        @Html.JComboBox("SearchAuditStatus").SetData(ViewData["AuditStatusJson"]).SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEvaluationTableSearch", "查询").SetOnclick("doEvaluationTableSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnEvaluationTableReset", "清空").SetOnclick("doEvaluationTableReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnEvaluationTableClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

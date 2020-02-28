@@ -1,0 +1,119 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimalAppointment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var applicant = (com.Bynonco.LIMS.Model.User)ViewData["Applicant"];
+ }
+@Html.Partial("../AnimalAppointment/AppointmentScriptContainer")
+<div id="divSelfAnimalAppointmentEdit"> 
+<form id="frmSelfAnimalAppointmentEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "" : Model.Id.ToString())
+    <table id="tbDelegateAnimalAppointmentEdit" class="edit-table">
+        <tr id="trEthicsAmount" style="display:none">
+            <th colspan="5">
+                <span id="spanEthicsAmount"></span>
+            </th>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>申请人</th>
+            <td>
+                 @(Model == null ? applicant.UserName : Model.ApplicantName)
+                 @Html.Hidden("ApplicantId", Model == null ? applicant.Id : Model.ApplicantId)
+            </td>
+            <th><span class="required">*</span>联系电话</th>
+            <td>
+                @Html.JValidateBox("ApplicantLinkTelNo").SetValue(Model == null ? applicant.PhoneNumber : Model.ApplicantLinkTelNo).SetWidth(230).SetValidateType(ValidateType.none).ToMvcString()
+            </td>
+        </tr>
+        @if (applicant.TutorId.HasValue)
+        {
+            <tr>
+                <th><span class="required">*</span>实验项目负责人</th>
+                <td>
+                     @(Model != null ? Model.SubjectDirectorName : applicant.Tutor.Name)
+                     @Html.Hidden("SubjectDirectorId", Model == null ? applicant.TutorId.Value : Model.SubjectDirectorId)
+                </td>
+                <th><span class="required">*</span>联系电话</th>
+                <td>
+                    @Html.JValidateBox("SubjectDictorLinkTelNo").SetValue(Model == null ? applicant.Tutor.PhoneNumber : Model.SubjectDictorLinkTelNo).SetWidth(230).SetValidateType(ValidateType.none).ToMvcString()
+                </td>
+            </tr>
+        }
+        <tr style="display:none;">
+            <th><span class="required">*</span>申请日期</th>
+            <td>
+                @Html.JDateTimePicker("ApplyTime").SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.ApplyTime.ToString("yyyy-MM-dd")).SetWidth(235).ToMvcString()
+            </td>
+        </tr>
+        <tr style="display:none">
+            <th><span class="required">*</span>课题组</th>
+            <td>
+                @Html.Hidden("SubjectId", Model == null ? "" : Model.SubjectId.Value.ToString())
+                <span id="spanSubjectName">@(Model != null ? Model.SubjectName : "")</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>伦理编号</th>
+            <td>
+                @Html.JComboBox("EthicsNo").SetData(ViewData["EthicsNoJson"]).SetOnChange(string.Format("doOnEthicsChange(newValue,oldValue,'{0}','AnimalCategoryId','SubjectProjectId','spanSubjectName','SubjectId');", Model != null ? Model.AnimalCategoryId : Guid.Empty)).SetWidth(235).ToMvcString()
+            </td>
+            <th><span class="required">*</span>@(ViewData["ProjectShowName"].ToString())</th>
+            <td>
+                @Html.JComboBox("SubjectProjectId").SetDisabled(true).SetWidth(235).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            
+            <th><span class="required">*</span>入室时间</th>
+            <td>@Html.JDateTimePicker("AnimalEnterTime").SetValue(Model == null || !Model.AnimalEnterTime.HasValue ? DateTime.Now.AddDays(30).ToString("yyyy-MM-dd") : Model.AnimalEnterTime.Value.ToString("yyyy-MM-dd")).SetWidth(235).ToMvcString()</td>
+            <th><span class="required">*</span>动物来源</th>
+            <td>
+                @Html.JComboBox("AnimalSourceId").SetData(ViewData["AnimalSourceJson"]).SetWidth(235).ToMvcString()
+                <span>可手工输入</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>动物品系</th>
+            <td>
+                @Html.JComboBox("AnimalCategoryId").SetOnChange(string.Format("doOnAnimalCategoryChanged(newValue,oldValue,'{0}','spanEthicsAmount','trEthicsAmount','EthicsNo','AnimalSourceId','spanAnimalSourceName','AnimalSpecifications','spanAnimalSpecifications');", Model != null ? Model.Id : Guid.Empty)).SetWidth(235).ToMvcString()
+            </td>
+            <th><span class="required">*</span>性别</th>
+            <td>
+                @Html.JComboBox("Sex").SetData(ViewData["SexJson"]).SetOnLoadSuccess(string.Format("doOnSexLoadSuccess('MaleQuatity','{0}','FemaleQuatity','{1}');", Model != null ? Model.MaleQuatity.ToString() : "", Model != null ? Model.FemaleQuatity.ToString() : "")).SetOnChange("doOnSexChange(newValue,oldValue,'Quantity','MaleQuatity','FemaleQuatity');").SetWidth(235).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>体重/日龄</th>
+            <td>
+                @Html.Hidden("AnimalSpecifications",Model != null ? Model.AnimalSpecifications : "")
+                <span id="spanAnimalSpecifications">@(Model != null ? Model.AnimalSpecifications : "")</span>
+            </td>
+            <th><span class="required">*</span>数量</th>
+            <td>
+                @Html.JValidateBox("Quantity").SetValue(Model == null ? "" : Model.Quantity.ToString()).SetWidth(230).SetValidateType(ValidateType.none).SetOnChange("doCalAnimalAmount('Quantity','Quantity','MaleQuatity','FemaleQuatity');").ToMvcString()
+            </td>
+        </tr>
+        <tr class="animalAmount">
+            <th><span class="required">*</span>♂数量</th>
+            <td>
+                @Html.JValidateBox("MaleQuatity").SetValue(Model == null ? "" : Model.MaleQuatity.ToString()).SetWidth(230).SetValidateType(ValidateType.none).SetOnChange("doCalAnimalAmount('MaleQuatity','Quantity','MaleQuatity','FemaleQuatity');").ToMvcString()
+            </td>
+            <th><span class="required">*</span>♀数量</th>
+            <td>
+                @Html.JValidateBox("FemaleQuatity").SetValue(Model == null ? "" : Model.FemaleQuatity.ToString()).SetWidth(230).SetValidateType(ValidateType.none).SetOnChange("doCalAnimalAmount('FemaleQuatity','Quantity','MaleQuatity','FemaleQuatity');").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>实验动物用途</th>
+            <td colspan="3">
+                @Html.TextArea("AnimaUse", Model == null ? "" : Model.AnimaUse, new { style = "width:560px;height:50px;" })
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>本次使用实验动<br />物的实验场所及<br />实验周期</th>
+            <td colspan="3">
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:560px;height:50px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>

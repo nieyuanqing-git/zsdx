@@ -1,0 +1,40 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL;
+@{
+    var equipmentRepairFundsApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentRepairFundsApplyPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEquipmentRepairFundsApplyCollegeAuditList")
+    .SetUrl(Url.Action("GetGridViewEquipmentRepairFundsApplyList", "EquipmentRepairFundsApply", new { equipmentRepairFundsApplyRole = ((int)EquipmentRepairFundsApplyRole.CollegeAuditor).ToString() }))
+    .SetHeight(550)
+    .SetPageSize(10)
+    .SetMutiSelect(true)
+    .SetSortName("ApplyTime")
+    .SetSortOrder(SortOrder.desc)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "Status").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "EquipmentIcon").SetWidth(50).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "NameStr").SetWidth(280).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在单位", "OrganiztionName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在实验室", "RoomName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请人", "ApplicantName").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "ApplyTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用范围", "ApplyTypeName").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备编号", "EquipmetLabel").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备原值", "EquipmentPrice").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("经费总额(元)", "RepairTotalFeeStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请资助经费（元）", "ApplyFeeStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("自筹经费（元）", "SelfFeeStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验室审核人", "LabRoomAuditorName").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验室审核时间", "LabRoomAuditTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验室审核备注", "LabRoomAuditRemark").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验中心审核人", "CollegeAuditorName").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验中心审核时间", "CollegeAuditTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验中心审核备注", "CollegeAuditRemark").SetWidth(120).SetAlign(Align.center))
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+     if (equipmentRepairFundsApplyPrivilige.IsEnableCollegeAudit)
+     {
+         dataGrid.AddToolBarButton(new ToolBarButton() { Handler = string.Format("doEquipmentRepairFundsApplyApplyBatchAudit('{0}');return false;", ((int)EquipmentRepairFundsApplyRole.CollegeAuditor)), IconCls = "icon-pass", Id = "btnEquipmentRepairFundsApplyBatchAudit", Text = "审核" });
+     };
+}
+@(dataGrid.ToMvcString()) 

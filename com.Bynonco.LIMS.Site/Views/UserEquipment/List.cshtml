@@ -1,0 +1,52 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var userId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString().Trim();
+    var userEquipmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserEquipmentPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbUserEquipmentList")
+    .SetUrl(Url.Action("GetGridViewUserEquipmentList", "UserEquipment"))
+    .SetHeight(550)
+    .SetSortName("Status")
+    .SetPageSize(10)
+    .SetMutiSelect(true)
+    .SetShowPrintButton(false)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .SetOnLoadSuccess("onEquipmentTipped();");
+    if(userId != "")
+    {
+        dataGrid.AddQueryParam("UserId", userId);
+    }
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.SetShowRefreshButton(false);
+    if (userEquipmentPrivilige != null)
+    {
+        if (userEquipmentPrivilige.IsEnableAdd)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAddUserEquipment();", IconCls = "icon-add", Id = "btnGridSearchXPanel", Text = "新增" });
+        }
+        if (userEquipmentPrivilige.IsEnableDelete)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDelete();", IconCls = "icon-delete", Id = "btndelete", Text = "删除" });
+        }
+    
+        if (userEquipmentPrivilige.IsEnablePass)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAuditPass();", IconCls = "icon-ok", Id = "btnAuditPass", Text = "审核通过" });
+        }
+        if (userEquipmentPrivilige.IsEnableReject)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAuditReject();", IconCls = "icon-reject", Id = "btnAuditReject", Text = "审核不通过" });
+        }
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearch();", IconCls = "icon-reload", Id = "btnSearch", Text = "刷新" });
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户编码", "UserId").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(45).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("姓名", "UserNameStr").SetWidth(220).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备编码", "EquipmentId").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备", "EquipmentName").SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusNickName").SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "CreateTimeStr").SetWidth(120).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

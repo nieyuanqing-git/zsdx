@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Guid? equipmentAdminId = null;
+    if (ViewData["EquipmentAdminId"] != null)
+    {
+        equipmentAdminId = new Guid(ViewData["EquipmentAdminId"].ToString());
+    }
+    Guid? subjectId = null;
+    if (ViewData["SubjectId"] != null)
+    {
+        subjectId = new Guid(ViewData["SubjectId"].ToString());
+    }
+    var dataGrid = Html.JDataGrid("tbEquipmentTrainningList")
+        .SetUrl(Url.Action("GetGridViewEquipmentTrainningList", "EquipmentTrainning", new { SubjectId = subjectId, EquipmentAdminId = equipmentAdminId }))
+        .SetHeight(560)
+        .SetSortName("CreateTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowPrintButton(false)
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(45).SetAlign(Align.center).SetSortable(false))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请人", "CreatorNameStr").SetWidth(100).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请设备", "EquipmentName").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "CreateTimeStr").SetWidth(130).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("当前状态", "StatusStr").SetWidth(120).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("登记人", "RegisterName").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("登记时间", "RegisterTimeStr").SetWidth(130).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(800).SetAlign(Align.left));
+    }
+@(dataGrid.ToMvcString())

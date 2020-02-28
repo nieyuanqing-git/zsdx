@@ -1,0 +1,22 @@
+﻿@model com.Bynonco.LIMS.Model.Semester
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divSemesterEdit">
+ <form id="frmSemesterEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdSemesterEdit" class="edit-table"  style="width:385px;">
+        <tr>
+            <th>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否停用</th>
+            <td>
+                @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

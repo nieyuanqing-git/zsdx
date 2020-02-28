@@ -1,0 +1,71 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@{var equipmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.Id);}
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+<div>@Html.Partial("DurationChargeStandardList")</div>
+<div id="divDurationChargeStandardDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doAddOrEditDurationChargeStandard() {
+        var id = '@(Model.Equipment.ChargeStandard != null ? Model.Equipment.ChargeStandard.Id.ToString() : "")'
+        var url = '@Url.Action("EditDurationChargeStandard","Equipment")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divDurationChargeStandardDialog").load(url, function (data) {
+            doEquipmentDurationChargeStandardDialog();
+        })
+        return false;
+    }
+    var equipmentDurationChargeStandardDialog;
+    function doEquipmentDurationChargeStandardDialog() {
+        if (equipmentDurationChargeStandardDialog) {
+            equipmentDurationChargeStandardDialog.dialog("destroy");
+        }
+        equipmentDurationChargeStandardDialog =  @Html.JDialog("divDurationChargeStandardEdit").SetTitle("分段计费信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentDurationChargeStandardDialog.dialog('close');return false;").SetModal(true).SetOkScript(equipmentPrivilige.IsEnableSaveDurationChargeStandard ? "doSaveDurationChargeStandard();return false;" : "").ToMvcString();
+    }
+    function doSaveDurationChargeStandard() {
+        var equipmentId= $("#EquipmentId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveDurationChargeStandard","Equipment")',
+            data: $("#frmDurationChargeStandardEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentDurationChargeStandardDialog.dialog('close');
+                doDurationChargeStandarSearch();
+            }
+        });
+    }
+    function doDeleteDurationChargeStandard(){
+        var equipmentId= $("#EquipmentId").val();
+        var selectedRows = $('#tbEquipmentDurationChargeStandardList').datagrid("getSelections");
+        var beginTimes = "";
+        if(selectedRows && selectedRows.length > 0){
+            for(var i = 0;i < selectedRows.length;i++){
+                beginTimes += beginTimes == "" ? selectedRows[i].StartTime : "," + selectedRows[i].StartTime;
+            }
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteDurationChargeStandard","Equipment")',
+                data:{"date": new Date().getMilliseconds(),"BeginTimes": beginTimes,"EquipmentId": equipmentId},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doDurationChargeStandarSearch();
+                }
+            });
+        }
+    }
+    function doDurationChargeStandarSearch() {
+        $("#tbEquipmentDurationChargeStandardList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentDurationChargeStandardList").datagrid("reload");
+        return false;
+    }
+</script>

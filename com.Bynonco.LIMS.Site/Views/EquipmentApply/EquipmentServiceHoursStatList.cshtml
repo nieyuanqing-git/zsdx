@@ -1,0 +1,27 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL;
+@{
+    var equipmentApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentApplyPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEquipmentServiceHoursStatList")
+    .AddQueryParam("equipmentApplyId", Model != null ? Model.Id.ToString() : "")
+    .SetUrl(Url.Action("GetEquipmentServiceHoursStatList", "EquipmentApply"))
+    .SetWidth(633)
+    .SetHeight(350)
+    .SetPageSize(10)
+    .SetSortName("Year")
+    .SetSortOrder(SortOrder.desc)
+    .SetPagination(false)
+    .SetShowAddButton(true)
+    .SetShowAddButton(equipmentApplyPrivilige.IsEnableAddEquipmentServiceHoursStat)
+    .SetAddScript("doAddEquipmentServiceHoursStat();")
+    .SetDeleteScript("doDeleteEquipmentServiceHoursStat();")
+    .SetShowDeleteButton(equipmentApplyPrivilige.IsEnableDeleteEquipmentServiceHoursStat);
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+   .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "EquipmentServiceHoursStatType").SetHidden(true))
+   .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetSortable(false).SetWidth(50).SetAlign(Align.center))
+   .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("年份", "Year").SetWidth(80).SetSortable(false).SetAlign(Align.center))
+   .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "EquipmentServiceHoursStatTypeStr").SetSortable(false).SetWidth(163).SetAlign(Align.center))
+   .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("机时（单位:小时）", "Hours").SetSortable(false).SetWidth(280).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString()) 

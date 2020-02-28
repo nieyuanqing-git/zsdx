@@ -1,0 +1,113 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSemesterDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearchSemester() {
+        var queryExpression = "";
+        if($("#tbSemesterList").length > 0)
+        {
+            $("#tbSemesterList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbSemesterList").datagrid("load", { "queryExpression": queryExpression});
+        }
+         if(typeof(doSelectSemesterReload) == 'function')doSelectSemesterReload();
+
+        return false;
+    }
+    var semesterDialog;
+    function doSemesterDialog() {
+        if (semesterDialog) {
+            semesterDialog.dialog("destroy");
+        }
+        semesterDialog =  @Html.JDialog("divSemesterEdit").SetTitle("学期信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("semesterDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveSemester();").ToMvcString();
+    }
+    function doAddSemester(id) {
+       doAddOrEditSemester(id);
+    }
+    function doEditSemester(id) {
+       if(!id || id.trim()==""){
+           var selectedSemester = $("#tbSemesterList").datagrid("getSelected");
+           if(!selectedSemester || selectedSemester.Id=="" || selectedSemester.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择学期", showType: 'show' });
+              return false;
+           }
+           id = selectedSemester.Id;
+       }
+       doAddOrEditSemester(id);
+    }
+    function doAddOrEditSemester(id){
+        var url = '@Url.Action("Edit","Semester")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSemesterDialog").load(url,function(){
+            doSemesterDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveSemester(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","Semester")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmSemesterEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                semesterDialog.dialog('close');
+                doSearchSemester();
+            }
+        });
+   }
+   function doDeleteSemester(id){
+        if(!id || id.trim() == ""){
+              var selectedSemester = $("#tbSemesterList").datagrid("getSelected");
+                if(!selectedSemester || selectedSemester.Id.trim() == "" || selectedSemester.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedSemester.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Semester")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchSemester();
+                }
+            });
+        });
+        return false;
+   }
+
+   function adjustXpath(xPath,compareTarget){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "Semester")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearchSemester();
+            }
+        });
+        return false;
+   }
+</script>

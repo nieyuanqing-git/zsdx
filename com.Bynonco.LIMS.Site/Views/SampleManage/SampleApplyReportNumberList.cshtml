@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@{
+    var isShowSampleReportNumberOperation = (bool)ViewData["IsShowSampleReportNumberOperation"];
+    var dataGrid = Html.JDataGrid("tbSampleApplyReportNumberList")
+          .SetUrl(Url.Action("GetSampleApplyReportNumberList") + "?queryExpression=" + string.Format("SampleApplyId=\"{0}\"", ViewData["SampleApplyId"].ToString()))
+          .SetHeight(300)
+          .SetTitle("报告单号信息")
+          .SetCollapsible(false)
+          .SetIconCls("")
+          .SetPagination(false)
+          .SetShowPrintButton(false)
+          .SetSortName("ReportNo")
+          .SetSortOrder(SortOrder.asc);
+        if (isShowSampleReportNumberOperation)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Handler = string.Format("doGenerateReportNumber('{0}');return false;", ViewData["SampleApplyId"].ToString()), IconCls = "icon-doc", Id = "btnGenerateReportNumber", Text = "获取报告号" });
+            dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("删除", "DeleteOperate").SetWidth(60).SetAlign(Align.center));
+        }
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("报告单号", "ReportNo").SetWidth(200).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作人", "OperatorName").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作时间", "OperatorTimeStr").SetWidth(130).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(800).SetAlign(Align.left));
+ }
+ @(dataGrid.ToMvcString())

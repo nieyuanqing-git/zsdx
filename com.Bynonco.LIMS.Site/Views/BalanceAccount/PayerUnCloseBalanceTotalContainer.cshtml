@@ -1,0 +1,100 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    Layout = ViewBag.Layout;
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "设备单位" : customer.GetLabOrganizationName();
+}
+ 
+<div style="border:1px solid #D3D3D3;border-bottom:0; padding:10px 0;">
+    @Html.Partial("../BalanceAccount/PayerBalanceTotalSearch")
+</div>
+<div style="display:none">@Html.Partial("../SampleManage/SampleApplyScriptContainer")</div>
+<div>@Html.Partial("../BalanceAccount/PayerUnCloseBalanceTotalList")</div>
+<div>@Html.Partial("../BalanceAccount/SettleRemarkInput")</div>
+<div style="display:none">@Html.Partial("../CostDeduct/ManualCostDeductScriptContainer")</div>
+<div style="display:none">@Html.Partial("../UsedConfirm/ScriptContainer")</div>
+<div style="display:none">@Html.Partial("../Appointment/ViewAppointmentInfoScript")</div>
+<div id="divUnCloseBalanceTotalDetailDialog" style="display:none"></div>
+<script type="text/javascript">
+    var curQueryExpression = "";
+    var viewUnCloseBalanceTotalDetailDialog;
+    function doViewBalanceTotalDetail(payerId) {
+        var url = '@Url.Action("ViewUnCloseBalanceTotalDetail", "BalanceAccount")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if(viewUnCloseBalanceTotalDetailDialog){
+            viewUnCloseBalanceTotalDetailDialog.dialog("destroy");
+        }
+        $("#divUnCloseBalanceTotalDetailDialog").load(url, {"payerId": payerId,"queryExpression": curQueryExpression.trim() }, function () {
+            $.messager.progress('close');
+            viewUnCloseBalanceTotalDetailDialog = @(Html.JDialog("divUnCloseBalanceTotalDetail").SetTitle("付费人扣费列表").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("viewUnCloseBalanceTotalDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewUnCloseBalanceTotalDetailDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    function doSearch() {
+        var queryExpression = generatePayerBalanceTotalQueryExpression();
+        $("#tbPayerUnCloseBalanceTotalList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbPayerUnCloseBalanceTotalList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        curQueryExpression = queryExpression;
+    }
+    function doExportPayerUnCloseBalanceTotal(){
+        var queryData = getPayerBalanceTotalQueryData();
+        var url = '@Url.Action("ExportPayerUnCloseBalanceTotal", "BalanceAccount")' 
+                  + "?beginDate=" + queryData.beginDate  
+                  + "&endDate=" + queryData.endDate
+                  + "&payerId=" + queryData.payerId
+                  + "&equipmentId=" + queryData.equipmentId
+                  + "&queryExpression=" + curQueryExpression
+                  + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    function doExportPayerUnCloseBalanceTotalDetail(){
+        var queryData = getPayerBalanceTotalQueryData();
+        var url = '@Url.Action("ExportPayerUnCloseBalanceTotalDetail", "BalanceAccount")' 
+                  + "?beginDate=" + queryData.beginDate  
+                  + "&endDate=" + queryData.endDate
+                  + "&payerId=" + queryData.payerId
+                  + "&equipmentId=" + queryData.equipmentId
+                  + "&queryExpression=" + curQueryExpression
+                  + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    function doExecSettle(settleRemark){
+       
+        var pagingContext = getBalanceTotalPagingContext();
+        var queryData = getPayerBalanceTotalQueryData();
+        var xpath = $("#SearchBalanceEquipmentOrgXPath").val();
+        var str = xpath == "" ? "未选中@(customerOrgName)! 是否继续结算?" : "是否确认结算?";
+        $.messager.confirm('提示', str , function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Settle","BalanceAccount")',
+                data: {
+                       "queryExpression":curQueryExpression,
+                       "page":pagingContext.pageIndex,
+                       "rows":pagingContext.pageSize,
+                       "sort":pagingContext.sortName,
+                       "order":pagingContext.sortOrder,
+                       "beginDate":queryData.beginDate,
+                       "endDate":queryData.endDate,
+                       "payerId":queryData.payerId,
+                       "equipmentId":queryData.equipmentId,
+                       "remark":settleRemark
+                       },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+    }
+    function doSettle(){
+        showSettleRemarkDialog();
+    }
+</script>

@@ -1,0 +1,59 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentQueryExpress() {
+        var queryExpression = "";
+        var equipmentName = $("#txtQueryEquipmentName").val();
+        if (equipmentName.trim() != "") {
+            queryExpression += "Name∽\"" + equipmentName.trim() + "\"";
+        }
+        var model = $("#txtQueryModel").val().trim();
+        if (model != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Model∽\"" + model + "\"";
+        }
+
+        var orgName = $("#txtQueryOrgName").val().trim();
+        if (orgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OrgName∽\"" + orgName + "\"";
+        }
+        var roomName = $("#txtQueryRoomName").val().trim();
+        if (roomName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RoomName∽\"" + roomName + "\"";
+        }
+
+        return queryExpression;
+    }
+
+    function doEquipmentQueryReset() {
+        $("#txtQueryEquipmentName").val("");
+        $("#txtQueryModel").val("");
+        $("#txtQueryOrgName").val("");
+        $("#txtQueryRoomName").val("");
+        return false;
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("txtQueryEquipmentName").SetHeight(20).SetWidth(150).ToMvcString()
+    </li>
+     <li>
+        <label>设备型号</label>
+        @Html.JValidateBox("txtQueryModel").SetHeight(20).SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>所属机构</label>
+        @Html.JValidateBox("txtQueryOrgName").SetHeight(20).SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>放置地点</label>
+        @Html.JValidateBox("txtQueryRoomName").SetHeight(20).SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentSearch", "查询").SetOnclick("doEquipmentSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentReset", "清空").SetOnclick("doEquipmentQueryReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

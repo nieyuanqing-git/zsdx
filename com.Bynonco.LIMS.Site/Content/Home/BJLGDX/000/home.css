@@ -1,0 +1,39 @@
+.main-box-center {width: 500px;}
+.main-box-left .content-box ul.news-list li,
+.main-box-right .content-box ul.news-list li {width: 220px;}
+.main-box-left .content-box ul.news-list li span,
+.main-box-right .content-box ul.news-list li span{display:none;}
+.main-box-center .content-box ul.news-list li{width: 480px;}
+
+
+.home-login-box {background: url("images/home-login-box.gif") no-repeat scroll 0 0 transparent;}  
+.home-login-box h2.title{background: none;}
+.background-box-200{background: url("images/bg-box-200.gif") no-repeat scroll left 10px transparent;}
+.background-box-200-center{background: url("images/bg-box-200-center.gif") no-repeat scroll 30px 10px transparent;}
+.background-box-200-right{background: url("images/bg-box-200-right.gif") no-repeat scroll left 10px transparent;}
+.background-box-233{background: url("images/bg-box-233.gif") no-repeat scroll left 10px transparent;}
+.background-box-233-center{background: url("images/bg-box-233-center.gif") no-repeat scroll 30px 10px transparent;}
+.background-box-233-right{background: url("images/bg-box-233-right.gif") no-repeat scroll left 10px transparent;}
+.background-box-200 h2.title,
+.background-box-233 h2.title,
+.background-box-200-center h2.title,
+.background-box-233-center h2.title,
+.background-box-200-right h2.title,
+.background-box-233-right h2.title{background: none; }
+
+.content-box-153 {height: 163px;padding-top: 5px;}
+.content-box-186 {height: 196px;padding-top: 5px;}
+.home-login-box .content-box-153 {height:153px;padding-top:15px;}
+
+.background-box-200-right .content-box ul.news-list li {background:none;}
+
+.background-box-233-right .content-box-186{padding-left:10px;padding-right:0;}
+
+.SchoolInfo{background: url("images/SchoolInfo.gif") no-repeat scroll 30px 10px transparent;}
+.LIMSInfo{background: url("images/LIMSInfo.gif") no-repeat scroll 30px 10px transparent;padding-left:100px;width:430px;}
+.SchoolInfo h2.title span,.SchoolInfo h2.title a{display:none;}
+.LIMSInfo h2.title span{display:none;}
+.content-box-186 {
+    height: 190px;
+    padding-top: 11px;
+}

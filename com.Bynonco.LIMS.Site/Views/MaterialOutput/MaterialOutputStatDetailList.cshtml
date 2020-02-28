@@ -1,0 +1,23 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var materialInfoPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetMaterialOutputPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbMaterialOutputStatDetailList")
+        .SetUrl(Url.Action("MaterialOutputStatDetailList", "MaterialOutput", new {QueryExpression = ViewData["QueryExpression"]}))
+        .SetHeight(360)
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(10)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(false);
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学生", "Name").SetWidth(45).SetAlign(Align.center).SetSortable(false));
+    foreach (var name in (List<string>)ViewData["TableColumns"])
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(name, name).SetWidth(100).SetAlign(Align.center).SetSortable(false));
+    }
+ }
+@(dataGrid.ToMvcString())

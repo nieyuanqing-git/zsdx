@@ -1,0 +1,17 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JDataGrid("tbPunishTotalList")
+    .SetUrl(Url.Action("GetGridPunishTotalList", "Delinquency"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "UserId").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("姓名", "UserName").SetWidth(80).SetAlign(Align.center).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("累计处罚次数", "TotalActionStr").SetWidth(150).SetAlign(Align.center).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("当年处罚次数", "TotalYearActionStr").SetWidth(150).SetAlign(Align.center).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("累计不良行为记录数", "TotalDelinquencyStr").SetWidth(150).SetAlign(Align.center).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("当年不良行为记录数", "TotalYearDelinquencyStr").SetWidth(150).SetAlign(Align.center).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总计扣分", "TotalStr").SetWidth(150).SetAlign(Align.center).SetSortable(false));
+}
+@(dataGrid.ToMvcString()) 

@@ -1,0 +1,10 @@
+﻿/*------------ banner-box ------------------------*/
+.banner-box{background: url("images/banner.gif") no-repeat scroll left top #FFFFFF; height:140px;margin-top:25px;}
+/*------------ menu-box ------------------------*/
+.menu-box .home-menu a.fg-button{margin:0;border-right: 1px solid #73a7d7;border-left:1px solid #134985;}
+.menu-box .home-menu a.first{border-left:0;}
+.menu-box .home-menu a.last{border-right:0;}
+
+.main-box-left h2.title-gray a.current, .main-box-center h2.title-gray a.current, .main-box-right h2.title-gray a.current {
+    background: url("images/bg-title-current.gif") repeat-x scroll left top transparent;
+}

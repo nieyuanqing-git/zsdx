@@ -1,0 +1,12 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+<div id='divCameraHelp'>
+<p>美电贝尔AEBELL摄像机未支持网页版多个监控摄像机监控，您可以下载客户端进行多个监控。</p>
+<p>下载链接： <a href='/AEBELL网络高清摄像机客户端V4.2.0.rar' target="_blank">AEBELL网络高清摄像机客户端V4.2.0.rar</a></p>
+<p>生成摄像机配置文件：</p> 
+<ul>
+    <li><a href='@Url.Action("AEBELLDevInfo", "Camera", new { GroupType = (int)LabOrganizationType.LabRoom })' target="_blank"  style='text-decoration:underline;'>(按房间分组)DevInfo.xml</a></li>
+    <li><a href='@Url.Action("AEBELLDevInfo", "Camera", new { GroupType = (int)LabOrganizationType.Organziton })' target="_blank" style='text-decoration:underline;'>(按单位分组)DevInfo.xml</a></li>
+</ul>
+<p>DevIndo.xml覆盖路径：D:\AEBELL\Config\DevIndo.xml(默认客户端安装路径)</p>
+<p style='color:Red;'>注意：如果您的摄像机不是美电贝尔型号，无须下载该客户端.</p>
+</div>

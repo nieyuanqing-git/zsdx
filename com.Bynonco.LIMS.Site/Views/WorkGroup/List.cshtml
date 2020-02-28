@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var workGroupPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetWorkGroupPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbWorkGroupList")
+        .SetUrl(Url.Action("GetGridWorkGroupList", "WorkGroup"))
+        .SetSortName("Name")
+        .SetHeight(650)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetPageSize(20)
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false);
+    if (workGroupPrivilige.IsEnableView)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doViewWorkGroup();", IconCls = "icon-eye", Id = "btnViewWorkGroup", Text = "查看" });
+    }
+    if (workGroupPrivilige.IsEnableEdit)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAddWorkGroup();", IconCls = "icon-add", Id = "btnAddWorkGroup", Text = "新增" });
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doEditWorkGroup();", IconCls = "icon-edit", Id = "btnEditWorkGroup", Text = "编辑" });
+        dataGrid.SetOnDblClickRow("doEditWorkGroup(rowData.Id);");
+    }
+    if (workGroupPrivilige.IsEnableDelete)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDeleteWorkGroup();", IconCls = "icon-delete", Id = "btnDelWorkGroup", Text = "删除" });
+        dataGrid.SetDeleteScript("doDeleteWorkGroup('');");
+    }
+    if (workGroupPrivilige.IsEnableSetPower)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSetPower();", IconCls = "icon-power", Id = "btnSetPower", Text = "设置权限" });
+    }
+    if (workGroupPrivilige.IsEnableViewWorkGroupUserList)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doViewWorkGroupUserList();", IconCls = "icon-power", Id = "btnViewWorkGroupUser", Text = "查看成员" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doViewWorkGroupHelp();", IconCls = "icon-help", Id = "btnShowHelp", Text = "权限帮助说明" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearch();", IconCls = "icon-reload", Id = "btnSearchWorkGroup", Text = "刷新" });
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(250).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否默认", "IsDefaultStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(700).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

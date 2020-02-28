@@ -1,0 +1,22 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../MaterialUserAccount/Search")
+    </div>
+</div>
+<div>
+    @Html.Partial("../MaterialUserAccount/List")
+</div>
+<div class="z-panel-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../MaterialUserAccount/DepositRecordSearch")
+    </div>
+</div>
+<div>
+    @Html.Partial("../MaterialUserAccount/DepositRecordList")
+</div>
+<div class="clear-both"></div>
+@Html.Partial("../MaterialUserAccount/ScriptContainer")

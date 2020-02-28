@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var countryPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSMSSendPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSMSSendList")
+       .SetUrl(Url.Action("GetGridViewSendShortMailList", "SMSSend"))
+       .SetHeight(650)
+       .SetSortName("SendDate")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(20)
+       .SetMutiSelect(true)
+       .SetSingleSelect(false)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.SetShowAddButton(countryPrivilige.IsEnableAdd);
+    dataGrid.SetShowEditButton(false);
+    if (countryPrivilige.IsEnableAdd)
+    {
+       dataGrid.SetAddScript("doAddSMSSend();");
+    }
+    dataGrid.SetShowDeleteButton(countryPrivilige.IsEnableDelete);
+    if (countryPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteSMSSend('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发送时间", "SendDateStr").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("手机", "MobilePhoneNo").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("收件人", "ReceiveUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("标题", "Title").SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("内容", "Body").SetWidth(800).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发件人", "SendUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(200).SetAlign(Align.left).SetHidden(true));
+ }
+@(dataGrid.ToMvcString())

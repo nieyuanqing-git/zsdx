@@ -1,0 +1,114 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateAnimalDeductQueryExpression() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+
+        var selectedStudent = $("#cbxQueryStudent").combobox("getValues");
+        var selectedStudentIds = selectedStudent.toString().split(",");
+        if (selectedStudentIds.length > 1 || (selectedStudentIds[0].trim() != "" && selectedStudentIds[0].trim() != "@(Guid.Empty.ToString())" && selectedStudentIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedStudentIds.length; i++) {
+                if (selectedStudentIds[i].trim() == "" || selectedStudentIds[i].trim() == "@(Guid.Empty.ToString())") { index++; continue; }
+                var queryExpressionTemp = "UserId=\"" + selectedStudentIds[i].trim() + "\"";
+                queryExpression += (i == index ? queryExpressionTemp : "+" + queryExpressionTemp);
+            }
+            queryExpression += ")";
+        }
+
+        var name = $("#SearchName").val().trim();
+        if (name != "") {
+            queryExpression = "Name∽\"" + name + "\"";
+        }
+
+        var payerName = $("#SearchPayerName").val().trim();
+        if (payerName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "PayerName∽\"" + payerName + "\"";
+        }
+        var animalName = $("#SearchAnimalName").val().trim();
+        if (animalName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "AnimalName∽\"" + animalName + "\"";
+        }
+        var hasClossingAccount = $("#HasClossingAccount").combobox("getValue").trim();
+        if (hasClossingAccount != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "HasClossingAccount=" + hasClossingAccount;
+        }
+        var animalCategoryId = $("#SearchAnimalCategoryId").val().trim();
+        if (animalCategoryId != "" && animalCategoryId != '@Guid.Empty.ToString()') {
+            queryExpression += (queryExpression == "" ? "AnimalCategoryId=\"" + animalCategoryId + "\"" : "*AnimalCategoryId=\"" + animalCategoryId + "\"");
+        }
+        var beginAtStart = $("#SearchBeginAtStart").datebox("getValue").trim();
+        if (beginAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DeductAt>\"" + beginAtStart + " 00:00:00" + "\"";
+        }
+        var beginAtEnd = $("#SearchBeginAtEnd").datebox("getValue").trim();
+        if (beginAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DeductAt<\"" + beginAtEnd + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doAnimalDeductReset() {
+        $("#SearchName").val("");
+        $("#SearchAnimalName").val("");
+        $("#SearchUserName").val("");
+        $("#SearchPayerName").val("");
+        $("#HasClossingAccount").combobox("setValue", "");
+        $("#cbxQueryStudent").combobox("setValue", "@Guid.Empty.ToString()");
+        $("#SearchAnimalCategoryId").val('@Guid.Empty.ToString()');
+        $("#SearchBeginAtStart").datebox("setValue", "");
+        $("#SearchBeginAtEnd").datebox("setValue", "");
+
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="width:60px;">状态</label>
+        @Html.JComboBox("HasClossingAccount").SetData(ViewData["HasClossingAccountJson"]).SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">使用者</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">课题组成员</label>
+        @Html.JComboBox("cbxQueryStudent").SetWidth(155).SetData(ViewData["StudentJson"]).SetMutiSelect(true).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">名目</label>
+        @Html.JValidateBox("SearchName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">品系名称</label>
+         @Html.DropDownList("SearchAnimalCategoryId", (IEnumerable<SelectListItem>)ViewData["SearchAnimalCategorySelectListItem"], new { style = "width:155px" })
+    </li>
+    <li>
+        <label style="width:60px;">动物名称</label>
+        @Html.JValidateBox("SearchAnimalName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">付费人</label>
+        @Html.JValidateBox("SearchPayerName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">开始时间</label>
+        @Html.JDateTimePicker("SearchBeginAtStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">结束时间</label>
+        @Html.JDateTimePicker("SearchBeginAtEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnAnimalDeductSearch", "查询").SetOnclick("doAnimalDeductSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnAnimalDeductReset", "清空").SetOnclick("doAnimalDeductReset();").ToMvcString()
+        @Html.JLinkButton("btnAnimalDeductClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

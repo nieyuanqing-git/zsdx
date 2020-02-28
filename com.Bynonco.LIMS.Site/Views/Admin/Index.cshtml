@@ -1,0 +1,18 @@
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "个人中心";
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+    var url = ViewData["layoutCenterBoxUrl"] == null ? "" : ViewData["layoutCenterBoxUrl"].ToString();
+}
+<script type="text/javascript">
+    $(function () {        
+        if (isAjax) {
+            var url = '@url';
+            if (url != "") {
+                url = url.replace("&amp;", "&");
+                ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+            }
+            else ajaxActionLink('@(Url.Action("Home","Admin"))', "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+    });
+</script>

@@ -1,0 +1,21 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimalOutAppointment
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divAnimalOutAppointmentFeedBackEdit"> 
+<form id="frmAnimalOutAppointmentFeedBackEdit" action="#">
+    <table id="tbAnimalOutAppointmentFeedBackEdit" class="edit-table">
+        <tr>
+            <th><span class="required">*</span>实验动物尸体返还时间</th>
+            <td>
+                @Html.JDateTimePicker("CorpseReturnTime").SetValue(Model == null ? "" : Model.CorpseReturnTime.HasValue ? Model.CorpseReturnTime.Value.ToString("yyyy-MM-dd") : "").SetWidth(235).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>实验动物尸体处理方式</th>
+            <td colspan="3">
+                @Html.JComboBox("CorpseHanldedWayId").SetData(ViewData["AnimalCorpseHanldedWayJson"]).SetWidth(235).ToMvcString()
+                <span>可手工输入</span>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>

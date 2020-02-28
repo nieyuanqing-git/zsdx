@@ -1,0 +1,200 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+}
+<div id='divThesisList' style='@(isPopDialog ? "width:800px;" : "")'>
+    <div class="search-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../Achievement/ThesisSearch")
+        </div>
+    </div>
+    <div class="layout-center-full">
+        @Html.Partial("../Achievement/ThesisList")
+    </div>
+    <div id="divThesisDialog"></div>
+    <div id="divThesisImportExcelDialog"></div>
+    <script type="text/javascript">
+        function doSearch() {
+            var queryExpression = generateQueryExpress();
+            if('@(queryExpression)' != "")
+                queryExpression += (queryExpression == "" ? "" : "*") + '@(queryExpression)';
+            $("#tbThesisList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbThesisList").datagrid("load", { "queryExpression": queryExpression.trim(), "equipmentId": '@equipmentId' });                
+    }
+
+    function doAddOrEditThesis(id,equipmentId){
+        var url = '@Url.Action("ThesisEdit","Achievement")'+ "?id=" + id + "&EquipmentId=" + equipmentId  + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divThesisDialog").load(url,function(){
+            $.messager.progress('close');
+            doThesisDialog(equipmentId);
+        })
+        return false;
+    }
+    function doAddThesis(id,equipmentId) {
+       doAddOrEditThesis(id,equipmentId);
+    }
+    function doEditThesis(id,equipmentId) {
+       if(!id || id.trim()==""){
+           var selectedSubject = $("#tbThesisList").datagrid("getSelected");
+           if(!selectedSubject || selectedSubject.Id=="" || selectedSubject.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择发表论文", showType: 'show' });
+              return false;
+           }
+           id = selectedSubject.Id;
+       }
+       doAddOrEditThesis(id,equipmentId);
+    }
+        var thesisDialog;
+        function doThesisDialog(equipmentId) {
+            if (thesisDialog) {
+                thesisDialog.dialog("destroy");
+            }
+            thesisDialog =  @Html.JDialog("divThesisEdit").SetTitle("发表论文信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("thesisDialog.dialog('destroy');return false;").SetOnClose("thesisDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveThesis('" + equipmentId + "');").ToMvcString();
+        }  
+        
+        function doSaveThesis(equipmentId){            
+            if(equipmentId.toString()=="")
+            {
+                if ($("#Title").val().trim() == "" || !$("#Title").validatebox("isValid")) {
+                    $.messager.show({ title: '提示', msg:"请输入论文标题",showType: 'show' });
+                    return false;
+                }
+                if ($("#JournalName").val().trim() == "") {
+                    $.messager.show({ title: '提示', msg:"请输入刊物名称",showType: 'show' });
+                    return false;
+                }
+                if ($("#JournalType").combobox("getValue").trim() == "") {
+                    $.messager.show({ title: '提示', msg:"请输入刊物类型",showType: 'show' });
+                    $.messager.alert('提示', '', 'warning');
+                    return false;
+                }
+                if ($("#VolumeNumber").val().trim() == "" || !$("#VolumeNumber").validatebox("isValid")) {
+                    $.messager.show({ title: '提示', msg:"请输入卷号",showType: 'show' });
+                    return false;
+                }
+                if ($("#ISSN").val().trim() == "") {
+                    $.messager.show({ title: '提示', msg:"请输入刊号",showType: 'show' });
+                    return false;
+                }
+                if ($("#Pagination").val().trim() == "") {
+                    $.messager.show({ title: '提示', msg:"请输入页码范围",showType: 'show' });
+                    return false;
+                }
+                if ($("#ImpactFactor").val().trim() == "") {
+                    $.messager.show({ title: '提示', msg:"请输入影响因子",showType: 'show' });
+                    return false;
+                }
+                else if(isNaN($("#ImpactFactor").val().trim())){
+                    $.messager.show({ title: '提示', msg:"影响因子格式不正确，必须为数字类型",showType: 'show' });
+                    return false;
+                }
+            }
+        
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ThesisSave","Achievement")' ,
+                data: $("#frmThesisEdit").serialize() + "&attamentFiles=" + generateAttachmentFiles() + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    thesisDialog.dialog('destroy');
+                    doSearch();
+                }
+            });
+       }
+       function doDeleteThesis(id){
+            if(!id || id.trim() == ""){
+                  var selectedSubject = $("#tbThesisList").datagrid("getSelected");
+                    if(!selectedSubject || selectedSubject.Id.trim() == "" || selectedSubject.Id.isDefaultGuid()){
+                        $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                        return false;
+                    }
+                    id = selectedSubject.Id;
+             }
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ThesisDelete", "Achievement")'+ "?date=" + new Date().getMilliseconds(),
+                    data: "id=" + id ,
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                            return false;
+                        }
+                        doSearch();
+                    }
+                });
+            });
+            return false;
+       }
+       function doThesisExportExcel()
+        {
+            var url='@Url.Action("ThesisExportExcel","Achievement")';
+            window.open(url,'_blank');
+        }
+
+        function doThesisImportExcel()
+        {
+            var url = '@Url.Action("ThesisImportExcel", "Achievement")';
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divThesisImportExcelDialog").load(url,function(){
+                doThesisImportExcelDialog();
+                $.messager.progress('close');
+            })
+            return false;
+        }
+        var thesisImportExcelDialog;
+        function doThesisImportExcelDialog() {
+            if (thesisImportExcelDialog) {
+                thesisImportExcelDialog.dialog("destroy");
+            }
+            thesisImportExcelDialog =  @(Html.JDialog("divThesisImportExcelDialog")
+                .SetTitle("导入论文信息")
+                .SetIconCls("icon-import")
+                .SetAutoDialog(false)
+                .SetShowCancelButton(false)
+                .SetShowOkButton(false)
+                .SetModal(true)
+                .AddButton(new ToolBarButton() { Handler = "thesisImportExcelDialog.dialog('destroy');return false;", Id = "btnClosedImportExcel", Text = "关闭", IconCls = "icon-cancel" })
+                .ToMvcString());
+        }
+        function ajaxFileUploadThesisExcel() {
+        var file = $("#fileThesisExcel").val();
+        if (!doValidatesThesisExcel(file)) return false;
+        $("#fileThesisExcel").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadThesisExcel", "Achievement")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileThesisExcel',
+            success: function (data, status) {
+                $.messager.progress('close');
+                $("#divThesisImportExcelResult").load('@Url.Action("ThesisImportExcelResult","Achievement")',function(){})
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doValidatesThesisExcel(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    </script>
+</div> 

@@ -1,0 +1,78 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+    var depositRecordPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDepositRecordOpenFundPrivilige(User.Identity.Name);
+    var isDepositRecordOpenFundNeedPreAudit = ViewData["IsDepositRecordNeedPreAudit"] == null ? false : bool.Parse(ViewData["IsDepositRecordNeedPreAudit"].ToString());
+    var dataGrid = Html.JDataGrid("tbDepositRecordOpenFundList")
+       .SetUrl(Url.Action("GetGridViewDepositRecordOpenFundList", "DepositRecordOpenFund"))
+       .SetHeight(550)
+       .SetSortName("Status A,ApplyDate")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(10)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowAddButton(false)
+       .SetShowEditButton(false)
+       .SetShowDeleteButton(false)
+       .SetShowRefreshButton(false)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();")
+       .SetOnLoadSuccess("setTimeout('doLoadDetailItem()',1000);");
+
+    if (depositRecordPrivilige.IsEnableAdd)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAddDepositRecordOpenFund();", IconCls = "icon-cash", Id = "btnRealAddDepositRecordOpenFund", Text = "开放基金申请" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowDepositRecordOpenFundInfo('');", IconCls = "icon-eye", Id = "btnShowDepositRecordOpenFundInfo", Text = "查看" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearchDepositRecordOpenFund();", IconCls = "icon-reload", Id = "btnReload", Text = "刷新" });
+    //if (depositRecordPrivilige.IsEnableDoc)
+    //{
+    //    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportDoc();", IconCls = "icon-word", Id = "btnExportDoc", Text = "打印缴款单" });
+    //}
+    //if (depositRecordPrivilige.IsEnableExportExcel && false)
+    //{
+    //    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportExcel();", IconCls = "icon-export", Id = "btnExportExcel", Text = "导出" });
+    //}
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(45).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("存款人", "UserNameStr").SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "PhoneNumber").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerOrgName, "UserOrgName").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开放基金号", "OpenFundApplyNum").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("自付额度", "DepositSumStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("补贴额度", "SubsidiesMoneyStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总额度", "OpenFundSumStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预审状态", "StatusNickName").SetHidden(!isDepositRecordOpenFundNeedPreAudit).SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预审人", "PreAuditUserName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预审时间", "PreAuditTimeStr").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "ApplyDateStr").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(300).SetAlign(Align.left).SetSortable(false));
+}
+@(dataGrid.ToMvcString())
+
+<script type="text/javascript">
+    $(function () {
+        $('#tbDepositRecordOpenFundList').datagrid({
+            view: detailview,
+            detailFormatter: function (index, row) {
+                return '<div class="divDepositRecordOpenFundDetail"></div>';
+            },
+            onExpandRow: function (index, row) {
+                var divDetail = $(this).datagrid('getRowDetail', index).find('div.divDepositRecordOpenFundDetail');
+                divDetail.panel({
+                    border: false,
+                    cache: true,
+                    href: '@Url.Action("DepositMoneyList","DepositRecordOpenFund")' + '?Id=' + row.Id + '&index=' + index + '&IsManage=true&date=' + new Date().getMilliseconds(),
+                    onLoad: function () {
+                        $('#tbDepositRecordOpenFundList').datagrid('fixDetailRowHeight', index);
+                        $('#tbDepositRecordOpenFundList').datagrid('selectRow', index);
+                    }
+                });
+                $('#tbDepositRecordOpenFundList').datagrid('fixDetailRowHeight', index);
+            }
+        });
+    });
+</script>

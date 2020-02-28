@@ -1,0 +1,51 @@
+﻿@{
+    var user = ViewData["LoginUser"] != null ? (com.Bynonco.LIMS.Model.User)ViewData["LoginUser"]: null;
+    var subejctName = user != null && user.GetMySubject() != null ? user.GetMySubject().Name : "";
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+}
+
+@if (Request.IsAuthenticated && user != null)
+{
+    <p>欢迎您,<strong><a href="@Url.Action("Index", "Admin")">@user.UserName</a></strong>!
+    @if (isAjax)
+    {
+        @Ajax.IconActionLink("unicon icon-pencil", "&nbsp;", "我的档案", "Manage", "Account", null, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess" }, null)
+    }
+    else
+    {
+        @Html.HtmlIconActionLink("unicon icon-pencil", "&nbsp;", "我的档案", "Manage", "Account", null, null, null)
+    }
+    </p>
+    <p>上次登录：@user.LastLoginTime.Value.ToString("yyyy-MM-dd HH:mm")</p>
+    <div style='float:left;width:70px;height:90px;'>
+        <div style='margin:10px 0 0; width:60px;height:60px;background-color:White;cursor:pointer;' onclick='doUploadPersonalPhoto();return false;'>
+            <img src="@(user.IconPath)" width="60px" height="60px" id='imgLeftUserPhoto' />
+        </div>
+    </div>
+    <div style='float:right;width:130px;height:90px;'>
+    @if (user != null && user.GetMySubject() != null)
+    {
+        <p class="left-subject"><a href="#" onclick="doLoadMySubject();return false;">@subejctName</a></p>
+    }
+    else
+    {
+        <p class="left-subject"><a href="javascript:;">[没有课题组]</a></p>
+    }
+    <p class="a_right">
+        <a href="@Url.Action("LogOff", "Account")"><img src="@Url.Content("~/Content/images/btn-logout.png")" alt="退出"/></a>
+    </p>
+    </div>
+    <div class='clear-both'></div>
+    <script type="text/javascript">
+        function doLoadMySubject() {
+            var url = '@Url.Action("UserRelevantSubjectsManage", "Subject")' + "?time=" + new Date().getMilliseconds() + "&isCooperative=true";
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+            return false;
+        }
+        function doUploadPersonalPhoto() {
+            var url = '@Url.Action("Manage", "Account")' + "?TagAction=Photo&TagController=Account&time=" + new Date().getMilliseconds() + "&isCooperative=true";
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+            return false;
+        }
+    </script>
+}

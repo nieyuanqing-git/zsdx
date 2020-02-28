@@ -1,0 +1,31 @@
+﻿@model com.Bynonco.LIMS.Model.DelinquencyCategory
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divDelinquencyCategoryEdit">
+<form id="frmDelinquencyCategoryEdit" action="#">
+    @Html.Hidden("DelinquencyCategoryId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style="width:470px">
+        <tr>
+            <th>名称</th>
+            <td>
+               @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetReadOnly(Model != null && Model.IsBasic).SetWidth(280).ToMvcString()
+               <span>必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>严重程度</th>
+            <td>
+                @Html.JValidateBox("Severity").SetWidth(280).SetValue(Model == null ? "" : Model.Severity.ToString()).SetValidateType(ValidateType.number).ToMvcString()
+                <span>必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否停用</th>
+            <td>@Html.CheckBox("IsStop")</td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>@(Html.TextArea("Remark", Model == null  ? "" : Model.Remark, new { style = "font-size:12px;height:60px;font-weight:normal;width:365px" }))</td>
+        </tr>
+    </table>
+ </form>
+</div>

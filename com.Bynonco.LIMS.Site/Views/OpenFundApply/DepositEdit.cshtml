@@ -1,0 +1,131 @@
+﻿@model com.Bynonco.LIMS.Model.OpenFundDepositRecord
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var isManageEdit = ViewData["IsManageEdit"] == null ? false : (bool)ViewData["IsManageEdit"];
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsDepositPhoto = customer == null ? false : customer.GetIsDepositPhoto();
+}
+<div id="divOpenFundDepositRecordEdit">
+ <form id="frmOpenFundDepositRecordEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("DepositRecordOpenFundId", Model == null || !Model.DepositRecordOpenFundId.HasValue ? ViewData["DepositRecordOpenFundId"] == null ? "" : ViewData["DepositRecordOpenFundId"].ToString().Trim() : Model.DepositRecordOpenFundId.Value.ToString())
+    <table id="tdOpenFundDepositRecordEdit" class="edit-table"  style="width:600px;">
+         <tr>
+            <th><span class="required">* </span>开放申请单</th>
+            <td id='tdOpenFundApply'>
+                @{
+                    var hasOpenFundApply = ViewData["OpenFundApplyId"] != null && !string.IsNullOrWhiteSpace(ViewData["OpenFundApplyId"].ToString());
+                    if (!hasOpenFundApply)
+                    {
+                        var url = !isManageEdit ? Url.Action("GetMyOpenFundApplyListByKeyWord", "OpenFundApply") : Url.Action("GetOpenFundApplyListByKeyWord", "OpenFundApply");
+                        @(Html.TokenInput("OpenFundApplyId")
+                            .SetUrl(url)
+                            .SetSingle(true)
+                            .SetWidth(200)
+                            .SetOnChange("doGetOpenFundApplyInfo()")
+                            .ToMvcString())
+                    }
+                    else
+                    {
+                        <b style="padding:2px">@(ViewData["OpenFundApplyName"] == null ? "" : ViewData["OpenFundApplyName"].ToString())</b>
+                        @Html.Hidden("OpenFundApplyId", ViewData["OpenFundApplyId"] == null ? "" : ViewData["OpenFundApplyId"].ToString())
+                    }
+                }
+            </td>
+            <th><span class="required">* </span>存款时间</th>
+            <td>
+                @Html.JDateTimePicker("DepositDate").SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.DepositDate.ToString("yyyy-MM-dd")).SetWidth(105).ToMvcString()
+            </td>
+         </tr>
+         <tr>
+            <th>导师</th>
+            <td id='tdTutor' style='font-weight:bold;'>
+                @(ViewData["TutorName"] == null ? "" : ViewData["TutorName"].ToString())
+            </td>
+            <th>联系电话</th>
+            <td>
+                @(ViewData["TutorPhoneNumber"] == null ? "" : ViewData["TutorPhoneNumber"].ToString())
+            </td>
+        </tr>
+       <tr>
+            <th>开放基金信息</th>
+            <td id='tdOpenFundApplyInfo' colspan="3">
+                @System.Web.Mvc.MvcHtmlString.Create(ViewData["OpenFundApplyInfo"] == null ? "" : ViewData["OpenFundApplyInfo"].ToString())
+            </td>
+       </tr>
+        <tr>
+            <th><span class="required">* </span>存款金额</th>
+            <td>@Html.JValidateBox("DepositSum").SetValue(Model == null ? "" : Model.DepositSum.ToString()).SetOnChange("doDepositSumChange();").SetWidth(200).SetRequired(true).SetValidateType(ValidateType.number).ToMvcString()</td>
+            <th>补贴基金</th>
+            <td id='tdSubsidies'>
+                @(Model == null ? "" : Model.DepositSum.ToString())
+            </td>
+        </tr>
+        @if (customerIsDepositPhoto)
+        {
+        <tr>
+            <th>
+                @if (Model != null && Model.Id != Guid.Empty)
+                {
+                    <span class="required">* </span>
+                }凭证号
+            </th>
+            <td>
+                @Html.JValidateBox("CertificateNum").SetValue(Model == null ? "" : Model.CertificateNum).SetWidth(200).SetReadOnly(Model == null || Model.Id == Guid.Empty).ToMvcString()
+            </td>
+            <th>发票号</th>
+                <td>@Html.JValidateBox("InvoiceNo").SetValue(Model == null ? "" : Model.InvoiceNo).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th rowspan='2'>@*<span class="required">* </span>*@存款验证图</th>
+            <td colspan="3">
+                <input id="fileDepositRecordPhoto" type="file" name="fileDepositRecordPhoto" class="addfile" onchange="ajaxFileUploadDepositRecordPhoto();return false;"/>
+                <br />
+                <a id='fileDepositRecordPhotoPath' href='@(Model == null || string.IsNullOrWhiteSpace(Model.DepositRecordPhoto) ? "javascript:;" : Url.Content("~/" + Model.DepositRecordPhoto))' target="_blank" class='@(Model == null || string.IsNullOrWhiteSpace(Model.DepositRecordPhoto) ? "hide" : "")' style='text-decoration:underline;'>
+                     @(Model != null && !string.IsNullOrWhiteSpace(Model.DepositRecordPhotoName) ? Model.DepositRecordPhotoName : "(点击查看存款验证图片/附件)")
+                </a>
+                @Html.Hidden("DepositRecordPhoto", Model == null ? "" : Model.DepositRecordPhoto)
+                @Html.Hidden("DepositRecordPhotoName", Model == null ? "" : Model.DepositRecordPhotoName)
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">格式：rar , zip , jpg , jpeg , png , ico , bmp , gif<span style='margin-left:20px;font-weight:bold;color:Black;'>大小</span>：小于10M</td>
+        </tr>
+        }
+        <tr>
+            <th>备注</th>
+            <td colspan="3">
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:60px;width:96%;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdOpenFundApply ul.token-input-list-facebook").css("width", "205px");
+    });
+    function doDepositSumChange() {
+        $("#tdSubsidies").empty();
+        if ($("#DepositSum").val().trim() != '0' && ($("#DepositSum").val().trim() == "" || !$("#DepositSum").validatebox("isValid"))) {
+        }
+        else {
+            $("#tdSubsidies").append($("#DepositSum").val());
+        }
+    }
+    function doGetOpenFundApplyInfo() {
+        $("#tdTutor").empty();
+        $("#tdOpenFundApplyInfo").empty();
+        var openFundApplyId = $("#OpenFundApplyId").val();
+        if (openFundApplyId && openFundApplyId != "") {
+            $.post('@Url.Action("GetOpenFundApplyInfo", "OpenFundApply")', { id: openFundApplyId }, function (data) {
+                if (data && data != "")
+                    $("#tdTutor").append(data.UserName);
+                $("#tdOpenFundApplyInfo").append(data.Info);
+            }, 'json');
+        }
+    }
+</script>

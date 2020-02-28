@@ -1,0 +1,166 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var sampleItemPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSampleItemPrivilige(User.Identity.Name);
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../SampleItem/Search")</div>
+</div>
+<div id="divSampleItemList">@Html.Partial("List")</div>
+<div id="divSampleItemEditDialog"  style="display:none"></div>
+<div id="divSampleItemBatchUpdateInfoDialog"  style="display:none"></div>
+@Html.Partial("../SampleItem/ImportExcelScriptContainer")
+<script type="text/javascript">
+    var editDialog;
+    function doAddOrEdit(id) {
+        if(editDialog) editDialog.dialog('destroy');
+        var tagSampleItemDiscountUrl  = '@Url.Action("TagSampleItemDiscount")' + "?id=" + id + "&time=" + new Date().getMilliseconds();
+        var editUrl = (id !="" ? '@Url.Action("Edit")' : '@Url.Action("Add")' ) + "?id=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $("#divSampleItemEditDialog").load(editUrl,function(){
+              $.messager.progress("close");
+              editDialog = @(Html.JDialog("divSampleItemEdit").SetAutoDialog(false).SetModal(true).SetOkScript(sampleItemPrivilige.IsEnableSave?"doSave();":"alert('无操作权限');").SetCancelScript("editDialog.dialog('close');return false;").SetTitle("样品项目信息").SetIconCls("icon-save").ToMvcString());
+        });
+        return false;
+    }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbSampleItemList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    function doDelete(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedIds() : ids;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete")'+ "?time=" + new Date().getMilliseconds().toString(),
+                data: "ids=" + delIds,
+                success: function (msg) {
+                    $.messager.progress("close");
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    function doBatchStart(){
+         var ids = generateSelectedIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg: "请选择要启用的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认启用?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("BatchStart")'+ "?time=" + new Date().getMilliseconds().toString(),
+                data: "ids=" + ids,
+                success: function (msg) {
+                    $.messager.progress("close");
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    function doBatchStop(){
+        var ids = generateSelectedIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg: "请选择要停用的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认停用?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("BatchStop")'+ "?time=" + new Date().getMilliseconds().toString(),
+                data: "ids=" + ids,
+                success: function (msg) {
+                    $.messager.progress("close");
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                }
+            });
+        });
+        return false;
+    }
+     function doSave() {
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save")'+ "?time=" + new Date().getMilliseconds(),
+            data: $("form").serialize(),
+            success: function (msg) {
+                $.messager.progress("close");
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+                editDialog.dialog('close');
+            }
+        });
+        return false;
+    }
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbSampleItemList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleItemList").datagrid("load", { "queryExpression": queryExpression.trim() ,"time":new Date().getMilliseconds()});
+        return false;
+    } 
+    var batchUpdateInfoDialog; 
+    function doBatchUpdateInfo(){
+        var ids = generateSelectedIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg: "请选择要批量更新的项", showType: 'show' });
+            return false;
+        }
+        if(batchUpdateInfoDialog) batchUpdateInfoDialog.dialog("destroy");
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        var url = '@Url.Action("BatchUpdateInfoContainer","SampleItem")'+"?ids=" + ids + "&time="+ new Date().getMilliseconds();
+        $("#divSampleItemBatchUpdateInfoDialog").load(url,function(){
+             $.messager.progress("close");
+             batchUpdateInfoDialog = @(Html.JDialog("divBatchUpdateInfo").SetAutoDialog(false).SetModal(true).SetOkScript(sampleItemPrivilige.IsEnableBatchUpdateInfo?"execBatchUpdateSampleItemInfo();":"alert('无操作权限');").SetCancelScript("batchUpdateInfoDialog.dialog('close');return false;").SetTitle("批量更新信息").SetIconCls("icon-save").ToMvcString());
+        });
+        return false;
+    }
+    function execBatchUpdateSampleItemInfo(){
+        var ids = generateSelectedIds();
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("BatchUpdateInfo")'+ "?time=" + new Date().getMilliseconds(),
+            data: $("#frmUpdateInfo").serialize()+"&ids=" + ids,
+            success: function (msg) {
+                $.messager.progress("close");
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+                batchUpdateInfoDialog.dialog('close');
+            }
+        });
+        return false;
+    }  
+    </script>

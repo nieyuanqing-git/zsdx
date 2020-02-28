@@ -1,0 +1,84 @@
+﻿@model com.Bynonco.LIMS.BLL.EquipmentRepairFundsApplyAuditContext  
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL;
+@using com.Bynonco.LIMS.Model.View;
+@{ 
+    var title = ViewData["Title"] == null ? "维修基金申请单审核" : ViewData["Title"].ToString();
+    var equipmentRepairFundsApplyRole = (EquipmentRepairFundsApplyRole)ViewData["EquipmentRepairFundsApplyRole"];
+    var viewEquipmentRepairFundsApply = ViewData["EquipmentRepairFundsApplyIds"].ToString().IndexOf(",") == -1 ? (ViewEquipmentRepairFundsApply)ViewData["ViewEquipmentRepairFundsApply"] : null;
+ }
+<div id="divEquipmentRepairFundsApplyBatchAuditContainer">
+   <form id="frmEquipmentRepairFundsApplyAudit" action="#">
+    @Html.Hidden("EquipmentRepairFundsApplyIds", ViewData["EquipmentRepairFundsApplyIds"])
+    <table class="edit-table">
+        @if (ViewData["EquipmentRepairFundsApplyIds"].ToString().IndexOf(",") == -1)
+        {
+             <tr>
+                <th>所需总经费</th>
+                <td>@viewEquipmentRepairFundsApply.RepairTotalFeeStr 元</td>
+             </tr>
+             <tr>
+                <th>申请资助经费</th>
+                <td>@viewEquipmentRepairFundsApply.ApplyFeeStr 元</td>
+             </tr>
+             <tr>
+                <th>自筹经费</th>
+                <td>@viewEquipmentRepairFundsApply.SelfFeeStr 元</td>
+             </tr>
+             if (equipmentRepairFundsApplyRole == EquipmentRepairFundsApplyRole.ShareEAuditor)
+             {
+                 <tr>
+                    <th>资产管理处批准额度</th>
+                    <td>@viewEquipmentRepairFundsApply.EquipmentDeptAuditPassBalance.Value%</td>
+                 </tr>
+             }
+        }
+        <tr>
+            <th>状态</th>
+            <td>
+                @Html.JComboBox("AuditStatus").SetData(ViewData["AuditStatusJson"]).SetWidth(205).ToMvcString()
+            </td>
+        </tr>
+        @if (equipmentRepairFundsApplyRole == EquipmentRepairFundsApplyRole.EquipmentDeptAuditor ||
+                  equipmentRepairFundsApplyRole == EquipmentRepairFundsApplyRole.ShareEAuditor)
+        {
+            <tr>
+            <th>批准额度</th>
+            <td>
+                @Html.JValidateBox("PassBalance").SetValue(Model.PassBalance.HasValue ? Model.PassBalance.Value.ToString("0.00") : "").SetWidth(100).ToMvcString()
+                <span>%</span>
+            </td>
+            </tr>
+        }
+        @if (equipmentRepairFundsApplyRole == EquipmentRepairFundsApplyRole.EquipmentDeptAuditor)
+        {
+            if (viewEquipmentRepairFundsApply == null || (viewEquipmentRepairFundsApply != null && viewEquipmentRepairFundsApply.IsBigAmount))
+            {
+                <tr style="display:none;">
+                    <th>是否需要校长审核</th>
+                    <td>@Html.CheckBox("IsNeedSchooMasterAudit")</td>
+                </tr>
+            }
+            <tr style="display:none;">
+                <th>大型仪器设备开放共享系统信息是否完整</th>
+                <td>@Html.CheckBox("IsEquipmentInfoComplete")</td>
+            </tr>
+            <tr style="display:none;">
+                <th>@("<<大型仪器设备使用记录薄>>")是否填写规范</th>
+                <td>@Html.CheckBox("IsEquipmentUseRecordInputCorrect")</td>
+            </tr>
+            <tr style="display:none;">
+                <th>上一年度效益评价成绩是否合格</th>
+                <td>@Html.CheckBox("IsEquipmentLastYearPerformancePassed")</td>
+            </tr>
+        }
+        <tr>
+            <th>审核意见</th>
+            <td>
+                @Html.TextArea("Remark", Model.Remark, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:320px;margin-right:5px;overflow-y:auto" })
+            </td>
+        </tr>
+        
+    </table>
+   </form>
+</div>

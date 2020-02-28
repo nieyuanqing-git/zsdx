@@ -1,0 +1,79 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentAlarmQueryExpress() {
+        var queryExpression = "";
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression = "Name∽\"" + equipmentName.trim() + "\"";
+        }
+        var equipmentLabel = $("#SearchEquipmentLabel").val().trim();
+        if (equipmentLabel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Label∽\"" + equipmentLabel + "\"";
+        }
+        var equipmentModel = $("#SearchEquipmentModel").val().trim();
+        if (equipmentModel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Model∽\"" + equipmentModel + "\"";
+        }
+        var status = $("#SearchStatus").combobox("getValue");
+        if (status != "" && status != "-1") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+        }
+        var operationTimeStart = $("#SearchOptTimeStart").datebox("getValue").trim();
+        if (operationTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OptTime>\"" + operationTimeStart + "\"";
+        }
+        var operationTimeEnd = $("#SearchOptTimeEnd").datebox("getValue").trim();
+        if (operationTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OptTime<\"" + operationTimeEnd + " 23:59:59\"";
+        }
+        return queryExpression;
+    }
+
+    function doResetEquipmentAlarm() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchEquipmentLabel").val("");
+        $("#SearchEquipmentModel").val("");
+        $("#SearchStatus").combobox("setValue", "");
+        $("#SearchOptTimeStart").datebox("setValue", "");
+        $("#SearchOptTimeEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>资产编号</label>
+        @Html.JValidateBox("SearchEquipmentLabel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>设备型号</label>
+         @Html.JValidateBox("SearchEquipmentModel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>状态</label>
+        @(Html.JComboBox("SearchStatus")
+            .SetEditable(false)
+            .SetData(ViewData["SearchStatusJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li>
+        <label>警告时间</label>
+        @Html.JDateTimePicker("SearchOptTimeStart").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchOptTimeEnd").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doEquipmentAlarmSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doResetEquipmentAlarm();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

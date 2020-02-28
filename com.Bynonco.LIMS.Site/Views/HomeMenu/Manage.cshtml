@@ -1,0 +1,138 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div class="layout-center-full">
+    <div id="divSelectOrg" style="border:1px solid #D3D3D3;border-bottom:0;"> 
+        @Html.Partial("../LabOrganization/SelectOrg")
+    </div>
+    <div>
+        @Html.Partial("../HomeMenu/List")
+    </div>
+    <div id="divHomeMenuDialog" style="display:none"></div>
+</div>
+
+<style type="text/css">
+    #divSelectOrg{ padding:15px 20px; vertical-align:middle;}
+    #divSelectOrg span.span-title{ font-size:14px; padding-right:3px;vertical-align:middle;}
+</style>
+<script type="text/javascript">
+     function doOrgChange() {
+        var orgId = $("#OrgIdSelect").val();
+        if (orgId == "" && orgId.isDefaultGuid()) return;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetTreeGridHomeMenuList", "HomeMenu")',
+            data: { "orgId": orgId },
+            success: function (data) {
+                $('#tbHomeMenuList').treegrid('loadData', { total: 0, rows: [] });
+                $('#tbHomeMenuList').treegrid('loadData', data);
+                $.messager.progress('close');
+            }
+        });
+    }
+
+    function adjustXpath(xPath, compareTarget) {
+        if (!xPath || xPath.trim() == "" || !compareTarget || compareTarget.trim() == "") return false;
+        var orgId = $("#OrgIdSelect").val();
+        if (orgId == "" && orgId.isDefaultGuid()) return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "HomeMenu",new { date=DateTime.Now.Millisecond})',
+            data: { "xPath": xPath, "compareTarget": compareTarget,"orgId":orgId },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                doOrgChange();
+            }
+        });
+        return false;
+    }
+    function doDeleteHomeMenu(id) {
+        if (!id || id.trim() == "") {
+            var selectedHomeMenu = $("#tbHomeMenuList").treegrid("getSelected");
+            if (!selectedHomeMenu || selectedHomeMenu.Id.trim() == "" || selectedHomeMenu.Id.isDefaultGuid()) {
+                $.messager.alert('提示', '请选择要删除的项', 'warning');
+                return false;
+            }
+            id = selectedHomeMenu.Id;
+        }
+        $.messager.confirm('提示', '确认删除该节点以及所有相关子节点?', function (r) {
+            if (!r) return;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "HomeMenu",new { date=DateTime.Now.Millisecond})',
+                data: { "id": id },
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.alert('提示', msg, 'warning');
+                        return false;
+                    }
+                    doOrgChange();
+                }
+            });
+        });
+        return false;
+    }
+
+    var homeMenuDialog;
+    function doHomeMenuDialog() {
+        if (homeMenuDialog) {
+            homeMenuDialog.dialog("destroy");
+        }
+        homeMenuDialog =  @Html.JDialog("divHomeMenuEdit").SetTitle("前台菜单信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("homeMenuDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveHomeMenu();").ToMvcString();
+    }
+    function doAddOrEditHomeMenu(id){
+        var orgId = $("#OrgIdSelect").val();
+        var url = '@Url.Action("Edit","HomeMenu")';
+        $("#divHomeMenuDialog").load(url,{"id":id,"orgId":orgId,"date":new Date().getMilliseconds()},function(){
+            doHomeMenuDialog();
+        })
+        return false;
+    }
+    function doAddHomeMenu(id) {
+       doAddOrEditHomeMenu(id);
+    }
+    function doEditHomeMenu(id) {
+       if(!id || id.trim()==""){
+           var selectedHomeMenu = $("#tbHomeMenuList").treegrid("getSelected");
+           if(!selectedHomeMenu || selectedHomeMenu.Id=="" || selectedHomeMenu.Id.isDefaultGuid()) {
+              $.messager.alert('提示', '请选择要操作项', 'warning');
+              return false;
+           }
+           id = selectedHomeMenu.Id;
+       }
+       doAddOrEditHomeMenu(id);
+    }
+    function doSaveHomeMenu(){
+        if($("#Name").val().trim() == ""){
+             $.messager.alert('提示', '名称为空', 'warning');
+             return false;
+        }
+        if($("#Url").val().trim() == ""){
+             $.messager.alert('提示', '链接为空', 'warning');
+             return false;
+        }
+        var labOrganizationId = $("#LabOrganizationId").val();
+        if(!labOrganizationId || labOrganizationId=="" || labOrganizationId.isDefaultGuid()) {
+             $.messager.alert('提示', '组织机构为空', 'warning');
+             return false;
+        }
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","HomeMenu",new { date=DateTime.Now.Millisecond})',
+            data: $("#frmHomeMenuEdit").serialize(),
+            success: function (msg) {
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                homeMenuDialog.dialog('close');
+                doOrgChange();
+            }
+        });
+   }
+</script>

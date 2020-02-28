@@ -1,0 +1,241 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divAnimalStorePosDialog" style="display:none;"></div>
+<div id="divViewAnimalDialog" style="display:none;"></div>
+<div id="divInAnimalDialog" style="display:none;"></div>
+<div id="divBatchInAnimalDialog" style="display:none;"></div>
+<div id="divAnimalRegisterDeathDialog" style="display:none;"></div>
+<div id="divAnimalCondfirmRegisterDeathDialog" style="display:none;"></div>
+<div id="divCostDeductInputDialog" style="display:none;"></div>
+<div id="divCostDeductLogDialog" style="display:none;"></div>
+<div style="display:none;">
+    <div id="divCostDeductResultContainer" style="width:450px"></div>
+</div>
+<script type="text/javascript">
+    var costDeductLogDialog;
+    function doViewCostDeductLog(){
+         if(costDeductLogDialog) costDeductLogDialog.dialog('destroy');
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divCostDeductLogDialog").load('@Url.Action("LogContainer","Animal")', function () {
+            $.messager.progress('close');
+            costDeductLogDialog = @(Html.JDialog("divAnimalCostDeductLogContainer").SetTitle("实验动物扣费日志").SetIconCls("icon-doc").SetAutoDialog(false).SetCancelScript("costDeductLogDialog.dialog('close');return false;").SetModal(true).SetOkScript("costDeductLogDialog.dialog('close');return false;").ToMvcString());
+        });
+        
+    }
+    var costDeductResultDialog;
+    function showCostDeductResult(result){
+        $("#divCostDeductResultContainer").html(result);
+        costDeductResultDialog = @(Html.JDialog("divCostDeductResultContainer").SetTitle("实验动物扣费结果").SetAutoDialog(false).SetOkScript("costDeductResultDialog.dialog('close');").SetCancelScript("costDeductResultDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+    }
+    function doCostDeduct(id){
+        showCostDeductInputContainer(id,'@Url.Action("CostDeduct","Animal")');
+      }
+      function doBathCostDeduct(){
+        var ids = generateSelectedIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg: '请选择要批量扣费的动物', showType: 'show' });
+            return;
+        }
+        showCostDeductInputContainer(ids,'@Url.Action("BatchCostDeduct","Animal")');
+      }
+      function doAutoCostDeduct(){
+         showCostDeductInputContainer("",'@Url.Action("AutoCostDeduct","Animal")');
+      }
+      var costDeductInputDialog;
+      function showCostDeductInputContainer(ids,url){
+        if(costDeductInputDialog) costDeductInputDialog.dialog('destroy');
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divCostDeductInputDialog").load('@Url.Action("CostDeductInputContainer","Animal")', function () {
+            $.messager.progress('close');
+            costDeductInputDialog = @(Html.JDialog("divCostDeductInput").SetTitle("请输入扣费截止时间").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("costDeductInputDialog.dialog('close');return false;").SetModal(true).SetOkScript("excuteCostDeduct(ids,url);return false;").ToMvcString());
+        });
+      }
+      function excuteCostDeduct(ids,url){
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: url + "?time=" + new Date().getMilliseconds().toString(),
+                data: $("#frmCostDeductInput").serialize() + "&animalId=" + ids,
+                success: function (msg) {
+                   $.messager.progress('close');
+                   costDeductInputDialog.dialog('close'); 
+                   showCostDeductResult(msg);
+                   doAnimalSearch();
+                }
+            });
+            
+      }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbNeedCostListAnimalList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    var animalStorePosDialog;
+    function doSelectAnimalCage(id,cageIdEelement,cageRowNoEelement,cageColNoEelement) {
+        var cageId = document.getElementById(cageIdEelement).value;
+        var cageRowNo = document.getElementById(cageRowNoEelement).value;
+        var cageColNo =document.getElementById(cageColNoEelement).value;
+        if(animalStorePosDialog) animalStorePosDialog.dialog('destroy');
+        var url = '@Url.Action("StorePosContainer","Animal")' + "?time=" + new Date().getMilliseconds() + "&id=" + id + "&cageId=" + cageId + "&cageRowNo=" + cageRowNo + "&cageColNo=" + cageColNo;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAnimalStorePosDialog").load(url, function () {
+            $.messager.progress('close');
+            animalStorePosDialog = @(Html.JDialog("divAnimalStorePosContainer").SetTitle("动物存放位置").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("animalStorePosDialog.dialog('close');return false;").SetModal(true).SetOkScript("doOnFinishCageSelected(animalStorePosDialog);").ToMvcString());
+        });
+    }
+    var animalRegisterDeathDialog;
+    function doRegisterDeath(id) {
+        if(animalRegisterDeathDialog) animalRegisterDeathDialog.dialog('destroy');
+        var url = '@Url.Action("RegisterDeathInputContainer","Animal")' + "?time=" + new Date().getMilliseconds() + "&id=" + id ;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAnimalRegisterDeathDialog").load(url, function () {
+            $.messager.progress('close');
+            animalRegisterDeathDialog = @(Html.JDialog("divRegisterDeath").SetTitle("登记死亡").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("animalRegisterDeathDialog.dialog('close');return false;").SetModal(true).SetOkScript("excRegisterDeath(id);").ToMvcString());
+        });
+    }
+    function excRegisterDeath(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("RegisterDeath")'+ "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#frmRegisterDeath").serialize() + "&id=" + id,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doAnimalSearch();
+                animalRegisterDeathDialog.dialog("close");
+            }
+        });
+        return false;
+    }
+
+    var animalConfirmRegisterDeathDialog;
+    function doConfirmRegistingDeath(id){
+       if(animalConfirmRegisterDeathDialog) animalConfirmRegisterDeathDialog.dialog('destroy');
+        var url = '@Url.Action("ConfirmRegisterDeathInputContainer","Animal")' + "?time=" + new Date().getMilliseconds() + "&id=" + id ;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAnimalCondfirmRegisterDeathDialog").load(url, function (data) {
+            $.messager.progress('close');
+            animalConfirmRegisterDeathDialog = @(Html.JDialog("divCondfirmRegisterDeath").SetTitle("确认登记死亡").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("animalConfirmRegisterDeathDialog.dialog('close');return false;").SetModal(true).SetOkScript("excConfirmRegisterDeath(id);").ToMvcString());
+        });
+    }
+    function excConfirmRegisterDeath(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ConfirmRegistingDeath")'+ "?time=" + new Date().getMilliseconds().toString()+ "&id=" + id,
+            data: $("#frmConfirmRegisterDeath").serialize() ,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doAnimalSearch();
+                animalConfirmRegisterDeathDialog.dialog("close");
+            }
+        });
+        return false;
+    }
+
+    var animalViewDialog;
+    function doView(id){
+        if(animalViewDialog) animalViewDialog.dialog('destroy');
+        var url = '@Url.Action("View","Animal")' + "?time=" + new Date().getMilliseconds() + "&id=" + id;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divViewAnimalDialog").load(url, function () {
+            $.messager.progress('close');
+            animalViewDialog = @(Html.JDialog("divViewAnimal").SetTitle("动物详细信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("animalViewDialog.dialog('close');return false;").SetModal(true).SetOkScript("animalViewDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    var batchAnimalInDialog;
+    function doBatchIn(){
+        var ids = generateSelectedIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg: '请选择要批量入库的动物', showType: 'show' });
+            return;
+        }
+        if(batchAnimalInDialog) batchAnimalInDialog.dialog('destroy');
+        var url = '@Url.Action("BatchInContainer","Animal")' + "?time=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divBatchInAnimalDialog").load(url, function () {
+            $.messager.progress('close');
+            batchAnimalInDialog = @(Html.JDialog("divBatchInAnimal").SetTitle("动物批量入库").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("batchAnimalInDialog.dialog('close');return false;").SetModal(true).SetOkScript("execBatchIn(ids);").ToMvcString());
+        });
+    }
+    function execBatchIn(ids){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("BatchIn")'+ "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#frmBatchInAnimal").serialize() + "&ids=" + ids,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doAnimalSearch();
+                batchAnimalInDialog.dialog("close");
+            }
+        });
+        return false;
+    }
+    
+    var animalInDialog;
+    function doIn(id){
+        if(animalInDialog) animalInDialog.dialog('destroy');
+        var url = '@Url.Action("InContainer","Animal")' + "?time=" + new Date().getMilliseconds() + "&id=" + id;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divInAnimalDialog").load(url, function () {
+            $.messager.progress('close');
+            animalInDialog = @(Html.JDialog("divInAnimal").SetTitle("动物入库").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("animalInDialog.dialog('close');return false;").SetModal(true).SetOkScript("execIn(id);").ToMvcString());
+        });
+    }
+
+    function doOnFinishCageSelectedCallBack(selectedCageIds, selectedCageNames, selectedCageCodes, selectedCageRowNos, selectedCageColNos, selectedFrameIds, selectedFrameNames, selectedFrameRowNos, selectedFrameColNos, selectedLabRoomNames, animalStorePosDialog) {
+        if (!selectedCageIds || selectedCageIds.length == 0) {
+            $.messager.show({ title: '提示', msg: "请选择笼位信息", showType: 'show' });
+            return;
+        }
+        $("#AnimalCageName").val(selectedCageNames[0]);
+        $("#AnimalCageId").val(selectedCageIds[0]);
+        $("#AnimalCageRowNo").val(selectedCageRowNos[0]);
+        $("#AnimalCageColNo").val(selectedCageColNos[0]);
+        var pos = selectedLabRoomNames[0] + "－";
+        if (selectedFrameIds.length > 0 && selectedFrameIds[0] != "") {
+            pos += selectedFrameNames[0] + "(" + selectedFrameRowNos[0] + "," + selectedFrameColNos[0] + ")－";
+        }
+        pos += selectedCageNames[0] + "(" + selectedCageRowNos[0] + "," + selectedCageColNos[0] + ")";
+        $("#spanAnimalCagePosition").html(pos);
+        if (animalStorePosDialog) animalStorePosDialog.dialog('close');
+    }
+
+
+     function execIn(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("In")'+ "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#frmInAnimal").serialize() + "&id=" + id,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doAnimalSearch();
+                animalInDialog.dialog("close");
+            }
+        });
+        return false;
+    }
+
+</script>

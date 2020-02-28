@@ -1,0 +1,34 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+@{
+    var dataGrid = Html.JDataGrid("tbArticleRelationList")
+    .SetUrl(Url.Action("GetGridViewArticleRelationList", "ArticleRelation", new { orgId = ViewBag.SelectedOrgId }))
+    .SetHeight(250)
+    .SetPageSize(5)
+    .SetShowPrintButton(false)
+    .SetSortName("PublishAt")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowSearchButton(false)
+    .SetShowAddButton(false)
+    .SetShowEditButton(false)
+    .SetShowDeleteButton(false)
+    .SetShowRefreshButton(false)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusNickName").SetWidth(70).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("主题", "Title").SetWidth(150).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所属分类", "OriginalCategoryNameStr").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("关联分类", "RelationCategoryNameStr").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("作者", "Author").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发布时间", "PublishAtStr").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否置顶", "IsTopStr").SetWidth(70).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "AuditUserName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核时间", "AuditTimeStr").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "javasctipt:;",  Id = "btnArticleRelationTitle", Text = "其它分类文章关联显示审核：" });
+    dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doAuditArticleRelationPass();", IconCls = "icon-pass", Id = "btnAuditArticleRelationPass", Text = "审核通过" });
+    dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doAuditArticleRelationReject();", IconCls = "icon-no", Id = "btnAuditArticleRelationReject", Text = "审核不通过" });
+    dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doDeleteArticleRelation();", IconCls = "icon-cancel", Id = "btnDeleteArticleRelation", Text = "删除" });
+    dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doSearchArticleRelation();", IconCls = "icon-reload", Id = "btnSearchArticleRelation", Text = "刷新" });
+    dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doViewArticleRelationHelp();", IconCls = "icon-help", Id = "btnShowHelp", Text = "帮助说明" });
+}
+@(dataGrid.ToMvcString())

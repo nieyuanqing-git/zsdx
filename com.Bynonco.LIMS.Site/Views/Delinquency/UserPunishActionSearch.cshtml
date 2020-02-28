@@ -1,0 +1,30 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateUserPunishExpression() {
+        var queryExpression = "";
+        var userName = $("#SearchUserPunishName").val().trim();
+        if (userName != "") {
+            queryExpression = "PunisherName∽\"" + userName + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doUserPunishReset() {
+        $("#SearchUserPunishName").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>用户名称</label>
+        @Html.JValidateBox("SearchUserPunishName").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnUserPunishActionSearch", "查询").SetOnclick("doUserPunishSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnUserPunishActionSearchReset", "清空").SetOnclick("doUserPunishReset();").ToMvcString()
+        @Html.JLinkButton("btnUserPunishActionSearchClose", "关闭").SetOnclick("doUserPunishCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

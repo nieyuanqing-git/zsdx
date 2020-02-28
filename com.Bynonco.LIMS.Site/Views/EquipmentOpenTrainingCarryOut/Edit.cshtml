@@ -1,0 +1,133 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenTrainingCarryOut
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Guid? semesterId = null;
+    if (ViewData["SemesterId"] != null) { semesterId = Guid.Parse(ViewData["SemesterId"].ToString()); }
+}
+<div id="divEquipmentOpenTrainingCarryOutEdit">
+    <form id="frmEquipmentOpenTrainingCarryOutEdit" action="#">
+    <input id="Id" type="hidden" value="@(Model == null ? "": Model.Id.ToString())" name="Id" />
+    <table class="edit-table"  style="width:545px;">
+        <tr>
+            <th>学期</th>
+            <td colspan='3'>
+                @(ViewData["SemesterName"] == null ? "" : ViewData["SemesterName"].ToString())
+                @Html.Hidden("SemesterId", semesterId.HasValue ? semesterId.Value.ToString() : "")
+            </td>
+        </tr>
+        <tr>
+            <th>培训名称</th>
+            <td colspan='3'>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(420).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>培训申请单</th>
+            <td id='tdEquipmentOpenTrainingId' colspan='3'>
+                @if (Model == null || Model.EquipmentOpenTraining == null)
+                {
+                    <div style='float:left;'>
+                    @(Html.TokenInput("EquipmentOpenTrainingId")
+                        .SetUrl(Url.Action("GetEquipmentOpenTrainingListByKeyWord", "EquipmentOpenTraining", new { semesterId = semesterId }))
+                        .SetSingle(true)
+                        .SetWidth(400)
+                        .ToMvcString())
+                    </div>
+                    <div style='float:left;'>
+                        @Html.JLinkButton("btnClearEquipmentOpenTrainingId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#EquipmentOpenTrainingId').tokenInput('clear');;return false;").ToMvcString()
+                    </div>
+                    <div class='clear-both'></div>
+                }
+                else
+                {
+                    @Html.Hidden("EquipmentOpenTrainingId", Model.EquipmentOpenTrainingId)
+                    @Model.EquipmentOpenTraining.Name
+                   if (Model.EquipmentOpenTraining.Equipment != null)
+                   {
+                        <span>[@(Model.EquipmentOpenTraining.Equipment.Name)]</span>
+                   }
+                }
+            </td>
+        </tr>
+        <tr>
+            <th colspan='4'>考核安排</th>
+        </tr>
+        <tr>
+            <th>考核方式</th>
+            <td>@Html.JValidateBox("ExamineType").SetValue(Model == null ? "" : Model.ExamineType).SetWidth(150).ToMvcString()</td>
+            <th>考试时间</th>
+            <td>@Html.JDateTimePicker("ExamineTime").SetValue(Model == null ? "" : Model.ExamineTime.HasValue ? Model.ExamineTime.Value.ToString("yyyy-MM-dd") : "").SetWidth(155).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>考核地点</th>
+            <td colspan='3'>@Html.JValidateBox("ExaminePlace").SetValue(Model == null ? "" : Model.ExaminePlace).SetWidth(420).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th colspan='4'>报名注意事项</th>
+        </tr>
+         <tr>
+            <th>开始时间</th>
+            <td>@Html.JDateTimePicker("ApplyStratTime").SetValue(Model == null ? "" : Model.ApplyStratTime.ToString("yyyy-MM-dd")).SetWidth(155).ToMvcString()</td>
+            <th>结束时间</th>
+            <td>@Html.JDateTimePicker("ApplyEndTime").SetValue(Model == null ? "" : Model.ApplyEndTime.ToString("yyyy-MM-dd")).SetWidth(155).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>报名条件</th>
+            <td>@Html.JValidateBox("ApplyCondition").SetValue(Model == null ? "" : Model.ApplyCondition).SetWidth(150).ToMvcString()</td>
+            <th>考试地点</th>
+            <td>@Html.JValidateBox("ApplyPlace").SetValue(Model == null ? "" : Model.ApplyPlace).SetWidth(150).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>联系人</th>
+            <td>@Html.JValidateBox("ApplyLinkman").SetValue(Model == null ? "" : Model.ApplyLinkman).SetWidth(150).ToMvcString()</td>
+            <th>联系电话</th>
+            <td>@Html.JValidateBox("ApplyLinkPhone").SetValue(Model == null ? "" : Model.ApplyLinkPhone).SetWidth(150).ToMvcString()</td>
+        </tr>
+         <tr>
+            <th>其他说明</th>
+            <td colspan='3'>@Html.JValidateBox("Remark").SetValue(Model == null ? "" : Model.Remark).SetWidth(420).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>培训安排<br />
+                @Html.JLinkButton("btnAddPlan", "新增").SetIconCls("icon-add").SetPlain(true).SetOnclick("doAddPlan();return false;").ToMvcString()
+            </th>
+            <td colspan='4' id='tdPlanItems'>
+                <table border='0' cellpadding='0' cellspacing='0' id='tbPlanList'>
+                    <tr>
+                        <th style='width:40px;'>操作</th>
+                        <th style='width:60px;'>日期</th>
+                        <th>起止时间</th>
+                        <th>培训地点</th>
+                        <th style='width:150px;'>培训内容(方式)</th>
+                        <th>授课教师</th>
+                    </tr>
+                    @if (Model != null && Model.EquipmentOpenTrainingCarryOutPlanList != null && Model.EquipmentOpenTrainingCarryOutPlanList.Count() > 0)
+                    {
+                        foreach (var item in Model.EquipmentOpenTrainingCarryOutPlanList)
+                        {
+                            @Html.Partial("../EquipmentOpenTrainingCarryOut/PlanEdit", item)
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+    </table>
+    </form>
+</div> 
+<script type="text/javascript">
+    function doAddPlan() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("PlanEdit","EquipmentOpenTrainingCarryOut")',
+            success: function (data) {
+                $("#tbPlanList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemovePlan(infoId) {
+        if (!infoId || infoId == "") return;
+        $("#tr_" + infoId).remove();
+    }
+</script>

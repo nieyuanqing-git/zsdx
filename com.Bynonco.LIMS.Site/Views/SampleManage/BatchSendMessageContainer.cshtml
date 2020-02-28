@@ -1,0 +1,57 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divBatchSendMsgNoticeResult">
+    <form id="frmBatchSendMsgNotice">
+    <table class="edit-table">
+        <tr>
+            <th colspan="3">标题和内容如果为空则采用系统自动生成的标题和内容</th>
+        </tr>
+        <tr>
+            <th>发信模式</th>
+            <td>@Html.JComboBox("SendMode").SetData(ViewData["SendModeJson"]).SetWidth(206).SetValue(ViewData["SendMode"].ToString()).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>标题</th>
+            <td>
+                @Html.JValidateBox("Title").SetValue(ViewData["Title"].ToString()).SetWidth(335).SetValidateType(ValidateType.required).SetInvalidMessage("请输入消息的标题").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>内容</th>
+            <td>
+                @Html.TextArea("Content", ViewData["Content"].ToString(), new { style = "height:60px;width:335px;font-size:12px;font-weight:normal" })  
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+
+<script type="text/javascript">
+    var batchSendMsgResultDialog;
+    function exccBatchSendSampleMsgNotice(batchSendMsgNoticedialog) {
+        var ids = generateSelectedSampleApplyIds();
+        if (ids == "") {
+            $.messager.show({ title: '提示', msg: "请选择要发信的项", showType: 'show' });
+            return false;
+        }
+        var sendMode = $("#SendMode").combobox("getValue").trim();
+        if (sendMode == "") {
+            $.messager.show({ title: '提示', msg: "请选择发信模式", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("BatchSendSampleMsgNotice","SampleManage")' + "?time=" + new Date().getMilliseconds(),
+            data: $("#frmBatchSendMsgNotice").serialize() + "&ids=" + ids,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (batchSendMsgNoticedialog) batchSendMsgNoticedialog.dialog("destroy");
+                $("#divBatchSendMessageResultdialog").html(msg);
+                setTimeout("showBatchSendMessageResult();",100);
+            }
+        });
+    }
+    function showBatchSendMessageResult(){
+        batchSendMsgResultDialog = @(Html.JDialog("divBatchOperateResult").SetTitle("批量发信结果").SetIconCls("icon-tip").SetAutoDialog(false).SetOkScript("batchSendMsgResultDialog.dialog('close');return false;").SetCancelScript("batchSendMsgResultDialog.dialog('close');return false;").SetModal(true).ToMvcString());
+    }
+</script>

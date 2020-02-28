@@ -1,0 +1,111 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divBuildingDialog"></div>
+<script type="text/javascript">
+    function doSearch() {
+        $('#tbBuildingList').treegrid('loadData', { total: 0, rows: [] });
+        $("#tbBuildingList").treegrid("reload");
+        return false;
+    }
+    var buildingDialog;
+    function doBuildingDialog() {
+        if (buildingDialog) {
+            buildingDialog.dialog("destroy");
+        }
+        buildingDialog =  @Html.JDialog("divBuildingEdit").SetTitle("楼宇信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("buildingDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveBuilding();").ToMvcString();
+    }
+    function doAddOrEditBuilding(id){
+        var url = '@Url.Action("Edit","Building")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divBuildingDialog").load(url,function(){
+            doBuildingDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAddBuilding(id) {
+       doAddOrEditBuilding(id);
+    }
+    function doEditBuilding(id) {
+       if(!id || id.trim()==""){
+           var selectedBuilding = $("#tbBuildingList").treegrid("getSelected");
+           if(!selectedBuilding || selectedBuilding.Id=="" || selectedBuilding.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择楼宇", showType: 'show' });
+              return false;
+           }
+           id = selectedBuilding.Id;
+       }
+       doAddOrEditBuilding(id);
+    }
+    function doSaveBuilding(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"名称为空", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","Building")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmBuildingEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                buildingDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteBuilding(id){
+        if(!id || id.trim() == ""){
+              var selectedBuilding = $("#tbBuildingList").treegrid("getSelected");
+                if(!selectedBuilding || selectedBuilding.Id.trim() == "" || selectedBuilding.Id.isDefaultGuid()){
+                    $.messager.alert('提示', '请选择要删除的项', 'warning');
+                    return false;
+                }
+                id = selectedBuilding.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Building")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpath(xPath,compareTarget){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "Building")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false;
+   }
+   function doSiteMapSetting(id){
+        var url = '@Url.Action("SiteMapIndex", "Building")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>

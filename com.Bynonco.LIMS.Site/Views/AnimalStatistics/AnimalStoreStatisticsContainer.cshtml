@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Partial("AnimalStoreStatisticsSearch")
+<div id="divAnimalStoreStatisticsContainer"></div>
+<div id="divAnimalStoreStatisticsDetailDialog" style="display:none;"></div>
+<script type="text/javascript">
+    function doAnimalStoreStatisticsDetail() {
+        var beginDate = $("#beginDate").datebox("getValue");
+        var endDate = $("#endDate").datebox("getValue");
+        var url = '@Url.Action("AnimalStoreStatisticsDetailContainer")' + "?time=" + new Date().getMilliseconds();
+        $("#divAnimalStoreStatisticsContainer").load(url, { "beginDate": beginDate, "endDate": endDate }, function (data) {
+        });
+    }
+    var animalStoreStatisticsDetailDialog;
+    function doShowAnimalStoreStatisticsDetail(animalCategoryId,animalStoreStatus, beginDate, endDate) {
+        if(animalStoreStatisticsDetailDialog) animalStoreStatisticsDetailDialog.dialog('destroy');
+        var url = '@Url.Action("AnimalStoreStatisticsDetailInfoContainer","AnimalStatistics")' + "?time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAnimalStoreStatisticsDetailDialog").load(url,{"animalCategoryId":animalCategoryId,"animalStoreStatus":animalStoreStatus,"beginDate":beginDate,"endDate":endDate},function () {
+            $.messager.progress('close');
+            animalStoreStatisticsDetailDialog = @(Html.JDialog("divAnimalDetail").SetTitle("实验动物统计明细信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("animalStoreStatisticsDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("animalStoreStatisticsDetailDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    $(function(){
+        doAnimalStoreStatisticsDetail();
+    });
+</script>

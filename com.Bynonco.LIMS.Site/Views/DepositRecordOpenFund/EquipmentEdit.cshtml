@@ -1,0 +1,37 @@
+﻿@model com.Bynonco.LIMS.Model.DepositRecordOpenFundEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var infoId = Model == null ? Guid.NewGuid() : Model.Id;
+    var str = Model == null || Model.Equipment == null ? "" : "[{\"id\":\"" + Model.Equipment.Id + "\",\"text\":\"" + Model.Equipment.Name + (" (" + Model.Equipment.Model + ")").Replace(" ()", "") + (Model.Equipment.Organization != null ? Model.Equipment.Organization.Name : "") + "\"}]";
+}
+<tr id='@("tr_" + infoId)'>
+    <td class='item-Id'>
+        <input id="Id_@(infoId)" type="hidden" value="@(infoId)" name="Id_@(infoId)"/>
+        @Html.JLinkButton("btnRemoveEquipment_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveItem('" + infoId + "');return false;").ToMvcString()
+    </td>
+    <td id='td@(infoId)'>
+        <div style='float:left;'>
+            @(Html.TokenInput("EquipmentId_" + infoId)
+                .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                .SetPrePopulate(string.IsNullOrWhiteSpace(str) ? null : str)
+                .SetSingle(true)
+                .SetWidth(400)
+                .ToMvcString())
+            </div>
+            <div style='float:left;'>
+                @Html.JLinkButton("btnClearEquipmentId_" + infoId, "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#EquipmentId_" + infoId + "').tokenInput('clear');;return false;").ToMvcString()
+            </div>
+            <div class='clear-both'></div>
+            <script type="text/javascript">
+                $(function () {
+                    $("#td@(infoId) ul.token-input-list-facebook").css("width", "100px");
+                });
+            </script>
+        @Html.Hidden("DepositSum_" + infoId, Model == null ? "" : Math.Round(Model.DepositSum,2).ToString())
+    </td>
+    <td>@Html.JValidateBox("SampleName_" + infoId).SetValue(Model == null ? "" : Model.SampleName).SetWidth(80).ToMvcString()</td>
+    <td>@Html.JValidateBox("SampleCount_" + infoId).SetValue(Model == null || !Model.SampleCount.HasValue ? "" : Model.SampleCount.Value.ToString()).SetOnChange("doChangeDepositSumMoney('" + infoId + "');return false;").SetWidth(50).ToMvcString()</td>
+    <td>@Html.JValidateBox("UnitPrice_" + infoId).SetValue(Model == null || !Model.UnitPrice.HasValue ? "" : Math.Round(Model.UnitPrice.Value,2).ToString()).SetOnChange("doChangeDepositSumMoney('" + infoId + "');return false;").SetWidth(50).ToMvcString()</td>
+    <td id='tdDepositSum_@(infoId)' style='text-align:center;' class='item-depositsum'>@(Model == null ? "" : Math.Round(Model.DepositSum,2).ToString())</td>
+    <td id='tdOpenFundSum_@(infoId)' style='text-align:center;'>@(Model == null ? "" : Math.Round(Model.DepositSum,2).ToString())</td>
+</tr>

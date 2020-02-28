@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+@{
+    var QAPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetQAPrivilige(User.Identity.Name);
+    var dataGrid=Html.JDataGrid("tbQAList")
+    .SetUrl(Url.Action("GetGridViewQuestionList", "QA"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetShowPrintButton(false)
+    .SetShowAddButton(false)
+    .SetShowEditButton(false)
+    .SetSortName("CreateTime")
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+    if (QAPrivilige.IsEnableAnswer)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doAnswerOrViewQA(' ','Answer');", IconCls = "icon-edit", Id = "btnAnswerQA", Text = "回答" });
+        dataGrid.SetOnDblClickRow("doAnswerOrViewQA(rowData.Id,'Answer')");
+    }
+    if (QAPrivilige.IsEnableView)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doAnswerOrViewQA(' ','View');", IconCls = "icon-eye", Id = "btnView", Text = "查看" });
+    }
+    dataGrid.SetShowDeleteButton(QAPrivilige.IsEnableDelete);
+    if (QAPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteQA('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("内容", "SubContentNotHTML").SetWidth(390).SetAlign(Align.left).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("提问者", "QuestionUserName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("提问时间", "CreateTimeStr").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("组织机构", "OrgName").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否置顶", "IsTopNickName").SetWidth(70).SetAlign(Align.center));
+}
+@(dataGrid.ToMvcString())

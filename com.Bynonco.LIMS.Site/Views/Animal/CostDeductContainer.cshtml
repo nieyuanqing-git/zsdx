@@ -1,0 +1,17 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var animalPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAnimalPrivilige(User.Identity.Name);
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../Animal/Search")</div>
+</div>
+<div>@Html.Partial("../Animal/NeedCostList")</div>
+<div style="display:none;">@Html.Partial("../Animal/ScriptContainer")</div>
+<script type="text/javascript">
+    function doAnimalSearch() {
+        var queryExpression = generateAnimalQueryExpress();
+        $("#tbNeedCostListAnimalList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbNeedCostListAnimalList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+    }    
+</script>

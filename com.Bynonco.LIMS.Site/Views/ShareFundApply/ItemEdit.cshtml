@@ -1,0 +1,22 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewShareFundApplyEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+@if (Model != null)
+{
+    var infoId = Model.EquipmentId;
+    <tr id='tr_@(infoId)'>
+        <td style='text-align:center;'>
+            @Html.Hidden("Id_" + infoId, Model == null ? "" : Model.Id.ToString())
+            <div>
+                @Html.JLinkButton("btnRemoveShareFundApplyEquipment_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveShareFundApplyEquipment('" + infoId + "');return false;").ToMvcString()
+            </div>
+        </td>
+        <td>@(Model.EquipmentLabel)</td>
+        <td>@(Model.EquipmentName)</td>
+        <td>@(Model.EquipmentModel)</td>
+        <td>@(Model.EquipmentOrgName)</td>
+        <td style='text-align:center;'>
+            @Html.JValidateBox("RequestHours_" + infoId).SetValue(Model == null ? "" : Math.Round(Model.RequestHours,2).ToString()).SetWidth(70).ToMvcString()
+        </td>
+    </tr>
+}

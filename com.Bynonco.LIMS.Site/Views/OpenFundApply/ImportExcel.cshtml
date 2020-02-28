@@ -1,0 +1,23 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divImportExcel" style="width:760px;">
+
+    <table class="edit-table" style="width:720px;">
+        <tr>
+            <th>导入Excel</th>
+            <td>
+                <input id="fileUserExcel" type="file" name="fileUserExcel" class="addfile" onchange="ajaxFileUploadUserExcel();return false;"/>
+            </td>
+            <td style='color:red'>（选择Excel文件进行导入）</td>
+            <td>模板：<a href='@Url.Content("~/ImportOpenFundApplyExcel.xls")' target="_blank" style='text-decoration:underline;'>点击这里下载</a></td>
+        </tr>
+    </table>
+    <div class="z-panel-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../OpenFundApply/OpenFundApplyExcelSearch")
+        </div>
+    </div>
+    <div>
+        @Html.Partial("../OpenFundApply/OpenFundApplyExcelList")
+    </div>
+    @Html.Partial("../OpenFundApply/OpenFundApplyExcelScriptContainer")
+</div> 

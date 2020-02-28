@@ -1,0 +1,34 @@
+﻿@model IList<com.Bynonco.LIMS.Model.Article>
+@using com.Bynonco.LIMS.Model.Enum;
+           
+@if (Model != null && Model.Count() > 0)
+{
+    var article = Model[0];
+    var titleCss = "title-left";
+    if (article.ArticleCategory.HomeLocationEnum.HasValue)
+    {
+        if (article.ArticleCategory.HomeLocationEnum.Value.ToString().IndexOf("Right") != -1)
+        {
+            titleCss = "title-right";
+        }
+        else if (article.ArticleCategory.HomeLocationEnum.Value == ArticleCategoryHomeLocation.FirstLineLeft || article.ArticleCategory.HomeLocationEnum.Value == ArticleCategoryHomeLocation.FullLineLeft)
+        {
+            titleCss = "";
+        }
+    }
+    <h2 class='@titleCss'>@(article.Title)</h2>
+    if (article.ArticleCategory.HomeLocationEnum.HasValue && article.ArticleCategory.HomeLocationEnum.Value != ArticleCategoryHomeLocation.FirstLineLeft && article.ArticleCategory.HomeLocationEnum.Value != ArticleCategoryHomeLocation.FullLineLeft)
+    {
+        @: <div class='content-box'>
+    }
+    <p class='detail-content'>
+        @System.Web.Mvc.MvcHtmlString.Create(article.ContentNoHTML.Replace("\r\n", "<br />"))
+    </p>
+    <ul class="news-list">
+        <li class="more"><span><a href='@Url.Action("Show", "Article", new { id = article.Id, ArticleCategoryId = article.ArticleCategoryId })' title="@article.Title"><img src="@Url.Content("~/Content/images/more.jpg")" alt="" /></a></span></li>
+    </ul>
+    if (article.ArticleCategory.HomeLocationEnum.HasValue && article.ArticleCategory.HomeLocationEnum.Value != ArticleCategoryHomeLocation.FirstLineLeft && article.ArticleCategory.HomeLocationEnum.Value != ArticleCategoryHomeLocation.FullLineLeft)
+    {
+        @: </div>
+    }
+}

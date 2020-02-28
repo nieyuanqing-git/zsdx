@@ -1,0 +1,22 @@
+﻿@{string widthStr = ViewData["Width"] != null ? "width:" + ViewData["Width"].ToString() + "px" : "";}
+<div id="divAppointmentPredictCostDeduct" style="@widthStr">
+    <div class="search-grid hide" >
+        <div class="search-inner-box">
+            @Html.Partial("../CostDeduct/AppointmentPredictCostDeductSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../CostDeduct/AppointmentPredictCostDeductList")</div>
+    <div style="display:none">@Html.Partial("../Appointment/ViewAppointmentInfoScript")</div>
+</div> 
+<script type="text/javascript">
+    function doAppointmentPredictDeductSearch() {
+        var queryExpression = generateAppointmentPredictDeductQueryExpression();
+        $("#tbViewAppointmentPredictCostDeduct").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbViewAppointmentPredictCostDeduct").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doExportAppointmentPredictCostDeductList(payerId) {
+        var newQueryExpression = generateAppointmentPredictDeductQueryExpression();
+        var url = '@Url.Action("ExportAppointmentPredictCostDeductList", "CostDeduct")' + "?userId=" + '@(ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "")' + "&isManage=" + '@(ViewData["IsManage"].ToString().ToLower())' + "&queryExpression=" + newQueryExpression.trim() + "&payerId=" + payerId + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+</script>

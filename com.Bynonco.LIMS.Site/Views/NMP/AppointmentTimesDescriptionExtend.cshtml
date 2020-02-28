@@ -1,0 +1,42 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var wordays = string.IsNullOrWhiteSpace(Model.WorkDays) ? "---" : Model.WorkDays;
+    wordays = wordays.Replace("Sunday", "<span style='color:red;'>日</span>")
+        .Replace("Monday", "<span style='color:blue;'>一</span>")
+        .Replace("Tuesday", "<span style='color:blue;'>二</span>")
+        .Replace("Wednesday", "<span style='color:blue;'>三</span>")
+        .Replace("Thursday", "<span style='color:blue;'>四</span>")
+        .Replace("Friday", "<span style='color:blue;'>五</span>")
+        .Replace("Saturday", "<span style='color:red;'>六</span>")
+        .Replace("|", "&nbsp;&nbsp;");
+}
+<div id="divAppointmentTimeDescriptionExtend"  style="margin-left:58px">
+    <span style='margin-right:10px;'>开放时间:&nbsp;<span style='color:blue;font-weight:bold;'>@(string.IsNullOrWhiteSpace(Model.WorkHours) ? "---" : Model.WorkHours)</span></span>
+    <span>工作日:&nbsp;@System.Web.Mvc.MvcHtmlString.Create(wordays)</span>
+    <span>&nbsp;预约时间单位:&nbsp; <span style='color:blue;font-weight:bold;'>@(Model.AppointmentTimeStep.HasValue ? Model.AppointmentTimeStep.Value.ToString() : "-")</span></span>分钟 <br />
+    @{
+        var equipmentChargeType = ViewData["ChargeType"] == null ? com.Bynonco.LIMS.Model.Enum.ChargeType.None : (com.Bynonco.LIMS.Model.Enum.ChargeType)ViewData["ChargeType"];
+        var standardPrice = (ViewData["StandardPrice"] == null ? "--" : ((double)ViewData["StandardPrice"]).ToString("F0")) + "元";
+        if (equipmentChargeType != com.Bynonco.LIMS.Model.Enum.ChargeType.SelfDefined)
+        {
+            <span style='margin-right:10px;'>收费标准:&nbsp;
+                <span style='color:blue;font-weight:bold;'>
+                @if (equipmentChargeType == com.Bynonco.LIMS.Model.Enum.ChargeType.None)
+                {
+                    @("免费")
+                }
+                else
+                {
+                    @standardPrice
+                }
+                @if (equipmentChargeType != com.Bynonco.LIMS.Model.Enum.ChargeType.None)
+                {
+                    @(" / " + (equipmentChargeType == com.Bynonco.LIMS.Model.Enum.ChargeType.ByHour ? "小时" : equipmentChargeType == com.Bynonco.LIMS.Model.Enum.ChargeType.ByTimes ? "次" : "样品"))
+                }
+                </span>
+            </span>
+        }
+    }
+    最多提前预约 <span style='color:blue;font-weight:bold;'>@(Model.AppointmentDays.HasValue ? Model.AppointmentDays.Value.ToString() : "-")</span> 天,最少提前 <span style='color:blue;font-weight:bold;'>@(Model.MaxAppointmentAdvanceTime.HasValue ? Model.MaxAppointmentAdvanceTime.Value.ToString() : "-")</span> 分钟预约
+</div>

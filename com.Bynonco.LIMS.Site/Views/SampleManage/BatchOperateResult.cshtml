@@ -1,0 +1,21 @@
+﻿@using  com.Bynonco.LIMS.Utility;
+<div id="divBatchOperateResult">
+    <table class="edit-table" style="width:500px; height:150px; overflow-y:auto; overflow-x:hidden">
+        <tr>
+            <th>提交总数</th>
+            <td>@ViewData["TotalCount"]</td>
+        </tr>
+         <tr>
+            <th>成功总数</th>
+            <td>@ViewData["SuccessCount"]</td>
+        </tr>
+         <tr>
+            <th>失败总数</th>
+            <td>@ViewData["FailCount"]</td>
+        </tr>
+         <tr>
+            <th>失败原因</th>
+            <td>@(System.Web.Mvc.MvcHtmlString.Create(ViewData["ErrorMessage"] != null ? ViewData["ErrorMessage"].ToString().ToHtmlBr() : ""))</td>
+        </tr>
+    </table>
+</div>

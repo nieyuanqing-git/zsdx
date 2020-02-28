@@ -1,0 +1,98 @@
+﻿@model IEnumerable<com.Bynonco.LIMS.Model.UserMessageNoticeSetting>
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var user = ViewData["User"] != null ? (com.Bynonco.LIMS.Model.User)ViewData["User"] : null;
+    Guid? userId = null;
+    if (user != null)
+    {
+        userId = user.Id;
+    }
+    var userNoticeSettingList = Model;
+    var defaultNoticeSetting = userNoticeSettingList.First(p => p.MsgType == null );
+    var userNoticeSettingListWithoutDefault = userNoticeSettingList.Where(p => p.MsgType != null);
+ }
+<p>@(((com.Bynonco.LIMS.Model.Enum.MessageSender)defaultNoticeSetting.MessageSendType).ToCnName())</p>
+<table class="edit-Info">
+    <tr style="line-height:30px;">
+        <th colspan="3" style="text-align:center"><b>系统默认设置</b></th>
+    </tr>
+    <tr style='line-height:30px;display:@(userId.HasValue ? "" : "none")';'>
+        <th  colspan="3">按照默认 @Html.CheckBox(string.Format("chk_IsUseDefaultSetting_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, "-1"), defaultNoticeSetting.IsUseDefaultSetting, new { @class = defaultNoticeSetting.MessageSendType.Value.ToString(), onclick = string.Format("doOnIsUseDefaultSettingChange(this,'{0}','{1}','{2}');", "tr_" + string.Format("IsReceiveMessage_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, -1), string.Format("chk_IsUseDefaultSetting_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, "-1"), (int)defaultNoticeSetting.MessageSendType) })</th>
+    </tr>
+    <tr style='line-height:30px; display:@(defaultNoticeSetting.IsUseDefaultSetting ? "none" : "")' id='tr_@(string.Format("IsReceiveMessage_{0}_{1}", defaultNoticeSetting.MessageSendType,-1))'>
+        <td>接收消息:</td>
+        <td>
+            @if (defaultNoticeSetting.MessageSendType.Value == (int)MessageSender.InnerMessageSender)
+            {
+                <span style="color:Blue;"><b>是</b></span>
+                @Html.Hidden(string.Format("chk_IsReceiveMessage_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, "-1"), "true")
+            }
+            else
+            {
+                @Html.CheckBox(string.Format("chk_IsReceiveMessage_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, "-1"), defaultNoticeSetting.IsReceiveMessage)
+            }
+        </td>
+        <td>接收时间:</td >
+        <td>
+            @if (defaultNoticeSetting.MessageSendType.Value == (int)MessageSender.InnerMessageSender)
+            {
+                @Html.Hidden(string.Format("txt_MessageReceiveTimes_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, "-1"), defaultNoticeSetting.MessageReceiveTimes)
+                <span style="color:Blue;"><b>@defaultNoticeSetting.MessageReceiveTimes</b></span>
+            }
+            else
+            {
+                @Html.JValidateBox(string.Format("txt_MessageReceiveTimes_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, "-1")).SetValue(defaultNoticeSetting.MessageReceiveTimes).SetWidth(230).ToMvcString()
+            }
+        </td>
+    </tr>
+    @if (userNoticeSettingListWithoutDefault != null && userNoticeSettingListWithoutDefault.Count() > 0)
+    {
+        foreach (var userNoticeSetting in userNoticeSettingListWithoutDefault)
+        {
+            <tr style="line-height:30px;">
+                <th colspan="3" style="text-align:center"><b>@(((com.Bynonco.LIMS.Model.Enum.MsgType)userNoticeSetting.MsgType.Value).ToCnName())</b></th>
+            </tr>
+            <tr style="line-height:30px;">
+                <td colspan="3">按照默认 @Html.CheckBox(string.Format("chk_IsUseDefaultSetting_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, userNoticeSetting.MsgType.Value), userNoticeSetting.IsUseDefaultSetting, new { @class = defaultNoticeSetting.MessageSendType.Value.ToString(), onclick = string.Format("doOnIsUseDefaultSettingChange(this,'{0}','{1}','{2}');", "tr_" + string.Format("IsReceiveMessage_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, userNoticeSetting.MsgType.Value), string.Format("chk_IsUseDefaultSetting_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, "-1"), (int)defaultNoticeSetting.MessageSendType) })</td>
+            </tr>
+            <tr class='tr@(defaultNoticeSetting.MessageSendType.Value.ToString())' style='line-height:30px; display:@(userNoticeSetting.IsUseDefaultSetting ? "none" : "")' id='tr_@(string.Format("IsReceiveMessage_{0}_{1}", userNoticeSetting.MessageSendType, userNoticeSetting.MsgType.Value))'>
+                <td>接收消息:</td>
+                <td>
+                    @if (userNoticeSetting.IsHaveToReceive)
+                    {
+                        <span style="color:Blue;"><b>是</b></span>
+                        @Html.Hidden(string.Format("chk_IsReceiveMessage_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, userNoticeSetting.MsgType.Value), true)                    
+                    }
+                    else
+                    {
+                        @Html.CheckBox(string.Format("chk_IsReceiveMessage_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, userNoticeSetting.MsgType.Value), userNoticeSetting.IsReceiveMessage)
+                    }
+                </td>
+               @if (userNoticeSetting.MsgType != null && userNoticeSetting.MsgType.Value == (int)MsgType.UseEquipmentOutOfAppointmentTime)
+               {
+                <td>超时时间段（分钟为单位）:</td>
+                    <td>
+                        @Html.JValidateBox(string.Format("txt_MessageReceiveTimes_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, userNoticeSetting.MsgType.Value)).SetValue(userNoticeSetting.MessageReceiveTimes).SetWidth(230).ToMvcString()
+                    </td>
+               }
+               else
+               {
+                <td>接收时间:</td>
+                    <td>
+                        @if (defaultNoticeSetting.MessageSendType.Value == (int)MessageSender.InnerMessageSender)
+                        {
+                            @Html.Hidden(string.Format("txt_MessageReceiveTimes_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, userNoticeSetting.MsgType.Value), userNoticeSetting.MessageReceiveTimes)
+                            <span style="color:Blue;"><b>@userNoticeSetting.MessageReceiveTimes</b></span>
+                        }
+                        else
+                        {
+                            @Html.JValidateBox(string.Format("txt_MessageReceiveTimes_{0}_{1}", (int)defaultNoticeSetting.MessageSendType, userNoticeSetting.MsgType.Value)).SetValue(userNoticeSetting.MessageReceiveTimes).SetWidth(230).ToMvcString()
+                        }
+                    </td>
+               }
+               
+            </tr>
+        }
+    }
+</table>

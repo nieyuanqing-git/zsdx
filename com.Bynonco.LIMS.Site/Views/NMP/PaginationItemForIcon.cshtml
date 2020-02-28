@@ -1,0 +1,86 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using System.Text;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var IsShowUnitPrice = ViewData["IsShowUnitPrice"] == null || ViewData["IsShowUnitPrice"].ToString().Trim() == "1" ? true : false;
+    StringBuilder sbOperate = new StringBuilder();
+    if (!string.IsNullOrWhiteSpace(Model.ModifyOperate)) { sbOperate.Append(Model.ModifyOperate); }
+} 
+<div class='detail-pannel'>
+    <div class='list-left'>
+        <div class="img-box">
+            <img alt="@(Model == null ? "" : Model.Name)" src='@(Model == null ? "" : Model.IconPath)' style='width:146px;height:126px;cursor:pointer;' onclick="doShowDetailInfo('@(Model == null ? "" : Model.Id.ToString())','@(Model == null ? "" : Model.Name)');"/>
+        </div>
+    </div>
+    <div class='list-right'>
+        @{
+            var name = Model == null ? "" : Model.Name;
+            var cutName = ShortcutStringUtility.GetSubString(name, 55, "..");
+            Guid? Id = null;
+            if (Model != null)
+            {
+                Id = Model.Id;
+            }
+            var url = Url.Action("Show", "NMP", new { Id = Id });
+            var nmpOrgName = Model == null || string.IsNullOrWhiteSpace(Model.OrgName) ? "" : Model.OrgName;
+            var roomName = Model == null ? "" : Model.RoomName;
+            if (!string.IsNullOrWhiteSpace(nmpOrgName) && !string.IsNullOrWhiteSpace(roomName) && (!string.IsNullOrWhiteSpace(orgName) && orgName != nmpOrgName))
+            {
+                roomName = nmpOrgName + " > " + roomName;
+            }
+            else if (string.IsNullOrWhiteSpace(roomName))
+            {
+                roomName = nmpOrgName + roomName;
+            }
+        }
+        <div class="inner-left">
+            <p class="title">
+                <a href="javascript:;" id="NMPName" title='@name' onclick="doShowDetailInfo('@(Model == null ? "" : Model.Id.ToString())','@(Model == null ? "" : Model.Name)');return false;">@cutName</a>
+                @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+            </p>
+            <ul>
+                <li>
+                    <span class='title'>IP地址:</span>@(Model != null && !string.IsNullOrWhiteSpace(Model.IP) ? Model.IP : "--")
+                </li>
+                <li>
+                    <span class='title'>联系人:</span>@(Model == null  ? "" : Model.ContactPersonName )  &nbsp;&nbsp;&nbsp;&nbsp;    @(Model == null  ? "" : Model.ContactTelPhoneNo)
+                </li>
+                <li>
+                    <span class='title'>联系邮箱:</span>@(Model == null  ? "" : Model.ContactEmail )
+                </li>
+                 <li><span class='title'>所在房间:</span>@roomName</li>
+                @if (!isHome)
+                {
+                    <li class='button-box'>@System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())</li>
+                }
+            </ul>
+        </div>
+        <div class="inner-right ">
+            @{
+                StringBuilder sbOperateL = new StringBuilder();
+                if (!string.IsNullOrWhiteSpace(Model.DetailOperate)) { sbOperateL.Append(Model.DetailOperate); }
+                if (isHome && !Request.IsAuthenticated)
+                {
+                    if (!string.IsNullOrWhiteSpace(Model.AppointmentWithoutLoginOperate)) { sbOperateL.Append(Model.AppointmentWithoutLoginOperate); }
+                }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(Model.AppointmentOperate)) { sbOperateL.Append(Model.AppointmentOperate); }
+                }
+                @System.Web.Mvc.MvcHtmlString.Create(sbOperateL.ToString())
+            }
+        </div>
+        <div class="clear-both"></div>
+        @if (isHome)
+        {
+            <div style='display:none;' class='button-box'>@System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())</div>
+        }
+    </div>
+    <div class="clear-both"></div>
+</div>

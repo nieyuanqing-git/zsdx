@@ -1,0 +1,216 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var materialOutputPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetMaterialOutputPrivilige(User.Identity.Name);}
+<div id="divMaterialOutputDialog" style="display:none"></div>
+<div id="divViewMaterialOutputDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doMaterialOutputSearch() {
+        var queryExpression = generateMaterialOutputQueryExpress();
+        $("#tbMaterialOutputList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbMaterialOutputList").datagrid("load", { "queryExpression": encodeURIComponent(queryExpression.trim()) });
+        return false;
+    }
+    var materialOutputDialog;
+    function doMaterialOutputDialog() {
+        if (materialOutputDialog) {
+            materialOutputDialog.dialog("destroy");
+        }
+        materialOutputDialog =  @Html.JDialog("divMaterialOutputEdit").SetTitle("耗材出库单信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("materialOutputDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveMaterialOutput();").ToMvcString();
+    }
+    function doExportExcelMaterialOutputList() {
+        var queryExpression = generateMaterialOutputQueryExpress();
+        var url = '@Url.Action("ExportExcel","MaterialOutput")?queryExpression=' + encodeURIComponent(queryExpression);
+        window.open(url, '_blank');
+        return false;
+    }
+    function doAddOrEditMaterialOutput(id,materialRecipientId){
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Edit","MaterialOutput")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        if(materialRecipientId && materialRecipientId.trim()!="") url +="&MaterialRecipientId=" + materialRecipientId.trim();
+        $("#divMaterialOutputDialog").load(url,function(){
+            doMaterialOutputDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }    
+    function doAddMaterialOutput(id,materialRecipientId) {
+       doAddOrEditMaterialOutput(id,materialRecipientId);
+    }
+    function doEditMaterialOutput(id) {
+       if(!id || id.trim()==""){
+           var selectedMaterialOutput = $("#tbMaterialOutputList").datagrid("getSelected");
+           if(!selectedMaterialOutput || selectedMaterialOutput.Id=="" || selectedMaterialOutput.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材出库单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialOutput.Id;
+       }
+       doAddOrEditMaterialOutput(id);
+    }
+    function doCancelDeductMaterialOutput(id){
+        if(!id || id.trim() == ""){
+                var selectedMaterialOutput = $("#tbMaterialOutputList").datagrid("getSelected");
+                if(!selectedMaterialOutput || selectedMaterialOutput.Id.trim() == "" || selectedMaterialOutput.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要取消扣费的出库单", showType: 'show' });
+                    return false;
+                }
+                id = selectedMaterialOutput.Id;
+            }
+        $.messager.confirm('提示', '确认取消扣费?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("CancelDeduct", "MaterialOutput")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doMaterialOutputSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doDeductMaterialOutputDialog() {
+        if (materialOutputDialog) {
+            materialOutputDialog.dialog("destroy");
+        }
+        materialOutputDialog =  @(Html.JDialog("divMaterialOutputEdit")
+            .SetTitle("耗材出库单扣费信息")
+            .AddButton(new ToolBarButton() { Handler = "doSaveDeductMaterialOutput();return false;", Id = "btnDeductMaterialOutput", Text = "扣费", IconCls = "icon-yen",Disabled = !materialOutputPrivilige.IsEnableDeduct })
+            .SetIconCls("icon-yen")
+            .SetAutoDialog(false)
+            .SetShowOkButton(false)
+            .SetCancelScript("materialOutputDialog.dialog('destroy');return false;")
+            .SetModal(true).ToMvcString());
+    }
+    function doDeductMaterialOutput(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedMaterialOutput = $("#tbMaterialOutputList").datagrid("getSelected");
+           if(!selectedMaterialOutput || selectedMaterialOutput.Id=="" || selectedMaterialOutput.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材出库单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialOutput.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Deduct","MaterialOutput")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialOutputDialog").load(url,function(){
+            doDeductMaterialOutputDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveDeductMaterialOutput()
+    {
+        var url = '@Url.Action("DeductSave","MaterialOutput")'
+        doSaveMaterialOutput(url)
+    }
+    function doSaveMaterialOutput(url){
+        if(!url || url.trim() == "")
+        {
+            url = '@Url.Action("Save", "MaterialOutput")';
+        }
+        if($("#OutputNum").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"出库单号为空", showType: 'show' });;
+          return false;
+        }
+        if($("#OutputUserId").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"出库人为空", showType: 'show' });;
+          return false;
+        }
+        if($("#OutputTime").datetimebox("getValue") == ""){
+          $.messager.show({ title: '提示', msg:"出库时间为空", showType: 'show' });;
+          return false;
+        }
+        if($("#MaterialInfoIds").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"出库项目为空", showType: 'show' });;
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmMaterialOutputEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                var data = eval("(" + msg + ")");
+                if (data.IsCheckMoneyNotPass != true) {
+                    if (data.ErrorMessage != "") {
+                        $.messager.show({ title: '提示', msg: data.ErrorMessage, showType: 'show' });
+                        return false;
+                    }
+                    materialOutputDialog.dialog('destroy');
+                    if($("#tbMaterialRecipientList").length > 0) doMaterialRecipientSearch();
+                    else doMaterialOutputSearch();
+                }
+                else {
+                    $.messager.confirm('提示', data.ErrorMessage + ",是否继续扣费?", function (r) {
+                        if (!r) return;
+                        $("#IsAllowAccountMinuse").val(true);
+                        return doSaveDeductMaterialOutput();
+                    });
+                }
+            }
+        });
+   }
+   function doDeleteMaterialOutput(id){
+        if(!id || id.trim() == ""){
+              var selectedMaterialOutput = $("#tbMaterialOutputList").datagrid("getSelected");
+                if(!selectedMaterialOutput || selectedMaterialOutput.Id.trim() == "" || selectedMaterialOutput.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的出库单", showType: 'show' });
+                    return false;
+                }
+                id = selectedMaterialOutput.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "MaterialOutput")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doMaterialOutputSearch();
+                }
+            });
+        });
+        return false;
+   }
+   
+   
+   var viewMaterialOutputDialog;
+   function doViewMaterialOutputDialog() {
+        if (viewMaterialOutputDialog) {
+            viewMaterialOutputDialog.dialog("destroy");
+        }
+        viewMaterialOutputDialog =  @Html.JDialog("divMaterialOutputView").SetTitle("耗材出库单信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewMaterialOutputDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doViewMaterialOutputInfo(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedMaterialOutput = $("#tbMaterialOutputList").datagrid("getSelected");
+           if(!selectedMaterialOutput || selectedMaterialOutput.Id=="" || selectedMaterialOutput.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材出库单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialOutput.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewInfo","MaterialOutput")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewMaterialOutputDialog").load(url,function(){
+            doViewMaterialOutputDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+</script>

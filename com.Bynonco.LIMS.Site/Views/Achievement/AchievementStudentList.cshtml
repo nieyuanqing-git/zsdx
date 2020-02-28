@@ -1,0 +1,54 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var achievementPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAchievementPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbAchievementStudentList")
+        .SetUrl(Url.Action("GetAchievementStudentList", "Achievement"))
+        .SetHeight(650)
+        .SetSortName("CreateTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "TutorName").SetWidth(80).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学位", "DegreeName").SetWidth(80).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学生姓名", "StudentName").SetWidth(80).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学号", "StudentNumber").SetWidth(80).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("在读情况", "StudyTypeName").SetWidth(80).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("毕业去向", "GraduationTo").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(80).SetAlign(Align.center));
+    
+    dataGrid.SetShowAddButton(achievementPrivilige.IsEnableAchievementStudentAdd);
+    if (achievementPrivilige.IsEnableAchievementStudentAdd)
+    {
+        dataGrid.SetAddScript("doAddAchievementStudent()");
+    }
+    dataGrid.SetShowEditButton(achievementPrivilige.IsEnableAchievementStudentEdit);
+    if (achievementPrivilige.IsEnableAchievementStudentEdit)
+    {
+        dataGrid.SetEditScript("doEditAchievementStudent('')");
+        dataGrid.SetOnDblClickRow("doEditAchievementStudent(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(achievementPrivilige.IsEnableAchievementStudentDelete);
+    if (achievementPrivilige.IsEnableAchievementStudentDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteAchievementStudent('');");
+    }
+    dataGrid.SetShowExpertButton(achievementPrivilige.IsEnableAchievementStudentExpert);
+    if (achievementPrivilige.IsEnableAchievementStudentExpert)
+    {
+        dataGrid.SetExpertScript("doAchievementStudentExportExcel();");
+    }
+    if (achievementPrivilige.IsEnableAchievementStudentImportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAchievementStudentImportExcel();", IconCls = "icon-import", Id = "btnImportExcel", Text = "导入" });
+    }
+}
+@(dataGrid.ToMvcString())

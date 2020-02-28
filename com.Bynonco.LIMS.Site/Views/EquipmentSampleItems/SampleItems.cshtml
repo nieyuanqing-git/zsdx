@@ -1,0 +1,131 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model.View;
+@{
+    var equipments = ViewData["Equipments"] == null ? null : (IList<Equipment>)ViewData["Equipments"];
+    var dataGridSettings = (DataGridSettings)ViewData["DataGridSettings"];
+    var querySampleStatusId = ViewData["SampleStatusId"] == null ? null : ViewData["SampleStatusId"].ToString().Trim();
+    var querySampleItemName = ViewData["SampleItemName"] == null ? "" : ViewData["SampleItemName"].ToString().Trim();
+    var isShowEquipmentInfoHead = Convert.ToBoolean(ViewData["IsShowEquipmentInfoHead"]);
+    var isCurUserValidate = (bool)ViewData["IsCurUserValidate"];
+    var curUser = ViewData["CurUser"] != null ? (User)ViewData["CurUser"] : null;
+ }
+<div style="display:none;">@Html.Partial("../Equipment/ShowEquipmentInfoScript")</div>
+<script type="text/javascript">
+    $(function () {
+        $("#divSampleItemsPaging").pagination({
+            total: "@dataGridSettings.Total",
+            pageSize: "@dataGridSettings.PageSize",
+            pageNumber: "@dataGridSettings.PageIndex",
+            onSelectPage: function (pageNumber, pageSize) {
+                $(this).pagination('loading');
+                doSampleItemsSearch();
+                $(this).pagination('loaded');
+            }
+        });
+    });
+    
+    function navigate(url){
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>
+<div>
+    @if (isCurUserValidate)
+    {
+        if (equipments != null && equipments.Count > 0)
+        {
+            var index = -1;
+            foreach (var equipment in equipments)
+            {
+                index++;
+                var script = string.Format("doShowEquipmentInfo(\"{0}\");", equipment.Id.ToString());
+                var equipmentShowUrl = Url.Action("Show", "Equipment", new { id = equipment.Id.ToString() });
+                var sampleStatuses = equipment.SampleStatuses;
+                var lastEquipemntBottomBorderstyle = equipment.Id == equipments.Last().Id ? "border-bottom:1px solid #EAEAEA" : "";
+                var equipmentDetailUrl = Url.Action("Detail", "Equipment") + "?id=" + equipment.Id + "&time=" + DateTime.Now.Millisecond;
+                if (sampleStatuses == null || sampleStatuses.Count == 0)
+                {
+                    continue;
+                }
+                var noBottomBorder = equipment.Id != equipments.Last().Id ? "border-bottom:none;" : "";
+                var backgroundImage = !isShowEquipmentInfoHead ? "background-image:none;" : "";
+            <div class='panel-header' style='@backgroundImage; background-color:@(index % 2 == 0 ? "#F8F8F8" : "transparent");line-height:25px;@noBottomBorder'>
+               <div style="display:@(isShowEquipmentInfoHead ? "" : "none");">
+                  <div>
+                     <table style="width:100%">
+                        <tr>
+                            <th style="text-align:left">
+                                <a href="javascript:void(0)"  style="font-weight:bold;font-size:12px" onclick='@(script)' title="点击查看仪器详细信息">
+                                    @string.Format("{0}{1}", equipment.Name, string.IsNullOrWhiteSpace(equipment.Model) ? "" : "(" + equipment.Model + ")")
+                                </a>
+                            </th>
+                            <td style="text-align:right; padding-right:10px">
+                                <a href="javascript:void(0)" class="l-btn-color l-btn-color-blue" onclick="navigate('@equipmentDetailUrl');return false;">机时预约</a>
+                            </td>
+                        </tr>
+                     </table>
+                     <div style="clear:both"></div>
+                   </div>
+               </div>
+               <div>
+                    @foreach (var sampleStatus in sampleStatuses)
+                    {
+
+                        if (!string.IsNullOrWhiteSpace(querySampleStatusId) && sampleStatus.Id != new Guid(querySampleStatusId.ToString()))
+                        {
+                            continue;
+                        }
+                        var sampleItems = sampleStatus.GetSampleItems();
+                        <div style="margin-left:10px">
+                            <span style="font-size:12px">@sampleStatus.Name</span>
+                            <br />
+                            @if (sampleItems != null && sampleItems.Count > 0)
+                            {
+                                var sampleItemIndex = -1;
+                                foreach (var sampleItem in sampleItems)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(querySampleItemName) && querySampleItemName != sampleItem.Name.Trim())
+                                    {
+                                        continue;
+                                    }
+                                    if (sampleItem.EquipmentId != equipment.Id)
+                                    {
+                                        continue;
+                                    }
+                                    sampleItemIndex++;
+                                    var sampleItemApplyNavigateUrl = Url.Action("SampleApplyInner", "SampleManage", new { SampleItemId = sampleItem.Id, SampleItemName = sampleItem.Name, EquipmentId = sampleItem.EquipmentId, EquipmentName = equipment.Name });
+                                    <span style="font-weight:normal;display:inline-block; padding-left:@(sampleItemIndex == 0 ? "0px" : "10px")">
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <a style="font-weight:bold;font-size:12px;background-color: #F87B00;border-radius:10px;color: #FFFFFF;display: inline-block;margin: 0 2px 2px 0;padding: 0 10px;text-decoration: none;" href="javascript:void(0)" onclick="navigate('@sampleItemApplyNavigateUrl');return false;" title="@sampleItem.Directions">
+                                                @sampleItem.Name
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                             <a style="font-weight:bold;font-size:12px;background-color: #F87B00;border-radius:10px;color: #FFFFFF;display: inline-block;margin: 0 2px 2px 0;padding: 0 10px;text-decoration: none;" href="javascript:void(0)" onclick="backToLogin();return false;" title="@sampleItem.Directions">
+                                                @sampleItem.Name
+                                            </a>
+                                        }
+                                    </span>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            }
+        }
+        else
+        {
+            <p style="color:Red;font-weight:bold;">没有相关设备项目名称</p>
+        }
+    }
+    else
+    {
+        <p style="color:Red;font-weight:bold;">@(string.Format("您当前的状态【{0}】,不允许进行送样预约.", curUser.UserStatusEnum.ToCnName()))</p>
+    }
+</div>
+<div id="divSampleItemsPaging"  class="easyui-panel pagination"></div>

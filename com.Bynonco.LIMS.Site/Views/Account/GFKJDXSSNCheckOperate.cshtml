@@ -1,0 +1,49 @@
+﻿<div class="edit-operate">
+    <a href="javascript:void(0);" onclick="doSaveGFKJDXSSNUser();return false;" class="botton">
+        <span>
+            <span>提 交</span>
+        </span>
+    </a>
+</div>
+<script type="text/javascript">
+    function checkBasicInfo() {
+        var isOk = true;
+        if ($("#UserTypeId").combotree("getValue").trim() == "" || $("#UserTypeId").combotree("getValue").trim().isDefaultGuid()) {
+            $("#UserTypeId").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if ($("#Label").val().trim() == "") {
+            $("#Label").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if ($("#UserName").val().trim() == "") {
+            $("#UserName").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if ($("#OrganizationId").val().trim() == "" || $("#OrganizationId").val().trim().isDefaultGuid()) {
+            $("#OrganizationId").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        return isOk;
+    }
+    function doSaveGFKJDXSSNUser() {
+        $(".text-over").removeClass('text-over');
+        var isOk = checkBasicInfo();
+        if (!isOk) return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveGFKJDXSSNUser", "Account")',
+            data: $("#frmGFKJDXSSNCheck").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                location.href = '@Url.Action("Index","Admin")';
+            }
+        });
+        return false;
+    }
+</script>

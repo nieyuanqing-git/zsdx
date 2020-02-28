@@ -1,0 +1,56 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divImportExcelDialog"></div>
+<script type="text/javascript">
+    var importExcelDialog;
+    function doImportExcelDialog() {
+        if (importExcelDialog) {
+            importExcelDialog.dialog("destroy");
+        }
+        importExcelDialog =  @(Html.JDialog("divImportExcel")
+            .SetTitle("导入开放基金信息")
+            .SetIconCls("icon-import")
+            .SetAutoDialog(false)
+            .SetShowCancelButton(false)
+            .SetShowOkButton(false)
+            .SetModal(true)
+            .AddButton(new ToolBarButton() { Handler = "importExcelDialog.dialog('destroy');return false;", Id = "btnClosedImportExcel", Text = "关闭", IconCls = "icon-cancel" })
+            .ToMvcString());
+    }
+    function doImportExcel(){
+        var url = '@Url.Action("ImportExcel", "OpenFundApply")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divImportExcelDialog").load(url,function(){
+            doImportExcelDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    function ajaxFileUploadUserExcel() {
+        var file = $("#fileUserExcel").val();
+        if (!doValidatesUserExcel(file)) return false;
+        $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadOpenFundApplyExcel", "OpenFundApply")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileUserExcel',
+            success: function (data, status) {
+                $.messager.progress('close');
+                doOpenFundApplyExcelSearch();
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+                $.messager.progress('close');
+                doOpenFundApplyExcelSearch();
+            }
+        });
+        return false;
+    }
+    function doValidatesUserExcel(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+</script>

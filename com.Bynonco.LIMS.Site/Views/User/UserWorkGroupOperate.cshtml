@@ -1,0 +1,5 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div class="edit-operate">
+    @Html.JLinkButton("btnSaveUserWorkGroup", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doUserWorkGroupSave();return false;").ToMvcString()
+    @Html.JLinkButton("btnBack", "返回列表").SetIconCls("icon-back").SetOnclick("doBack();return false;").SetPlain(true).ToMvcString()
+</div>

@@ -1,0 +1,266 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var roomDirectorName = ViewData["RoomDirectorName"] != null ? ViewData["RoomDirectorName"] : "";
+    var professorName = ViewData["ProfessorName"] != null ? ViewData["ProfessorName"] : "";
+ }
+<style type="text/css">
+    #tbRepairEdit{background-color:#F8F8F8;border-top:1px solid #CCC;border-left:1px solid #CCC;margin-bottom:5px;}
+    #tbRepairEdit th{text-align:center; padding:2px;border-bottom:1px solid #CCC;border-right:1px solid #CCC;}
+    #tbRepairEdit td{text-align:center;padding:2px;border-bottom:1px solid #CCC;border-right:1px solid #CCC;background-color:White;}
+    #tbRepairEdit td input,#tbRepairEdit td textarea,#tbRepairEdit td span.datebox{border:0;background-color:#F8F8F8}        
+</style>
+<div>
+    @if (Model != null)
+    {
+    <table id="tbRepairEdit" class="edit-info" border="0" cellpadding="0" cellspacing="0" style='width:100%;'>
+        <tr>
+            <th rowspan="10" style="width: 10px; text-align: center; font-weight:bold;">
+                基<br />本<br />信<br />息
+            </th>
+        </tr>
+        <tr>
+            <th style="width: 80px">设备编号</th>
+            <td colspan="2">@Model.Label</td>
+            <th style="width: 80px">所属学院</th>
+            <td colspan="2">@Model.OrgName</td>
+            <th style="width: 80px">设备分类号</th>
+            <td colspan="2">@(Model.Equipment == null ? "" : Model.Equipment.CategoryNames)</td>
+        </tr>
+        <tr>
+            <th>中文名称</th>
+            <td colspan="3">@Model.Name</td>
+            <th style="width: 80px">英文名称</th>
+            <td colspan="4">@Model.Name</td>
+        </tr>
+        <tr>
+            <th>所属实验室</th>
+            <td colspan="3">@Model.RoomName</td>
+            <th style="width: 80px">实验室主任</th>
+            <td colspan="4">@roomDirectorName.ToString()</td>
+        </tr>
+        <tr>
+            <th>负责教授</th>
+            <td  colspan="3">@professorName.ToString()</td>
+            <th style="width: 80px">联系电话</th>
+            <td>@Model.ProfessorPhoneNumber</td>
+            <th style="width: 80px">E-mail地址</th>
+            <td colspan="2">@Model.ProfessorEmail</td>
+        </tr>
+        <tr>
+            <th>型号</th>
+            <td colspan="3">@Model.Model</td>
+            <th style="width: 80px">规格</th>
+            <td colspan="4" style='text-align:left;'>@Model.Specifications</td>
+        </tr>
+        <tr>
+            <th>设备存放地点</th>
+            <td colspan="3">@Model.RoomName</td>
+            <th>生产制造厂商</th>
+            <td>@Model.Factory</td>
+            <th colspan="2">产地</th>
+            <td>@Model.ProductionArea</td>
+        </tr>
+        <tr>
+            <th>获取方式</th>
+            <td colspan="3">@Model.Equipment.ComeFromStr</td>
+            <th>购置日期</th>
+            <td>@Model.BuyDateStr</td>
+            <th>原值(元)</th>
+            <td colspan="2">@(Model.UnitPrice.HasValue ? Model.UnitPrice.Value.ToString("F2") : "")</td>
+        </tr>
+        <tr>
+            <th>购置经费来源</th>
+            <td colspan="3">@Model.Equipment.FeeComeFromStr</td>
+            <th colspan="2">对外开放拟收费标准(元/小时)</th>
+            <td colspan="3">@(Model.OutCharge.HasValue ? Model.OutCharge.Value.ToString("F2") : "")</td>
+        </tr>
+        <tr>
+            <th style="height:70px; text-align: center;">
+                技术指标<br />及功能简介
+            </th>
+            <td colspan="8" style="text-align:left;">
+                @System.Web.Mvc.MvcHtmlString.Create((Model.Qualification == null ? "" : Model.Qualification.Replace("\r\n", "<br />")))
+            </td>
+        </tr>  
+        <tr>
+            <th rowspan="7" style="width: 10px; text-align: center; font-weight: bold;">
+                相<br />关<br />科<br />研<br />信<br />息
+            </th>
+        </tr>
+        <tr>
+            <th style="width: 10px; height:70px;">
+                主要研究方向
+            </th>
+            <td colspan="8" style='text-align:left;'>
+                @System.Web.Mvc.MvcHtmlString.Create((Model.ResearchArea == null ? "" : Model.ResearchArea.Replace("\r\n", "<br />")))
+            </td>
+        </tr>
+        <tr>
+            <th>
+                在研或曾经承担<br />
+                重大项目
+            </th>
+            <td colspan="8">
+                <table class="edit-info" style=" width:100% ; height:100%" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <th style='width:20%;'>项目编号</th>
+                    <th style='width:20%;'>项目名称</th>
+                    <th style='width:20%;'>经费</th>
+                    <th style='width:20%;'>项目类别</th>
+                    <th style='width:20%;'>项目来源</th>
+                </tr>
+                    @if (Model.ViewSubjectEquipmentList != null && Model.ViewSubjectEquipmentList.Count() > 0)
+                    {
+                        foreach (var item in Model.ViewSubjectEquipmentList)
+                        {
+                            <tr>
+                                <td>@item.ViewSubjectAchievements.SubjectNum</td>
+                                <td>@item.ViewSubjectAchievements.SubjectName</td>
+                                <td>@item.ViewSubjectAchievements.SubjectFunds</td>
+                                <td>@item.ViewSubjectAchievements.SubjectTypeName</td>
+                                <td>@item.ViewSubjectAchievements.SubjectComeName</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan='4'>没有相关数据</td>
+                        </tr>
+                    }
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>奖项专利</th>
+            <td colspan="8">
+                <table class="edit-info" style=" width:100% ; height:100%" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <th style='width:25%;'>专利名称</th>
+                    <th style='width:25%'>专利号</th>
+                    <th style='width:25%'>专利人员</th>
+                    <th style='width:25%'>专利类型</th>
+                </tr>
+                    @if (Model.ViewPatentEquipmentList != null && Model.ViewPatentEquipmentList.Count() > 0)
+                    {
+                        foreach (var item in Model.ViewPatentEquipmentList)
+                        {
+                            <tr>
+                                <td>@item.ViewPatent.PatentName</td>
+                                <td>@item.ViewPatent.PatentNum</td>
+                                <td>@item.ViewPatent.PatentUserNames</td>
+                                <td>@item.ViewPatent.PatentTypeName</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan='4'>没有相关数据</td>
+                        </tr>
+                    }
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>人才培养</th>
+            <td colspan="8">
+                <table class="edit-info" style=" width:100% ; height:100%" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <th style='width:25%;'>姓名</th>
+                    <th style='width:25%'>学号</th>
+                    <th style='width:25%'>学位</th>
+                    <th style='width:25%'>在读情况</th>
+                </tr>
+                    @if (Model.ViewAchievementStudentList != null && Model.ViewAchievementStudentList.Count() > 0)
+                    {
+                        foreach (var item in Model.ViewAchievementStudentList)
+                        {
+                            <tr>
+                                <td>@item.StudentName</td>
+                                <td>@item.StudentNumber</td>
+                                <td>@item.DegreeName</td>
+                                <td>@item.StudyTypeName</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan='4'>没有相关数据</td>
+                        </tr>
+                    }
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>学术论文</th>
+            <td colspan="8">
+                <table id="tbThesis" class="edit-info" style=" width:100% ; height:100%" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                <th style='width:10%;'>序号</th>
+                <th style='width:20%'>作者(前三名)</th>
+                <th style='width:20%'>论文题目</th>
+                <th style='width:20%'>期刊名</th>
+                <th style='width:10%'>年</th>
+                <th style='width:10%'>卷(期)</th>
+                <th style='width:10%'>起止页码</th>
+                </tr>
+                    @if (Model != null && Model.ViewThesisEquipmentList != null && Model.ViewThesisEquipmentList.Count() > 0)
+                    {
+                        int indexStr = 0;
+                        foreach (var item in Model.ViewThesisEquipmentList)
+                        {
+                            indexStr++;
+                            <tr>   
+                                <td>@indexStr</td>
+                                <td>@(item.ViewThesis != null ? item.ViewThesis.FirstThesisAuthorNames : "")</td>    
+                                <td>@(item.ViewThesis != null ? item.ViewThesis.Title : "")</td>    
+                                <td>@(item.ViewThesis != null ? item.ViewThesis.JournalName : "")</td>    
+                                <td>@(item.ViewThesis != null ? item.ViewThesis.JournalTimeStr : "")</td>    
+                                <td>@(item.ViewThesis != null ? item.ViewThesis.VolumeNumber : "")</td>    
+                                <td>@(item.ViewThesis != null ? item.ViewThesis.Pagination : "")</td>    
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan='7'>没有相关数据</td>
+                        </tr>
+                    }
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>知名用户</th>
+            <td colspan="8"></td>
+        </tr>   
+        <tr>
+            <th rowspan="3" style="width: 10px; text-align: center; font-weight: bold;">
+                共<br />享<br />信<br />息
+            </th>
+        </tr>
+        <tr>
+            <th>是否对外开放</th>
+            <td style='width:80px;'>@Model.IsOpenStr</td>
+            <th>服务对象</th>
+            <td colspan="2"></td>
+            <th>收费标准</th>
+            <td colspan="3">@Model.UseNotice</td>
+        </tr>
+        <tr>
+            <th>联系人</th>
+            <td>@(Model.Equipment == null ? "" : Model.Equipment.LinkManNames)</td>
+            <th>电子邮箱</th>
+            <td>@Model.AdminEmail</td>
+            <th>联系电话</th>
+            <td>@Model.LinkTelNo</td>
+            <th>开放时间</th>
+            <td colspan="2"></td>
+        </tr>
+    </table>
+    }
+</div>

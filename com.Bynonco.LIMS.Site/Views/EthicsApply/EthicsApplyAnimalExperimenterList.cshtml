@@ -1,0 +1,33 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@model com.Bynonco.LIMS.Model.View.ViewEthicsApply
+@{
+    var ethicsApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEthicsApplyPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEthicsApplyAnimalExperimenterList")
+    .SetUrl(Url.Action("GetEthicsApplyAnimalExperimenterList", "EthicsApply") + "?ethicsApplyId=" + (Model == null ? Guid.Empty.ToString() : Model.Id.ToString()))
+    .SetPagination(false)
+    .SetCollapsible(false)
+    .SetHeight(230)
+    .SetRowNumbers(false)
+    .SetWidth(685)
+    .AddCostomerAttribute("FixWidth", "true")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("姓名", "Name").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("技术职称", "Title").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("电话", "TelNo").SetSortable(false).SetWidth(150).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("工作内容", "WorkContent").SetSortable(false).SetWidth(150).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("动物使用培训证号", "UseAnimalTranningNo").SetSortable(false).SetWidth(150).SetAlign(Align.center));
+    dataGrid.SetShowAddButton(ethicsApplyPrivilige.IsEnableAddEthicsApplyAnimalExperimenter);
+    dataGrid.SetAddScript("doAddOrEditEthicsApplyAnimalExperimenter('','','','','');");
+    dataGrid.SetShowEditButton(ethicsApplyPrivilige.IsEnableEditEthicsApplyAnimalExperimenter);
+    if (ethicsApplyPrivilige.IsEnableEditEthicsApplyAnimalExperimenter)
+    {
+        dataGrid.SetEditScript("doEditEthicsApplyAnimalExperimenter();");
+        dataGrid.SetOnDblClickRow("doAddOrEditEthicsApplyAnimalExperimenter(rowData.Name,rowData.Title,rowData.TelNo,rowData.WorkContent,rowData.UseAnimalTranningNo);");
+    }
+    dataGrid.SetShowDeleteButton(ethicsApplyPrivilige.IsEnableDeleteEthicsApplyAnimalExperimenter);
+    if (ethicsApplyPrivilige.IsEnableDeleteEthicsApplyAnimalExperimenter)
+    {
+        dataGrid.SetDeleteScript("doDeleteEthicsApplyAnimalExperimenter();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

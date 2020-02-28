@@ -1,0 +1,63 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = "~/Views/Shared/_HomeLayout.cshtml";
+    ViewBag.Title = "首页";
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+}
+@section ImportCssAndJs
+{
+    <script type="text/javascript">
+        $(function () {
+            $(".tag-title").mouseover(function () {
+                $(this).siblings().removeClass("current");
+                $(this).siblings(".more").addClass("hide");
+                $(this).parent().next().find(".tag-box").addClass("hide");
+                var id = $(this).attr("id");
+                var moreId = id.replace("tag", "more");
+                var boxId = id.replace("tag", "box");
+                $(this).addClass("current");
+                $("#" + moreId).removeClass("hide");
+                $("#" + boxId).removeClass("hide");
+                return false;
+            });
+        });
+    </script>
+}
+@section FirstLineLeft
+{
+    <div style ='padding-top:10px'>
+     @Html.Partial("../Account/HomeLoginContainer")
+    </div>
+}
+@section FirstLineCenter
+{
+    @Html.Partial("../Home/Gallery")
+}
+@section FirstLineRight
+{
+    @Html.Partial("../Home/Article", ArticleCategoryHomeLocation.FirstLineRight)
+}
+
+@section SecondLineLeft
+{
+    
+    @Html.Partial("../Home/QuickLink")
+}
+@section SecondLineCenter
+{
+    @Html.Partial("../Home/Article", ArticleCategoryHomeLocation.SecondLineCenter)
+}
+@section SecondLineRight
+{
+    @Html.Partial("../Home/HotEquipment")
+}
+
+@section ThirdLineLeft
+{
+    @Html.Partial("../Home/FriendLink")
+}
+@section ThirdLineCenter
+{
+    @Html.Partial("../Home/CurrentUsingEquipment")
+}

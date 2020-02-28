@@ -1,0 +1,154 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPractice
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Utility;
+<style type="text/css">
+    .edit-table th{background-color:#fff;}
+    .edit-table td{background-color:#fff;}
+</style>
+@if (Model != null)
+{
+    @Html.Hidden("Id", Model.Id.ToString())
+    <p><span class="icon icon-practice"></span>基本信息</p>
+    <table  class="edit-table" style="width: 700px;">
+        <tr>
+            <th style='width:80px;'>所属学期</th>
+            <td>@Model.Semester.Name</td>
+        </tr>
+        <tr>
+            <th>项目名称</th>
+            <td>@Model.Name</td>
+        </tr>
+        <tr>
+            <th>申请人</th>
+            <td>@(Model.ApplyUser == null ? "" : Model.ApplyUser.Name)</td>
+        </tr>
+        <tr>
+            <th>状态</th>
+            <td>@(Model.StatusStr)</td>
+        </tr>
+        <tr>
+            <th>研究过程</th>
+            <td>
+                @Html.EditorFor(m => m.UsedProcess)
+                @*@Html.TextArea("UsedProcess", Model == null || Model.UsedProcess == null ? "" : Model.UsedProcess, new { style = "width:600px;height:100px;", placeholder = "(实践研究的方法、步骤、创新条件等)" })*@
+            </td>
+        </tr>
+        <tr>
+            <th>研究成果</th>
+            <td>
+                @Html.EditorFor(m => m.UsedResult)
+                @*@Html.TextArea("UsedResult", Model == null || Model.UsedResult == null ? "" : Model.UsedResult, new { style = "width:600px;height:100px;", placeholder = "(实践研究的成果、存在的问题及前景分析等)" })*@
+            </td>
+        </tr>
+    </table>
+    <table  class="edit-table"  style="width:700px;">
+         <tr>
+            <th colspan='4' style='text-align:left;padding-left:10px;'><span class="icon icon-boss"></span>指导教师</th>
+        </tr>
+        <tr>
+            <th>导师姓名</th>
+            <th>导师工号</th>
+            <th>项目中的指导职责</th>
+            <th>电话</th>
+        </tr>
+        @if (Model != null && Model.EquipmentOpenPracticeTeacherList != null && Model.EquipmentOpenPracticeTeacherList.Count() > 0)
+        {
+            foreach (var item in Model.EquipmentOpenPracticeTeacherList)
+            {
+                @Html.Partial("../EquipmentOpenPractice/TeacherInfo", item)
+            }
+        }
+    </table>
+    <table  class="edit-table"  style="width:700px;">
+        <tr>
+            <th colspan='3' style='text-align:left;padding-left:10px;'><span class="icon icon-users"></span>项目组成员</th>
+        </tr>
+        <tr>
+            <th>姓名</th>
+            <th>成员学号</th>
+            <th>项目中的分工</th>
+        </tr>
+        @if (Model != null && Model.EquipmentOpenPracticeMemberList != null && Model.EquipmentOpenPracticeMemberList.Count() > 0)
+        {
+            foreach (var item in Model.EquipmentOpenPracticeMemberList)
+            {
+                @Html.Partial("../EquipmentOpenPractice/MemberInfo", item)
+            }
+        }
+    </table>
+    <table  class="edit-table"  style="width:700px;">
+        <tr>
+            <th colspan='6' style='text-align:left;padding-left:10px;'><span class="icon icon-equipment"></span>使用的仪器设备</th>
+        </tr>
+        <tr>
+            <th>仪器设备名称</th>
+            <th>仪器所在学院</th>
+            <th>申请机时</th>
+            <th>实际使用机时</th>
+            <th>申请金额</th>
+            <th>实际使用金额</th>
+        </tr>
+        @if (Model != null && Model.EquipmentOpenPracticeEquipmentList != null && Model.EquipmentOpenPracticeEquipmentList.Count() > 0)
+        {
+            foreach (var item in Model.EquipmentOpenPracticeEquipmentList)
+            {
+                @Html.Partial("../EquipmentOpenPractice/EquipmentInfo", item)
+            }
+        }
+    </table>
+    <table  class="edit-table"  style="width:700px;">
+        <tr>
+            <th colspan='5' style='text-align:left;padding-left:10px;'><span class="icon icon-materialinfo"></span>使用的耗材</th>
+        </tr>
+        <tr>
+            <th>材料名称</th>
+            <th>申请金额</th>
+            <th>购买单价</th>
+            <th>购买数量</th>
+            <th>总额</th>
+        </tr>
+        @if (Model != null && Model.EquipmentOpenPracticeMaterialList != null && Model.EquipmentOpenPracticeMaterialList.Count() > 0)
+        {
+            foreach (var item in Model.EquipmentOpenPracticeMaterialList)
+            {
+                @Html.Partial("../EquipmentOpenPractice/MaterialEditClosed", item)
+            }
+        }
+    </table>
+    <p><span class="icon icon-doc"></span>审核信息 (状态：@(Model.StatusStr))</p>
+    <table>
+        @if (Model.ClosedTeacherAuditUser != null)
+        {
+        <tr>
+            <th style='width:80px;'>指导教师结题审核</th>
+            <td>@(Model.ClosedTeacherAuditUser.UserName + " [" + (Model.ClosedTeacherAuditTime.HasValue ? Model.ClosedTeacherAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "") + "]" + (string.IsNullOrWhiteSpace(Model.ClosedTeacherAuditRemark) ? "" : ":" + Model.ClosedTeacherAuditRemark))</td>
+        </tr>
+        }
+        @if (Model.ClosedCollegeAuditUser != null)
+        {
+        <tr>
+            <th style='width:80px;'>学院结题审核</th>
+            <td>@(Model.ClosedCollegeAuditUser.UserName + " [" + (Model.ClosedCollegeAuditTime.HasValue ? Model.ClosedCollegeAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "") + "]" + (string.IsNullOrWhiteSpace(Model.ClosedCollegeAuditRemark) ? "" : ":" + Model.ClosedCollegeAuditRemark))</td>
+        </tr>
+        }
+        @if (Model.ClosedManageAuditUser != null)
+        {
+        <tr>
+            <th style='width:80px;'>实管处结题审核</th>
+            <td>@(Model.ClosedManageAuditUser.UserName + " [" + (Model.ClosedManageAuditTime.HasValue ? Model.ClosedManageAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "") + "]" + (string.IsNullOrWhiteSpace(Model.ClosedManageAuditRemark) ? "" : ":" + Model.ClosedManageAuditRemark))</td>
+        </tr>
+        }
+    </table>
+}
+<script type="text/javascript">
+    function doChangeMaterialUsedTotalMoney(id) {
+        if (!id || id == "") return;
+        var usedUnitPrice = $("#UsedUnitPrice_" + id);
+        var usedCount = $("#UsedCount_" + id);
+        var usedTotalMoney = $("#UsedTotalMoney_" + id);
+        if (usedUnitPrice.length == 0 || usedCount.length == 0 || usedTotalMoney.length == 0) return;
+        if (usedUnitPrice.val().trim() == "" || usedCount.val().trim() == "") return;
+        var usedTotalMoneyVal = parseFloat(usedUnitPrice.val().trim()) * usedCount.val().trim();
+        usedTotalMoney.val(usedTotalMoneyVal);
+    }
+</script>

@@ -1,0 +1,21 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<style type="text/css">
+    #divSelectOrg{ padding:15px 20px; vertical-align:middle;}
+    #divSelectOrg span.span-title{ font-size:14px; padding-right:3px;vertical-align:middle;}
+</style>
+<div class="layout-center-full">
+    <div id="divSelectOrg" style="border:1px solid #D3D3D3;border-bottom:0;"> 
+        @Html.Partial("../LabOrganization/SelectOrg")
+    </div>
+    <div>
+        @Html.Partial("../ArticleCategory/List")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../ArticleRelation/List")
+</div>
+@Html.Partial("../ArticleCategory/ScriptContainer")
+@Html.Partial("../ArticleRelation/ScriptContainer")

@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbEquipmentPartList")
+    .SetUrl(Url.Action("GetGridEquipmentPartList", "Equipment"))
+    .AddQueryParam("queryExpression", string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("Name")
+    .SetSortOrder(SortOrder.desc)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(150).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("计费方式", "ChargeTypeStr").SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否使用折扣比", "IsUseDiscountStr").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("计费是否乘以机时", "IsMutiplyByDurationStr").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("厂商", "Manufacturer").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("价格(元)", "Price").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "BeginHour").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndHour").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编号", "IdentityNo").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否预约可选", "IsEanbleSelectedWhenAppointmentStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddPart);
+    if (equipmentPrivilige.IsEnableAddPart)
+    {
+        dataGrid.SetAddScript("doAddOrEditEquipmentPart('');");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditPart);
+    if (equipmentPrivilige.IsEnableEditPart)
+    {
+        dataGrid.SetEditScript("doEditEquipmentPart();");
+        dataGrid.SetOnDblClickRow("doAddOrEditEquipmentPart(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeletePart);
+    if (equipmentPrivilige.IsEnableDeletePart)
+    {
+        dataGrid.SetDeleteScript("doDeleteEquipmentPart();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

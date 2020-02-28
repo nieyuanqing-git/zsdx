@@ -1,0 +1,169 @@
+﻿<script type="text/javascript">
+    function doEvaluationTableSearch() {
+        var queryExpression = generateEvaluationTableQueryExpress();
+        $("#tbEvaluationTableList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEvaluationTableList").datagrid("load", { "queryExpression": queryExpression.trim()});
+        return false;
+    }
+    function doAuditPassEvaluationTable() {
+        var url = '@Url.Action("AuditPass","BenefitEvaluation")';
+        //if (doCheckEvaluationTableInfo())
+            doSaveEvaluationTableInfo(url);
+    }
+    function doAuditRejectEvaluationTable() {
+        var url = '@Url.Action("AuditReject","BenefitEvaluation")';
+        //if (doCheckEvaluationTableInfo())
+            doSaveEvaluationTableInfo(url);
+    }
+    function doSaveEvaluationTable() {
+        var url = '@Url.Action("Save","BenefitEvaluation")';
+        //if (doCheckEvaluationTableInfo())
+            doSaveEvaluationTableInfo(url);
+    }
+    function doSubmitEvaluationTable() {
+        var url = '@Url.Action("Submit","BenefitEvaluation")';
+        //if (doCheckEvaluationTableInfo())
+            doSaveEvaluationTableInfo(url);
+    }
+    function doCheckEvaluationTableInfo() {
+        if ($("#EvaluationTableNum").val().trim() == "") {
+            $.messager.show({ title: '提示', msg: "申请单号为空", showType: 'show' });
+            return false;
+        }
+        if ($("#UserId").val().trim() == "") {
+            $.messager.show({ title: '提示', msg: "申请人为空", showType: 'show' });
+            return false;
+        }
+        if ($("#EvaluationTableTime").datetimebox("getValue") == "") {
+            $.messager.show({ title: '提示', msg: "申请时间为空", showType: 'show' });
+            return false;
+        }
+        if ($("#EquipmentIds").val().trim() == "") {
+            $.messager.show({ title: '提示', msg: "开放基金明细为空", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+
+    function doSaveEvaluationTableInfo(url) {
+        var array = $("#formEvaluationTableEdit").serializeArray();
+        var json = {};
+        var itemName;
+        for (var i = 0; i < array.length; i++) {
+            var item = array[i];
+            if (item.name.indexOf('_') >= 0) {
+                var arr = item.name.split('_');
+                var itm = { ItemName: arr[0], SubItems: [] };
+                var sub = { SubName: arr[1], SubNumber: item.value, SubScore: array[++i].value };
+                if (json['EvaluationItems'] == undefined) {
+                    json['EvaluationItems'] = [];
+                }
+                if (itemName == arr[0]) {
+                    json['EvaluationItems'][json['EvaluationItems'].length-1]['SubItems'].push(sub);
+                } else {
+                    json['EvaluationItems'].push(itm);
+                    json['EvaluationItems'][json['EvaluationItems'].length - 1]['SubItems'].push(sub);
+                    itemName = arr[0];
+                }
+            } else {
+                json[item.name] = item.value;
+            }
+        }
+        //json['date'] = new Date().getMilliseconds();
+        if (!url || url.trim() == "") {
+            url = '@Url.Action("Save", "BenefitEvaluation")';
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { JsonDataString: JSON.stringify(json) },
+            //data: $("#formEvaluationTableEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                } else {
+                    doBack();
+                }
+            },
+            complete: function(xhr, ts) {
+                $.messager.progress('close');
+                if (xhr.status == 401 && ts != 'error') {
+                    var msg = xhr.responseText;
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    }
+                }
+            }
+        });
+    }
+    function doAddEvaluationTable(type, equipmentId) {
+        var url = '/BenefitEvaluation/Add?type=' + type + '&equipmentId=' + equipmentId;
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+    function doShowEvaluationTable(id) {
+        if(!id || id.trim()==""){
+            var selectedEvaluationTable = $("#tbEvaluationTableList").datagrid("getSelected");
+            if(!selectedEvaluationTable || selectedEvaluationTable.Id=="" || selectedEvaluationTable.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择效益评价表信息", showType: 'show' });
+                return;
+            }
+            id = selectedEvaluationTable.Id;
+        }
+        var url = '@(Url.Action("View", "BenefitEvaluation"))/' + id;
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+    function doEditEvaluationTable(id){
+        if(!id || id.trim()==""){
+            var selectedEvaluationTable = $("#tbEvaluationTableList").datagrid("getSelected");
+            if(!selectedEvaluationTable || selectedEvaluationTable.Id=="" || selectedEvaluationTable.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择效益评价表信息", showType: 'show' });
+                return;
+            }
+            id = selectedEvaluationTable.Id;
+        }
+        var url = '@(Url.Action("Edit", "BenefitEvaluation"))/' + id;
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+    function doAuditEvaluationTable(id){
+        if(!id || id.trim()==""){
+            var selectedEvaluationTable = $("#tbEvaluationTableList").datagrid("getSelected");
+            if(!selectedEvaluationTable || selectedEvaluationTable.Id=="" || selectedEvaluationTable.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择效益评价表信息", showType: 'show' });
+                return;
+            }
+            id = selectedEvaluationTable.Id;
+        }
+        var url = '@(Url.Action("Audit", "BenefitEvaluation"))/' + id;
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+    function doDownLoadEvaluationTable(id) {
+        if (!id || id.trim() == "") {
+            var selectedEvaluationTable = $("#tbEvaluationTableList").datagrid("getSelected");
+            if (!selectedEvaluationTable || selectedEvaluationTable.Id == "" || selectedEvaluationTable.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择效益评价表信息", showType: 'show' });
+                return;
+            }
+            id = selectedEvaluationTable.Id;
+        }
+        var url = '@(Url.Action("Download", "BenefitEvaluation"))/' + id;
+        window.open(url);
+    }
+    function doDownLoadStat() {
+        var queryExpression = "EquipmentLabel=-null";
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += "*EquipmentName∽\"" + equipmentName + "\"";
+        }
+        var organizationName = $("#SearchOrganizationName").val().trim();
+        if (organizationName != "") {
+            queryExpression += "*OrganizationName∽\"" + organizationName + "\"";
+        }
+        var year = $("#SearchYear").val().trim();
+        if (year != "") {
+            queryExpression += "*EvaluationYear=\"" + year + "\"";
+        }
+        var url = '@(Url.Action("DownloadStat", "BenefitEvaluation"))?QueryExpression=' + encodeURIComponent(queryExpression);
+        window.open(url);
+    }
+</script>

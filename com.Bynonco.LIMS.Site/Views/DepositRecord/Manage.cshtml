@@ -1,0 +1,105 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    bool isSelected = false;
+    var depositRecordPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDepositRecordPrivilige(User.Identity.Name);
+    var openFundApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetOpenFundApplyPrivilige(User.Identity.Name);
+    var depositRecordOpenFundPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDepositRecordOpenFundPrivilige(User.Identity.Name);
+}
+<style type="text/css">
+.tabs li.tabs-selected a.tabs-inner {background: none repeat scroll 0 0 #F11414;color: #FFFFFF;}
+</style>
+<div class="layout-center-full">
+    <div>
+        <ul class="tabs" style="border-bottom:0;">
+            @if (depositRecordPrivilige != null && depositRecordPrivilige.IsEnableDepositContainer)
+            {
+                if (!isSelected)
+                {
+                    <li class="tabs-selected" id="liDepositRecord"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">普通存款</span><span class="tabs-icon"></span></a></li>
+                    isSelected = true;
+                }
+                else
+                {
+                    <li  id="liDepositRecord"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">普通存款</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            
+            
+             @if (depositRecordOpenFundPrivilige != null && depositRecordOpenFundPrivilige.IsEnableDepositContainer)
+             {
+                 if (!isSelected)
+                 {
+                     <li class="tabs-selected" id="liDepositRecordOpenFundRecord"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">开放基金存款</span><span class="tabs-icon"></span></a></li>
+                     isSelected = true;
+                 }
+                 else
+                 {
+                     <li id="liDepositRecordOpenFundRecord"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">开放基金存款</span><span class="tabs-icon"></span></a></li>
+                 }
+
+             }
+             @if (openFundApplyPrivilige != null && openFundApplyPrivilige.IsEnableDepositContainer)
+             {
+                 if (!isSelected)
+                 {
+                     <li class="tabs-selected" id="liOpenFundDepositRecord"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">开放基金存款凭证</span><span class="tabs-icon"></span></a></li>
+                     isSelected = true;
+                 }
+                 else
+                 {
+                     <li id="liOpenFundDepositRecord"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">开放基金存款凭证</span><span class="tabs-icon"></span></a></li>
+                 }
+                 
+             }
+            @if (depositRecordPrivilige!=null && depositRecordPrivilige.IsEnableMyUserAccountRecordContainer)
+            {
+                if(!isSelected)
+                {
+                    <li class="tabs-selected" id="liUserAccountRecord"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">收入扣费记录查询</span><span class="tabs-icon"></span></a></li>
+                    isSelected = true;
+                }
+                else
+                {
+                    <li  id="liUserAccountRecord"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">收入扣费记录查询</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+        </ul>
+        <div id="divDepositRecordContainer"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            loadDepositRecordList();
+        });
+        loadDepositRecordList();
+    });
+    function loadDepositRecordList() {
+        ajaxloadbegin();
+        if ($(".tabs .tabs-selected")) {
+            var url = "";
+            var tabId = $(".tabs .tabs-selected").attr("id");
+            switch (tabId) {
+                case "liUserAccountRecord":
+                    url = '@Url.Action("UserAccountRecordPayerContainer", "UserAccountRecord")';
+                    break;
+                case "liDepositRecord":
+                    url = '@Url.Action("DepositContainer", "DepositRecord")';
+                    break;
+                case "liOpenFundDepositRecord":
+                    url = '@Url.Action("DepositContainer", "OpenFundApply")';
+                    break;
+                case "liDepositRecordOpenFundRecord":
+                    url = '@Url.Action("DepositContainer","DepositRecordOpenFund")';
+                    break;
+            }
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divDepositRecordContainer").load(url, function () {
+                $.messager.progress('close');
+                ajaxloadsuccess();
+            });
+        }
+    }
+</script>

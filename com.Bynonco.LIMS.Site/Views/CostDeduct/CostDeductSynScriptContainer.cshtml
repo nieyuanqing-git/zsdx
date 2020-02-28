@@ -1,0 +1,12 @@
+﻿<script type="text/javascript">
+    function doDeductSynSearch(isPosCurPage) {
+        var queryExpression = generateDeductSynQueryExpression();
+        if(isPosCurPage){
+            $("#tbViewCostDeductSynList").datagrid("reload", { "queryExpression": queryExpression.trim() });
+        }
+        else{
+            $("#tbViewCostDeductSynList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbViewCostDeductSynList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        } 
+    }   
+</script>

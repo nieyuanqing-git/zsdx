@@ -1,0 +1,28 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JDataGrid("tbMaterialDepositRecordList")
+       .SetUrl(Url.Action("GetGridViewMaterialDepositRecordList", "MaterialUserAccount"))
+       .SetHeight(250)
+       .SetSortName("OperateTime")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(5)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(false)
+       .SetShowRefreshButton(false);
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("账户名称", "Name").SetWidth(200).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户", "UserName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("金额", "DepositSumStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作类型", "OperateTypeStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作人", "OperatorName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作时间", "OperateTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchZPanel();", IconCls = "icon-search", Id = "btnGridSearchZPanel", Text = "搜索" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doMaterialDepositRecordSearch();", IconCls = "icon-reload", Id = "btnMaterialDepositReload", Text = "刷新" });
+ }
+ @(dataGrid.ToMvcString())

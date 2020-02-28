@@ -1,0 +1,67 @@
+﻿ @using com.Bynonco.JqueryEasyUI.Core;
+ <script type="text/javascript">
+     function generateQueryExpress() {
+         var queryExpression = "";
+         var exchangesTimeStart = $("#SearchExchangesTimeStart").datebox("getValue").trim();
+         if (exchangesTimeStart != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "ExchangesTime>\"" + exchangesTimeStart + "\"";
+         }
+         var exchangesTimeEnd = $("#SearchExchangesTimeEnd").datebox("getValue").trim();
+         if (exchangesTimeEnd != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "ExchangesTime<\"" + exchangesTimeEnd + " 23:59:59\"";
+         }
+         var exchangesAddress = $("#SearchExchangesAddress").val().trim();
+         if (exchangesAddress != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "ExchangesAddress∽\"" + exchangesAddress.trim() + "\"";
+         }
+         var academicName = $("#SearchAcademicName").val().trim();
+         if (academicName != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "AcademicName∽\"" + academicName.trim() + "\"";
+         }
+         var meetingReportTitle = $("#SearchMeetingReportTitle").val().trim();
+         if (meetingReportTitle != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "MeetingReportTitle∽\"" + meetingReportTitle.trim() + "\"";
+         }
+         return queryExpression;
+     }
+
+     function doReset() {
+         $("#SearchExchangesTimeStart").datebox("setValue", "");
+         $("#SearchExchangesTimeEnd").datebox("setValue", "");
+         $("#SearchExchangesAddress").val("");
+         $("#SearchAcademicName").val("");
+         $("#SearchMeetingReportTitle").val("");
+     }
+</script>
+<ul class="search">
+    <li>
+        <label>开始时间</label>
+        @Html.JDateTimePicker("SearchExchangesTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchExchangesTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>地点</label>
+        @Html.JValidateBox("SearchExchangesAddress").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>会议名称</label>
+        @Html.JValidateBox("SearchAcademicName").SetWidth(150).ToMvcString()
+    </li>
+     <li>
+        <label>报告题目</label>
+        @Html.JValidateBox("SearchMeetingReportTitle").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+
+

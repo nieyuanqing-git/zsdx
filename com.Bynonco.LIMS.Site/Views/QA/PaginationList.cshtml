@@ -1,0 +1,94 @@
+﻿@model IList<com.Bynonco.LIMS.Model.Question>
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var QAPrivilige = User.Identity.IsAuthenticated ? com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetQAPrivilige(User.Identity.Name) : null;
+    DataGridSettings dataGridSettings = (DataGridSettings)ViewData["DataGridSettings"];
+    if (Model != null && Model.Count() > 0)
+    {
+        var paginationTop = Html.JPagination("PageQAListTop")
+            .SetTotal(dataGridSettings.Total)
+            .SetPageSize(dataGridSettings.PageSize)
+            .SetPageNumber(dataGridSettings.PageIndex)
+            .SetOnSelectPage("doSelectPageTop(pageNumber, pageSize);");
+        @(paginationTop.ToMvcString()) 
+        for (int i=0; i < Model.Count() ; i++)
+        {
+            var item = Model[i];
+            var questioninfo = "";
+            questioninfo += (questioninfo == "" ? "" : " ") + item.LabOrganizationName;
+            questioninfo += (questioninfo == "" ? "" : " ") + item.CreatorName;
+            questioninfo += (questioninfo == "" ? "" : " ") + item.CreateTime;
+            <div class="QA-box">
+                <div class="QA-inner question-box">
+                    <div class="QA-content">
+                        <i class="QA-tip"></i>
+                        <p class="pic-box">
+                            <a href="javascript:void(0)">
+                                @System.Web.Mvc.MvcHtmlString.Create(item.Creator == null ? "" : item.Creator.Icon)
+                            </a>
+                            <a class="pic-name" href="javascript:void(0)"><b>@(item.Creator.UserName)</b></a>
+                        </p>
+                        <p class="ugc">@item.ContentNoHTML</p>
+                        <div class="QA-bottom">
+                            @if (QAPrivilige != null && QAPrivilige.IsEnableAnswer && item.Answer == null)
+                            {
+                                <ul class="tags" style="_width:70px;">
+                                    <li class="tag"> 
+                                        <a class="l-btn-color l-btn-color-blue" title="点击回答提问" onclick="doAnswerQA('@item.Id');return false;"  href="javascript:void(0)"> 回 答 </a>
+                                    </li>
+                                </ul>
+                            }
+                            <b>@questioninfo</b>
+                        </div>
+                    </div>
+                </div>
+                @if (item.Answer != null)
+                {
+                    var answerinfo = "";
+                    answerinfo += (answerinfo == "" ? "" : " ") + item.Answer.CreatorName;
+                    answerinfo += (answerinfo == "" ? "" : " ") + item.Answer.CreateTime;
+                    <div class="QA-inner answer-box">
+                        <div class="QA-content">
+                            <i class="QA-tip"></i>
+                            <p class="pic-box">
+                                <a href="javascript:void(0)">
+                                    @System.Web.Mvc.MvcHtmlString.Create(item.Answer.Creator == null ? "" : item.Answer.Creator.Icon)
+                                </a>
+                                <a class="pic-name" href="javascript:void(0)"><b>@(item.Answer.Creator.UserName)</b></a>
+                            </p>
+                            <p class="ugc">@(item.Answer.ContentHTML)</p>
+                            <div class="QA-bottom">
+                                @if (QAPrivilige != null && QAPrivilige.IsEnableAnswer)
+                                {
+                                    <ul class="tags" style="_width:80px;">
+                                        <li class="tag"> 
+                                            <a class="l-btn-color l-btn-color-orange" title="点击修改答案" onclick="doAnswerQA('@item.Id');return false;"  href="javascript:void(0)">修改答案</a>
+                                        </li>
+                                    </ul>
+                                }
+                                <b class="from">@answerinfo</b>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        var pagination = Html.JPagination("PageQAList")
+            .SetTotal(dataGridSettings.Total)
+            .SetPageSize(dataGridSettings.PageSize)
+            .SetPageNumber(dataGridSettings.PageIndex)
+            .SetOnSelectPage("doSelectPage(pageNumber, pageSize);");
+        @(pagination.ToMvcString()) 
+    }
+    else
+    {
+        <p>没有相关问题反馈信息</p>
+    }
+}
+
+<script type="text/javascript">
+    $(function () {
+        $("#lbQACount").empty();
+        $("#lbQACount").append(' @(dataGridSettings.Total) ');
+    });
+</script>

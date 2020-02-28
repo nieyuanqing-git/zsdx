@@ -1,0 +1,197 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@{
+     var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+     var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+}
+<script type="text/javascript">
+    var perMarkingPageSize = 10;
+    function doSelectMarkingPageTop(pageNumber, pageSize) {
+        var pageNumber = $('#PageMarkingListTop').pagination("options").pageNumber;
+        var pageSize = $('#PageMarkingListTop').pagination("options").pageSize;
+        doLoadMarkingList(pageNumber, pageSize);
+        return false;
+    }
+    function doSelectMarkingPage(pageNumber, pageSize) {
+        var pageNumber = $('#PageMarkingList').pagination("options").pageNumber;
+        var pageSize = $('#PageMarkingList').pagination("options").pageSize;
+        doLoadMarkingList(pageNumber, pageSize);
+        return false;
+    }
+    function doLoadMarkingList(pageNumber, pageSize) {
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("ShowMarking", "Equipment")',
+            data: "EquipmentId=" + "@Model.Id" + "&page=" + pageNumber + "&rows=" + pageSize + "&date=" + new Date(),
+            success: function (data) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: "获取评论信息出错", showType: 'show' });
+                }
+                else {
+                    $("#divShowMarking").html(data);
+                }
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    function doSaveEquipmentMarkingSuccess() {
+        doLoadMarkingList(1, perMarkingPageSize);
+    }
+    var perAttachmentPageSize = 10;
+    function doSelectAttachmentPageTop(pageNumber, pageSize) {
+        var pageNumber = $('#PageAttachmentListTop').pagination("options").pageNumber;
+        var pageSize = $('#PageAttachmentListTop').pagination("options").pageSize;
+        doLoadAttachmentList(pageNumber, pageSize);
+        return false;
+    }
+    function doSelectAttachmentPage(pageNumber, pageSize) {
+        var pageNumber = $('#PageAttachmentList').pagination("options").pageNumber;
+        var pageSize = $('#PageAttachmentList').pagination("options").pageSize;
+        doLoadAttachmentList(pageNumber, pageSize);
+        return false;
+    }
+    function doLoadAttachmentList(pageNumber, pageSize) {
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("ShowAttachment", "Equipment")',
+            data: "EquipmentId=" + "@Model.Id" + "&page=" + pageNumber + "&rows=" + pageSize + "&date=" + new Date(),
+            success: function (data) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: "获取附件信息出错", showType: 'show' });
+                }
+                else {
+                    $("#divShowAttachment").html(data);
+                }
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+
+    var perNoticePageSize = 10;
+    function doSelectNoticePageTop(pageNumber, pageSize) {
+        var pageNumber = $('#PageNoticeListTop').pagination("options").pageNumber;
+        var pageSize = $('#PageNoticeListTop').pagination("options").pageSize;
+        doLoadNoticeList(pageNumber, pageSize);
+        return false;
+    }
+    function doSelectNoticePage(pageNumber, pageSize) {
+        var pageNumber = $('#PageNoticeList').pagination("options").pageNumber;
+        var pageSize = $('#PageNoticeList').pagination("options").pageSize;
+        doLoadNoticeList(pageNumber, pageSize);
+        return false;
+    }
+    function doLoadNoticeList(pageNumber, pageSize) {
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("ShowNotice", "Equipment")',
+            data: "EquipmentId=" + "@Model.Id" + "&page=" + pageNumber + "&rows=" + pageSize + "&date=" + new Date(),
+            success: function (data) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: "获取公告信息出错", showType: 'show' });
+                }
+                else {
+                    $("#divShowNotice").html(data);
+                }
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    function doLoadSameCategoryEquipmentList() {
+        var isHomeQuery = "";
+        if ('@(isHome.ToString().ToLower())' == 'true') {
+            isHomeQuery = "&isHome=true"
+        }
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("SameCategoryEquipmentList", "Equipment")',
+            data: "EquipmentId=" + "@Model.Id" + isHomeQuery + "&date=" + new Date(),
+            success: function (data) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: "获取同类设备信息出错", showType: 'show' });
+                }
+                else {
+                    $("#divShowSameEquipment").html(data);
+                }
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    function doLoadEquipmentSampleItems() {
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("GetEquipmentSampleItems", "EquipmentSampleItems")',
+            data: { "EquipmentId": "@Model.Id", "page": pageNumber, "rows": pageSize, "date": new Date() },
+            success: function (data) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: "检测项目信息出错", showType: 'show' });
+                }
+                else {
+                    $("#divSampleItems").html(data);
+                }
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    function doSampleItemsSearch() {
+        var pageNumber = 1;
+        var pageSize = 10;
+        if ($('#divSampleItemsPaging').length > 0) {
+            pageNumber = $('#divSampleItemsPaging').pagination("options").pageNumber;
+            pageSize = $('#divSampleItemsPaging').pagination("options").pageSize;
+        }
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("GetEquipmentSampleItems", "EquipmentSampleItems")',
+            data: { "EquipmentId": "@Model.Id", "page": pageNumber, "rows": pageSize, "date": new Date() },
+            success: function (data) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: "检测项目信息出错", showType: 'show' });
+                }
+                else {
+                    $("#divSampleItems").html(data);
+                }
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+
+    function loadEquipmentAppointmentTimes() {
+        var weekIndex = $("#WeekIndex").val();
+        var equipmentId = "@Model.Id";
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("AppointmentTimesContainer", "Equipment")',
+            data: { "EquipmentId": equipmentId, "equipmentTimeAppointmemtMode": "@((int)com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.CommondCalendar)", "WeekIndex": weekIndex ? weekIndex : "0", "date": new Date().getMilliseconds() },
+            success: function (data) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: "获取预约资源信息出错", showType: 'show' });
+                }
+                else {
+                    $("#divAppointmentTimesContainer").html(data);
+                }
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+
+
+    $(function () {
+        doLoadMarkingList(1, perMarkingPageSize);
+        doLoadAttachmentList(1, perAttachmentPageSize);
+        doLoadNoticeList(1, perNoticePageSize);
+        doLoadSameCategoryEquipmentList();
+        loadEquipmentAppointmentTimes();
+        doSampleItemsSearch();
+    });
+
+    function SetTagNums(total,tagId,tagName) {
+        if (!total || total == "0") $("#" + tagId).html(tagName);
+        else $("#"+ tagId).html(tagName +" (<span class='tabs-nums'>" + total + "</span>)");
+    }
+</script>

@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>@ViewBag.Title</title>
+    @Html.Partial("AdminJsCSS")
+    @Html.Partial("GetIsAjax")
+    @RenderSection("ImportCssAndJs", false)
+</head>
+<body>
+    <div class="layout-top">
+        <div class="box-middle">
+            <div class="box-left">
+                <div class="box-right">
+                    <div class="logo">&nbsp;</div>
+                    @Html.Partial("../Admin/TopMenu")
+                    <div id="themesbox" class="themes-box"></div>
+                    <div class="clear-both"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layout-body">
+        <div class="body-inner">
+            <div id="layoutbox" class="body-inner-inner">
+                <div id="layoutLeftBox" class="layout-left">
+                    <div class="welcome">
+                        @Html.Partial("../Account/AccountLoginInfo")
+                    </div>
+                    <div class="main-menu-box" style="display:none;">
+                         <div class="box-middle">
+                            <div class="box-top">
+                                <div class="box-bottom" style="padding-bottom:5px;">
+                                    <ul class="user_atten">
+                                        <li><a href="#"><strong node-type="follow">15</strong><span>关注</span></a></li>
+                                        <li><a href="#"><strong node-type="follow">150</strong><span>粉丝</span></a></li>
+                                        <li class="last"><a href="#"><strong node-type="follow">999</strong><span>设备</span></a></li>
+                                    </ul>
+                                    <div class="clear-both"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @Html.Partial("../Admin/UserCurrentWorkGroup")
+                </div>
+                <div id="layoutCenterBox" class="layout-center">
+                    @{
+                        System.Text.StringBuilder sbUserDefinedParams = new System.Text.StringBuilder("");
+                        var ignoreParams = new string[] { "HTTP_ACCEPT_CHARSET", "style", "ControllerName", "time", "ActionName", "date", "_", "userName", "friendlyName", "UserOnlineID", "adminleftmenu", "ASP.NET_SessionId", ".ASPXAUTH", "ALL_HTTP", "ALL_RAW", "APPL_MD_PATH", "APPL_PHYSICAL_PATH", "AUTH_TYPE", "AUTH_USER", "AUTH_PASSWORD", "LOGON_USER", "REMOTE_USER", "CERT_COOKIE", "CERT_FLAGS", "CERT_ISSUER", "CERT_KEYSIZE", "CERT_SECRETKEYSIZE", "CERT_SERIALNUMBER", "CERT_SERVER_ISSUER", "CERT_SERVER_SUBJECT", "CERT_SUBJECT", "CONTENT_LENGTH", "CONTENT_TYPE", "GATEWAY_INTERFACE", "HTTPS", "HTTPS_KEYSIZE", "HTTPS_SECRETKEYSIZE", "HTTPS_SERVER_ISSUER", "HTTPS_SERVER_SUBJECT", "INSTANCE_ID", "INSTANCE_META_PATH", "LOCAL_ADDR", "PATH_INFO", "PATH_TRANSLATED", "QUERY_STRING", "REMOTE_ADDR", "REMOTE_HOST", "REMOTE_PORT", "REQUEST_METHOD", "SCRIPT_NAME", "SERVER_NAME", "SERVER_PORT", "SERVER_PORT_SECURE", "SERVER_PROTOCOL", "SERVER_SOFTWARE", "URL", "HTTP_CONNECTION", "HTTP_CONTENT_TYPE", "HTTP_ACCEPT", "HTTP_ACCEPT_ENCODING", "HTTP_ACCEPT_LANGUAGE", "HTTP_COOKIE", "HTTP_HOST", "HTTP_REFERER", "HTTP_USER_AGENT", "HTTP_X_REQUESTED_WITH" };
+                        var userDefinedParams = Request.Params.AllKeys.Where(p => !ignoreParams.Contains(p));
+                        if (userDefinedParams != null && userDefinedParams.Count() > 0)
+                        {
+                            foreach (var userDefinedParam in userDefinedParams)
+                            {
+                                sbUserDefinedParams.AppendFormat("{0}:{1}", userDefinedParam, Request.Params[userDefinedParam].ToString()).AppendLine();
+                            }
+                        }
+                        ViewBag.UserDefinedParams = sbUserDefinedParams.ToString();
+                    }
+                    @Html.Partial("../Admin/NavMenu")
+                    @{
+                        if (ViewData["UserCurrentTag"] != null)
+                        {
+                            IList<com.Bynonco.LIMS.Model.View.ViewWorkGroupModule> viewWorkGroupModuleList = (IList<com.Bynonco.LIMS.Model.View.ViewWorkGroupModule>)ViewData["UserCurrentTag"];
+                            if (viewWorkGroupModuleList != null && viewWorkGroupModuleList.Count > 0)
+                            {
+                                string tagControllerName = ViewContext.RouteData.Values["controller"].ToString().ToLower();
+                                string tagActionName = ViewContext.RouteData.Values["action"].ToString().ToLower();
+                                <div class="main-content-box">
+                                    <div class="main-title">
+                                        <ul class="content-box-tabs">
+                                            @for (int i = 0; i < viewWorkGroupModuleList.Count(); i++)
+                                            {
+                                                bool isCurrentItem = false;
+                                                var item = viewWorkGroupModuleList[i];
+                                                if (!item.IsOnlyShowWithModel || Model != null)
+                                                {
+                                                    if (item.ActionName.ToLower().Trim() == tagActionName && item.ControllerName.ToLower().Trim() == tagControllerName)
+                                                    {
+                                                        isCurrentItem = true;
+                                                    }
+                                                    <li @("class=" + (isCurrentItem ? "current" : ""))>
+                                                        @Html.ActionLink(item.text, item.ActionName, item.ControllerName, new { id = Model == null || Model.Id == Guid.Empty ? "" : Model.Id.ToString(), userParameters = sbUserDefinedParams.ToString() }, null)
+                                                    </li>
+                                                }
+                                            }
+                                            <div class="clear-both"></div>
+                                        </ul>
+                                        <div class="clear-both"></div>
+                                    </div>
+                                    <div class="main-content" id="divMainContentBox">
+                                        @RenderBody()
+                                    </div>
+                                    <div class="main-bottom"></div>
+                                </div>
+                            }
+                        }
+                    }
+                    @Html.Partial("../Admin/UserCurrentSubMenu")
+			        <div id="dialog" title="系统信息"></div>
+                </div>
+                <div class="layout-foot">
+                    @Html.Partial("Footer")
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="Loading" style="display:none;">
+        <div><p><img src="@Url.Content("~/Content/images/loading.gif")" alt="Loading"/></p></div>
+    </div>
+</body>
+</html>

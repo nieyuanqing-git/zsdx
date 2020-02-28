@@ -1,0 +1,25 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<style>
+     #divTotal table tr td{font-size:12px; font-weight:normal}
+</style>
+ <div id="divSampleStatisticsSearch">
+    @Html.Partial("Search")
+</div>
+<div id="divTotal" class="panel-header" style="border-top:none;background:transparent;min-height:600px">
+    @Html.Partial("List")
+</div>
+<script type="text/javascript">
+    function doEquipmentApplySummaryStaticsSearch() {
+        var queryExpression = generateQueryExpression();
+        $('#tbEquipmentApplySummaryStaticsList').datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentApplySummaryStaticsList").datagrid("reload", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+    function doEquipmentApplySummaryStaticsExpert() {
+        var queryExpression = generateQueryExpression();
+        window.open('@Url.Action("ExpertEquipmentApplySummaryStat")', "_blank")
+    }
+</script>

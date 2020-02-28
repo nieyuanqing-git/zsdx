@@ -1,0 +1,44 @@
+﻿@model com.Bynonco.LIMS.Model.UserExamination
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+<div class="edit-operate">
+    @Html.JLinkButton("btnSubmitTesting", "交卷").SetIconCls("icon-examination").SetPlain(true).SetOnclick("doSubmitTesting();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSubmitTesting() {
+        $.messager.confirm('提示', '是否确定交卷? ', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SubmitTesting", "UserExamination")' + "?date=" + new Date().getMilliseconds(),
+                data: $("#frmUserExaminationAnswer").serialize(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doJumpToAppointment();
+                }
+            });
+        });
+        
+    }
+
+    function doJumpToAppointment() {
+        if ('@((int)TrainningExaminationBusinessType.Equipment)' == '@(Model == null ? "" :Model.BusinessType.ToString())') {
+            var equipmentId = '@(Model == null ? Guid.Empty :Model.BusinessId)';
+            var url = '@Url.Action("AppointmentBoxIndex", "Equipment", new{id = Model.BusinessId,userParameters="" })' + "?date=" + new Date().getMilliseconds();
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+        else {
+            doRelaodUserExamination('@(Model == null ? "" :Model.BusinessType.ToString())', '@(Model == null ? Guid.Empty :Model.BusinessId)');
+        }
+    }
+    function doRelaodUserExamination(businessType, businessId) {
+        var url = '@Url.Action("Examination", "UserExamination")' + "?BusinessType=" + businessType + "&BusinessId=" + businessId + "&date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>

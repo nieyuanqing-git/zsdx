@@ -1,0 +1,102 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var attachmentJson = ViewData["AttachmentJson"] == null  ? "null" : ViewData["AttachmentJson"];
+    var dataGrid = Html.JDataGrid("tbAttchmentList")
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false)
+        .SetSortName("FileName")
+        .SetPagination(false)
+        .SetMutiSelect(false)
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件名", "FileName").SetHidden(true))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件名", "FileNameStr").SetWidth(334).SetAlign(Align.left).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("大小", "FileSizeStr").SetWidth(100).SetAlign(Align.center).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "FlleExtension").SetWidth(57).SetAlign(Align.center).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作", "DeleteOperate").SetWidth(57).SetAlign(Align.center).SetSortable(false));
+ }
+@(dataGrid.ToMvcString())
+
+<script type="text/javascript">
+    var attachmentJson = "@attachmentJson".toJson();
+    $(function () {
+        $('#tbAttchmentList').datagrid('loadData', { total: 0, rows: [] });
+        if (attachmentJson && attachmentJson != "null") {
+            $("#tbAttchmentList").datagrid("loadData", eval(attachmentJson));
+        }
+    });
+     function doUploadValidates(file) {
+         if (file == "") {
+             $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+             return false;
+         }
+         var fileName = file.getFileName().trim();
+         if (fileName.indexOf(",") != -1 || fileName.indexOf("#") != -1) {
+             $.messager.show({ title: '提示', msg: "文件名包含非法字符【#,】", showType: 'show' });
+             return false;
+         }
+         var rows = $("#tbAttchmentList").datagrid("getRows");
+         if (rows && rows.length > 0) {
+             for (var i = 0; i < rows.length; i++) {
+                 if (rows[i].FileName.trim() + "." + rows[i].FlleExtension.trim() == fileName) {
+                     $.messager.show({ title: '提示', msg: "文件名" + fileName + "已经存在", showType: 'show' });
+                     return false;
+                 }
+             }
+         }
+         return true;
+     }
+     function InsertAttachmentToList(file, data) {
+         $('#tbAttchmentList').datagrid('appendRow', {
+             Id: data.Id,
+             FileName : data.FileName,
+             FileNameStr: "<a target=\"_blank\" style=\"text-decoration:none\" title=\"点击下载\" href=\"../../SampleAttachements/Apply/" + data.EncryptFileName + "." + data.FlleExtension + "\">" + data.FileName + "</a>",
+             FileSizeStr: data.FileSizeStr,
+             FlleExtension: data.FlleExtension,
+             DeleteOperate: "<a href=\"#\" style=\"text-decoration:none\" onclick=\"" + "doDeleteAttachment('" + data.SampleApplyId + "','" + data.Id + "');return false;\">" + "删除</a>"
+         });
+     }
+     function doDeleteAttachment(sampleApplyId,attchmentId) {
+         $.messager.progress({ title: '提示', msg: '正在删除附件,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("DeleteSampleApplyAttachment","SampleManage")' + "?time=" + new Date().getMilliseconds(),
+             data: { "fileIds": attchmentId, "sampleApplyId": sampleApplyId },
+             complete: function (data, status) {
+                 $.messager.progress('close');
+                 var deletedFileIds = data.responseText;
+                 if (deletedFileIds && deletedFileIds != "") {
+                     var selectedRows = $('#tbAttchmentList').datagrid('getSelections');
+                     if (selectedRows) {
+                         for (var j = 0; j < selectedRows.length; j++) {
+                             if (deletedFileIds.indexOf(selectedRows[j].Id) == -1) continue;
+                             var index = $('#tbAttchmentList').datagrid('getRowIndex', selectedRows[j]);
+                             $('#tbAttchmentList').datagrid('deleteRow', index);
+                         }
+                     }
+                     return true;
+                 }
+                 $.messager.show({ title: '提示', msg: "找不到要删除的文件信息", showType: 'show' });
+                 return false;
+             }
+         });
+     }
+     function ajaxFileUpload() {
+         var file = $("#fileToUpload").val();
+         if (!doUploadValidates(file)) return false;
+         $("#fileToUpload").ajaxStart(function () { $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' }); });
+         $.ajaxFileUpload({
+             url: '@Url.Action("UploadSampleApplyAttachment","SampleManage")' + "?time=" + new Date().getMilliseconds(),
+             secureuri: false,
+             fileElementId: 'fileToUpload',
+             complete: function (data) {
+                 var jsonData = eval("(" + data.responseText.trim() + ")");       
+                 $.messager.progress('close');
+                 if (jsonData.Id) InsertAttachmentToList(file, jsonData);
+                 else  $.messager.show({ title: '提示', msg: data.responseText, showType: 'show' });
+             }
+         });
+         return false;
+     }
+ </script>
+ 
+

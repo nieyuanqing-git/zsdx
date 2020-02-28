@@ -1,0 +1,35 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="x-panel-grid hide"  style='width:150px;'>
+    <div class="search-inner-box">
+        @Html.Partial("../Statistics/SJ3StatisticsAudit")
+    </div>
+</div>
+<div class="y-panel-grid hide"  style='width:140px;'>
+    <div class="search-inner-box">
+        @Html.Partial("../Statistics/SJ3StatisticsExport")
+    </div>
+</div>
+<div class="z-panel-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Statistics/SJ3StatisticsAdd")
+    </div>
+</div>
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Statistics/SJ3Search")
+    </div>
+</div>
+<div class="layout-center-left" style='left:auto;top:auto;'>
+    @Html.Partial("../Statistics/SJ3StatisticsList")
+</div>
+<div class="layout-center-right">
+    <div class="layout-center-full">
+        @Html.Partial("../Statistics/SJ3List")
+    </div>
+</div>
+<div class="clear-both"></div>
+@Html.Partial("../Statistics/SJ3StatisticsScriptContainer")
+@Html.Partial("../Statistics/SJ3ScriptContainer")

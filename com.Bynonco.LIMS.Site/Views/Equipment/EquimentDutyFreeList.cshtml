@@ -1,0 +1,39 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEquipmentDutyFreeList")
+       .SetUrl(Url.Action("GetGridViewEquipmentDutyFreeList", "Equipment"))
+       .SetHeight(650)
+       .SetSortName("BuyDate")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(false)
+       .SetShowPrintButton(false);
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.SetShowRefreshButton(false);
+    dataGrid.SetShowSearchButton(true);
+    dataGrid.SetSearchScript("doShowSearch();");
+    if (equipmentPrivilige.IsEnableDutyFreeExportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doEquipmentDutyFreeExportExcel();", IconCls = "icon-export", Id = "btnExportExcel", Text = "导出" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doEquipmentDutyFreeSearch();", IconCls = "icon-reload", Id = "btnEquipmentDutyFreeSearch", Text = "刷新" });
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备编号", "Label").SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("规格", "Specifications").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("产地", "ProductionArea").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("厂家", "Factory").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("购置经费来源", "FeeComeFrom").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("价格", "UnitPrice").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所属单位", "OrgName").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("放置地点", "RoomName").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("购置日期", "BuyDateStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("负责人", "AdminUserName").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("监管年限", "DiffDutyFreeYearstr").SetWidth(120).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

@@ -1,0 +1,58 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function doOnBuildingBeforeLoadTree(row, param) {
+        $("#tbBuildingList").treegrid('options').url = '@Url.Action("GetTreeGridBuildingList", "Building")' + "?ParentId=" + (row ? row.Id : "") + "&date=" + new Date().getMilliseconds();
+    }
+    function doBuildingLoadSuccess() {
+        var currentSelectNote = $('#tbBuildingList').treegrid('getSelected');
+        if (currentSelectNote == null) {
+            var root = $('#tbBuildingList').treegrid('getRoot');
+            if (root) {
+                $('#tbBuildingList').treegrid('select', root.Id);
+                $('#tbBuildingList').treegrid('expand', root.Id);
+            }
+        }
+    } 
+</script>
+@{
+    var buildingPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetBuildingPrivilige(User.Identity.Name);
+    var dataGrid = Html.JTreeGrid("tbBuildingList")
+       .SetTreeGrid("Id", "Name", Url.Action("GetTreeGridBuildingList", "Building"), "", false)
+       .SetHeight(650)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetPagination(false)
+       .SetOnLoadSuccess("setTimeout('doBuildingLoadSuccess();', 500);")
+       .SetOnBeforeLoad("doOnBuildingBeforeLoadTree(row);")
+       .SetShowPrintButton(false);
+    if (buildingPrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+    }
+    dataGrid.SetShowAddButton(buildingPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(buildingPrivilige.IsEnableEdit);
+    if (buildingPrivilige.IsEnableEdit)
+    {
+        dataGrid.SetAddScript("doAddBuilding('');");
+       dataGrid.SetEditScript("doEditBuilding('');");
+       dataGrid.SetOnDblClickRow("doEditBuilding(row.Id);");
+    }
+    dataGrid.SetShowDeleteButton(buildingPrivilige.IsEnableDelete);
+    if (buildingPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteBuilding('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("父级楼宇编码", "ParentId").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetSortable(false).SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("XPath", "XPath").SetSortable(false).SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("地图设置", "SiteMapOperate").SetSortable(false).SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("父级楼宇", "ParentName").SetSortable(false).SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("下级楼宇数", "ChildrenCount").SetSortable(false).SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(400).SetSortable(false).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())
+<script type="text/javascript">
+    
+</script>

@@ -1,0 +1,65 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var userEquipmentPriviligePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserEquipmentPriviligePrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbUserEquipmentPriviligeList")
+       .SetUrl(Url.Action("GetViewGridUserEquipmentPriviligeList", new { time = DateTime.Now.Millisecond.ToString() }))
+       .SetHeight(650)
+       .SetPageSize(20)
+       .SetShowPrintButton(true)
+       .SetSortName("EquipmentName")
+       .SetShowAddButton(userEquipmentPriviligePrivilige.IsEnableAdd);
+        if (userEquipmentPriviligePrivilige.IsEnableBatchStart)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStart();return false;", IconCls = "icon-play", Id = "btnBatchStart", Text = "启用" });
+        }
+        if (userEquipmentPriviligePrivilige.IsEnableBatchStop)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStop();return false;", IconCls = "icon-stop", Id = "btnBatchStop", Text = "停用" });
+        }
+
+       if (userEquipmentPriviligePrivilige.IsEnableAdd)
+       {
+          dataGrid.SetAddScript("doAddOrEdit('');");
+       }
+       if (userEquipmentPriviligePrivilige.IsEnableDelete)
+       {
+          dataGrid.SetDeleteScript("doDelete('');");
+       }
+       dataGrid.SetShowDeleteButton(userEquipmentPriviligePrivilige.IsEnableDelete);
+       if (userEquipmentPriviligePrivilige.IsEnableEdit)
+       {
+           dataGrid.SetOnDblClickRow("doAddOrEdit(rowData.Id);");
+           dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetWidth(60).SetAlign(Align.center));
+       }
+       dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+       .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentName").SetWidth(200).SetAlign(Align.left))
+       .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SampleItemName").SetWidth(150).SetAlign(Align.left))
+       .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户组", "WorkGroupName").SetWidth(120).SetAlign(Align.center))
+       .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户名称", "UserName").SetWidth(100).SetAlign(Align.center))
+       .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在状态", "FlagNickName").SetWidth(100).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopNickName").SetWidth(100).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否设备负责人", "IsDirectorNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否复制", "IsEnableCopyNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可编辑", "IsEnableEditNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可审核", "IsEnableAuditNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可取消", "IsEnableCancelNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可质疑结果", "IsEnableDoubtsNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否处理质疑", "IsEnableAuditDoubtsNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否审核结果", "IsEnableAuditResultNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否下载结果", "IsEnableDownLoadNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否拒绝收样", "IsEnableRefuseNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否样品登记", "IsEnableRegisterNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可接样", "IsEnableAcceptNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可填写申请单", "IsEnableApplyNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可收费", "IsEnableChargeNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可查看敏感信息", "IsEnableLookSecretInfoNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可进行测样", "IsEnableTestNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可分析结果", "IsEnableAnalysisNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可发布结果", "IsEnableReleaseNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可查看信息", "IsEnableViewNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可确认报告", "IsEnableReportConfirmNickName").SetWidth(120).SetAlign(Align.center))
+       .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(200).SetAlign(Align.left))
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch()"); ; 
+ }
+ @(dataGrid.ToMvcString())

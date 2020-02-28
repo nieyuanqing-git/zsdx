@@ -1,0 +1,40 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function doStartReading(businessType, businessId, trainningExaminationId) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StartReading", "UserExamination")',
+            data: "businessType=" + businessType + "&businessId=" + businessId + "&trainningExaminationId=" + trainningExaminationId + "&date=" + new Date().getMilliseconds(),
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divExaminationContent").empty();
+                $("#divExaminationContent").html(data)
+            }
+        });
+    }
+    function doStartTesting(businessType, businessId, trainningExaminationId) {
+        $.messager.confirm('提示', '确定开始在线考试? ', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("StartTesting", "UserExamination")',
+                data: "businessType=" + businessType + "&businessId=" + businessId + "&trainningExaminationId=" + trainningExaminationId +"&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doRelaodUserExamination(businessType, businessId)
+                }
+            });
+        });
+    }
+    function doRelaodUserExamination(businessType, businessId) {
+        var url = '@Url.Action("Examination", "UserExamination")' + "?BusinessType=" + businessType + "&BusinessId=" + businessId + "&date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>

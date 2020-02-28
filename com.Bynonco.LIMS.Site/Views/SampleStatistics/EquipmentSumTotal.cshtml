@@ -1,0 +1,24 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var privilige = (com.Bynonco.LIMS.BLL.Business.Privilige.SampleStatisticsPrivilige)ViewData["SampleStatisticsPrivilige"];
+    var queryExpression = ViewData["QueryExpression"].ToString();
+    var dataGrid = Html.JDataGrid("tbSampleApplyEquipmentSumTotalList")
+        .SetMutiSelect(false)
+        .SetShowFooter(true)
+        .SetUrl(Url.Action("GetEquipmentSumTotal", "SampleStatistics") + "?queryExpression=" + queryExpression + "&time=" + DateTime.Now.Millisecond.ToString())
+        .SetPagination(false);
+        if(privilige.IsEnableExpertEquipmentSumTotal)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doExpertSampleApplyEquipmentSumTotal();", IconCls = "icon-export", Id = "btnExpertSampleApplyApplicantSumTotal", Text = "导出" });
+        }
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentNameStr").SetWidth(350).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请单数", "ApplyTotalQuatity").SetWidth(80).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("样品数", "SampleTotalQuatity").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实际样品数", "SampleRealTotalQuatity").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("机时预约样品数", "TotalAppointmentSampleQuatity").SetWidth(120).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总金额", "TotalFee").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总真实币", "TotalRealCurrencyFee").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总虚拟币", "TotalVirtualCurrencyFee").SetWidth(80).SetAlign(Align.center));
+}
+@(dataGrid.ToMvcString())
+

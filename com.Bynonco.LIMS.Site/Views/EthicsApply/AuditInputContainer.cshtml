@@ -1,0 +1,34 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEthicsApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@{var curOp = (com.Bynonco.LIMS.Model.Enum.EthicsApplyStatus)ViewData["CurOp"];}
+<div id="divAuditEthicsApply">
+    <form id="frmAuditEthicsApply">
+        <table class="edit-table" style="width:100%">
+            <tr>
+                <th>当前操作</th>
+                <td>@System.Web.Mvc.MvcHtmlString.Create(ViewData["CurOpStr"].ToString())</td>
+            </tr>
+            @if (curOp == com.Bynonco.LIMS.Model.Enum.EthicsApplyStatus.AuditedPass)
+            {
+                 <tr>
+                    <th>
+                        <span class="required">*</span>
+                        伦理编号
+                    </th>
+                    <td>@Html.JValidateBox("EthicsNo").SetValue(Model != null ? Model.EthicsNo : "").SetWidth(220).ToMvcString()</td> 
+                </tr>
+            }
+        </table>
+        @if (curOp == com.Bynonco.LIMS.Model.Enum.EthicsApplyStatus.AuditedPass)
+        { 
+            @Html.Partial("AnimalDataContainer", Model != null && Model.EthicsApply != null ? Model.EthicsApply.EthicsApplyAnimalDatas : null)
+        }
+       <table class="edit-table">  
+            <tr>
+                <th>审核备注</th>
+                <td> @Html.TextArea("AuditRemark", Model != null ? Model.AuditRemark : "", new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:320px;margin-right:5px;overflow-y:auto" })</td>
+            </tr>
+       </table>
+
+    </form>
+</div>

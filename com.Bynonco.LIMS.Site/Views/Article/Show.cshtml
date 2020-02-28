@@ -1,0 +1,129 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewArticle
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum; 
+﻿@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    Layout = "~/Views/Shared/_TwoColumnLayout.cshtml";
+    var articleTitle = Model == null ? "" : Model.Title;
+    var articleCategoryId = Model == null ? "" : Model.ArticleCategoryId.ToString();
+    ViewBag.Title = articleTitle;
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var customer = CustomerFactory.GetCustomer();
+    var customerHomeCollege = customer == null ? "College" : customer.GetHomeCollege();
+    var customerIsShowFriendList = customer == null ? false : customer.GetIsShowFriendList();
+}
+@section ImportCssAndJs
+{
+    <style type="text/css">
+    .equipment-table{border:1px solid #548DD4;border-left:0;border-bottom:0;}
+    .equipment-table th{width:150px;font-weight:bold;border:1pt solid #548DD4;border-right:0;border-top:0;text-align:left;}
+    .equipment-table td{width:450px;border:1pt solid #548DD4;border-right:0;border-top:0;}
+  
+    .article-error-box 
+    {
+        font-size:16px;
+        margin-left:160px;
+        margin-top:50px;
+        padding: 10px;
+        width: 300px;
+    }
+    </style>
+}
+@section MainLeft
+{
+    @Html.Partial("../ArticleCategory/HomeShowList")
+    @if (!customerIsShowFriendList)
+    {
+        <div id='divLeftCollege'>
+            @Html.Partial("../Home/" + customerHomeCollege)
+            <script type="text/javascript">
+                $(function(){
+                    $("#divLeftCollege").find(".content-box").height("auto");
+                });
+            </script>
+        </div>
+    }
+    else
+    {
+        @Html.Partial("../Home/FriendLink")
+    }
+}
+}
+@section MainRight{
+    @if (Model != null)
+    {
+        var totalArticleTitle = articleTitle;
+        if (Model.ArticleCategory != null && Model.ArticleCategory.HomeLocationShowType == (int)ArticleCategoryHomeLocationShowType.Content)
+        {
+            totalArticleTitle = "";
+        }
+        var articleCategory = Model.ArticleCategory;
+        while (articleCategory != null)
+        {
+            object routeArticleCategoryValues = new { ArticleCategoryId = articleCategory.Id, XPath = orgXPath };
+            var categoryLink = Url.Action("ShowList", "Article", routeArticleCategoryValues);
+
+            if (articleCategory.HomeLocationShowType == (int)ArticleCategoryHomeLocationShowType.Content)
+            {
+                categoryLink = Url.Action("ShowByArticleCategoryId", "Article", routeArticleCategoryValues);
+            }
+            categoryLink = string.Format("<a href='{0}' title='{1}' style='float:none;' class='info'>{1}</a>", categoryLink, articleCategory.Name);
+            totalArticleTitle = categoryLink + (totalArticleTitle != "" ? "  >>  " : "") + totalArticleTitle;
+            articleCategory = articleCategory.GetParent();
+        }
+        <h2 class="title clear-both">
+            @System.Web.Mvc.MvcHtmlString.Create(totalArticleTitle)
+        </h2>
+       if (Model.IsEnableReadBeforeLogin && !Request.IsAuthenticated)
+       {
+            <div style="padding:15px 50px;" class="content-box">
+            <div class="article-error-box">
+                <p><img src="/Content/images/edit-error.ico"><span style="margin-left:10px;">该文章设置了登陆后阅读 .</span></p>
+			    <p>您还没有登录系统, 请 <a href='#' style='text-decoration:underline;' onclick='backToLogin();;return false;'>登录</a> .</p>
+                <p>没有账号？ <a href='@Url.Action("Register", "Account")' style='margin:0 5px; text-decoration:underline;'>马上注册</a> .</p>
+            </div>
+        </div>
+       }
+       else
+       {
+        <div class="content-box" style="line-height:25px;">
+            @System.Web.Mvc.MvcHtmlString.Create(Model == null ? "" : Model.ContentHTML)
+            @if (Model != null && !string.IsNullOrWhiteSpace(Model.RelativeDoc))
+            {
+                string[] relativeDocList = Model.RelativeDoc.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (relativeDocList.Length > 0)
+                {
+                    <div class="info-gray-box">
+                        <h2 class="title" style='font-size:13px;margin:0;background:none;'>附件下载</h2>
+                        <ul>
+                        @foreach (var str in relativeDocList)
+                        {
+                            <li class='border-b' style="padding:5px 20px;">
+                                <a href='@Url.Content("~/" + str)' target="_blank">@str.Substring(str.LastIndexOf("/") + 1)</a>
+                            </li>
+                        }
+                        </ul>
+                    </div>
+                }
+            }
+            <p style='color:#CCC;'>
+                @System.Web.Mvc.MvcHtmlString.Create(Model == null || Model.ArticleCategoryOrgName == "" ? "" : "<span style='margin-right:15px;'>" + Model.ArticleCategoryOrgName + "</span>")
+                @System.Web.Mvc.MvcHtmlString.Create(Model == null || Model.Author == "" ? "" : "<span style='margin-right:15px;'>作者:&nbsp;&nbsp;" + Model.Author + "</span>")
+                <span style='margin-right:15px;'>发布时间:&nbsp;&nbsp;@(Model == null ? "" : Model.PublishAtStr)</span>
+                <span>浏览量:&nbsp;&nbsp;@(Model == null ? "" : Model.HaveReadCount.ToString())</span>
+            </p>
+        </div>
+       }
+    }
+    else
+    {
+        <h2 class="title">
+            <span>没有文章信息</span>
+        </h2>
+        <div style="padding:15px 50px;" class="content-box">
+            <div class="article-error-box">
+                <p><img src="/Content/images/edit-error.ico"><span style="margin-left:10px;">找不到文章信息!</span></p>
+            </div>
+        </div>
+    }
+}

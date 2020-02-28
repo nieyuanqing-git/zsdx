@@ -1,0 +1,48 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentRepairFundsApply
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL;  
+<div id="divFinishRepairRegisterContainer">
+    <form id="frmFinishRepairRegisterContainer" action="#">
+        <table class="edit-table">
+             <tr>
+                <th>所需总经费</th>
+                <td>@Model.RepairTotalFeeStr 元</td>
+             </tr>
+             <tr>
+                <th>申请资助经费</th>
+                <td>@Model.ApplyFeeStr 元</td>
+             </tr>
+             <tr>
+                <th>自筹经费</th>
+                <td>@Model.SelfFeeStr 元</td>
+             </tr>
+             <tr>
+                <th>批准得到经费</th>
+                <td>@Model.ObtainedFeeStr 元</td>
+             </tr>
+             <tr>
+                <th>设备处管理处批准额度</th>
+                <td>@Model.EquipmentDeptAuditPassBalance.Value<span>%</span></td>
+             </tr>
+             @if (Model.IsBigAmount)
+             {
+                 <tr>
+                    <th>大仪专家委员会批准额度</th>
+                    <td>@Model.ShareEAuditPassBalance.Value<span>%</span></td>
+                 </tr>
+             }
+             <tr>
+                <th>维修完成时间<span class="required">*</span></th>
+                <td>
+                    @Html.JDateTimePicker("FinishRepairTime").SetWidth(205).SetValue(DateTime.Now.ToString("yyyy-MM-dd")).ToMvcString()
+                </td>
+             </tr>
+             <tr>
+                <th>维修记录<span class="required">*</span></th>
+                <td style="padding-right:2px;">
+                    @Html.TextArea("RepairRecord", new { style = "font-size:12px;text-decoration:none;height:150px;width:450px;" })
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>

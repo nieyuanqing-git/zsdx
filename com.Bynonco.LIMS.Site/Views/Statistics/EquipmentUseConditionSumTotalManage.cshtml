@@ -1,0 +1,40 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var isManageList = ViewData["IsManageList"] == null ? true : bool.Parse(ViewData["IsManageList"].ToString());
+}
+<div class='layout-center-full'> 
+    <div style="border:1px solid #D3D3D3;padding:10px 20px;_padding:10px 20px 0;"> 
+        @Html.Partial("../Statistics/EquipmentUseConditionSumTotalSearch")
+    </div>
+    <div id="divEquipmentUseConditionSumTotalContainer"></div>
+</div>
+<script type="text/javascript">
+    function doEquipmentUseConditionSumTotalSearch() {
+        $("#divEquipmentUseConditionSumTotalContainer").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: $("#frmCostDeductSearch").serialize() + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds(),
+            url:  '@Url.Action("EquipmentUseConditionSumTotalContainer", "Statistics")',
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divEquipmentUseConditionSumTotalContainer").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        doEquipmentUseConditionSumTotalSearch();
+    });
+    function doEquipmentUseConditionSumTotalExportExcel() {
+        var queryData = $("#frmCostDeductSearch").serialize() + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        if ($("#LimitPayerId").length > 0 && $("#LimitPayerId").val() != "") queryData += "&LimitPayerId=" + $("#LimitPayerId").val();
+        var url = '@Url.Action("EquipmentUseConditionSumTotalExportExcel", "Statistics")' + '?' + queryData
+        window.open(url, '_blank');
+    }
+</script>
+<div style="display:none">@Html.Partial("../UsedConfirm/ScriptContainer")</div>
+<div style="display:none">@Html.Partial("../Statistics/CostDeductStatisticsScriptContainer")</div>
+<div style="display:none">@Html.Partial("../Appointment/ViewAppointmentInfoScript")</div>

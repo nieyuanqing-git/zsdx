@@ -1,0 +1,49 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@{
+    var hotEquipmentList = ViewData["HotEquipmentList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewEquipmentTotal>)ViewData["HotEquipmentList"];
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+}
+<h2 class='title'>
+    <span>热门仪器</span>
+    <a href='@Url.Action("ShowList", "Equipment",routeCurrentXPathValue)' class='more'>更多>></a>
+</h2>
+<div class="content-box content-box-186">
+@if (hotEquipmentList != null && hotEquipmentList.Count() > 0)
+{
+    <ul class="news-list">
+    @for (int i =0 ;i <hotEquipmentList.Count() && i < 7; i++)
+    {
+        var item = hotEquipmentList[i];
+        var url = Url.Action("Show", "Equipment", new { Id = item.Id, XPath = orgXPath });
+        var totalInfo = "";
+        var totalInfoChineseLength = 0;
+        if(item.TotalHour > 0)
+        {
+            totalInfo += (totalInfo == "" ? "" : " | ") + item.TotalHour + "小时";
+            totalInfoChineseLength += 2;
+        }
+        if(item.TotalUsedTimes > 0)
+        {
+            totalInfo += (totalInfo == "" ? "" : " | ") + item.TotalUsedTimes + "人次";
+            totalInfoChineseLength += 2;
+        }            
+        if(item.TotalFocus > 0)
+        {
+            totalInfo += (totalInfo == "" ? "" : " | ") + item.TotalFocus + "收藏";
+            totalInfoChineseLength += 2;
+        }
+        var shortCutLength = 52;
+        if(totalInfoChineseLength > 0)
+        {
+            shortCutLength -= 6 + totalInfo.Length + totalInfoChineseLength;
+        }
+        //var cutName = ShortcutStringUtility.GetSubString(item.Name, shortCutLength, "..");
+        var cutName = ShortcutStringUtility.GetSubString(item.EquipmentName, 30, "..");
+        <li class='li-num li-@(i+1)' style='line-height:25px;'>
+            <a href='@url' title='@item.EquipmentName'>@cutName</a>
+        </li>
+    }
+    </ul>
+}
+</div>

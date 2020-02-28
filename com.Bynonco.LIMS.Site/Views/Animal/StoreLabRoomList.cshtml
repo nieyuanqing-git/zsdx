@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function doOnAnimalStoreNodeSelected(row) {
+        if (row && typeof (doOnAnimalStoreNodeSelectedCallBack == 'function')) {
+            doOnAnimalStoreNodeSelectedCallBack(row.Id, row.Name, row.Type);
+        }
+    }
+</script>
+@{
+    var dataGrid = Html.JTreeGrid("tbAnimalStoreRoomList")
+    .SetTreeGrid("Id", "Name", Url.Action("GetTreeGridAnimalStoreRoomList", "Animal", new { time = DateTime.Now.Millisecond.ToString() }), "", false)
+    .SetHeight(650)
+    .SetShowAddButton(false)
+    .SetShowDeleteButton(false)
+    .SetShowEditButton(false)
+    .SetShowRefreshButton(false)
+    .SetShowPrintButton(false)
+    .SetMutiSelect(false)
+    .SetPagination(false);
+    dataGrid.SetSortName("Name");
+    dataGrid.SetOnClickRow("doOnAnimalStoreNodeSelected(row);");
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "Type").SetHidden(true).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(250).SetAlign(Align.left).SetSortable(false));
+  }
+@(dataGrid.ToMvcString())

@@ -1,0 +1,59 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../UsedConfirm/Search")
+    </div>
+</div>
+<div>
+    <ul class="tabs" style="border-bottom:0;">
+        <li class="tabs-selected" id="liAll"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">全部</span><span class="tabs-icon"></span></a></li>
+        <li id="liWaittingFeedBack"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">未反馈</span><span class="tabs-icon"></span></a></li>
+        <li id="liHavedFeedBack"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">已反馈</span><span class="tabs-icon"></span></a></li>
+    </ul>
+    @Html.Partial("../UsedConfirm/List")
+</div>
+<div style="display:none"> 
+    @Html.Partial("../UsedConfirm/ScriptContainer")
+</div>
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            doViewUsedConfirmSearch();
+        });
+    });
+    function doViewUsedConfirmSearch() {
+        var queryExpression = generateViewUsedConfirmQueryExpression();
+        if ($("#liWaittingFeedBack").hasClass("tabs-selected"))
+            queryExpression += (queryExpression == "" ? "" : "*") + "(IsFeedBack=-true*Status=-\"@((int)UsedConfirmStatus.UnComplete)\"";
+        if ($("#liHavedFeedBack").hasClass("tabs-selected"))
+            queryExpression += (queryExpression == "" ? "" : "*") + "IsFeedBack=true";
+        $("#tbViewUsedConfirmList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbViewUsedConfirmList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        return false;
+    }
+    function doSaveUsedConfirmCallBack() {
+        doViewUsedConfirmSearch();
+        editUsedConfirmDialog.dialog("close");
+    }
+    function doChargeUsedConfirmCallBack() {
+        doViewUsedConfirmSearch();
+        editUsedConfirmDialog.dialog("close");
+    }
+    function doDeleteUsedConfirmCallBack() {
+        doViewUsedConfirmSearch();
+    }
+    function doUsedConfirmExportExcel() {
+        var queryExpression = generateViewUsedConfirmQueryExpression();
+        var url = '@Url.Action("UsedConfirmExportExcel","UsedConfirm")' + "?queryExpression=" + queryExpression;
+        window.open(url, '_blank');
+    }
+    function doSaveUsedConfirmFeedBackCallBack() {
+        doViewUsedConfirmSearch();
+    }
+</script>

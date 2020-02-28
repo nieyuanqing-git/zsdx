@@ -1,0 +1,20 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@model com.Bynonco.LIMS.Model.View.ViewNMPEquipment
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;           
+<style type="text/css">
+    .times-operate-box ul li{float:left;}
+</style>
+@{
+    var tipType = ViewData["TipType"] == null ? "" : ViewData["TipType"].ToString().Trim().ToLower();
+}
+@if (Model != null)
+{
+    <div id="divAppointmentTimesContainer@(Model.NMPId.Value.ToString() + Model.Id.ToString() + tipType)" style="width:520px;height:360px;">
+        <p style="text-align:center; padding-top:150px;"><img src="@Url.Content("~/Content/images/loading.gif")" alt="Loading"/></p>
+    </div>
+    <script type="text/javascript">
+        $(function () {            
+            loadTipNMPAppointmentTimes('@(Model.NMPId.Value)', '@(Model.Id)', '@tipType');
+        });
+    </script>
+}

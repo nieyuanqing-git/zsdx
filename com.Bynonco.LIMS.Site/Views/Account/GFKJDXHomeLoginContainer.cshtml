@@ -1,0 +1,24 @@
+﻿@Html.Partial("../Account/HomeLoginScriptContainer")
+@if (Request.IsAuthenticated && ViewData["LoginUser"] != null)
+{
+    var loginUser = (com.Bynonco.LIMS.Model.User)ViewData["LoginUser"];
+    <h2 class="title">用户登录信息</h2>
+    <div class="content-box content-box-153">
+        @Html.Partial("../Account/HomeLoginInfo", loginUser)
+    </div>
+}
+else
+{
+    <h2 class="title-gray">
+        <a id='tag0AC82F90-A3F4-4375-8D0F-701929ED8F22' class="tag-title first current" href="#">统一身份认证</a>
+        <a id='tag25167981-B4E8-4425-971B-4B8A0C359CEC' class="tag-title" href="#">校外用户</a>
+    </h2>
+    <div class="content-box content-box-153">
+        <div id="box0AC82F90-A3F4-4375-8D0F-701929ED8F22" class="tag-box">
+            @Html.Partial("../Account/GFKJDXHomeLogin")
+        </div>
+        <div id="box25167981-B4E8-4425-971B-4B8A0C359CEC" class="tag-box hide">
+            @Html.Partial("../Account/HomeLogin")
+        </div>
+    </div>
+}

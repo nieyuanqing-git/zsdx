@@ -1,0 +1,32 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@{
+    if (Model!=null && !string.IsNullOrWhiteSpace(Model.RelativePic))
+    {
+        <ul id="ulEquipmentIcons">
+        @{
+            var icons = Model.RelativePic.Replace("；", ";").Split(';');
+            foreach (var icon in icons)
+            {
+                var iconPath = "../.." + icon;
+                <li>
+                    <img src="@iconPath" alt="@Model.Name" />
+                </li>
+            }
+            }
+        </ul>
+        <script type="text/javascript">
+            $(function () { 
+                $('#ulEquipmentIcons').galleryView({
+                     panel_width: 200,
+                     panel_height:200,
+                     filmstrip_style: 'showall',
+                     filmstrip_position: 'bottom',
+                     frame_width: 50,
+                     panel_animation: 'slide',
+                     show_infobar: false,
+                     enable_slideshow :false
+                });
+            });
+        </script>
+    }
+ }

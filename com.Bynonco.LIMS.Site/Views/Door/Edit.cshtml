@@ -1,0 +1,113 @@
+﻿@model com.Bynonco.LIMS.Model.Door
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+    table.edit-table tr th{width:60px;}
+</style>
+<script type="text/javascript">
+    function doOnOrganizationLoadSuccess() {
+        if ('@(Model==null ? "true" : "false")' == "true") {
+            if ($("#tbLabOrganizationAdminList").length > 0) {
+                var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+                if (!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id == "" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+                    return;
+                }
+                else {
+                    var orgId = selectedLabOrganizationAdmin.Id;
+                    var orgIdName = selectedLabOrganizationAdmin.Name;
+                    $("#divDoorEdit #tdOrgId span input.combo-text.validatebox-text").val(orgIdName);
+                    $("#OrgId").combotree("setValue", orgId);
+                }
+            }
+        }
+        else {
+            $("#divDoorEdit #tdOrgId span input.combo-text.validatebox-text").val('@(ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString().Trim())');
+            $("#OrgId").combotree("setValue", '@(ViewData["OrgId"] == null ? "" : ViewData["OrgId"].ToString().Trim())');
+        }
+    }
+</script>
+
+<div id="divDoorEdit">
+ <form id="frmDoorEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdDoorEdit" class="edit-table"  style="width:380px;">
+        <tr>
+            <th>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+                <span class="">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>数字密码</th>
+            <td>
+                @Html.JValidateBox("DoorPassword").SetPasswordMode(true).SetValue(Model == null ? "" : Model.Password).SetWidth(200).ToMvcString()
+                <span class="">(9位密码)</span>
+            </td>
+        </tr>
+        <tr>
+            <th>所在地点</th>
+            <td id="tdOrgId">
+                @(Html.JComboTree("OrgId")
+                .SetEditable(false)
+                .SetCheckBox(false)
+                .SetMultiple(false)
+                .SetExpandAll(true)
+                .SetData(ViewData["OranizationJson"])
+                .SetOnLoadSuccess("setTimeout('doOnOrganizationLoadSuccess();', 500);")
+                .SetWidth(205).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>IP</th>
+            <td>
+                @Html.JValidateBox("IP").SetValue(Model == null ? "" : Model.IP).SetWidth(200).ToMvcString()
+                <span class="">未启用自动IP必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>启用自动IP</th>
+            <td>
+                @Html.CheckBox("DHCP", Model == null ? false : Model.DHCP)
+            </td>
+        </tr>
+        <tr>
+            <th>唯一标识</th>
+            <td>
+                @Html.JValidateBox("DHCPCode").SetValue(Model == null || !Model.DHCP ? "" : Model.DHCPCode).SetWidth(200).ToMvcString()
+                <span class="">启用自动IP必填</span>
+
+                &nbsp;&nbsp;<span class="icon icon-info-blue" title="启用自动IP生效,格式为3个数字或字母的字符,如[A00]"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>控制端口</th>
+            <td>
+                @(Html.JComboBox("Port")
+                .SetData(ViewData["PortJson"])
+                .SetValue(Model == null || !Model.Port.HasValue? "1" : Model.Port.Value.ToString())
+                .SetWidth(205).SetRequired(false).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>离线授权</th>
+            <td>
+                @Html.CheckBox("OfflineRecordNum", Model == null || !Model.OfflineRecordNum.HasValue || Model.OfflineRecordNum.Value == 0 ? false : true)
+            </td>
+        </tr>
+        <tr>
+            <th>双卡授权</th>
+            <td>
+                @Html.CheckBox("DoubleCheck", Model != null && Model.DoubleCheck)
+            </td>
+        </tr>
+        <tr>
+            <th>双卡间隔</th>
+            <td>
+                @Html.JValidateBox("DoubleCheckTime").SetValidateType(ValidateType.intNumber).SetValue((Model == null ? 0 : Model.DoubleCheckTime).ToString()).SetWidth(200).ToMvcString()
+                <span class="">(分钟)</span>
+            </td>
+        </tr>
+        
+    </table>
+  </form>
+</div> 

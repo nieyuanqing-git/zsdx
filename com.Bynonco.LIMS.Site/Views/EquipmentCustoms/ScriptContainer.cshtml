@@ -1,0 +1,99 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentCustomsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentCustomsPrivilige(User.Identity.Name);
+}
+<div id="divEquipmentCustomsEditDialog" style="display:none"></div>
+<script type="text/javascript">
+
+    function doSearchEquipmentCustoms() {
+        var queryExpression = generateEquipmentCustomsQueryExpress();
+        $("#tbEquipmentCustomsList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentCustomsList").datagrid("load", { "queryExpression": queryExpression.trim()});
+    }   
+
+    function doAddEquipmentCustoms(id){
+        doAddOrEditEquipmentCustoms(id);
+    }
+    var editEquipmentCustomsDialog;
+    function doEquipmentCustomsEditDialog() {
+        if (editEquipmentCustomsDialog) {
+            editEquipmentCustomsDialog.dialog("destroy");
+        }
+        editEquipmentCustomsDialog =  @Html.JDialog("divEquipmentCustomsEdit").SetTitle("海关监管信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("editEquipmentCustomsDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEquipmentCustoms();").ToMvcString();
+    }
+
+    function doAddOrEditEquipmentCustoms(id) {
+        var url = '@Url.Action("Edit","EquipmentCustoms")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentCustomsEditDialog").load(url,function(){
+            doEquipmentCustomsEditDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    function doEditEquipmentCustoms(id) {
+       if(!id || id.trim()==""){
+           id=generateSelectedEquipmentCustomsIds();
+           if (!id || id.length == 0) {
+                $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+                return false;
+           }
+            if (id && id.length > 1) {
+                $.messager.show({ title: '提示', msg: "不能多项编辑", showType: 'show' });
+                return false;
+           }
+           id =id.toString();
+       }
+       doAddOrEditEquipmentCustoms(id);
+    }
+    function generateSelectedEquipmentCustomsIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentCustomsList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDeleteEquipmentCustoms(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedEquipmentCustomsIds().toString() : ids;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","EquipmentCustoms")',
+                data: "ids=" + delIds,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchEquipmentCustoms();
+                }
+            });
+        });
+        return false;
+    }
+    function doSaveEquipmentCustoms() {       
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","EquipmentCustoms")',
+            data: $("#frmEquipmentCustoms").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearchEquipmentCustoms();
+                editEquipmentCustomsDialog.dialog('destroy'); 
+            }
+        });
+        return false;
+    }         
+</script>

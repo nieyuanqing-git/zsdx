@@ -1,0 +1,59 @@
+﻿@model com.Bynonco.LIMS.Model.SampleApply
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divFinishedQuatityInput"> 
+<form id="frmFinishedQuatityInput" action="#">
+    <table class="edit-table">
+        <tr>
+            <th>检测项目</th>
+            <td>@(Model == null || Model.SampleItem == null ? "" : Model.SampleItem.Name)</td>
+        </tr>
+        <tr>
+            <th>样品数</th>
+            <td>@(Model == null ? "" : Model.Quatity.ToString())</td>
+        </tr>
+        <tr>
+            <th>预计检测机时(单样)</th>
+            <td>
+                @(Model == null || Model.SampleItem == null || !Model.SampleItem.UnitUsedHour.HasValue ? "(未设置)" : Model.SampleItem.UnitUsedHour.Value.ToString() + " (小时)")
+                @Html.Hidden("UnitUsedHour", Model == null || Model.SampleItem == null || !Model.SampleItem.UnitUsedHour.HasValue ? "" : Model.SampleItem.UnitUsedHour.Value.ToString())
+            </td>
+        </tr>
+        <tr>
+            <th>预计检测机时(合计)</th>
+            <td>@(Model == null || Model.SampleItem == null || !Model.SampleItem.UnitUsedHour.HasValue ? "" : string.Format("{0} * {1} = {2} (小时)", Model.SampleItem.UnitUsedHour.Value, Model.Quatity, Model.SampleItem.UnitUsedHour.Value * Model.Quatity))</td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>实际完成样品数量</th>
+            <td>
+                @Html.JValidateBox("RealQuatity").SetValue(Model == null || !Model.RealQuatity.HasValue ? "" : Model.RealQuatity.Value.ToString()).SetOnChange("doChangeRealQuatity();return false;").SetValidateType(ValidateType.intNumber).SetWidth(230).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>实际检测机时</th>
+            <td>
+                @Html.JValidateBox("Duration").SetValue(Model == null || !Model.Duration.HasValue ? "" : Model.Duration.Value.ToString()).SetValidateType(ValidateType.number).SetWidth(180).ToMvcString()
+                (小时)
+            </td>
+        </tr>
+    </table>
+  </form>
+  <script type="text/javascript">
+      $(function () {
+          var duration = $("#Duration").val();
+          if (duration == "")
+              doChangeRealQuatity();
+      });
+      function doChangeRealQuatity() {
+          var unitUsedHour = $("#UnitUsedHour");
+          var realQuatity = $("#RealQuatity");
+          var duration = $("#Duration");
+          if (unitUsedHour.length == 0 || realQuatity.length == 0 || duration.length == 0) return;
+          if (unitUsedHour.val().trim() == "" || realQuatity.val().trim() == "") return;
+          try {
+              var durationVal = parseFloat(unitUsedHour.val().trim()) * realQuatity.val().trim();
+              duration.val(durationVal);
+          }
+          catch (e) { }
+      }
+  </script>
+</div>

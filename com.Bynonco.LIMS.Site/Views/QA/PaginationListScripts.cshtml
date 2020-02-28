@@ -1,0 +1,110 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var xpath = ViewData["OrgXPath"] == null ? "" : ViewData["OrgXPath"].ToString().Trim();
+}
+ <script type="text/javascript">
+     var perPageSize = 10;
+     function doSelectPageTop(pageNumber, pageSize) {
+         var pageNumber = $('#PageQAListTop').pagination("options").pageNumber;
+         var pageSize = $('#PageQAListTop').pagination("options").pageSize;
+         doLoadQAList(pageNumber, pageSize);
+         return false;
+     }
+     function doSelectPage(pageNumber, pageSize) {
+         var pageNumber = $('#PageQAList').pagination("options").pageNumber;
+         var pageSize = $('#PageQAList').pagination("options").pageSize;
+         doLoadQAList(pageNumber, pageSize);
+         return false;
+     }
+ 
+     function doLoadQAList(pageNumber, pageSize) {
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "Post",
+             url: '@Url.Action("PaginationList", "QA")',
+             data: "xpath=" + "@xpath" + "&queryExpression=" + getQueryExpress() + "&page=" + pageNumber + "&rows=" + pageSize + "&date=" + new Date(),
+             success: function (data) {
+                 $.messager.progress('close');
+                 if (data && data.indexOf("出错,") == 0) {
+                     $.messager.show({ title: '提示', msg: "获取问题反馈信息出错", showType: 'show' });
+                 }
+                 else {
+                     $("#QAList").html(data);
+                 }
+                 ajaxloadsuccess();
+                 return false;
+             }
+         });
+     }
+     function getQueryExpress() {
+         var queryExpression = "";
+         var status = $("#Status").combobox("getValue");
+         if (status != "" && status != "-1") {
+             queryExpression = "Status=\"" + status + "\"";
+         }
+         var createTimeStart = $.trim($("#CreateTimeStart").datebox("getValue"));
+         if (createTimeStart != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime>\"" + createTimeStart + "\"";
+         }
+         var createTimeEnd = $.trim($("#CreateTimeEnd").datebox("getValue"));
+         if (createTimeEnd != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime<\"" + createTimeEnd + "\"";
+         }
+         var creatorId = $.trim($("#CreatorId").val());
+         if (creatorId != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "CreatorId=\"" + creatorId + "\"";
+         }
+         return encodeURI(queryExpression);
+     }
+     var answerDialog;
+     function doQAAnswerDialog() {
+        if (answerDialog) {
+            answerDialog.dialog("destroy");
+        }
+        answerDialog = @(Html.JDialog("divQAAnswer").SetTitle("问题回答").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("answerDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveQAAnswer();").ToMvcString());     
+     }
+     function doAnswerQA(id) {
+        var url = '@(Url.Action("Answer","QA"))';
+        $("#divQAAnswerDialog").load(url, { id: id, time: new Date().getMilliseconds() }, function () {
+            doQAAnswerDialog();
+        })
+     }
+     function doSaveQAAnswer()
+     {
+        if($.trim($("#Content").val()) == ""){
+                $.messager.alert('提示', '答案为空', 'warning');
+                return false;
+        }
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("SaveAnswer","QA",new { date=DateTime.Now.Millisecond})',
+            data: $("#frmQAAnswer").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                answerDialog.dialog('close');
+                doSearch();
+            }
+        });
+     }
+     function doSearch() {
+         doLoadQAList(1, perPageSize);
+     }
+
+     function objfocus(obj) {
+         $(".text-over").removeClass('text-over');
+         $(".textare-over").removeClass('textare-over');
+         $(obj).parents(".text-box").addClass('text-over');
+         $(obj).parents(".textare-box").addClass('textare-over');
+     }
+     $(function () {
+         $(".edit-info .textinp").focus(function () { objfocus(this); });
+         $(".edit-info .textareinp").focus(function () { objfocus(this); });
+         $(".edit-info .combo-text").focus(function () { objfocus(this); });
+         $("#token-input-CreatorId").focus(function () { objfocus(this); });
+         doSearch();
+     })
+</script>

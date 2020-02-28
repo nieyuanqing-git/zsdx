@@ -1,0 +1,28 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JDataGrid("tbEquipmentUndergraduateOpenList")
+    .SetUrl(Url.Action("GetViewEquipmentUndergraduateOpenList", "EquipmentOpen"))
+    .SetSortName("EquipmentOrgXPath A,EquipmentRoomXPath A,EquipmentName")
+    .SetShowPrintButton(false)
+    .SetShowSearchButton(false)
+    .SetShowAddButton(false)
+    .SetShowEditButton(false)
+    .SetShowDeleteButton(false)
+    .SetShowRefreshButton(false)
+    .SetMutiSelect(false)
+    .SetPagination(true)
+    .SetSearchScript("doShowSearch();");
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学期编码", "SemesterId").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(52).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentName").SetWidth(150).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("规格型号", "EquipmentModel").SetWidth(70).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所属机构", "EquipmentOrgName").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("放置地点", "EquipmentRoomName").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备运行成本", "StandardPriceStr").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系人", "LinkManNames").SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "LinkTelNo").SetWidth(90).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开放方式", "OpenTypeStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备主要功能简介", "ScopeOfApplication").SetWidth(300).SetAlign(Align.left));
+ }
+ @(dataGrid.ToMvcString())

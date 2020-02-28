@@ -1,0 +1,12 @@
+﻿
+@Html.TextAreaFor(model => model)
+<script type="text/javascript">
+    var isInstances = CKEDITOR.instances['@(ViewData.ModelMetadata.PropertyName)']
+    if (isInstances) {
+//       CKEDITOR.remove(isInstances);
+      isInstances.destroy(true);
+//        isInstances = null;
+
+    }
+    CKEDITOR.replace('@(ViewData.ModelMetadata.PropertyName)');
+</script>

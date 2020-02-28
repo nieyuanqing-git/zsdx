@@ -1,0 +1,30 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    if(ViewData["EquipmentId"] == null){return;}
+    var equipmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbEquipmentDurationChargeStandardList")
+    .SetUrl(Url.Action("GetEquipmentDurationChargeStandardListByEquipmentId", "Equipment", new { equipmentId = new Guid(ViewData["EquipmentId"].ToString()) }))
+    .SetHeight(650)
+    .SetPagination(false)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "StartTimeStr").SetWidth(130).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndTimeStr").SetWidth(130).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("价格(元)", "Price").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddDurationChargeStandard);
+    if (equipmentPrivilige.IsEnableAddDurationChargeStandard)
+    {
+        dataGrid.SetAddScript("doAddOrEditDurationChargeStandard();");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditDurationChargeStandard);
+    if (equipmentPrivilige.IsEnableEditDurationChargeStandard)
+    {
+        dataGrid.SetEditScript("doAddOrEditDurationChargeStandard();");
+        dataGrid.SetOnDblClickRow("doAddOrEditDurationChargeStandard();");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteDurationChargeStandard);
+    if (equipmentPrivilige.IsEnableDeleteDurationChargeStandard)
+    {
+        dataGrid.SetDeleteScript("doDeleteDurationChargeStandard();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

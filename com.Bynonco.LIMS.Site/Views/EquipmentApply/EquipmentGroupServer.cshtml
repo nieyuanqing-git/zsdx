@@ -1,0 +1,130 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEquipmentGroupServerDialog" style="display:none"></div>
+<div style="position:relative; height:380px;margin-top:20px">
+    <div style="position:absolute; top:10; left:15px">@Html.Partial("../EquipmentApply/EquipmentGroupServerList")</div>
+</div>
+<script type="text/javascript">
+    var equipmentGroupServerDialog;
+    function showEditEquipmentGroupServerDialog(){
+        if (equipmentGroupServerDialog) equipmentGroupServerDialog.dialog("destroy");
+        equipmentGroupServerDialog = @Html.JDialog("divEquipmentGroupServerEdit").SetTitle("机组人员信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentGroupServerDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEquipmentGroupServer();").ToMvcString();
+    }
+    function doEditEquipmentGroupServer(id) {
+        var equipmentApplyId = $("#Id").val();
+        var url = '@Url.Action("EditEquipmentGroupServer", "EquipmentApply")';
+        var serverName="";
+        var title="";
+        var type = "";
+        var telPhoneNo ="";
+        var email = "";
+        var rows = $("#tbEquipmentGroupServerList").datagrid("getRows");
+        if(rows.length > 0){
+            for(var i=0;i<rows.length;i++){
+                if(rows[i].Id==id){
+                    serverName =  rows[i].Name;
+                    title =  rows[i].Title;
+                    type = rows[i].EquipmentGroupServerType;
+                    telPhoneNo = rows[i].TelPhoneNo;
+                    email = rows[i].Email;
+                }
+            }
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentGroupServerDialog").load(url, {"serverName":serverName,"title":title,"equipmentGroupServerType":type,"telPhoneNo":telPhoneNo,"email":email,"equipmentGroupServerId":id,"equipmentApplyId":equipmentApplyId,"time": new Date() }, function () {
+           showEditEquipmentGroupServerDialog(); 
+           $.messager.progress('close');
+        });
+        return false;
+    }
+    function doAddEquipmentGroupServer() {
+        var equipmentApplyId = $("#Id").val();
+        var url = '@Url.Action("AddEquipmentGroupServer", "EquipmentApply")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentGroupServerDialog").load(url, {"equipmentApplyId":equipmentApplyId,"time": new Date() }, function () {
+           showEditEquipmentGroupServerDialog();
+           $.messager.progress('close');
+        });
+        return false;
+    }
+    function doSaveEquipmentGroupServer(){
+        var equipmentApplyId = $("#Id").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveEquipmentGroupServer","EquipmentApply")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmEquipmentGroupServerEdit").serialize()+ "&equipmentApplyId=" + equipmentApplyId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                equipmentGroupServerDialog.dialog('close');
+                var equipmentGroupServer = eval(msg)[0];
+                var rows = $("#tbEquipmentGroupServerList").datagrid("getRows");
+                if(rows.length > 0){
+                    for(var i=0;i<rows.length;i++){
+                        if(rows[i].Id==equipmentGroupServer.Id){
+                            $("#tbEquipmentGroupServerList").datagrid("updateRow",{index:i,row:equipmentGroupServer});
+                            return;
+                        }
+                    }
+                }
+                $("#tbEquipmentGroupServerList").datagrid("insertRow",{row:equipmentGroupServer})
+            }
+        });
+    }
+    function generateSelectedEquipmentGroupServerIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentGroupServerList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    function doDeleteEquipmentGroupServer(){
+        var ids  = generateSelectedEquipmentGroupServerIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteEquipmentGroupServer","EquipmentApply")' +  "?date=" + new Date().getMilliseconds(),
+                data: {"ids":ids},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    var rows = $("#tbEquipmentGroupServerList").datagrid("getRows");
+                    if(rows.length > 0){
+                        for(var i=rows.length-1;i>=0;i--){
+                            if(ids.indexOf(rows[i].Id)!=-1){
+                                $("#tbEquipmentGroupServerList").datagrid("deleteRow",i);
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    }
+    function getEquipmentGroupServers() {
+        var equipmentGroupServers = "";
+        var rows = $("#tbEquipmentGroupServerList").datagrid("getRows");
+        if (rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var equipmentGroupServer =  rows[i].Name + "~" + rows[i].Title + "~" + rows[i].EquipmentGroupServerType + "~" + rows[i].TelPhoneNo + "~" + rows[i].Email;
+                equipmentGroupServers += equipmentGroupServers == "" ? equipmentGroupServer : "#" + equipmentGroupServer;
+            }
+        }
+        return equipmentGroupServers;
+    }
+</script>

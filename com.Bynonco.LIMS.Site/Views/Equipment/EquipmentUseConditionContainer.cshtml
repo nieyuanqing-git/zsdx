@@ -1,0 +1,49 @@
+﻿@model IList<com.Bynonco.LIMS.Model.EquipmentUseCondition>
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.LIMS.Model.Enum;
+@if (Model != null && Model.Count > 0)
+{
+    var isForAppointment = ViewData["IsForAppointment"] != null ? (bool)ViewData["IsForAppointment"] : false;
+    var isEnableEidtUsedConfirmEquipmentUseCondition = ViewData["IsEnableEidtUsedConfirmEquipmentUseCondition"] != null ? (bool)ViewData["IsEnableEidtUsedConfirmEquipmentUseCondition"] : false;
+    var usedConfirmEquipmentUseConditions = ViewData["UsedConfirmEquipmentUseConditions"] != null ? (IDictionary<Guid, ChargeItem>)ViewData["UsedConfirmEquipmentUseConditions"] : null;
+    var equipmentUseConditionList= Model.OrderBy(p => p.OrderNo).ToList();
+    foreach (var equipmentUseCondition in equipmentUseConditionList)
+    {
+        if (isForAppointment && !equipmentUseCondition.IsEnableSelectWhenAppointment && !isEnableEidtUsedConfirmEquipmentUseCondition)
+        {
+            continue;
+        }
+        string val = null;
+        int amount = 1;
+        double price = equipmentUseCondition.Price;
+        if (usedConfirmEquipmentUseConditions != null && usedConfirmEquipmentUseConditions.Count > 0 && usedConfirmEquipmentUseConditions.Any(p => p.Key == equipmentUseCondition.Id))
+        {
+            val = usedConfirmEquipmentUseConditions[equipmentUseCondition.Id].Val;
+            price = usedConfirmEquipmentUseConditions[equipmentUseCondition.Id].Price;
+            amount = usedConfirmEquipmentUseConditions[equipmentUseCondition.Id].Amount;
+        }
+        <tr>
+            <th>
+                @System.Web.Mvc.MvcHtmlString.Create( (equipmentUseCondition.IsRequired ? "<span class='required'>*</span>" : "") + equipmentUseCondition.Name)
+            </th>
+            <td>
+               @Html.Partial("DataDictHtmlString", new DataDictModel(equipmentUseCondition, val,null))
+               @Html.Hidden("hidOriginalUsedConfirmEquipmentUseConditionAmount" + equipmentUseCondition.Id, amount)
+               @Html.Hidden("hidOriginalUsedConfirmEquipmentUseConditionPrice" + equipmentUseCondition.Id, price)
+               @Html.Hidden("hidUsedConfirmEquipmentUseConditionAmount" + equipmentUseCondition.Id, amount)
+               @Html.Hidden("hidUsedConfirmEquipmentUseConditionPrice" + equipmentUseCondition.Id, price)
+               @Html.Hidden("hidUsedConfirmEquipmentUseConditionAmountChanged" + equipmentUseCondition.Id,false)
+               @Html.Hidden("hidUsedConfirmEquipmentUseConditionPriceChanged" + equipmentUseCondition.Id, false)
+               @Html.Hidden("hidUsedConfirmEquipmentUseConditionWichValuesCharge" + equipmentUseCondition.Id, equipmentUseCondition.WhichValuesCharged)
+               @if(isEnableEidtUsedConfirmEquipmentUseCondition)
+               {
+                   <span>数量:</span><span id='@("spanUsedConfirmEquipmentUseConditionAmount" + equipmentUseCondition.Id.ToString())'>@amount</span> 
+                   <span>价格:</span><span id='@("spanUsedConfirmEquipmentUseConditionPrice" + equipmentUseCondition.Id.ToString())'>@price</span> 
+                   @Html.JLinkButton("btn" + equipmentUseCondition.Id, "修改").SetOnclick(string.Format("doEditUsedConfirmEquipmentUseCondtion('{0}');", equipmentUseCondition.Id)).SetPlain(true).SetIconCls("icon-edit").ToMvcString()
+               }
+            </td>
+        </tr>
+    }
+}

@@ -1,0 +1,680 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    bool isDependsOnTutor = ViewData["IsDependsOnTutor"] != null && ViewData["IsDependsOnTutor"].ToString().ToLower() == "true" ? true : false;
+    bool isSchoolInnerOrOuterLoginMode = ViewData["IsSchoolInnerOrOuterLoginMode"] != null && ViewData["IsSchoolInnerOrOuterLoginMode"].ToString().ToLower() == "true" ? true : false;
+    var OutUserTypeId = ViewData["OutUserTypeId"] == null ? "" : ViewData["OutUserTypeId"].ToString();
+    var OutUserTypeName = ViewData["OutUserTypeName"] == null ? "" : ViewData["OutUserTypeName"].ToString();
+    var OutLabOrganizationId = ViewData["OutLabOrganizationId"] == null ? "" : ViewData["OutLabOrganizationId"].ToString();
+    var OutLabOrganizationName = ViewData["OutLabOrganizationName"] == null ? "" : ViewData["OutLabOrganizationName"].ToString();
+    var registerNotNullStudent = ViewData["RegisterNotNullStudent"] == null ? "" : ViewData["RegisterNotNullStudent"].ToString().Trim();
+    var registerNotNullTutor = ViewData["RegisterNotNullTutor"] == null ? "" : ViewData["RegisterNotNullTutor"].ToString().Trim();
+    var loginPattern = ViewData["LoginPattern"] == null ? "" : ViewData["LoginPattern"].ToString().Trim();
+    var loginPatternErrorMsg = ViewData["LoginPatternErrorMsg"] == null ? "" : ViewData["LoginPatternErrorMsg"].ToString().Trim();
+}
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var isHCCustomer = customer == null ? false : customer.GetSystemName() == "广东华南新药创制中心大型仪器共享平台" ? true : false;
+}
+<script type="text/javascript">
+    function checkIsRegisterNotNull(colName)
+    {
+        var registerNotNull = '';
+        if(!$("#divTutor").hasClass("hide")) registerNotNull = '@(registerNotNullStudent)';
+        else  registerNotNull = '@(registerNotNullTutor)';
+        return registerNotNull.indexOf(colName) != -1;
+    }
+    function doCheckColNameIsPass(objId,colName)
+    {
+        if (checkIsRegisterNotNull(colName) && $("#" + objId).val() == "")
+        {
+            //$("#" + objId).parents(".edit-info").find("em").removeClass("hide");
+            $("#" + objId).parents(".edit-info").find(".errormt").removeClass("hide");
+            return false;
+        }
+        else
+        {
+            //$("#" + objId).parents(".edit-info").find("em").addClass("hide");
+            $("#" + objId).parents(".edit-info").find(".errormt").addClass("hide");
+            return true;
+        }
+    }
+    function doIniColNameIsRequired(objId,colName)
+    {
+        $("#" + objId).parents(".edit-info").find(".errormt").addClass("hide");
+        if (checkIsRegisterNotNull(colName))
+            $("#" + objId).parents(".edit-info").find("em").removeClass("hide");
+        else
+            $("#" + objId).parents(".edit-info").find("em").addClass("hide");
+    }
+    function IniColRequired()
+    {
+        doIniColNameIsRequired("Sex","性别");
+        doIniColNameIsRequired("CertificateTypeId","证件类型");
+        doIniColNameIsRequired("IdentityCardNo","证件号码");
+        doIniColNameIsRequired("Jobtitle","职称");
+        doIniColNameIsRequired("Grade","年级");
+        doIniColNameIsRequired("Speciality","专业");
+        doIniColNameIsRequired("ResearchDirection","研究方向");
+        doIniColNameIsRequired("ThesisTopic","拟研究论文题目");
+        doIniColNameIsRequired("Email","邮箱");
+        doIniColNameIsRequired("PhoneNumber","手机");
+        doIniColNameIsRequired("FixedPhone","固话");
+        doIniColNameIsRequired("ContactAddress","联系地址");
+    }
+    function doRegisterTypeSelect()
+    {
+        if($(':radio[name="RegisterTypeSelect"]:checked').val()==undefined) 
+        {
+            $("#errorRegisterType").removeClass("hide");
+        }
+        else
+        {
+            if($(':radio[name="RegisterTypeSelect"]:checked').val() == '1')
+            {
+                if('@OutLabOrganizationId' == "" || '@OutUserTypeId' == "")
+                {
+                   if('@OutLabOrganizationId' == "") $("#errorEmptyOutLabOrganization").removeClass("hide");               
+                   if('@OutUserTypeId' == "") $("#errorEmptyOutUserType").removeClass("hide");               
+                   return;
+                }
+                $("#UserTypeId").combotree("setValue", "@OutUserTypeId");
+                $("#UserTypeBox span input.combo-text.validatebox-text").val("@OutUserTypeName");
+                $("#divUserTypeBox").addClass("hide");      
+                $("#OrganizationId").val("@OutLabOrganizationId");
+                doOnOrganizationChange();
+                $("#divOrganization").addClass("hide");
+            }
+            $("#errorRegisterType").addClass("hide");
+            $("#divRegisterType").addClass("hide");
+            $("#divUserInfo").removeClass("hide");
+            $(".edit-operate").removeClass("hide");
+            $("#RegisterType").combobox("setValue", $(':radio[name="RegisterTypeSelect"]:checked').val());
+          
+        }
+    }
+
+    function pwStrength(pwd) {
+        var precss = $(".pw-weight").find("span").attr("class");
+        var newcss = "";
+        var pwlevel = checkStrong(pwd);
+        switch (pwlevel) {
+            case 0:
+                if (pwd == "") newcss = "w0";
+                else newcss = "w1";
+                break;
+            case 1:
+                newcss = "w2";
+                break;
+            case 2:
+                newcss = "w3";
+                break;
+            default:
+                newcss = "w3";
+                break;
+        }
+        if (newcss != precss) {
+            $(".pw-weight").find("span").attr("class", newcss);
+        }
+    }
+    function objfocus(obj) {
+        $(".text-over").removeClass('text-over');
+        $(obj).parents(".text-box").addClass('text-over');
+        var str = $(obj).val();
+        if("@(isHCCustomer.ToString().ToLower())" == "true" && $(obj).attr("Id") != "OrganizationId")
+           $(".tips").addClass("hide") 
+        else
+           $(".tips").addClass("hide") 
+        if (str == "") {
+            $(obj).parents(".edit-info").find(".tips").removeClass("hide")
+        }
+        if($(obj).attr("Id") == "EquipmentNames"){
+            var userTypeId = getUserTypeId();
+            if(userTypeId == "") return;
+            var tutorId = getTutorId();
+            var selectEquipmentMode = $("#SelectEquipmentMode").val();
+            doSelectEquipmentDialog('EquipmentIds',{"UserTypeId":userTypeId,"TutorId": tutorId,"SelectEquipmentMode":selectEquipmentMode});
+        }
+    }
+    $(function () {
+        $(".edit-info .textinp").focus(function () { objfocus(this); });
+        $(".edit-info .combo-text").focus(function () { objfocus(this); });
+        $("#token-input-TutorId").focus(function () { objfocus(this); });
+        $("#frmUserRegister").find("#LoginPassword").keyup(function () { pwStrength($(this).val()); });
+        $("#frmUserRegister").find("#LoginPassword").blur(function () { pwStrength($(this).val()); });
+        $(".edit-info .textinp").change(function () {
+            var id = $(this).attr("id");
+            $(".text-over").removeClass('text-over');
+            $(this).parents(".text-box").addClass('text-over');
+            if("@(isHCCustomer.ToString().ToLower())" == "true"&&$(obj).attr("Id") != "OrganizationId" )
+              $(".tips").addClass("hide") 
+            else
+              $(".tips").addClass("hide") 
+            var str = $(this).val();
+            var isValid = false;
+            if (id == "TutorId")
+                isValid = true;
+            else if(id == "OrganizationId")
+            {
+                if(str == "" || str.isDefaultGuid())
+                    isValid = false;
+                else
+                    isValid = true;
+            }
+            else
+                isValid = $(this).validatebox("isValid");
+            if ($(this).val() != "" && !isValid) {
+                $(this).parents(".edit-info").find(".errormt").removeClass("hide")
+                $(this).parents(".edit-info").find(".success").addClass("hide")
+            }
+            else {
+                $(this).parents(".edit-info").find(".errormt").addClass("hide")
+                if ($(this).val() != "")
+                    $(this).parents(".edit-info").find(".success").removeClass("hide");
+                else {
+                    $(this).parents(".edit-info").find(".success").addClass("hide");
+                }
+            }
+            switch (id) {
+                case "Label":
+                    doCheckLoginName();
+                    break;
+                case "LoginPassword":
+                    if (str == "" || !$(this).validatebox("isValid")) {
+                        $(this).parents(".edit-info").find(".pw-weight").addClass("hide");
+                        $(this).parents(".edit-info").find(".errormt").removeClass("hide")
+                    }
+                    else {
+                        $(this).parents(".edit-info").find(".pw-weight").removeClass("hide")
+                        $(this).parents(".edit-info").find(".errormt").addClass("hide");
+                    }
+                    break;
+                case "ConfirmPassword":
+                    var pw = $("#frmUserRegister").find("#LoginPassword").val()
+                    if (str == pw && str != "") {
+                        $(this).parents(".edit-info").find(".pw-weight").addClass("hide")
+                        $(this).parents(".edit-info").find(".success").removeClass("hide")
+                    }
+                    else {
+                        $(this).parents(".edit-info").find(".errormt").removeClass("hide")
+                        $(this).parents(".edit-info").find(".success").addClass("hide")
+                    }
+                    break;
+                case "Sex":
+                    doCheckColNameIsPass(id,"性别")
+                    break;
+                case "Jobtitle":
+                    doCheckColNameIsPass(id,"职称")
+                    break;
+                case "Grade":
+                    doCheckColNameIsPass(id,"年级")
+                    break;
+                case "Speciality":
+                    doCheckColNameIsPass(id,"专业")
+                    break;
+                case "ResearchDirection":
+                    doCheckColNameIsPass(id,"研究方向")
+                    break;
+                case "ThesisTopic":
+                    doCheckColNameIsPass(id,"拟研究论文题目")
+                    break;
+                 case "ContactAddress":
+                    doCheckColNameIsPass(id,"联系地址")
+                    break;
+                case "PhoneNumber":
+                    doCheckPhoneNumber();
+                    break;
+                case "FixedPhone":
+                    doCheckFixedPhone();
+                    break;
+                case "Email":
+                    doCheckEmail();
+                    break;
+                case "Name":
+                case "Subject":
+                    if (str == "")
+                        $(this).parents(".edit-info").find(".errormt").removeClass("hide");
+                    else
+                        $(this).parents(".edit-info").find(".errormt").addClass("hide");
+                    break;
+                case "IdentityCardNo":
+                    doCheckIdentityCardNo();
+                    break;
+                case "AnimalExperimentNum":
+                    doCheckAnimalExperimentNum();
+                    break;
+            }
+        });
+    });
+    function doCheckLoginName() {
+        var isOk = false;
+        var isCheckReg = '@(loginPattern)' != "";
+        var reg = /@(string.IsNullOrWhiteSpace(loginPattern) ? "\\w*" : loginPattern)/;
+        var errorMsg = '@(string.IsNullOrWhiteSpace(loginPatternErrorMsg) ? "登陆名格式错误" : loginPatternErrorMsg.Trim())';
+        if ($("#Label").val() != "" && $("#Label").validatebox("isValid") && (!isCheckReg || reg.test($("#Label").val()))) {
+            var loginName = $("#Label").val();
+            $("#icoLoginNameMsg").parent().removeClass("hide")
+            $("#icoLoginNameMsg").attr("class", "checking");
+            var urlCheckLoginName = '@Url.Action("CheckLoginName", "User")';
+            $.post(urlCheckLoginName, { id: "", loginName: loginName }, function (data) {
+                $("#icoLoginNameMsg").parent().addClass("hide")
+                $("#icoLoginNameMsg").attr("class", "pass");
+                if (data == null) return;
+                else if (data == "False" || data == "false") {
+                    $("#infoLoginNameMsg").empty();
+                    $("#infoLoginNameMsg").append("登录名已存在");
+                    $("#infoLoginNameMsg").parent().removeClass("hide")
+                }
+                else {
+                    $("#icoLoginNameMsg").parent().removeClass("hide")
+                    $("#icoLoginNameMsg").attr("class", "pass");
+                    isOk = true;
+                }
+            });
+        }
+        else if ($("#Label").val() == "") {
+            $("#infoLoginNameMsg").empty();
+            $("#infoLoginNameMsg").append("请输入登录名");
+            $("#infoLoginNameMsg").parent().removeClass("hide")
+        }
+        else {
+            $("#infoLoginNameMsg").empty();
+            $("#infoLoginNameMsg").append(errorMsg);
+            $("#infoLoginNameMsg").parent().removeClass("hide")
+        }
+        return isOk;
+    }
+    function doCheckEmail() {
+        var isOk = false;
+        if ($("#Email").val() != "" && $("#Email").validatebox("isValid")) {
+            var email = $("#Email").val();
+            $("#icoEmailMsg").parent().removeClass("hide")
+            $("#icoEmailMsg").attr("class", "checking");
+            var urlCheckEmail = '@Url.Action("CheckEmail", "User")';
+            $.post(urlCheckEmail, { id: "", Email: email }, function (data) {
+                $("#icoEmailMsg").parent().addClass("hide")
+                $("#icoEmailMsg").attr("class", "pass");
+                if (data == null) return;
+                else if (data == "False" || data == "false") {
+                    $("#infoEmailMsg").empty();
+                    $("#infoEmailMsg").append("邮箱已存在");
+                    $("#infoEmailMsg").parent().removeClass("hide");
+                }
+                else {
+                    $("#icoEmailMsg").parent().removeClass("hide")
+                    $("#icoEmailMsg").attr("class", "pass");
+                    isOk = true;
+                }
+            });
+        }
+        else if ($("#Email").val() == "") {
+            if(checkIsRegisterNotNull("邮箱"))
+            {
+                $("#infoEmailMsg").empty();
+                $("#infoEmailMsg").append("请输入邮箱");
+                $("#infoEmailMsg").parent().removeClass("hide")
+            }
+        }
+        else {
+            $("#infoEmailMsg").empty();
+            $("#infoEmailMsg").append("邮箱格式不正确");
+            $("#infoEmailMsg").parent().removeClass("hide")
+        }
+        return isOk;
+    }
+    function doCheckPhoneNumber() {
+        var isOk = false;
+        if ($("#PhoneNumber").val() != "" && $("#PhoneNumber").validatebox("isValid") && $("#PhoneNumber").val().isMobile()) {
+            var phoneNumber = $("#PhoneNumber").val();
+            $("#icoPhoneNumberMsg").parent().removeClass("hide")
+            $("#icoPhoneNumberMsg").attr("class", "checking");
+            var urlCheckPhoneNumber = '@Url.Action("CheckPhoneNumber", "User")';
+            $.post(urlCheckPhoneNumber, { id: "", PhoneNumber: phoneNumber }, function (data) {
+                $("#icoPhoneNumberMsg").parent().addClass("hide")
+                $("#icoPhoneNumberMsg").attr("class", "pass");
+                if (data == null) return;
+                else if (data == "False" || data == "false") {
+                    $("#infoPhoneNumberMsg").empty();
+                    $("#infoPhoneNumberMsg").append("手机已存在");
+                    $("#infoPhoneNumberMsg").parent().removeClass("hide")
+                }
+                else {
+                    $("#icoPhoneNumberMsg").parent().removeClass("hide")
+                    $("#icoPhoneNumberMsg").attr("class", "pass");
+                    isOk = true;
+                }
+            });
+        }
+        else if ($("#PhoneNumber").val() == "") {
+            if(checkIsRegisterNotNull("手机"))
+            {
+                $("#infoPhoneNumberMsg").empty();
+                $("#infoPhoneNumberMsg").append("请输入手机");
+                $("#infoPhoneNumberMsg").parent().removeClass("hide")
+            }
+        }
+        else {
+            $("#infoPhoneNumberMsg").empty();
+            $("#infoPhoneNumberMsg").append("手机格式不正确");
+            $("#infoPhoneNumberMsg").parent().removeClass("hide")
+        }
+        return isOk;
+    }
+    function doCheckFixedPhone() {
+        var isOk = false;
+        if ($("#FixedPhone").val() != "" && $("#FixedPhone").validatebox("isValid") && $("#FixedPhone").val().isFixTelephoneNo()) {
+            var fixedPhone = $("#FixedPhone").val();
+            $("#infoFixedPhoneTip").parent().addClass("hide")
+            $("#infoFixedPhoneMsg").parent().addClass("hide")
+            $("#icoFixedPhoneMsg").parent().removeClass("hide");
+            isOk = true;
+        }
+        else if ($("#FixedPhone").val() == "") {
+            if(checkIsRegisterNotNull("手机"))
+            {
+                $("#infoFixedPhoneTip").parent().removeClass("hide");
+                $("#infoFixedPhoneMsg").parent().addClass("hide");
+                $("#icoFixedPhoneMsg").parent().addClass("hide");
+            }
+        }
+        else {
+            $("#infoFixedPhoneTip").parent().addClass("hide");
+            $("#infoFixedPhoneMsg").parent().removeClass("hide")
+            $("#icoFixedPhoneMsg").parent().addClass("hide");
+        }
+        return isOk;
+    }
+    function doCheckIdentityCardNo() {
+        var isOk = false;
+        if ($("#IdentityCardNo").val() != "" && $("#tdCertificateType span input.combo-text.validatebox-text").val() == '身份证' && $("#IdentityCardNo").val().isIdentityCardNo()) {
+            $("#infoIdentityCardNoMsg").parent().addClass("hide");
+            $("#icoIdentityCardNoMsg").parent().removeClass("hide");
+            isOk = true;
+        }
+        else if ($("#IdentityCardNo").val() == "") {
+            if(checkIsRegisterNotNull("证件号码"))
+            {
+                $("#infoIdentityCardNoMsg").empty();
+                $("#infoIdentityCardNoMsg").append("请输入证件号码");
+                $("#infoIdentityCardNoMsg").parent().removeClass("hide")
+                $("#icoIdentityCardNoMsg").parent().addClass("hide");
+            }
+        }
+        else if($("#tdCertificateType span input.combo-text.validatebox-text").val() == '身份证'){
+            $("#infoIdentityCardNoMsg").empty();
+            $("#infoIdentityCardNoMsg").append("身份证格式不正确");
+            $("#infoIdentityCardNoMsg").parent().removeClass("hide")
+            $("#icoIdentityCardNoMsg").parent().addClass("hide");
+        }
+        else {
+            $("#infoIdentityCardNoMsg").parent().addClass("hide");
+            $("#icoIdentityCardNoMsg").parent().removeClass("hide");
+            isOk = true;
+        }
+        return isOk;
+    }
+    
+    function doOnCertificateTypeChange() {
+        var certificateTypeId = $("#CertificateTypeId").combobox("getValue");
+        var certificateTypeName = $("#CertificateTypeId").combobox("getText");
+        if (certificateTypeId == "" || certificateTypeId.isDefaultGuid()) {
+            if(checkIsRegisterNotNull("证件类型"))
+            {
+                $("#CertificateTypeId").parents(".edit-info").find(".errormt").removeClass("hide");
+            }
+            $("#CertificateTypeName").html("证件号码");
+        }
+        else {
+            $("#CertificateTypeId").parents(".edit-info").find(".errormt").addClass("hide");
+            $("#CertificateTypeName").html(certificateTypeName + "号");
+        }
+        doCheckIdentityCardNo();
+    }
+    function doOnOrganizationChange() {
+        $("#divOtherOrganization").addClass("hide");
+        var organizationId = $("#OrganizationId").val();
+        if (organizationId == "" || organizationId.isDefaultGuid()) {
+            $("#OrganizationId").parents(".edit-info").find(".errormt").removeClass("hide");
+        }
+        else {
+            var urlCheckIsAllowAutoAddLabOrganization = '@Url.Action("CheckIsAllowAutoAddLabOrganization", "LabOrganization")';
+            $.post(urlCheckIsAllowAutoAddLabOrganization, { id: organizationId }, function (data) {
+                if (data == null) return;
+                else if (data == "True" || data == "true") {
+                    $("#divOtherOrganization").removeClass("hide");
+                }
+                else {
+                    $("#divOtherOrganization").addClass("hide");
+                }
+            });
+        }
+        if ($("#OrganizationId option:selected").text().trim() == "合作单位") {
+            $("#OrganizationId").parents(".edit-info").find(".tips").removeClass("hide");
+        }
+    }
+    function doOnUserTypeLoadSuccess() {
+        $("#UserTypeBox span input.combo-text.validatebox-text").val("");
+    }
+    function doOnUserTypeChange() {
+        $("#divTutor").addClass("hide");
+        $("#divTutorNote").addClass("hide");
+        $("#divThesisTopic").addClass("hide");
+        $("#divSubject").addClass("hide");
+        $("#divJobtitle").addClass("hide");
+        $("#divGrade").addClass("hide");
+        $("#divEquipmentList").addClass("hide");
+        $("#divSelectEquipmentType").addClass("hide");
+        $("#divSpeciality").addClass("hide");
+        $("#divResearchDirection").addClass("hide");
+        $("#UserTypeId").parents(".edit-info").find(".errormt").addClass("hide");
+        $("#divMoneyCard").addClass("hide");
+        $("#divRegisterSubjectProject").addClass("hide");
+        var treeobj = $('#UserTypeId').combotree('tree');
+        var node = treeobj.tree('getSelected');
+        if (node) {
+            var b = treeobj.tree('isLeaf', node.target);
+            if (!b) {
+                $("#UserTypeId").parents(".edit-info").find(".errormt").removeClass("hide");
+                $("#UserTypeId").combotree("setValue","");
+                $("#UserTypeId").combotree('reload');
+                return;
+            }
+        }
+        var usertypeid = $("#UserTypeId").combotree("getValue");
+        if (usertypeid != "" && !usertypeid.isDefaultGuid()) {
+            var urlCheckIsStudentUserType = '@Url.Action("CheckIsStudentUserType", "User")';
+            $.post(urlCheckIsStudentUserType, { usertypeid: usertypeid }, function (data) {
+                if (data == null) return;
+                else if (data == "True" || data == "true") {
+                    $("#divGrade").removeClass("hide");
+                    if ($("#UserTypeId").combotree('getText').indexOf('本科')==-1){
+                        $("#divTutor").removeClass("hide");
+                    }
+                    $("#divTutorNote").removeClass("hide");
+                    $("#divThesisTopic").removeClass("hide");
+                    $("#divSelectEquipmentType").removeClass("hide");
+                    $.post('@Url.Action("CheckIsStudentNeedTutor", "User")', { usertypeid: usertypeid }, function (msg) {
+                        if (msg == null) return;
+                        else if (msg == "True" || msg == "true") {
+                            $("#emTutor").removeClass("hide");
+                        }
+                        else{
+                            $("#emTutor").addClass("hide");
+                        }
+                    });
+                }
+                else {
+                    $("#divJobtitle").removeClass("hide");
+                    //$("#divSubject").removeClass("hide");
+                    $("#divTutor").addClass("hide");
+                    $("#divTutorNote").addClass("hide");
+                    $("#divThesisTopic").addClass("hide");
+                    $("#divEquipmentList").removeClass("hide");
+                    $("#TutorId").val("");
+                    $("#TutorId").tokenInput('clear');
+                    $("#divMoneyCard").removeClass("hide");
+                    $("#divRegisterSubjectProject").removeClass("hide");
+                }
+                $("#divSpeciality").removeClass("hide");
+                $("#divResearchDirection").removeClass("hide");
+                IniColRequired();
+            });
+        }
+        else {
+            $("#UserTypeId").parents(".edit-info").find(".errormt").removeClass("hide");
+        }
+    }
+    
+    function doTutorChange(){
+        if("@(isDependsOnTutor.ToString().ToLower())" == "true"){
+            $("#EquipmentNames").val("");
+            $("#EquipmentIds").val("");
+        }
+        if($("#TutorId").val() != "")
+            $("#divEquipmentList").removeClass("hide");
+        else{
+            $("#divEquipmentList").addClass("hide");
+        }
+    }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+        $("#EquipmentIds").val(selectedEquipmentIds);
+        $("#EquipmentNames").val(selectedEquipmentNames);
+    }
+    function getUserTypeId() {
+        var userTypeId = $("#UserTypeId").combotree("getValue").trim();
+        if (userTypeId == "" || userTypeId.isDefaultGuid()) {
+            $.messager.show({ title: '警告', msg: '请选择用户身份', showType: 'show' });
+        }
+        return userTypeId;
+    }
+    function getTutorId() {
+        return $("#TutorId").val().trim();
+    }
+
+    function ShowAgreement() {
+        doViewAgreementDialog();
+        return false;
+    }
+
+    var viewAgreementDialog;
+    function doViewAgreementDialog() {
+        if (viewAgreementDialog) {
+            viewAgreementDialog.dialog("open");
+            return;
+        }
+        viewAgreementDialog =  @Html.JDialog("divViewAgreement").SetTitle("仪器预约使用协议").SetIconCls("icon-view").SetAutoDialog(false).SetCancelScript("viewAgreementDialog.dialog('close');return false;").SetModal(true).SetOkScript("doOKAgreement();").ToMvcString();
+    }
+    function doOKAgreement(){
+        $("#IsReadAgreement").attr("checked",'true');//
+        viewAgreementDialog.dialog("close");
+    }
+
+    function ajaxFileUploadCertificatePhoto() {
+        var file = $("#fileCertificatePhoto").val();
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        $("#fileCertificatePhoto").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadCertificatePhoto", "User")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileCertificatePhoto',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.filePath) {
+                    $("#CertificatePhoto").val(data.filePath);
+                    $("#fileCertificatePhotoPath").empty();
+                    $("#fileCertificatePhotoPath").append("已上传:  " + data.fileName + '(' +  data.fileSize + ')');
+                    $("#fileCertificatePhotoTips").addClass("hide");
+                    $("#fileCertificatePhotoSuccess").removeClass("hide");
+                }
+                else if (data && (data.indexOf("出错") != -1)) {
+                    $("#CertificatePhoto").val();
+                    $("#fileCertificatePhotoPath").empty();
+                    $("#fileCertificatePhotoPath").append('(物理学院请上传图片或附件)');
+                    $("#fileCertificatePhotoTips").removeClass("hide");
+                    $("#fileCertificatePhotoSuccess").addClass("hide");
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+
+    function ajaxFileUploadRelativePic() {
+        $("#fileRelativePicPath").addClass("hide");
+        var file = $("#fileRelativePic").val();
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        $("#fileRelativePic").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadRegisterRelativePic", "User")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileRelativePic',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.filePath) {
+                    $("#RelativePic").val(data.filePath);
+                    var src = "/" + data.filePath + "?date=" + new Date().getMilliseconds();
+                    $("#fileRelativePicPath").attr("src", src);
+                    $("#fileRelativePicPath").removeClass("hide");
+                    $("#fileRelativePicPath").parent("strong").css("height", '75px');
+                    $("#fileRelativePicTips").addClass("hide");
+                    $("#fileRelativePicSuccess").removeClass("hide");
+                    $("#fileRelativePicError").addClass("hide");
+                }
+                else if (data && (data.indexOf("出错") != -1)) {
+                    $("#RelativePic").val();
+                    $("#fileRelativePicPath").attr("src", "");
+                    $("#fileRelativePicPath").addClass("hide");
+                    $("#fileRelativePicPath").parent("strong").css("height", '35px');
+                    $("#fileRelativePicTips").removeClass("hide");
+                    $("#fileRelativePicSuccess").addClass("hide");
+                    $("#fileRelativePicError").addClass("hide");
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doCheckAnimalExperimentNum() {
+        var isOk = false;
+        var reg = /^[0-9a-zA-Z\-]+$/;
+        var errorMsg = '由数字、字母、斜杠等组成';
+        if ($("#AnimalExperimentNum").length > 0)
+        { 
+            if($("#AnimalExperimentNum").val() != "" && reg.test($("#AnimalExperimentNum").val())) {
+                $("#icoAnimalExperimentNumMsg").parent().removeClass("hide");
+                isOk = true;
+            }
+            else if ($("#AnimalExperimentNum").val() == "") {
+                $("#infoAnimalExperimentNumMsg").empty();
+                $("#infoAnimalExperimentNumMsg").append("请输入动物实验伦理编号");
+                $("#infoAnimalExperimentNumMsg").parent().removeClass("hide")
+            }
+            else {
+                $("#infoAnimalExperimentNumMsg").empty();
+                $("#infoAnimalExperimentNumMsg").append(errorMsg);
+                $("#infoAnimalExperimentNumMsg").parent().removeClass("hide")
+            }
+        }
+        return isOk;
+    }
+</script>

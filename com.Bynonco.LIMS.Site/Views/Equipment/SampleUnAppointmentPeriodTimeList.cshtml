@@ -1,0 +1,35 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbSampleUnAppointmentPeriodTimeList")
+    .SetUrl(Url.Action("GetGridSampleUnAppointmentPeriodTimeList", "Equipment"))
+    .AddQueryParam("queryExpression",string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetSortName("BeginTime")
+    .SetSortOrder(SortOrder.desc)
+    .SetHeight(650)
+    .SetPageSize(20)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "BeginTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Description").SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddSampleUnAppointmentPeriodTime);
+    if (equipmentPrivilige.IsEnableAddSampleUnAppointmentPeriodTime)
+    {
+        dataGrid.SetAddScript("doAddOrEditSampleUnAppointmentPeriodTime('');");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditSampleUnAppointmentPeriodTime);
+    if (equipmentPrivilige.IsEnableEditSampleUnAppointmentPeriodTime)
+    {
+        dataGrid.SetEditScript("doEditSampleUnAppointmentPeriodTime();");
+        dataGrid.SetOnDblClickRow("doAddOrEditSampleUnAppointmentPeriodTime(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteSampleUnAppointmentPeriodTime);
+    if (equipmentPrivilige.IsEnableDeleteSampleUnAppointmentPeriodTime)
+    {
+        dataGrid.SetDeleteScript("doDeleteSampleUnAppointmentPeriodTime();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

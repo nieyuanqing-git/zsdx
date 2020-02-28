@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var trainningQuestionPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetTrainningQuestionPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbTrainningQuestionList")
+       .AddQueryParam("EquipmentId", ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString())
+       .SetHeight(320)
+       .SetSortName("Name")
+       .SetPageSize(10)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false);
+    if (trainningQuestionPrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+    }
+    dataGrid.SetShowAddButton(trainningQuestionPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(trainningQuestionPrivilige.IsEnableEdit);
+    if (trainningQuestionPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddTrainningQuestion('');");
+       dataGrid.SetEditScript("doEditTrainningQuestion('');");
+       dataGrid.SetOnDblClickRow("doEditTrainningQuestion(rowData.Id);");
+    }
+    dataGrid.SetOnSelect("doOnTrainningQuestionSelected(rowData);");
+    dataGrid.SetShowDeleteButton(trainningQuestionPrivilige.IsEnableDelete);
+    if (trainningQuestionPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteTrainningQuestion('');");
+    }
+    if (trainningQuestionPrivilige.IsEnableView)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doViewQuestion();", IconCls = "icon-eye", Id = "btnViewQuestion", Text = "查看考题" });
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("题目", "Name").SetSortable(false).SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("分类", "TrainningTypeName").SetSortable(false).SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "QuestionTypeStr").SetSortable(false).SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("答案", "AnswerStr").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("分数", "Score").SetSortable(false).SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("时间/分钟", "TimeSpend").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("XPath", "XPath").SetSortable(false).SetWidth(120).SetHidden(true).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("助记符", "InputStr").SetSortable(false).SetWidth(60).SetHidden(true).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("题目描述", "ContentNoHTML").SetSortable(false).SetWidth(800).SetAlign(Align.left));
+    }
+@(dataGrid.ToMvcString())

@@ -1,0 +1,128 @@
+﻿@model com.Bynonco.LIMS.Model.LabOrganization
+@using com.Bynonco.JqueryEasyUI.Core; 
+<form id="frmExaminationSettingEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <p><span class="icon icon-setting"></span>组织机构考试设置</p>
+    <table id="tbExaminationSetting" class="edit-table">
+        <tr>
+            <th>是否需要在线考试才可进行预约</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsNeedExaminationBeforeAppointment", new { onchange = "doUseDefaultChanged('IsNeedExaminationBeforeAppointment');" }))<label for="UseDefaultIsNeedExaminationBeforeAppointment">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsNeedExaminationBeforeAppointment" style='display: @(Model.UseDefaultIsNeedExaminationBeforeAppointment.HasValue && Model.UseDefaultIsNeedExaminationBeforeAppointment.Value ? "none" : "block")'>
+                     @Html.CheckBox("IsNeedExaminationBeforeAppointment")
+                     <label for="IsNeedExaminationBeforeAppointment">需要在线考试</label> 
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果有未填写使用反馈的使用记录则不能预约该机构下的设备"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>试卷类型</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultTrainningTypeId", new { onchange = "doUseDefaultChanged('TrainningTypeId');" }))<label for="UseDefaultTrainningTypeId">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divTrainningTypeId" style='display: @(Model.UseDefaultTrainningTypeId.HasValue && Model.UseDefaultTrainningTypeId.Value ? "none" : "block")'>
+                     @(Html.JComboTree("TrainningTypeId")
+                    .SetData(ViewData["TrainningTypeJson"])
+                    .SetValue(Model == null || !Model.TrainningTypeId.HasValue ? "" :  Model.TrainningTypeId.Value.ToString())
+                    .SetMultiple(false)
+                    .SetWidth(205).SetRequired(false).SetExpandAll(true).ToMvcString()) 
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果机构未创建试卷，将根据试卷类型自动生成"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>试卷考题数</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultTrainningQuestionCount", new { onchange = "doUseDefaultChanged('TrainningQuestionCount');" }))<label for="UseDefaultTrainningQuestionCount">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divTrainningQuestionCount" style='display: @(Model.UseDefaultTrainningQuestionCount.HasValue && Model.UseDefaultTrainningQuestionCount.Value ? "none" : "block")'>
+                    @(Html.JValidateBox("TrainningQuestionCount").SetWidth(80).SetValue(Model == null || !Model.TrainningQuestionCount.HasValue ? "" : Model.TrainningQuestionCount.Value.ToString()).ToMvcString())
+                    <span class="required">必填</span>
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果机构未创建试卷，将根据试卷考题数自动生成"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>最大在线考试次数</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultMaxExaminationTime", new { onchange = "doUseDefaultChanged('MaxExaminationTime');" }))<label for="UseDefaultMaxExaminationTime">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divMaxExaminationTime" style='display: @(Model.UseDefaultMaxExaminationTime.HasValue && Model.UseDefaultMaxExaminationTime.Value ? "none" : "block")'>
+                    @(Html.JValidateBox("MaxExaminationTime").SetWidth(80).SetValidateType(ValidateType.intNumber).SetValue(Model == null || !Model.MaxExaminationTime.HasValue ? "" : Model.MaxExaminationTime.Value.ToString()).ToMvcString())
+                    <span>(次)</span>
+                    <span class="required">必填</span>
+                </div>
+                  &nbsp;&nbsp;<span class="icon icon-info-blue" title="最大在线考试次数"></span>
+             </td>
+        </tr>
+        <tr>
+            <th>考试通过类型</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultExaminationPassType", new { onchange = "doUseDefaultChanged('ExaminationPassType');" }))<label for="UseDefaultExaminationPassType">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divExaminationPassType" style='display: @(Model.UseDefaultExaminationPassType.HasValue && Model.UseDefaultExaminationPassType.Value ? "none" : "block")'>
+                    @(Html.JValidateBox("ExaminationPassType").SetWidth(80).SetValue(Model == null || !Model.ExaminationPassType.HasValue ? "" : Model.ExaminationPassType.Value.ToString()).ToMvcString())
+                    <span>(0:分数线 1:正确率)</span>
+                    <span class="required">必填</span>
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果机构未创建试卷，将根据考试通过类型自动判断用户是否通过考试"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>考试通过线</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultPassStandard", new { onchange = "doUseDefaultChanged('PassStandard');" }))<label for="UseDefaultPassStandard">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divPassStandard" style='display: @(Model.UseDefaultPassStandard.HasValue && Model.UseDefaultPassStandard.Value ? "none" : "block")'>
+                    @(Html.JValidateBox("PassStandard").SetWidth(80).SetValue(Model == null || !Model.PassStandard.HasValue ? "" : Model.PassStandard.Value.ToString()).ToMvcString())
+                    <span>(分 或者 %)</span>
+                    <span class="required">必填</span>
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果机构未创建试卷，将根据考试通过线自动判断用户是否通过考试"></span>
+            </td>
+        </tr>
+       <tr>
+            <th>是否需要阅读资料才能考试</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsNeedReadMaterialBeforeExamination", new { onchange = "doUseDefaultChanged('IsNeedReadMaterialBeforeExamination');" }))<label for="UseDefaultIsNeedReadMaterialBeforeExamination">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsNeedReadMaterialBeforeExamination" style='display: @(Model.UseDefaultIsNeedReadMaterialBeforeExamination.HasValue && Model.UseDefaultIsNeedReadMaterialBeforeExamination.Value ? "none" : "block")'>
+                     @Html.CheckBox("IsNeedReadMaterialBeforeExamination")
+                     <label for="IsNeedReadMaterialBeforeExamination">需要阅读资料才能考试</label> 
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果未阅读资料则不能进行考试"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>最少阅读资料学时</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultMinReadMaterialDateTime", new { onchange = "doUseDefaultChanged('MinReadMaterialDateTime');" }))<label for="UseDefaultMinReadMaterialDateTime">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divMinReadMaterialDateTime" style='display: @(Model.UseDefaultMinReadMaterialDateTime.HasValue && Model.UseDefaultMinReadMaterialDateTime.Value ? "none" : "block")'>
+                    @(Html.JValidateBox("MinReadMaterialDateTime").SetWidth(80).SetValue(Model == null || !Model.MinReadMaterialDateTime.HasValue ? "" : Model.MinReadMaterialDateTime.Value.ToString()).ToMvcString())
+                    <span>(小时)</span>
+                    <span class="required">必填</span>
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果未阅读资料满足学时要求时，则不能进行考试"></span>
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    function doUseDefaultChanged(itemName) {
+        var useDefault = $("#UseDefault" + itemName).attr("checked");
+        var isUseDefault = useDefault ? true : false;
+        if (isUseDefault) $("#div" + itemName).fadeOut(500);
+        else $("#div" + itemName).fadeIn(500);
+    }
+
+</script>

@@ -1,0 +1,87 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.View;
+@{
+    var appointmentTimes = (IList<DateTimeScope>)ViewData["AppointmentTimes"];
+    var viewUser = (ViewUser)ViewData["ViewUser"];
+    var delinquencyCategories = (IList<DelinquencyCategory>)ViewData["DelinquencyCategories"];
+    var delinquencyRules = (IList<DelinquencyRule>)ViewData["DelinquencyRules"];
+ }
+<p>2.预约信息</p>
+<table class="table-appointmenTotal">
+    <tr>
+        <th>预约人</th>
+        <td>@viewUser.UserName</td>
+        <th>课题组</th>
+        <td>@ViewData["SubjectName"]</td>
+    </tr>
+    <tr>
+        <th>导师姓名</th>
+        <td>@(string.IsNullOrEmpty(viewUser.TutorName) ? viewUser.UserName : viewUser.TutorName)</td>
+        <th>使用性质</th>
+        <td>@ViewData["UsedNature"]</td>
+    </tr>
+</table>
+
+<p>3.预约时间</p>
+<table class="table-appointmenTotal">
+    <tr>
+        <th>开始时间</th>
+        <th>结束时间</th>
+        <th>时长</th>
+    </tr>
+    @foreach (var appointmentTime in appointmentTimes)
+    {
+        <tr>
+            <td class="a_center">@appointmentTime.BeginTime.ToString("yyyy年MM月dd日 HH时mm分")</td>
+            <td class="a_center">@appointmentTime.EndTime.ToString("yyyy年MM月dd日 HH时mm分")</td>
+            <td class="a_center">@((appointmentTime.EndTime - appointmentTime.BeginTime).TotalHours.ToString())</td>
+        </tr>
+    }
+    <tr>
+        <td></td>
+        <td></td>
+        <td class="a_center">共:@appointmentTimes.Sum(p => (p.EndTime - p.BeginTime).TotalHours).ToString()</td>
+    </tr>
+</table>
+
+<p>4.设备使用说明注意事项</p>
+<div>@ViewData["Remark"]</div>
+
+<p>5.不良行为处罚规定</p>
+<div class="div-appointmenTotal">不良变为严重程度规定</div>
+<table class="table-appointmenTotal">
+    <tr>
+        <th>不良行为</th>
+        <th>严重程度</th>
+    </tr>
+    @if (delinquencyCategories != null && delinquencyCategories.Count > 0)
+    {
+        foreach (var delinquencyCategory in delinquencyCategories)
+        {
+            <tr>
+                <td>@delinquencyCategory.Name</td>
+                <td>@delinquencyCategory.Severity.ToString()</td>
+            </tr>
+        }
+    }
+</table>
+<div class="div-appointmenTotal" style="margin-top:5px">当用户不良行为累计到一定程度,将对他作出如下处罚</div>
+<table class="table-appointmenTotal">
+    <tr>
+        <th>处罚类型 </th>
+        <th>严重程度累计</th>
+        <th>处罚持续天数</th>
+    </tr>
+    @if (delinquencyRules != null && delinquencyRules.Count > 0)
+    {
+        foreach (var delinquencyRule in delinquencyRules)
+        {
+            <tr>
+                <td>@delinquencyRule.Name</td>
+                <td>@delinquencyRule.TotalSeverity.ToString()</td>
+                <td>@(delinquencyRule.PersisDays.HasValue ? delinquencyRule.PersisDays.Value.ToString() : "")</td>
+            </tr> 
+        }
+    }
+</table>

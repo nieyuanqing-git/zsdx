@@ -1,0 +1,65 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateCountryQueryExpress() {
+        var queryExpression = "";
+        var countryName = $("#SearchCountryName").val().trim();
+        if (countryName != "") {
+            queryExpression = "(Name∽\"" + countryName.trim() + "\"+FullName∽\"" + countryName.trim() + "\")";
+        }
+        var countryEngName = $("#SearchCountryEngName").val().trim();
+        if (countryEngName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(EngName∽\"" + countryEngName.trim() + "\"+FullEngName∽\"" + countryEngName.trim() + "\")";
+        }
+        var countryCode2Char = $("#SearchCountryCode2Char").val().trim();
+        if (countryCode2Char != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Code2Char=\"" + countryCode2Char.trim() + "\"";
+        }
+        var countryCode3Char = $("#SearchCountryCode3Char").val().trim();
+        if (countryCode3Char != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Code3Char=\"" + countryCode3Char.trim() + "\"";
+        }
+        var countryCodeNum = $("#SearchCountryCodeNum").val().trim();
+        if (countryCodeNum != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CodeNum=\"" + countryCodeNum.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doReset() {
+        $("#SearchCountryName").val("");
+        $("#SearchCountryEngName").val("");
+        $("#SearchCountryCode2Char").val("");
+        $("#SearchCountryCode3Char").val("");
+        $("#SearchCountryCodeNum").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>中文名称</label>
+        @Html.JValidateBox("SearchCountryName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>英文名称</label>
+        @Html.JValidateBox("SearchCountryEngName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>两字编码</label>
+        @Html.JValidateBox("SearchCountryCode2Char").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>三字编码</label>
+        @Html.JValidateBox("SearchCountryCode3Char").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>数字编码</label>
+        @Html.JValidateBox("SearchCountryCodeNum").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnCountrySearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnCountryReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnCountryClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

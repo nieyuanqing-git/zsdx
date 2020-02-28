@@ -1,0 +1,86 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenTraining
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divEquipmentOpenTrainingView">
+@if (Model != null)
+{
+    var auditInfo = "";
+    if (Model.CollegeAuditUser != null)
+    {
+        auditInfo += (auditInfo == "" ? "" : "<br />") + string.Format("[{0}] ({1}) {2}: {3}","学院审核", Model.CollegeAuditTime.HasValue ? Model.CollegeAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "", Model.CollegeAuditUser.UserName, Model.CollegeAuditRemark);
+    }
+    if (Model.ManageAuditUser != null)
+    {
+        auditInfo += (auditInfo == "" ? "" : "<br />") + string.Format("[{0}] ({1}) {2}: {3}", "大精仪管理科审核", Model.ManageAuditTime.HasValue ? Model.ManageAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "", Model.ManageAuditUser.UserName, Model.ManageAuditRemark);
+    }
+    if (Model.DirectorAuditUser != null)
+    {
+        auditInfo += (auditInfo == "" ? "" : "<br />") + string.Format("[{0}] ({1}) {2}: {3}", "主管处长审核", Model.DirectorAuditTime.HasValue ? Model.DirectorAuditTime.Value.ToString("yyyy-MM-dd HH:mm") : "", Model.DirectorAuditUser.UserName, Model.DirectorAuditRemark);
+    }
+    <table class="edit-table"  style="width:545px;">
+        <tr>
+            <th>学期</th>
+            <td>@(Model.Semester.Name)</td>
+             <th>状态</th>
+            <td>@(Model.StatusStr)</td>
+        </tr>
+        <tr>
+            <th>培训名称</th>
+            <td colspan='3'>@(Model.Name)</td>
+        </tr>
+        <tr>
+            <th>设备名称</th>
+            <td colspan='3'>@(Model.Equipment.Name)</td>
+        </tr>
+        <tr>
+            <th>培训负责人</th>
+            <td>@(Model.AdminUser.UserName)</td>
+            <th>联系电话</th>
+            <td>@(Model.AdminPhone)</td>
+        </tr>
+        <tr>
+            <th>目的与意义</th>
+            <td colspan='3'>
+                @System.Web.Mvc.MvcHtmlString.Create(Model.Purpose.Replace("\r\n","<br />"))
+            </td>
+        </tr>
+        <tr>
+            <th>支撑条件</th>
+            <td colspan='3'>
+                @System.Web.Mvc.MvcHtmlString.Create(Model.SupportingConditions.Replace("\r\n", "<br />"))
+            </td>
+        </tr>
+        <tr>
+            <th>培训计划</th>
+            <td colspan='3'>
+                <table border='0' cellpadding='0' cellspacing='0'>
+                    <tr>
+                        <th style='width:150px;'>培训内容</th>
+                        <th>学时数<br />(机时)</th>
+                        <th>培训<br />学生数</th>
+                        <th>费用预计<br />(元)</th>
+                        <th>承担人</th>
+                    </tr>
+                    @if (Model != null && Model.EquipmentOpenTrainingPlanList != null && Model.EquipmentOpenTrainingPlanList.Count() > 0)
+                    {
+                        foreach (var item in Model.EquipmentOpenTrainingPlanList)
+                        {
+                            @Html.Partial("../EquipmentOpenTraining/PlanViewInfo", item)
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+        @if (auditInfo != "")
+        {
+            <tr>
+                <th>审核信息</th>
+                <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(auditInfo)</td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    <p>没有找到相关设备应用知识培训信息</p>
+}
+</div>

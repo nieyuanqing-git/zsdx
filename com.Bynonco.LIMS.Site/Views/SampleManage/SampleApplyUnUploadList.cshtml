@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var dataGrid = Html.JDataGrid("tbSampleUnRegistList")
+        .SetUrl(Url.Action("GetGridViewSampleApplyList") + "?sampleRoleStr=" + ViewData["SampleRoleStr"] + "&time=" + DateTime.Now.Millisecond.ToString())
+        .SetHeight(570)
+        .SetPageSize(10)
+        .SetShowPrintButton(false)
+        .SetSortName("OperateDate")
+        .SetSortOrder(SortOrder.desc)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch()")
+        .SetShowAddButton(false);
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "ApplicantIcon").SetWidth(50).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("送样单号", "SampleNoStr").SetWidth(200).SetAlign(Align.left));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("序号", "RowNo").SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请人", "ApplicantNameStr").SetWidth(60).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SampleItemName").SetWidth(180).SetAlign(Align.left));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("样品数", "Quatity").SetWidth(50).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实际<br />完成样品数", "RealQuatityStr").SetWidth(80).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实际<br />检测机时", "DurationStr").SetWidth(80).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("收费情况", "ChargeStatusStr").SetWidth(80).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注信息", "Remark").SetWidth(120).SetAlign(Align.left));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("上传人", "RegisterName").SetWidth(60).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("上传时间", "RegisterTimeStr").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "ApplyDateStr").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预计完成时间", "PredictResultTimeStr").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentName").SetWidth(150).SetAlign(Align.left));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("价格", "Price").SetWidth(50).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扣费金额", "Fee").SetWidth(80).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("取件方式", "GetResultWayName").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("完成时间", "FinishDateStr").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("来样状态", "SmapleStatusName").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("其他", "SampleStatusReamrk").SetWidth(100).SetAlign(Align.left));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "PasserName").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核时间", "PassDateStr").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("否决人", "RefuserName").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("否决时间", "RefuseDateStr").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("课题组", "SubjectName").SetWidth(300).SetAlign(Align.left));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SubjectProjectName").SetWidth(300).SetAlign(Align.left));
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchSendMsgNotice();return false;", IconCls = "icon-mail", Id = "btnBatchSendMsgNotice", Text = "发信" });
+ }
+ @(dataGrid.ToMvcString())
+

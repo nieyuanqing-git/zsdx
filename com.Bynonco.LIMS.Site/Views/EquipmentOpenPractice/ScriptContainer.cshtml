@@ -1,0 +1,270 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+    var isManage = ViewData["IsManage"] == null ? true : bool.Parse(ViewData["IsManage"].ToString());
+    var isTeacher = ViewData["IsTeacher"] == null ? false : bool.Parse(ViewData["IsTeacher"].ToString());
+}
+<div id="divViewEquipmentOpenPracticeDialog" style="display: none"></div>
+<div id="divViewClosedEquipmentOpenPracticeDialog" style="display: none"></div>
+<script type="text/javascript">
+    function doSemesterOnSelect(record) {
+        doSearchEquipmentOpenPractice(record.Id);
+    }
+    function doGetSelectSemesterId() {
+        var selectSemesterId = $("#SelectSemesterId").combobox("getValue");
+        if (!selectSemesterId || selectSemesterId == "" || selectSemesterId.isDefaultGuid()) {
+            return "";
+        }
+        return selectSemesterId;
+    }
+    function doSearchEquipmentOpenPractice(semesterId) {
+        if (!semesterId || semesterId.trim() == "") {
+            semesterId = doGetSelectSemesterId();
+        }
+        var queryExpression = generateEquipmentOpenPracticeQueryExpress();
+        $('#tbEquipmentOpenPracticeList').datagrid('options').queryParams = { "semesterId": semesterId, "queryExpression": queryExpression,ServerQueryExpression: encodeURI('@queryExpression') };
+
+@*        if("@(queryExpression)" != "") 
+            queryExpression += (queryExpression == "" ? "" : "*") + '@(queryExpression)';*@
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetGridViewEquipmentOpenPracticeList", "EquipmentOpenPractice",new{ServerQueryExpression=queryExpression})',
+            data: { "semesterId": semesterId, "isManage": '@(isManage.ToString().ToLower())', "isTeacher": '@(isTeacher.ToString().ToLower())', "queryExpression": encodeURI(queryExpression),"sort":'ApplyTime',order:'desc' },
+            success: function(data) {
+                $('#tbEquipmentOpenPracticeList').datagrid('loadData', { total: 0, rows: [] });
+                $('#tbEquipmentOpenPracticeList').datagrid('loadData', data);
+                try {
+                    $.messager.progress('close');
+                } catch (e) {
+                }
+            }
+        });
+    }
+    function doEditEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        doAddOrEditEquipmentOpenPractice(id);
+        return false;
+    }
+    function doAddOrEditEquipmentOpenPractice(id) {
+        var url = '@Url.Action("Edit", "EquipmentOpenPractice")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doTeacherAuditEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要教师审核的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("TeacherAudit", "EquipmentOpenPractice")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doCollegeAuditEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要学院审核的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("CollegeAudit", "EquipmentOpenPractice")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doAdminAuditEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要实管处审核的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("ManageAudit", "EquipmentOpenPractice")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doAdminPreAuditEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要实管处审核的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("ManagePreAudit", "EquipmentOpenPractice")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doAllocatingFundEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要实管处审核的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("AllocatingFundAudit", "EquipmentOpenPractice")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    var viewEquipmentOpenPracticeDialog;
+    function doViewEquipmentOpenPracticeDialog() {
+        if (viewEquipmentOpenPracticeDialog) {
+            viewEquipmentOpenPracticeDialog.dialog("destroy");
+        }
+        viewEquipmentOpenPracticeDialog =  @Html.JDialog("divEquipmentOpenPracticeView").SetTitle("实施研究项目信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewEquipmentOpenPracticeDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doViewEquipmentOpenPracticeInfo(id)
+    {
+        if(!id || id.trim()==""){
+            var selectedEquipmentOpenPractice = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if(!selectedEquipmentOpenPractice || selectedEquipmentOpenPractice.Id=="" || selectedEquipmentOpenPractice.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg:"请选择实施研究项目记录", showType: 'show' });
+                return false;
+            }
+            id = selectedEquipmentOpenPractice.Id;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewInfo", "EquipmentOpenPractice")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewEquipmentOpenPracticeDialog").load(url, function() {
+            doViewEquipmentOpenPracticeDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    function doExportExcelEquipmentOpenPractice() {
+        var semesterId = doGetSelectSemesterId();
+        if (semesterId == "") {
+            $.messager.show({ title: '提示', msg: "学期为空", showType: 'show' });
+            return false;
+        }
+
+        var queryExpression = generateEquipmentOpenPracticeQueryExpress();
+         var url = '@Url.Action("ExportExcel", "EquipmentOpenPractice",new{ServerQueryExpression=queryExpression})' + "&queryExpression=" + queryExpression
+            + "&semesterId=" + semesterId + "&isManage=" + "@(isManage.ToString().ToLower())" + "&isTeacher=" + "@(isTeacher.ToString().ToLower())";
+        window.open(url, '_blank');
+        return false;
+    }
+
+
+    function doClosedEquipmentOpenPractice(id) {
+        var url = '@Url.Action("Closed", "EquipmentOpenPractice")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+
+    function doClosedTeacherAuditEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要教师结题审核的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("ClosedTeacherAudit", "EquipmentOpenPractice")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+
+    function doClosedCollegeAuditEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要学院结题审核的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("ClosedCollegeAudit", "EquipmentOpenPractice")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+
+    function doClosedAdminAuditEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要实管处结题审核的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("ClosedManageAudit", "EquipmentOpenPractice")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+
+    var viewClosedEquipmentOpenPracticeDialog;
+    function doViewClosedEquipmentOpenPracticeDialog() {
+        if (viewClosedEquipmentOpenPracticeDialog) {
+            viewClosedEquipmentOpenPracticeDialog.dialog("destroy");
+        }
+        viewClosedEquipmentOpenPracticeDialog =  @Html.JDialog("divEquipmentOpenPracticeViewClosed").SetTitle("实施研究项目结题信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewClosedEquipmentOpenPracticeDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+
+    function doViewClosedEquipmentOpenPracticeInfo(id)
+    {
+        if(!id || id.trim()==""){
+            var selectedEquipmentOpenPractice = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if(!selectedEquipmentOpenPractice || selectedEquipmentOpenPractice.Id=="" || selectedEquipmentOpenPractice.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg:"请选择实施研究项目结题记录", showType: 'show' });
+                return false;
+            }
+            id = selectedEquipmentOpenPractice.Id;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewClosedInfo", "EquipmentOpenPractice")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewClosedEquipmentOpenPracticeDialog").load(url, function() {
+            doViewClosedEquipmentOpenPracticeDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    function doExportWordEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要导出申请表的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("ExportWord", "EquipmentOpenPractice")' + "/" + id;
+        window.open(url, '_blank');
+        return false;
+    }
+
+    function doExportClosedWordEquipmentOpenPractice(id) {
+        if (!id || id.trim() == "") {
+            var selectedRow = $("#tbEquipmentOpenPracticeList").datagrid("getSelected");
+            if (!selectedRow) {
+                $.messager.show({ title: '警告', msg: "请选择要导出结题报告书的项", showType: 'show' });
+                return false;
+            }
+            id = selectedRow.Id;
+        }
+        var url = '@Url.Action("ExportClosedWord", "EquipmentOpenPractice")' + "/" + id;
+        window.open(url, '_blank');
+        return false;
+    }
+</script>

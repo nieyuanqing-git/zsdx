@@ -1,0 +1,19 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimalAppointment
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divInputAnimalQualifiedNo">
+    <form id="frmInputAnimalQualifiedNo">
+        <table class="edit-table">
+            <tr>
+                <th>
+                    <span class="required">*</span>合格证号
+                </th>
+                <td>@Html.JValidateBox("AnimaAnimalQualifiedNolCode").SetValue(Model.AnimalQualifiedNo).SetWidth(230).ToMvcString()</td> 
+               
+            </tr>
+            <tr>
+                <th>是否覆盖原有合格证号</th>
+                <td>@Html.CheckBox("isOverriede")</td>
+            </tr>
+        </table>
+    </form>
+</div>

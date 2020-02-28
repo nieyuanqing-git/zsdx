@@ -1,0 +1,107 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tbSJ6List').datagrid({
+            columns: [[
+            { title: '实验室编号', field: 'ExperimentRoomNum', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '实验室名称', field: 'ExperimentRoomName', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '实验室类别', field: 'ExperimentRoomType', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '建立年份', field: 'RoomBuildTime', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '房屋使用面积', field: 'RoomArea', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '实验室类型', field: 'ExperimentRoomCategory', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '所属学科', field: 'ExperimentSubject', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '教师获奖与成果', colspan: 3, align: 'center' },
+            { title: '学生获奖情况', field: 'AwardsStudent', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '论文和教材情况', colspan: 5, align: 'center' },
+            { title: '科研及社会服务情况', colspan: 5, align: 'center' },
+            { title: '毕业设计和论文人数', colspan: 3, align: 'center' },
+            { title: '开放实验', colspan: 6, align: 'center' },
+            { title: '责任人员数', field: 'AdjunctUserCount', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '实验教学运行经费', colspan: 2, align: 'center' }
+            ],[
+            { title: '国家级', field: 'AwardsTutorCountry', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '省部级', field: 'AwardsTutorProvince', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '发明专利', field: 'PatentTutorCount', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '三大检索收录', colspan: 2, align: 'center' },
+            { title: '核心刊物', colspan: 2, align: 'center' },
+            { title: '实验教材', field: 'ExperimentTextbook', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '科研项目数', colspan: 2, align: 'center' },
+            { title: '社会服务项目数', field: 'SocialServicesCount', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '教研项目数', colspan: 2, align: 'center' },
+            { title: '专科生人数', field: 'ThesisUserCountSpecialized', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '本科生人数', field: 'ThesisUserCountUndergraduate', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '研究生人数', field: 'ThesisUserCountGraduate', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '实验个数', colspan: 2, align: 'center' },
+            { title: '实验人数', colspan: 2, align: 'center' },
+            { title: '实验时数', colspan: 2, align: 'center' },
+            { title: '小计', field: 'FundsTotal', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '其中教学实验年材料消耗费', field: 'FundsMaterial', width: 60, rowspan: 2, sortable: true, align: 'center' }
+            ],[
+            { title: '教学', field: 'ThesisThreeSearchEducation', width: 60, sortable: true, align: 'center' },
+            { title: '科研', field: 'ThesisThreeSearchScientificResearch', width: 60, sortable: true, align: 'center' },
+            { title: '教学', field: 'ThesisPublicationEducation', width: 60, sortable: true, align: 'center' },
+            { title: '科研', field: 'ThesisPublicationScientificResearch', width: 60, sortable: true, align: 'center' },
+            { title: '省部级以上', field: 'ScientificResearchCountProvince', width: 80, sortable: true, align: 'center' },
+            { title: '其它', field: 'ScientificResearchCountOther', width: 60, sortable: true, align: 'center' },
+            { title: '省部级以上', field: 'EducationCountProvince', width: 80, sortable: true, align: 'center' },
+            { title: '其它', field: 'EducationCountOther', width: 60, sortable: true, align: 'center' },
+            { title: '校内', field: 'OpenExperimentCountInner', width: 60, sortable: true, align: 'center' },
+            { title: '校外', field: 'OpenExperimentCountOuter', width: 60, sortable: true, align: 'center' },
+            { title: '校内', field: 'OpenExperimentUserCountInner', width: 60, sortable: true, align: 'center' },
+            { title: '校外', field: 'OpenExperimentUserCountOuter', width: 60, sortable: true, align: 'center' },
+            { title: '校内', field: 'OpenExperimentHoursInner', width: 60, sortable: true, align: 'center' },
+            { title: '校外', field: 'OpenExperimentHoursOuter', width: 60, sortable: true, align: 'center' }
+            ]],
+            frozenColumns: [[
+                { field: 'ck', checkbox: true, rowspan: 3 },
+                { title: '状态', field: 'AuditStatusNickName', rowspan: 3, sortable: true, align: 'center' },
+                { title: '学校代码', field: 'SchoolCode', rowspan: 3, sortable: true, align: 'center' }
+                ]],
+            url: '/Statistics/GetGridViewSJ6List',
+            loadMsg: '数据加载中,请稍候……',
+            pageNumber: 1,
+            pageSize: 20,
+            pageList: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+
+            height: 650,
+            iconCls: 'icon-save',
+            collapsed: false,
+            collapsible: true,
+            remoteSort: true,
+            sortOrder: 'asc',
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            fitColumns: false,
+            striped: true,
+            nowrap: true,
+            method: 'post',
+            pagePosition: 'bottom',
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ6Edit ? "onDblClickRow: function(rowIndex, rowData){ doEditSJ6(rowData.Id); },":"")
+            toolbar: [
+            {
+                id: 'btnGridSearch',
+                text: '搜索',
+                disabled: false,
+                iconCls: 'icon-search',
+                handler: function () {
+                    $('#btnGridSearch').linkbutton('enable');
+                    doShowSearch();
+                }
+            }
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ6Add ? ",{id: 'btnSJ6Add',text: '新增',disabled: false,iconCls: 'icon-add',handler: function () { $('#btnSJ6Add').linkbutton('enable'); doAddSJ6();}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ6Edit ? ",{id: 'btnSJ6Edit',text: '编辑',disabled: false,iconCls: 'icon-edit',handler: function () { $('#btnSJ6Edit').linkbutton('enable'); doEditSJ6('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ6Delete && false ? ",{id: 'btnSJ6Delete',text: '删除',disabled: false,iconCls: 'icon-cancel',handler: function () { $('#btnSJ6Delete').linkbutton('enable'); doDeleteSJ6('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ6AuditPass ? ",{id: 'btnSJ6AuditPass',text: '审核通过',disabled: false,iconCls: 'icon-pass',handler: function () { $('#btnSJ6AuditPass').linkbutton('enable'); doAuditPassSJ6('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ6AuditReject ? ",{id: 'btnSJ6AuditReject',text: '审核不通过',disabled: false,iconCls: 'icon-no',handler: function () { $('#btnSJ6AuditReject').linkbutton('enable'); doAuditRejectSJ6('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ6AuditWaitting ? ",{id: 'btnSJ6AuditWaitting',text: '置为待审',disabled: false,iconCls: 'icon-info',handler: function () { $('#btnSJ6AuditWaitting').linkbutton('enable'); doAuditWaittingSJ6('');}}":"")
+            ,{id: 'btnSJ6Reload',text: '刷新',disabled: false,iconCls: 'icon-reload',handler: function () { $('#btnSJ6Reload').linkbutton('enable'); doSJ6Search('');}}
+            ],
+            showFooter: false
+        });
+    });
+</script>
+<table id="tbSJ6List"></table>

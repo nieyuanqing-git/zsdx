@@ -1,0 +1,10 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPracticeTeacher
+@if (Model != null && Model.User != null)
+{
+    <tr>
+        <td style='text-align:center;'>@Model.User.UserName</td>
+        <td style='text-align:center;'>@Model.JobNumber</td>
+        <td style='text-align:center;'>@Model.PracticePosition</td>
+        <td style='text-align:center;'>@Model.User.PhoneNumber</td>
+    </tr>
+}

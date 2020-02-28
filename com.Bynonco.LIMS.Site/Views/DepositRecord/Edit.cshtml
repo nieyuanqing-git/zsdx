@@ -1,0 +1,249 @@
+﻿@model com.Bynonco.LIMS.Model.DepositRecord
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var isMyOperate = ViewData["IsMyOperate"] == null ? false : (bool)ViewData["IsMyOperate"];
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsDepositPhoto = customer == null ? false : customer.GetIsDepositPhoto();
+    var customerIsDepositPhotoAfterPreAudit = customer == null ? false : customer.GetIsDepositPhotoAfterPreAudit();
+    var customerIsDepositPhotoRequired = customer == null ? false : customer.GetIsDepositPhotoRequired();
+    var customerIsDepositTesterRequired = customer == null ? false : customer.GetIsDepositTesterRequired();
+    var customerIsDepositPhotoAutoPreAuditPass = customer == null ? false : customer.GetIsDepositPhotoAutoPreAuditPass();
+    customerIsDepositPhotoRequired = customerIsDepositPhotoRequired && (Model != null && Model.StatusEnum == DepositRecordStatus.AuditPass);
+    if (customerIsDepositPhotoAfterPreAudit) { customerIsDepositPhoto = customerIsDepositPhoto && (Model != null && Model.StatusEnum == DepositRecordStatus.AuditPass); }
+    var customerDepositSamplyNoDisplayName = customer == null ? "样品编号" : customer.GetDepositSamplyNoDisplayName();
+}
+<div id="divDepositRecordEdit">
+ <form id="frmDepositRecordEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("Status", Model == null ? "0" : Model.Status.ToString())
+    <table id="tdDepositRecordEdit" class="edit-table"  style="width:600px;">
+         <tr>
+            <th><span class="required">* </span>导师</th>
+            <td id='tdTutor'  colspan='@(customerIsDepositTesterRequired ? 1 : 3)'>
+                @{
+                    var hasTutor = ViewData["TutorJson"] != null && !string.IsNullOrWhiteSpace(ViewData["TutorJson"].ToString());
+                    if (!hasTutor)
+                    {
+                        <div style='float:left;'>
+                        @(Html.TokenInput("TutorId")
+                            .SetUrl(Url.Action("GetManageTutorListByKeyWord", "User"))
+                            .SetSingle(true)
+                            .SetWidth(200)
+                            .ToMvcString())
+                        </div>
+                        <div style='float:left;'>
+                        @Html.JLinkButton("btnClearTutorId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#TutorId').tokenInput('clear');return false;").ToMvcString()
+                        </div>
+                        <div class='clear-both'></div>
+                    }
+                    else
+                    {
+                        <b style="padding:2px">
+                        @(ViewData["TutorName"] == null ? "" : ViewData["TutorName"].ToString())
+                        @(ViewData["TutorPhoneNumber"] == null ? "" : "电话: " + ViewData["TutorPhoneNumber"].ToString())
+                        </b>
+                        @Html.Hidden("TutorId", ViewData["TutorId"] == null ? "" : ViewData["TutorId"].ToString())
+                    }
+                }
+            </td>
+            @if (customerIsDepositTesterRequired)
+            {
+                <th>测样人</th>
+                <td id='tdTester'>
+                    @(Model == null ? "" : Model.JoinedTesterNames)
+                </td>
+            }
+        </tr>
+        <tr>
+            <th class='@(isMyOperate ? "hide" : "hide")'>@customerDepositSamplyNoDisplayName</th>
+            <td id="trSampleNo" class='@(isMyOperate ? "hide" : "hide")' colspan='3'>
+                <div style='float:left;'>
+                @(Html.TokenInput("SampleNo")
+                    .SetUrl(Url.Action("GetSampleApplyWeakListByKeyWord", "SampleManage"))
+                    .SetSingle(true)
+                    .SetWidth(200)
+                    .SetPrePopulate(ViewData["SamplyNoJsonData"] == null || string.IsNullOrWhiteSpace(ViewData["SamplyNoJsonData"].ToString()) ? null : ViewData["SamplyNoJsonData"].ToString())
+                    .SetOnChange("doSampleNoChange()")
+                    .ToMvcString())
+                </div>
+                <div style='float:left;'>
+                @Html.JLinkButton("btnClearSampleNo", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#SampleNo').tokenInput('clear');return false;").ToMvcString()
+                </div>
+                <div class='clear-both'></div>
+            </td>
+            
+        </tr>
+        <tr>
+            <th><span class="required">* </span>存款金额</th>
+            <td>@Html.JValidateBox("DepositSum").SetValue(Model == null || !Model.DepositSum.HasValue ? (ViewData["Curency"] == null ? "" : ViewData["Curency"].ToString().Trim()) : Model.DepositSum.Value.ToString()).SetWidth(200).SetRequired(true).SetValidateType(ValidateType.number).ToMvcString()</td>
+            <th><span class="required">* </span>币种</th>
+            <td id="tdCurencyType">
+                @(Html.JComboBox("CurencyType")
+                .SetEditable(false)
+                .SetData(ViewData["CurencyTypeJson"])
+                .SetWidth(205)
+                .SetDisabled(true)
+                .SetOnLoadSuccess("setTimeout('doOnCurencyTypeLoadSuccess();', 500);")
+                .ToMvcString())
+            </td>
+        </tr>
+        @if (customerIsDepositPhoto)
+        {
+        <tr>
+            <th>@if (customerIsDepositPhotoRequired)
+                {<span class="required">* </span>}凭证号</th>
+            <td>
+                @Html.JValidateBox("CertificateNum").SetValue(Model == null ? "" : Model.CertificateNum).SetWidth(200).ToMvcString()
+            </td>
+            <th>发票号</th>
+            <td>@Html.JValidateBox("InvoiceNo").SetValue(Model == null ? (ViewData["InvoiceNo"] == null ? "" : ViewData["InvoiceNo"].ToString().Trim()) : Model.InvoiceNo).SetWidth(200).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th rowspan='2'>@if (customerIsDepositPhotoRequired)
+                            {<span class="required">* </span>}存款验证图</th>
+            <td colspan='3'>
+                <input id="fileDepositRecordPhoto" type="file" name="fileDepositRecordPhoto" class="addfile" onchange="ajaxFileUploadDepositRecordPhoto();return false;"/>
+                <a id='fileDepositRecordPhotoPath' href='@(Model == null || string.IsNullOrWhiteSpace(Model.DepositRecordPhoto) ? "javascript:;" : Url.Content("~/" + Model.DepositRecordPhoto))' target="_blank" class='@(Model == null || string.IsNullOrWhiteSpace(Model.DepositRecordPhoto) ? "hide" : "")' style='text-decoration:underline;'>
+                    @(Model != null && !string.IsNullOrWhiteSpace(Model.DepositRecordPhotoName) ? Model.DepositRecordPhotoName : "(点击查看存款验证图片/附件)")
+                </a>
+                @Html.Hidden("DepositRecordPhoto", Model == null ? "" : Model.DepositRecordPhoto)
+                @Html.Hidden("DepositRecordPhotoName", Model == null ? "" : Model.DepositRecordPhotoName)
+            </td>
+        </tr>
+        <tr>
+            <td colspan='3'><span style='font-weight:bold;color:Black;'>格式</span>：rar , zip , jpg , jpeg , png , ico , bmp , gif<span style='margin-left:20px;font-weight:bold;color:Black;'>大小</span>：小于10M</td>
+        </tr>
+        }
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:30px;width:96%;margin-right:5px;" })
+            </td>
+        </tr>
+        @if (Model != null && Model.StatusEnum != DepositRecordStatus.AuditWaitting && !customerIsDepositPhotoAutoPreAuditPass)
+        {
+        <tr>
+            <th>预审信息</th>
+            <td colspan='3'>@(string.Format("[{0}]({1}){2}:{3}", Model.StatusEnum.ToCnName(), !Model.PreAuditTime.HasValue ? "" : Model.PreAuditTime.Value.ToString(), Model.PreAuditUser == null ? "" : Model.PreAuditUser.UserName, Model.PreAuditRemark))</td>
+        </tr>
+        }
+    </table>
+    @if (Model == null || (Model.StatusEnum == DepositRecordStatus.AuditWaitting && !Model.HasChanged))
+    {
+    <table class="edit-table"  style="width:600px;" id='tbEquipmentList'>
+        <tr>
+            <th colspan='5' style='text-align:left;padding-left:10px;'><span class="icon icon-equipment"></span>相关仪器设备</th>
+            <th style='text-align:right;'>
+                @Html.JLinkButton("btnSelectEquipment", "新增").SetIconCls("icon-add").SetPlain(false).SetOnclick("doAddEquipment();return false;").ToMvcString()
+            </th>
+        </tr>
+        <tr>
+            <th style='width:40px;'>操作</th>
+            <th style='width:150px;'>申请使用仪器</th>
+            <th style='width:100px;'>样品名称</th>
+            <th style='width:100px'>样品数量</th>
+            <th style='width:100px'>单价</th>
+            <th style='width:100px'>预计收费</th>
+        </tr>
+        @if (Model != null && Model.DepositRecordEquipmentList != null && Model.DepositRecordEquipmentList.Count() > 0)
+        {
+            foreach (var item in Model.DepositRecordEquipmentList)
+            {
+                @Html.Partial("../DepositRecord/EquipmentEdit", item)
+            }
+        }
+    </table>
+    }
+    else
+    {
+    <table class="edit-table"  style="width:600px;" id='tbEquipmentList'>
+        <tr>
+            <th colspan='6' style='text-align:left;padding-left:10px;'><span class="icon icon-equipment"></span>相关仪器设备</th>
+        </tr>
+        <tr>
+            <th style='width:120px;'>仪器所在单位</th>
+            <th style='width:150px;'>申请使用仪器</th>
+            <th style='width:100px;'>样品名称</th>
+            <th style='width:80px'>样品数量</th>
+            <th style='width:80px'>单价</th>
+            <th style='width:80px'>预计收费</th>
+        </tr>
+        @if (Model != null && Model.DepositRecordEquipmentList != null && Model.DepositRecordEquipmentList.Count() > 0)
+        {
+            foreach (var item in Model.DepositRecordEquipmentList)
+            {
+                @Html.Partial("../DepositRecord/EquipmentInfo", item)
+            }
+        }
+    </table>
+    }
+    <table class="edit-table" style="width:600px;" >
+        <tr>
+            <th style='text-align:right;'>合计测试总金额 <span id='spSumTotaPrice' style='font-weight:bold'>@(Model != null && Model.TotaPrice.HasValue ? Math.Round(Model.TotaPrice.Value,2).ToString() : "-")</span> 元</th>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    function doOnCurencyTypeLoadSuccess() {
+        $("#tdCurencyType span input.combo-text.validatebox-text").val("@(ViewData["CurencyTypeName"] == null ? "" : ViewData["CurencyTypeName"].ToString())");
+    }
+    $(function () {
+        $("#tdTutor ul.token-input-list-facebook").css("width", "150px");
+        $("#trSampleNo ul.token-input-list-facebook").css("width", "150px");
+        $("#tdTester ul.token-input-list-facebook").css("width", "150px");
+    });
+    function doSampleNoChange()
+    {
+        if($("#tdTester").length >0)
+        {
+            $.post('@Url.Action("GetJoinedTesterNamesBySampleNo", "SampleManage")', { sampleNo: $("#SampleNo").val() }, function (data) {
+               $("#tdTester").empty();
+               $("#tdTester").append(data);
+            });
+        }
+    }
+    function doAddEquipment() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("EquipmentEdit", "DepositRecord")',
+            success: function (data) {
+                $("#tbEquipmentList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemoveItem(infoId) {
+        if (!infoId || infoId == "") return;
+        $("#tr_" + infoId).remove();
+    }
+    function doChangeTotaPrice(id) {
+        if (!id || id == "") return;
+        var unitPrice = $("#UnitPrice_" + id);
+        var sampleCount = $("#SampleCount_" + id);
+        var amount = $("#TotaPrice_" + id);
+        var totaPrice = $("#tdTotaPrice_" + id);
+        if (unitPrice.length == 0 || sampleCount.length == 0 || amount.length == 0) return;
+        if (unitPrice.val().trim() == "" || sampleCount.val().trim() == "") return;
+        var amountVal = parseFloat(unitPrice.val().trim()) * sampleCount.val().trim();
+        amount.val(amountVal);
+        totaPrice.empty();
+        totaPrice.append(amountVal);
+        doSumTotaPrice();
+    }
+    function doSumTotaPrice() {
+        var amount = 0;
+        $(".item-totaprice").each(function () {
+            if ($(this).html() != "") {
+                amount += parseFloat($(this).html().trim());
+            }
+        });
+        $("#spSumTotaPrice").empty();
+        $("#spSumTotaPrice").html(amount);
+        $("#DepositSum").val(amount);
+    }
+</script>

@@ -1,0 +1,32 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@model com.Bynonco.LIMS.Model.LabOrganization
+@{
+    var retunURL = ViewData["ReturnURL"] != null ? ViewData["ReturnURL"].ToString() : "";
+    var isOperateByOrgAdmin = ViewData["IsOperateByOrgAdmin"] != null ? (bool)ViewData["IsOperateByOrgAdmin"] : false;
+    var url = Url.Action(isOperateByOrgAdmin ? "SaveExaminationSettingrForOrgAdmin" : "SaveExaminationSetting", "LabOrganization");
+ }
+<div class="edit-operate">
+    @Html.JLinkButton("btnSaveExaminationSetting", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveExaminationSetting();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSaveExaminationSetting() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@url' + "?date=" + new Date().getMilliseconds(),
+            data: $("#frmExaminationSettingEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                if ('@retunURL' != "") {
+                    ajaxActionLink('@retunURL', "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+                }
+            }
+        });
+        return false;
+    }
+</script>

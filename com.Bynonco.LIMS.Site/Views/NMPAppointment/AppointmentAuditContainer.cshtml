@@ -1,0 +1,20 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divAppointmentAuditContainert">
+   <form id="frmNMPAppointmentAudit" action="#">
+    @Html.Hidden("AppointmentIds", ViewData["AppointmentIds"])
+    <table class="edit-table">
+        <tr>
+            <th>状态</th>
+            <td>
+                @Html.JComboBox("AppointmentAuditStatus").SetData(ViewData["AppointmentAuditStatusJson"]).SetWidth(200).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", ViewData["Remark"] == null ? "" : ViewData["Remark"].ToString(), new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:320px;margin-right:5px;overflow-y:auto" })
+            </td>
+        </tr>
+    </table>
+   </form>
+</div>

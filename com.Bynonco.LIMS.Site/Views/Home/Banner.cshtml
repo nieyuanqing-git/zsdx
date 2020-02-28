@@ -1,0 +1,9 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var customer = CustomerFactory.GetCustomer();
+    var customerBanner = customer == null ? "" : customer.GetHomeBanner(orgXPath);
+    customerBanner = "../Home/" + (customerBanner == "" ? "DefaultBanner" : customerBanner);
+}
+@Html.Partial(customerBanner)

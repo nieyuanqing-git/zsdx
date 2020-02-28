@@ -1,0 +1,124 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentRepairFundsApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+<table id="tbEquipmentRepairFundsApply" class="edit-table" style="width:100%;" >
+        <tr>
+            <th>所属单位</th>
+            <td id="tdOrgId">
+                @Model.OrganiztionName
+            </td>
+            <th><span class="required">*</span>所属实验室</th>
+            <td id="tdOrganiztionId" colspan="3">
+                @Model.RoomName
+            </td>
+        </tr>
+        <tr>
+            <th>设备名称</th>
+            <td id="tdEquipmentId" style="padding-left:3px">
+               @Model.EquipmentName
+            </td>  
+            <th>设备编号</th>
+            <td>
+                @Model.EquipmetLabel
+            </td>
+        </tr>
+        <tr>
+            <th>设备负责人</th>
+            <td>
+                @Model.DirectorName
+            </td>
+            <th>联系电话</th>
+            <td>
+                @Model.LinkTelPhoneNo
+            </td>
+        </tr>
+        <tr>
+            <th>使用范围</th>
+            <td colspan="3"> @Model.ApplyTypeName</td>
+        </tr>
+        <tr>
+            <th colspan="4"><b>情况说明</b></th>
+        </tr>
+        <tr>
+            <th>设备原值</th>
+            <td>
+                @Model.EquipmentPrice.Value.ToString("0.00")
+            </td>
+            <th>使用情况</th>
+            <td>
+                @Model.UseCondition
+            </td>
+        </tr>
+        <tr>
+            <th>年服务机时</th>
+            <td>
+               @Model.YearServiceHours.Value.ToString("0.00")
+            </td>
+            <th>年服务收入</th>
+            <td>
+                @Model.YearServiceIncome.Value.ToString("0.00")
+            </td>
+        </tr>
+            <tr>
+            <th>维修原因</th>
+            <td colspan="3">
+                @Model.ApplyReason
+            </td>
+        </tr>
+        <tr>
+            <th colspan="4"><b>费用说明</b></th>
+        </tr>
+        <tr>
+            <th>
+                经费总额
+            </th>
+            <td colspan="3">
+                @Model.RepairTotalFee.ToString("0.00")
+            </td>
+        </tr>
+            <tr>
+            <th>支出明细</th>
+            <td colspan="3">
+                @Model.RepairTotalFeeDetail
+            </td>
+        </tr>
+        <tr>
+            <th>维修公司名称</th>
+            <td colspan="3"> @Model.RepairCompanyName</td>
+        </tr>
+        <tr>
+            <th>联系人</th>
+            <td>
+                @Model.RepairCompanyContactPerson
+            </td>
+            <th>联系方式</th>
+            <td>
+               @Model.RepairCompanyContactWay
+            </td>
+        </tr>
+        <tr>
+            <th>实验室意见</th>
+            <td colspan="3">
+                <p>@System.Web.Mvc.MvcHtmlString.Create(Model.LabRoomAuditRemark.ToHtmlBr())</p>
+                <div style="float:right; width:200px; clear:right;">负责人签字:@Model.LabRoomAuditorName</div>
+                <div style="float:right; width:200px;clear:right;">日期:@Model.LabRoomAuditTimeStr</div>
+            </td>
+        </tr>
+        <tr>
+            <th>实验中心意见</th>
+            <td colspan="3">
+                <p>@System.Web.Mvc.MvcHtmlString.Create(Model.EquipmentDeptAuditRemark.ToHtmlBr())</p>
+                <div style="float:right; width:200px; clear:right;">负责人签字:@Model.EquipmentDeptAuditorName</div>
+                <div style="float:right; width:200px;clear:right;">日期:@Model.EquipmentDeptAuditTimeStr</div>
+            </td>
+       </tr>
+       <tr>
+            <th>资产管理处意见</th>
+            <td colspan="3">
+                <p>@System.Web.Mvc.MvcHtmlString.Create(Model.SchoolAuditRemark.ToHtmlBr())</p>
+                 <p>批准额度:@(Model.EquipmentDeptAuditorId.HasValue && Model.EquipmentDeptAuditPassBalance.HasValue ? Model.EquipmentDeptAuditPassBalance.Value.ToString() + "%" : "")</p>
+                <div style="float:right; width:200px; clear:right;">负责人签字:@Model.ShareEAuditorName</div>
+                <div style="float:right; width:200px;clear:right;">日期:@Model.SchoolAuditTimeStr</div>
+            </td>
+       </tr>
+</table>

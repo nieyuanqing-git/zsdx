@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentSampleFeedBackSettingPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentSampleFeedBackSettingPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEquipmentSampleFeedBackSetting")
+            .SetUrl(Url.Action("GetGridViewEquipmentSampleFeedBackSettingList", "EquipmentSampleFeedBackSetting", new { time = DateTime.Now.Millisecond.ToString() }))
+            .SetHeight(650)
+            .SetPageSize(20)
+            .SetSortName("EquipmentName")
+            .SetShowAddButton(equipmentSampleFeedBackSettingPrivilige.IsEnableAdd);
+            if (equipmentSampleFeedBackSettingPrivilige.IsEnableAdd)
+            {
+                dataGrid.SetAddScript("doAddOrEdit('');");
+            }
+            if (equipmentSampleFeedBackSettingPrivilige.IsEnableDelete)
+            {
+                dataGrid.SetDeleteScript("doDelete('');");
+            }
+            dataGrid.SetShowDeleteButton(true)
+            .SetShowPrintButton(true);
+            if (equipmentSampleFeedBackSettingPrivilige.IsEnableEdit)
+            {
+                dataGrid.SetOnDblClickRow("doAddOrEdit(rowData.Id);");
+                dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetWidth(50).SetAlign(Align.center));
+            }
+            dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+            .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentName").SetWidth(200).SetAlign(Align.left))
+            .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("组织机构", "OrganizationName").SetWidth(200).SetAlign(Align.center))
+            .SetShowSearchButton(true)
+            .SetSearchScript("doShowSearch()");
+  }
+  @(dataGrid.ToMvcString())    

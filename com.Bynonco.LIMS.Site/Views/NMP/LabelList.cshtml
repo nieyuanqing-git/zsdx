@@ -1,0 +1,35 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var nmpPrivilige = ViewData["NMPId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, new Guid(ViewData["NMPId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbNMPLabelList")
+    .SetUrl(Url.Action("GetGridNMPLableList", "NMP"))
+    .AddQueryParam("queryExpression", string.Format("NMPId=\"{0}\"", ViewData["NMPId"] == null ? default(Guid).ToString() : ViewData["NMPId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("Name")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(220).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "LabelTypeName").SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("工位名称", "NMPName").SetWidth(252).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("助记符", "InputStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(nmpPrivilige.IsEnableAddLabel);
+    if (nmpPrivilige.IsEnableAddLabel)
+    {
+        dataGrid.SetAddScript("doAddOrEditNMPLabel('');");
+    }
+    dataGrid.SetShowEditButton(nmpPrivilige.IsEnableEditLabel);
+    if (nmpPrivilige.IsEnableEditLabel)
+    {
+        dataGrid.SetEditScript("doEditNMPLabel();");
+        dataGrid.SetOnDblClickRow("doAddOrEditNMPLabel(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(nmpPrivilige.IsEnableDeleteLabel);
+    if (nmpPrivilige.IsEnableDeleteLabel)
+    {
+        dataGrid.SetDeleteScript("doDeleteLabel();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

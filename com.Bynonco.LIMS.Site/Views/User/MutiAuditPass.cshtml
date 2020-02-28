@@ -1,0 +1,75 @@
+﻿@model IList<com.Bynonco.LIMS.Model.User>
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divMutiUserAuditPass">
+@if (Model != null && Model.Count() > 0)
+{
+    var ids = "";
+    <form id="frmMutiAuditPass" action="#">
+    <table class="edit-table"  style="width:650px;">
+        <tr>
+            <th>姓名</th>
+            <th>登录名</th>
+            <th><span class="required">*</span>用户类型</th>
+            <th><span class="required">*</span>信用额度</th>
+            <th><span class="required">*</span>身份</th>
+            <th><span class="required">*</span>导师</th>
+        </tr>
+        @{
+            foreach (var item in Model)
+            {
+                var id = item.Id.ToString().ToLower();
+                ids += (ids == "" ? "" : ",") + id;
+            <tr>
+                <td>@item.UserName</td>
+                <td>@item.Label</td>
+                <td>
+                    @(Html.JComboBox("TagId_" + id)
+                    .SetEditable(false)
+                    .SetData(ViewData["TagJson"])
+                    .SetOnLoadSuccess(item.TagId.HasValue ? string.Format("$('#TagId_{0}').combobox('setValue','{1}');",id, item.TagId.Value.ToString()) : "" )
+                    .SetWidth(100)
+                    .ToMvcString())
+                </td>
+                <td id="tdCreditLimit">
+                    @(Html.JComboBox("CreditLimitId_" + id)
+                    .SetEditable(false)
+                    .SetData(ViewData["CreditLimitJson"])
+                    .SetOnLoadSuccess(item.UserAccount != null && item.UserAccount.CreditLimitId.HasValue ? string.Format("$('#CreditLimitId_{0}').combobox('setValue','{1}');", id, item.UserAccount.CreditLimitId.Value.ToString()) : "")
+                    .SetWidth(100)
+                    .ToMvcString())
+                </td>
+                <td>
+                    @Html.Hidden("UserTypeId_" + id, item.UserTypeId.HasValue ? item.UserType.Id.ToString() : "")
+                    @(item.UserType == null ? "" : item.UserType.Name)
+                </td>
+                <td class='tdTutor'>
+                    @if (item.UserType != null && item.UserType.UserIdentityEnum == com.Bynonco.LIMS.Model.Enum.UserIdentity.Student)
+                    {
+                        <table border='0' cellpadding='0' cellspacing='0'>
+                        <tr>
+                            <td>
+                             @(Html.TokenInput("TutorId_" + id)
+                            .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                            .SetSingle(true)
+                            .SetWidth(252)
+                            .SetPrePopulate(item.Tutor == null ? null : "[{\"id\":\"" + item.Tutor.Id.ToString() + "\",\"text\":\"" + item.Tutor.UserName + "\"}]")
+                            .ToMvcString())
+                            </td>
+                            <td>
+                                @Html.JLinkButton("btnClearSearchPayerId_" + id, "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#TutorId_" + id + "').tokenInput('clear');;return false;").ToMvcString()
+                            </td>
+                        </tr>
+                        </table>
+                    }
+                </td>
+            </tr>
+            }
+        }
+    </table>
+    @Html.Hidden("ids", ids)
+    </form>
+}
+</div>
+<script type="text/javascript">
+    $(".tdTutor ul.token-input-list-facebook").css("width", "100px");
+</script>

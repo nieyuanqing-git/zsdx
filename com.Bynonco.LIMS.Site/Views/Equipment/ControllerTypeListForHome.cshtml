@@ -1,0 +1,20 @@
+﻿@model IList<com.Bynonco.LIMS.Model.Business.EquipmentControllerTypeGroupBy>
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    bool isShowZero = ViewData["IsShowZero"] == null || ViewData["IsShowZero"].ToString().Trim() == "1" ? true : false;
+    if (Model != null && Model.Count() > 0)
+    {
+        foreach (var item in Model)
+        {
+            if (!isShowZero && item.EquipmentCount == 0){ continue;}
+            var cutName = ShortcutStringUtility.GetSubString(item.ControllerTypeStr, 23, "..");
+            <p class="parent-item"><a href="#" title='@item.ControllerTypeStr' controllertypevalue='@(item.ControllerType.ToString())'><strong>@(cutName + (item.EquipmentCount > 0 ? " (" + item.EquipmentCount + "台)" : ""))</strong></a></p>
+        }
+    }
+    else
+    {
+        <p>没有设备控制方式信息</p>
+    }
+    <div class='clear-both'></div>
+}

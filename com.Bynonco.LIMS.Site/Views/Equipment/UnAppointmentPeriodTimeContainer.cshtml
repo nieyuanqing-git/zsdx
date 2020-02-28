@@ -1,0 +1,81 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+@{var equipmentPrivilige = Model == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.Id);}
+<div>@Html.Partial("UnAppointmentPeriodTimeList")</div>    
+<div id="divUnAppointmentPeriodTimeDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditUnAppointmentPeriodTime(){
+        var selectedRow = $("#tbUnAppointmentPeriodTimeList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditUnAppointmentPeriodTime(selectedRow.Id);
+    }
+    function doAddOrEditUnAppointmentPeriodTime(id) {
+        var url = '@Url.Action("EditUnAppointmentPeriodTime","Equipment")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divUnAppointmentPeriodTimeDialog").load(url, function (data) {
+            doUnAppointmentPeriodTimeDialog();
+        })
+        return false;
+    }
+    var unAppointmentPeriodTimeDialog;
+    function doUnAppointmentPeriodTimeDialog() {
+        if (unAppointmentPeriodTimeDialog) {
+            unAppointmentPeriodTimeDialog.dialog("destroy");
+        }
+        unAppointmentPeriodTimeDialog =  @Html.JDialog("divUnAppointmentPeriodTimeEdit").SetTitle("不可预约时间段信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("unAppointmentPeriodTimeDialog.dialog('destroy');return false;").SetModal(true).SetOkScript(equipmentPrivilige.IsEnableSaveUnAppointmentPeriodTime ? "doSaveUnAppointmentPeriodTime();return false;" : "alert('无操作权限');").ToMvcString();
+    }
+    function doSaveUnAppointmentPeriodTime() {
+        var equipmentId= $("#EquipmentId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUnAppointmentPeriodTime","Equipment")',
+            data: $("#frmUnAppointmentPeriodTimeEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                unAppointmentPeriodTimeDialog.dialog('destroy');
+                doSearch();
+            }
+        });
+    }
+    function doDeleteUnAppointmentPeriodTime(){
+        var selectedRows = $('#tbUnAppointmentPeriodTimeList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteUnAppointmentPeriodTime","Equipment")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                             $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doSearch();
+                    }
+                });
+            });
+        }
+    }
+    function doSearch() {
+        $("#tbUnAppointmentPeriodTimeList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUnAppointmentPeriodTimeList").datagrid("reload");
+        return false;
+    }
+</script>

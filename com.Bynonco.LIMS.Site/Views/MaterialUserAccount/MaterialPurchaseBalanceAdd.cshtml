@@ -1,0 +1,69 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model
+@{
+    var materialPurchase = ViewData["MaterialPurchase"] == null ? null : (MaterialPurchase)ViewData["MaterialPurchase"];
+    var materialInfoPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetMaterialUserAccountPrivilige(User.Identity.Name);
+}
+<div id="divMaterialDepositRecordEdit">
+@if (materialPurchase != null)
+{
+    @Html.Partial("../MaterialPurchase/ViewInfo", materialPurchase)
+     <form id="frmMaterialDepositRecordEdit" action="#">
+        @Html.Hidden("Id", "")
+        @Html.Hidden("MaterialPurchaseId", materialPurchase.Id)
+        <table id="tdMaterialDepositRecordEdit" class="edit-table"  style="width:650px;">
+             <tr>
+                <th><span class="required">*</span>经费账户</th>
+                <td id='tdEquipmentGroupId'>
+                    <div style='float:left;'>
+                        @(Html.TokenInput("MaterialUserAccountId")
+                            .SetUrl(Url.Action("GetMaterialUserAccountByKeyWord", "MaterialUserAccount", new { UserId = materialPurchase.ApplyUserId }))
+                            .SetSingle(true)
+                            .SetWidth(400)
+                            .SetPrePopulate(ViewData["MaterialUserAccountJson"] == null || string.IsNullOrWhiteSpace(ViewData["MaterialUserAccountJson"].ToString()) ? null : ViewData["MaterialUserAccountJson"].ToString())
+                            .ToMvcString())
+                    </div>
+                    <div style='float:left;'>
+                        @if (materialInfoPrivilige.IsEnableAdd)
+                        {
+                            @Html.JLinkButton("btnAddMaterialUserAccountByUserId", "").SetIconCls("icon-add").SetPlain(true).SetOnclick("doAddMaterialUserAccount('" + materialPurchase.ApplyUserId + "');return false;").ToMvcString()
+                        }
+                    </div>
+                </td>
+                <th><span class="required">* </span>操作类型</th>
+                <td id="tdOperateType">
+                    @(Html.JComboBox("OperateType")
+                    .SetEditable(false)
+                    .SetData(ViewData["OperateTypeJson"])
+                    .SetWidth(105)
+                    .SetDisabled(true)
+                    .SetOnLoadSuccess("setTimeout('doOnOperateTypeLoadSuccess();', 500);")
+                    .ToMvcString())
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">* </span>金额</th>
+                <td colspan='3'>@Html.JValidateBox("DepositSum").SetValue(materialPurchase.TotalAmount.ToString()).SetWidth(180).SetRequired(true).SetValidateType(ValidateType.number).ToMvcString()</td>
+            </tr>
+            <tr>
+                <th>备注</th>
+                <td colspan='3'>
+                    @Html.TextArea("Remark", "", new { style = "font-size:12px;text-decoration:none;height:60px;width:96%;margin-right:5px;" })
+                </td>
+            </tr>
+        </table>
+      </form>
+}
+else
+{
+    <p>找不到相关采购单</p>
+}
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdEquipmentGroupId ul.token-input-list-facebook").css("width", "305px");
+    });
+    function doOnOperateTypeLoadSuccess() {
+        $("#tdOperateType span input.combo-text.validatebox-text").val("@(ViewData["OperateTypeName"]==null ? "" : ViewData["OperateTypeName"].ToString())");
+    }
+</script>

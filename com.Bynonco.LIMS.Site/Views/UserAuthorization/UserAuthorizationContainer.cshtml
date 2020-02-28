@@ -1,0 +1,95 @@
+﻿@model com.Bynonco.LIMS.Model.User
+@{
+    Layout = ViewBag.Layout;
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var userAuthorizationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserAuthorizationPrivilige(User.Identity.Name);
+    var equipmentAuthorizationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentAuthorizationPrivilige(User.Identity.Name);
+    var doorPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDoorPrivilige(User.Identity.Name);
+    bool isUserBaseAuthorization = userAuthorizationPrivilige != null && userAuthorizationPrivilige.IsEnableUserBaseAuthorization;
+    bool isUserEquipmentAuthorization = equipmentAuthorizationPrivilige != null && equipmentAuthorizationPrivilige.IsEnableAuthorizationManage;
+    bool isUserEquipmentContinuedAuthorization = equipmentAuthorizationPrivilige != null && equipmentAuthorizationPrivilige.IsEnableContinuedAuthorizationManage;
+    bool isUserDoorAuthorization = doorPrivilige != null && doorPrivilige.IsEnableAuthorizationManage;
+    bool isUserDoorContinuedAuthorization = doorPrivilige != null && doorPrivilige.IsEnableContinuedAuthorizationManage;
+    var firstLnkId = "";
+    if (isUserBaseAuthorization) { firstLnkId = "lnkUserBaseAuthorization";}
+    else if (isUserEquipmentAuthorization) { firstLnkId = "lnkUserEquipmentAuthorization"; }
+    else if (isUserEquipmentContinuedAuthorization) { firstLnkId = "lnkUserEquipmentContinuedAuthorization"; }
+    else if (isUserDoorAuthorization) { firstLnkId = "lnkUserDoorAuthorization";}
+    else if (isUserDoorContinuedAuthorization) { firstLnkId = "lnkUserDoorContinuedAuthorization";}
+}
+<style type="text/css">
+.edit-box { padding: 15px 50px;  }
+.edit-box .edit-operate {  border-top: 1px dotted #AAA; padding: 10px 0 5px 80px;}
+</style>
+
+<div id='divUserAuthorizationContainer' style='@(isPopDialog ? "width:800px;height:650px;" : "")' class='@(isPopDialog ? "" : "layout-center-full")'>
+    <ul class="tabs" style="border-bottom:0;">
+    @if (isUserBaseAuthorization)
+    {
+        <li class='@(firstLnkId == "lnkUserBaseAuthorization" ? "tabs-selected" : "")'><a id="lnkUserBaseAuthorization" class="tabs-inner" href="javascript:void(0)" onclick="doLoadUserBaseAuthorization(this);"><span class="tabs-title">基本授权</span><span class="tabs-icon"></span></a></li>
+    }
+    @if (isUserEquipmentAuthorization)
+    {    
+        <li class='@(firstLnkId == "lnkUserEquipmentAuthorization" ? "tabs-selected" : "")'><a id="lnkUserEquipmentAuthorization" class="tabs-inner" href="javascript:void(0)" onclick="doLoadUserEquipmentAuthorization(this);"><span class="tabs-title">设备授权</span><span class="tabs-icon"></span></a></li>
+    }
+    @if (isUserEquipmentContinuedAuthorization)
+    {    
+        <li class='@(firstLnkId == "lnkUserEquipmentContinuedAuthorization" ? "tabs-selected" : "")'><a id="lnkUserEquipmentContinuedAuthorization" class="tabs-inner" href="javascript:void(0)" onclick="doLoadUserEquipmentContinuedAuthorization(this);"><span class="tabs-title">设备周期性授权</span><span class="tabs-icon"></span></a></li>
+    }
+    @if (isUserDoorAuthorization)
+    {    
+        <li class='@(firstLnkId == "lnkUserDoorAuthorization" ? "tabs-selected" : "")'><a id="lnkUserDoorAuthorization" class="tabs-inner" href="javascript:void(0)" onclick="doLoadUserDoorAuthorization(this);"><span class="tabs-title">门禁授权</span><span class="tabs-icon"></span></a></li>
+    }
+     @if (isUserDoorContinuedAuthorization)
+    {   
+         <li class='@(firstLnkId == "lnkUserDoorContinuedAuthorization" ? "tabs-selected" : "")'><a id="lnkUserDoorContinuedAuthorization" class="tabs-inner" href="javascript:void(0)" onclick="doLoadUserDoorContinuedAuthorization(this);"><span class="tabs-title">门禁周期性授权</span><span class="tabs-icon"></span></a></li>
+    }
+    </ul>
+    <div id="divUserAuthorizationList"></div>
+</div>
+<script type="text/javascript">
+    function doLoadUserBaseAuthorization(obj) {
+        var url = '@Url.Action("UserBaseAuthorization", "UserAuthorization", new { UserId = Model.Id })';
+        doLoadUserAuthorizationList(obj, url);
+        return false;
+    }
+    function doLoadUserEquipmentAuthorization(obj) {
+        var url = '@Url.Action("UserEquipmentAuthorizationManage", "EquipmentAuthorization", new { UserId = Model.Id })';
+        doLoadUserAuthorizationList(obj, url);
+        return false;
+    }
+    function doLoadUserEquipmentContinuedAuthorization(obj) {
+        var url = '@Url.Action("UserEquipmentContinuedAuthorizationManage", "EquipmentAuthorization", new { UserId = Model.Id })';
+        doLoadUserAuthorizationList(obj, url);
+        return false;
+    }
+    function doLoadUserDoorAuthorization(obj) {
+        var url = '@Url.Action("UserDoorAuthorizationManage", "Door", new { UserId = Model.Id })';
+        doLoadUserAuthorizationList(obj, url);
+        return false;
+    }
+    function doLoadUserDoorContinuedAuthorization(obj) {
+        var url = '@Url.Action("UserDoorContinuedAuthorizationManage", "Door", new { UserId = Model.Id })';
+        doLoadUserAuthorizationList(obj, url);
+        return false;
+    }
+    function doLoadUserAuthorizationList(obj, url) {
+        $(obj).parent().addClass("tabs-selected");
+        $(obj).parent().siblings().removeClass("tabs-selected");
+        $("#divUserAuthorizationList").empty();
+        var isPopDialog = '@(isPopDialog.ToString().ToLower())' == 'true';
+        if (!isPopDialog) ajaxloadbegin();
+        $.ajax({
+            type: "Post",
+            url: url,
+            success: function (data) {
+                $("#divUserAuthorizationList").html(data);
+                if (!isPopDialog) ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        $('#' + '@firstLnkId').click();
+    });
+</script>

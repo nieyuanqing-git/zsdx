@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateShareFundApplyQueryExpress() {
+        var queryExpression = "";
+        var applyUserName = $("#SearchApplyUserName").val().trim();
+        if (applyUserName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyUserName∽\"" + applyUserName + "\"";
+        }
+        var adminUserName = $("#SearchAdminUserName").val().trim();
+        if (adminUserName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "AdminUserName∽\"" + adminUserName + "\"";
+        }
+        var projectName = $("#SearchProjectName").val().trim();
+        if (projectName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ProjectName∽\"" + projectName + "\"";
+        }
+        return queryExpression;
+    }
+    function doShareFundApplyReset() {
+        $("#SearchApplyUserName").val("");
+        $("#SearchAdminUserName").val("");
+        $("#SearchProjectName").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>申请人</label>
+        @Html.JValidateBox("SearchApplyUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>负责人</label>
+        @Html.JValidateBox("SearchAdminUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>项目名称</label>
+        @Html.JValidateBox("SearchProjectName").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnShareFundApplySearch", "查询").SetOnclick("doShareFundApplySearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnShareFundApplyReset", "清空").SetOnclick("doShareFundApplyReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnShareFundApplyClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

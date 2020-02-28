@@ -1,0 +1,63 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    var selectMaterialInfoDialog;
+    var curMaterialInfoIdsElement;
+    function doSelectMaterialInfoDialog(materialInfoIdsElement,parameter) {
+        curMaterialInfoIdsElement = materialInfoIdsElement;
+        //  var queryExpression = generateSelectedMaterialInfoQueryExpression(materialInfoIdsElement);
+        var url = '@Url.Action("SelectMaterialInfoNoPaging","MaterialInfo")';
+        if(selectMaterialInfoDialog) {
+            selectMaterialInfoDialog.dialog("destroy");
+        }
+        //if(!parameter)parameter = {"queryExpression":queryExpression };
+        //else parameter.queryExpression = queryExpression;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelectMaterialInfo").load(url, parameter, function () {
+            $.messager.progress('close');
+            selectMaterialInfoDialog = @(Html.JDialog("divSelectMaterialInfoDialog").SetTitle("选择耗材").SetAutoDialog(false).SetOkScript("getSelectedMaterialInfos();").SetOnClose("selectMaterialInfoDialog.dialog('destroy');return false;").SetCancelScript("selectMaterialInfoDialog.dialog('close');").SetIconCls("icon-search").ToMvcString());
+        });
+        return false;
+    }
+    function generateSelectedMaterialInfoQueryExpression(materialInfoIdsElement) {
+        var selectedMaterialInfoIds = document.getElementById(materialInfoIdsElement).value;
+        if (selectedMaterialInfoIds.trim() == "") return "";
+        var selectedMaterialInfoIdsArray = selectedMaterialInfoIds.split(",");
+        if (!selectedMaterialInfoIdsArray || selectedMaterialInfoIdsArray.length == 0) return "";
+        var queryExpression = "(";
+        for (var i = 0; i < selectedMaterialInfoIdsArray.length; i++) {
+            queryExpression += queryExpression == "(" ? "Id=\"" + selectedMaterialInfoIdsArray[i] + "\"" : "+" + "Id=\"" + selectedMaterialInfoIdsArray[i] + "\"";
+        }
+        queryExpression += ")";
+        
+        return queryExpression;
+    }
+    function getSelectedMaterialInfos() {
+        var selectedMaterialInfoJsonArray = new Array();
+         var selectedMaterialInfoIds = "";
+         var selectedMaterialInfoNames = "";
+         var isEnableSelectSampleSendTime = "false";
+         var selectedMaterialInfos = $("#tbSelectMaterialInfoNoPagingList").datagrid("getChecked");
+         if (selectedMaterialInfos && selectedMaterialInfos!="" && selectedMaterialInfos.length > 0) {
+             for (var i = 0; i < selectedMaterialInfos.length; i++) {
+                 selectedMaterialInfoIds += selectedMaterialInfoIds == "" ? selectedMaterialInfos[i].Id.toString() : "," + selectedMaterialInfos[i].Id.toString();
+                 selectedMaterialInfoNames += selectedMaterialInfoNames == "" ? selectedMaterialInfos[i].Name.toString() : "," + selectedMaterialInfos[i].Name.toString();
+                 selectedMaterialInfoJsonArray[i] = {Id:selectedMaterialInfos[i].Id, Name:selectedMaterialInfos[i].Name, Model:selectedMaterialInfos[i].Model, RoomName:selectedMaterialInfos[i].RoomName};
+             }
+         }
+         if(selectMaterialInfoDialog)selectMaterialInfoDialog.dialog("close");
+         if(typeof(getSelectedMaterialInfosCallBack) == 'function')getSelectedMaterialInfosCallBack(selectedMaterialInfoNames,selectedMaterialInfoIds,selectedMaterialInfoJsonArray);
+    }
+   function doInitSelectedMaterialInfos() {
+        var selectedMaterialInfoIds = document.getElementById(curMaterialInfoIdsElement).value;
+        if (selectedMaterialInfoIds.trim() == "") return;
+        var rows = $("#tbSelectMaterialInfoNoPagingList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (selectedMaterialInfoIds.indexOf(rows[i].Id) != -1)
+                    $("#tbSelectMaterialInfoNoPagingList").datagrid("selectRow", i);
+            }
+        }
+    }
+</script>
+<div id="divSelectMaterialInfo" style="display:none"></div>
+

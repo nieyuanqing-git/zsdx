@@ -1,0 +1,34 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var creditLimitPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCreditLimitPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbCreditLimitList")
+        .SetUrl(Url.Action("GetGridCreditLimitList", "CreditLimit"))
+        .SetSortName("Name")
+        .SetHeight(650)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetPageSize(20)
+        .SetShowPrintButton(false);
+    dataGrid.SetShowAddButton(creditLimitPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(creditLimitPrivilige.IsEnableEdit);
+    if (creditLimitPrivilige.IsEnableEdit)
+    {
+        dataGrid.SetAddScript("doAddCreditLimit('');");
+        dataGrid.SetEditScript("doEditCreditLimit('');");
+        dataGrid.SetOnDblClickRow("doEditCreditLimit(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(creditLimitPrivilige.IsEnableDelete);
+    if (creditLimitPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteCreditLimit('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(250).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预警值", "PreAlert").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("不可使用值", "UnUseable").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("不可预约值", "UnAppointment").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否默认", "IsDefaultStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

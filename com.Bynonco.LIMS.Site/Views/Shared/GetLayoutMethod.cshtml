@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@{
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+    var pageType = ViewData["PageType"] == null ? "" : ViewData["PageType"].ToString();
+    var hasParent = ViewData["HasParent"] == null ?  false : (bool)ViewData["HasParent"];
+    var parentPageType = ViewData["ParentPageType"]  == null ? "" : ViewData["ParentPageType"] .ToString();
+    var isfunction = pageType == "" || pageType == ((int)ModuleFunctionType.Function).ToString()?  true : false;
+    if (pageType != "" )
+    {
+        if(!hasParent && (pageType == ((int)ModuleFunctionType.Menu).ToString() || pageType == ((int)ModuleFunctionType.Tag).ToString() ))
+        {
+            @Html.Partial("GetLayoutCenterBox")
+        }
+        else if (hasParent && parentPageType != "" && pageType == ((int)ModuleFunctionType.Menu).ToString())
+        {
+            if(parentPageType ==  ((int)ModuleFunctionType.Menu).ToString())
+            {
+                @Html.Partial("GetLayoutCenterBox")    
+            }
+            else
+            {
+                @Html.Partial("../Admin/LayoutCenterBox")
+            }
+        }
+    }
+}

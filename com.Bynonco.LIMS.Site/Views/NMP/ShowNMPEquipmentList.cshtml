@@ -1,0 +1,41 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Model.GetNMP().IsSupressLazyLoad = false;
+    var tipType = ViewData["TipType"] == null ? "list" : ViewData["TipType"].ToString().Trim().ToLower();
+    var selectedNMPEquipmentId = ViewData["SelectedNMPEquipmentId"] != null ? ViewData["SelectedNMPEquipmentId"].ToString() : "";
+    var isAppointment = ViewData["IsAppointment"] != null ? (bool)ViewData["IsAppointment"] : false;
+ }
+@if (Model != null && Model.GetNMP().NMPEquipments != null && Model.GetNMP().NMPEquipments.Count > 0)
+{
+    <table id="tbNMPEquipmentListForShow" class='edit-table'>
+        @foreach (var nmpEquipment in Model.GetNMP().NMPEquipments)
+        {
+            <tr>
+                <th style="width:100px;">
+                    工位设备名称
+                    <span class="nmpEquipmentSelected" id='@("span_" + nmpEquipment.Id.ToString())' style='display:@(nmpEquipment.Id.ToString() == selectedNMPEquipmentId ? "" : "none")'><br />已选</span>
+                </th>
+                <td><a id="NMPName" nmpId="@Model.Id" nmpEquipmentId="@nmpEquipment.Id">@nmpEquipment.Name</a></td>
+                <th style="width:100px;">资产编号</th>
+                <td>@nmpEquipment.Label</td>
+                <td style="width:120px; text-align:center;"> @Html.JLinkButton("btn_" + nmpEquipment.Id, "点击预约").SetOnclick(string.Format("redirectToAppointment('{0}','{1}',false,'','{2}','NMPEquipmentId');", Model.Id, nmpEquipment.Id, isAppointment.ToString().ToLower())).ToMvcString()</td>
+           </tr>
+        }
+    </table>
+    
+    if (isAppointment)
+    {
+        @Html.Partial("TipAppointmentTimesScripts")
+        <script type="text/javascript">
+            $(function () {
+                $("#tbNMPEquipmentListForShow").find("#NMPName").each(function () {
+                    var nmpId = $(this).attr("nmpId");
+                    var nmpEquipmentId = $(this).attr("nmpEquipmentId");
+                    Tipped.create($(this), '@Url.Action("TipAppointmentTimes", "NMP")' + "?TipType=list&time" + new Date().getMilliseconds(), { ajax: { data: { nmpId: nmpId, nmpEquipmentId: nmpEquipmentId }, type: 'get' }, skin: 'light', hook: 'topleft' });
+                });
+            });
+        </script>
+    }
+}
+

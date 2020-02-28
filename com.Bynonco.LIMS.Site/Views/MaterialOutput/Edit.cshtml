@@ -1,0 +1,210 @@
+﻿@model com.Bynonco.LIMS.Model.MaterialOutput
+@using com.Bynonco.LIMS.Model.View; 
+@using com.Bynonco.LIMS.Model.Enum; 
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var materialOutputItemList = ViewData["ViewMaterialOutputItemList"] == null ? null : (List<ViewMaterialOutputItem>)ViewData["ViewMaterialOutputItemList"];
+    var materialRecipientId = ViewData["MaterialRecipientId"] == null ? "" : ViewData["MaterialRecipientId"].ToString();
+    materialRecipientId = Model == null || !Model.MaterialRecipientId.HasValue ? materialRecipientId : Model.MaterialRecipientId.Value.ToString();
+    bool IsDeductOperate = ViewData["IsDeduct"] == null ? false : bool.Parse(ViewData["IsDeduct"].ToString());
+    var selectSubjectProjectId = Model == null || !Model.SubjectProjectId.HasValue ? "" : Model.SubjectProjectId.Value.ToString();
+}
+ <script type="text/javascript">
+     function getSelectedSubjectProjectId() {
+         return '@selectSubjectProjectId';
+     }
+</script>
+@Html.Partial("../Subject/LoadSubjectProjectScript")
+<div id="divMaterialOutputEdit">
+ <form id="frmMaterialOutputEdit" action="#">
+    @Html.Hidden("IsAllowAccountMinuse", false)  
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("MaterialRecipientId", materialRecipientId)
+    <table id="tdMaterialOutputEdit" class="edit-table"  style="width:730px;height:auto">
+        <tr>
+            <th><span class="required">* </span>出库单号</th>
+            <td>
+                @Html.JValidateBox("OutputNum").SetValue(Model == null ? DateTime.Now.ToString("yyyyMMddHHmmssfff") : Model.OutputNum).SetWidth(200).ToMvcString()
+            </td>
+            <th>领用单号</th>
+            <td>
+                @(Model == null || string.IsNullOrWhiteSpace(Model.RecipientNum) ? ViewData["RecipientNum"] == null ? "(非领用入库)" : ViewData["RecipientNum"].ToString() : Model.RecipientNum)
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>领用人</th>
+            <td id="tdOutputUser">
+                @(Html.TokenInput("OutputUserId")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["OutputUserJson"] == null || string.IsNullOrWhiteSpace(ViewData["OutputUserJson"].ToString()) ? null : ViewData["OutputUserJson"].ToString())
+                .SetSingle(true)
+                .SetWidth(200)
+                .SetOnChange("getMaterialOutputRelativeData();")
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>领用时间</th>
+            <td>
+                @Html.JDateTimePicker("OutputTime").SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.OutputTime.ToString("yyyy-MM-dd")).SetWidth(205).ToMvcString()
+            </td>
+        </tr>
+         <tr>
+            <th><span class="required">* </span>课题组</th>
+            <td>
+                @Html.JComboBox("SubjectId").SetData(ViewData["SubjectJson"]).SetOnChange("doOnSubjectChanged(newValue, oldValue);").SetWidth(205).SetDisabled(Model != null).ToMvcString()
+            </td>
+            <th>项目名称</th>
+            <td>@Html.JComboBox("SubjectProjectId").SetEditable(false).SetWidth(205).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>@Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:96%;height:80px" })</td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>出库项目</th>
+            <td colspan="3">
+                <div class='@(materialRecipientId != "" ? "hide" : "")'>
+                    @Html.JLinkButton("btnSelectMaterialInfo", "新增").SetDisabled(materialRecipientId != "").SetIconCls("icon-add").SetPlain(true).SetOnclick("doSelectMaterialOutputMaterialInfo();return false;").ToMvcString()
+                </div>
+                @Html.Hidden("MaterialInfoIds", Model == null ? (ViewData["MaterialOutputItemIds"] == null ? "" : ViewData["MaterialOutputItemIds"].ToString()) : Model.MaterialOutputItemIds)
+                <table id="tbMaterialOutputItemList" cellpadding="0" cellspacing="0" border="0" class="edit-table">
+                    <tr>
+                        <th style='width:30px;'></th>
+                        <th >名称</th>
+                        <th style='width:50px;'>单位</th>
+                        <th style='width:60px;'>库存量</th>
+                        <th style='width:60px;'>报警值</th>
+                        <th style='width:80px;'><span class="required">* </span>单价</th>
+                        <th style='width:80px;' class='@(materialRecipientId == "" ? "hide" : "")'>领用量</th>
+                        <th style='width:80px;'><span class="required">* </span>出库量</th>
+                        <th style='width:80px;'><span class="required">* </span>总额</th>
+                        <th style='width:120px;'>备注</th>
+                    </tr>
+                    @if (materialOutputItemList != null && materialOutputItemList.Count() > 0)
+                    {
+                        foreach (var item in materialOutputItemList)
+                        {
+                            @Html.Partial("../MaterialOutput/ItemEdit", item)
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+        @if (IsDeductOperate)
+        {
+            <tr>
+                <th><span class="required">* </span>扣费金额</th>
+                <td>
+                    @Html.JValidateBox("DeductCurrency").SetValue(Model == null || !Model.DeductCurrency.HasValue ? "" : Math.Round(Model.DeductCurrency.Value,2).ToString()).SetWidth(200).ToMvcString()
+                    @Html.JLinkButton("btnCalculateDeductCurrency", "计算").SetIconCls("icon-edit").SetPlain(true).SetOnclick("doCalculateDeductCurrency();return false;").ToMvcString()
+                </td>
+                <th>状态</th>
+                <td>@(Model == null ? MaterialOutputStatus.UnDeduct.ToCnName() : Model.StatusEnum.ToCnName())</td>
+            </tr>
+        }
+        else if (Model != null && Model.DeductCurrency.HasValue && Model.Status != (int)MaterialOutputStatus.UnDeduct)
+        {
+            <tr>
+                <th>扣费金额</th>
+                <td>
+                    @Model.DeductCurrency.Value
+                </td>
+                <th>状态</th>
+                <td>@(Model.StatusEnum.ToCnName())</td>
+            </tr>
+        }
+    </table>
+  </form>
+</div> 
+
+
+<script type="text/javascript">
+    $(function () {
+        $("#tdOutputUser ul.token-input-list-facebook").css("width", "205px");
+    });
+    function getMaterialOutputRelativeData() {
+        var selectedUser = $("#OutputUserId").tokenInput("get");
+        if (!selectedUser || selectedUser == "") return;
+        var userId = $("#OutputUserId").val();
+        var subjectId = $("#SubjectId").val();
+        var url = '@Url.Action("GetUserRelativeSubjectData", "Subject")';
+        url += "?UserId=" + userId;
+        if (subjectId && subjectId != "") url += "&SubjectId=" + subjectId;
+        url += "&time=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            success: function(msg) {
+                $.messager.progress('close');
+                var data = eval("(" + msg + ")");
+                if (msg.ErrorMessage && (msg.ErrorMessage.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg.ErrorMessage, showType: 'show' });
+                }
+                $("#SubjectId").combobox("loadData", data.Subjects ? data.Subjects : null);
+            }
+        });
+    }
+
+    function doCalculateDeductCurrency() {
+        var amount = 0;
+        $(".MaterialOutputAmount").each(function() {
+            amount += parseFloat($(this).val().trim());
+        });
+        $("#DeductCurrency").val(amount);
+    }
+
+    function getSelectedMaterialInfosCallBack(selectedMaterialInfoNames, selectedMaterialInfoIds, selectedMaterialInfoJsonArray) {
+        //$("#MaterialInfoIds").val('');
+        if (selectedMaterialInfoIds != "") {
+            var selectedMaterialInfoIdsArray = selectedMaterialInfoIds.split(",");
+            var selectedMaterialInfoNamesArray = selectedMaterialInfoNames.split(",");
+            if (!selectedMaterialInfoIdsArray || selectedMaterialInfoIdsArray.length == 0 || !selectedMaterialInfoNamesArray || selectedMaterialInfoNamesArray.length == 0) return;
+            for (var i = 0; i < selectedMaterialInfoIdsArray.length && i < selectedMaterialInfoNamesArray.length; i++) {
+                var materialInfoIds = $("#MaterialInfoIds").val();
+                if (materialInfoIds.indexOf(selectedMaterialInfoIdsArray[i]) < 0) {
+                    materialInfoIds += (materialInfoIds == "" ? "" : ",") + selectedMaterialInfoIdsArray[i];
+                    $("#MaterialInfoIds").val(materialInfoIds);
+                    doAddMaterialOutputItem(selectedMaterialInfoIdsArray[i]);
+                }
+            }
+        }
+    }
+
+    function doSelectMaterialOutputMaterialInfo() {
+        doSelectMaterialInfoDialog('MaterialInfoIds', { "SelectMaterialInfoMode": '@((int) com.Bynonco.LIMS.Model.Enum.SelectMaterialInfoMode.ManagementMaterialInfo)' });
+        return false;
+    }
+    function doAddMaterialOutputItem(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        if ($("#Id_" + materialInfoId).length > 0) return;
+        var dataMaterialOutput = "";
+        if($("#Id").val() != "") dataMaterialOutput = "&materialOutput=" + $("#Id").val();
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("GetViewMaterialOutputItem","MaterialOutput")',
+            data: { "materialInfoId": materialInfoId ,"materialOutputId": $("#Id").val()},
+            success: function (data) {
+                $("#tbMaterialOutputItemList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemoveMaterialOutputItem(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        $("#tr_" + materialInfoId).remove();
+        var materialInfoIds = $("#MaterialInfoIds").val();
+        materialInfoIds = materialInfoIds.replace("," + materialInfoId, "").replace(materialInfoId + ",", "").replace(materialInfoId, ",")
+        $("#MaterialInfoIds").val(materialInfoIds);
+    }
+    function doChangeMaterialOutputItemAmount(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        var unitPrice = $("#UnitPrice_" + materialInfoId);
+        var outputValue = $("#OutputValue_" + materialInfoId);
+        var amount = $("#Amount_" + materialInfoId);
+        if (unitPrice.length == 0 || outputValue.length == 0 || amount.length == 0) return;
+        if (unitPrice.val().trim() == "" || outputValue.val().trim() == "") return;
+        var amountVal = parseFloat(unitPrice.val().trim()) * outputValue.val().trim();
+        amount.val(amountVal);
+    }
+</script>

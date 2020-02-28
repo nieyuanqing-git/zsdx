@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+ <div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Message/ReceiveSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    <div>
+        <ul class="tabs" style="border-bottom:0;">
+            <li class="tabs-selected" id="liRecieverAll"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">全部</span><span class="tabs-icon"></span></a></li>
+            <li id="liUserMsg"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.MsgType.UserMsg.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li id="liAppointmentAuditMsg"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.MsgType.AppointmentAudit.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li id="liDepositAlert"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.MsgType.DepositAlert.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li id="liDeductInform"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.MsgType.DeductInform.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li id="liBalanceInform"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.MsgType.BalanceInform.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li id="liPunishInform"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.MsgType.PunishInform.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li id="liRegisterInform"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.MsgType.RegisterInform.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li id="liSampleOutcomeInform"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.MsgType.SampleOutcomeInform.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li id="liEquipmentBlackListInform"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.MsgType.EquipmentBlackListInform.ToCnName()</span><span class="tabs-icon"></span></a></li>
+        </ul>
+        @Html.Partial("../Message/ReceiveList")
+    </div>
+</div>
+<div id="divViewMessageDialog"></div>
+@Html.Partial("../Message/ScriptContainer")

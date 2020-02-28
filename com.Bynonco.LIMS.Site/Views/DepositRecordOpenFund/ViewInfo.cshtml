@@ -1,0 +1,71 @@
+﻿@model com.Bynonco.LIMS.Model.DepositRecordOpenFund
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var discount = 0.5;//com.Bynonco.LIMS.BLL.BLLFactory.CreateDictCodeTypeBLL().GetEquipmentOpenFundDiscount();
+}
+<div id="divDepositRecordOpenFundViewInfo">
+@if (Model != null)
+{
+    <table class="edit-table"  style="width:600px;">
+        <tr>
+            <th>申请时间</th>
+            <td>@(Model.ApplyDate.HasValue ? Model.ApplyDate.Value.ToString() : "")</td>
+            <th>状态</th>
+            <td>@(Model.StatusEnum.ToCnName())</td>
+        </tr>
+         <tr>
+            <th>存款人</th>
+            <td>
+               @(Model.Tutor == null ? "" : Model.Tutor.UserName)
+            </td>
+            <th>联系电话</th>
+            <td>
+               @(Model.Tutor == null ? "" : Model.Tutor.PhoneNumber)
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>
+                @(Model.Remark.ToString())
+            </td>
+        </tr>
+         @if (Model.StatusEnum == OpenFundDepositRecordStatus.AuditPass || Model.StatusEnum == OpenFundDepositRecordStatus.AuditReject)
+         {
+        <tr>
+            <th>预审信息</th>
+            <td colspan='3'>@(string.Format("[{0}]({1}){2}:{3}", Model.StatusEnum.ToCnName(), !Model.PreAuditTime.HasValue ? "" : Model.PreAuditTime.Value.ToString(), Model.PreAuditUser == null ? "" : Model.PreAuditUser.UserName, Model.PreAuditRemark))</td>
+        </tr>
+         }
+    </table>
+     <table class="edit-table"  style="width:600px;" id='tbEquipmentList'>
+        <tr>
+            <th colspan='7' style='text-align:left;padding-left:10px;'><span class="icon icon-equipment"></span>相关仪器设备</th>
+        </tr>
+        <tr>
+            <th style='width:120px;' rowspan='2'>仪器所在单位</th>
+            <th style='width:150px;' rowspan='2'>申请使用仪器</th>
+            <th style='width:100px;' rowspan='2'>样品名称</th>
+            <th style='width:60px' rowspan='2'>样品数量</th>
+            <th style='width:50px' rowspan='2'>单价</th>
+            <th colspan='2'>预计收费</th>
+        </tr>
+        <tr>
+            <th style='width:50px'>自付</th>
+            <th style='width:50px'>补贴币</th>
+        </tr>
+        @if (Model != null && Model.DepositRecordOpenFundEquipmentList != null && Model.DepositRecordOpenFundEquipmentList.Count() > 0)
+        {
+            foreach (var item in Model.DepositRecordOpenFundEquipmentList)
+            {
+                @Html.Partial("../DepositRecordOpenFund/EquipmentInfo", item)
+            }
+        }
+    </table>
+    <table class="edit-table"  style="width:600px;" >
+        <tr>
+            <th style='text-align:right;'>合计测试总金额 <span id='spTotalOpenFundSum' style='font-weight:bold'>@(Model != null && Model.OpenFundSum.HasValue ? Math.Round(Model.OpenFundSum.Value,2).ToString() : "-")</span> 元，自付 @(discount*100)% 共计 <span id='spTotalDepositSum' style='font-weight:bold'>@(Model != null && Model.DepositSum.HasValue ? Math.Round(Model.DepositSum.Value,2).ToString() : "-")</span> 元</th>
+        </tr>
+    </table>
+}
+</div> 

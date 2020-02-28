@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<div style='height:43px;border:1px solid #CCCCCC;'>
+<ul class="search">
+    <li style="padding: 12px 0 5px 15px">
+        <label>导师</label>
+    </li>
+    <li>
+        @(Html.TokenInput("UserAccountRecordTutorId")
+        .SetUrl(Url.Action("GetManageTutorListByKeyWord", "User"))
+        .SetSingle(true)
+        .SetWidth(200)
+        .ToMvcString())
+    </li>
+    <li class="button" style='padding: 10px 0 5px 30px'>
+        <a onclick="doShowPayerUserAccountRecordList();return false;" class="easyui-linkbutton l-btn" href="javascript:void(0)"><span class="l-btn-left"><span class="l-btn-text">查询</span></span></a>  
+    </li>
+    <div class="clear-both"></div>
+</ul>
+</div>
+<div id="divUserAccountRecordContainer"></div>
+<script type="text/javascript">
+    function doShowPayerUserAccountRecordList() {
+        var userId = $("#UserAccountRecordTutorId").val();
+        if (userId == "") {
+            $.messager.show({ title: '提示', msg: "导师为空", showType: 'show' });
+            return false;
+        }
+        url = '@Url.Action("UserAccountRecordContainerByUserId","UserAccountRecord")' + "?UserId=" + userId;
+        ajaxloadbegin();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divUserAccountRecordContainer").load(url, function () {
+            $.messager.progress('close');
+            ajaxloadsuccess();
+        });
+    }
+</script>

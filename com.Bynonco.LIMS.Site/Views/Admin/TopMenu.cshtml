@@ -1,0 +1,104 @@
+﻿@{
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+    var controllerName = ViewData["MenuController"] == null ? "" : ViewData["MenuController"].ToString().ToLower();
+    var actionName = ViewData["MenuAction"] == null ? "" : ViewData["MenuAction"].ToString().ToLower();
+    var systemPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSystemPrivilige(User.Identity.Name);
+    var netDiskPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNetDiskPrivilige(User.Identity.Name);
+    var isCasLoginMode = Convert.ToBoolean(ViewData["IsCasLoginMode"]);
+}
+@if (User.Identity.IsAuthenticated)
+{
+<ul class="top-menu">
+    <li><a href="@Url.Action("Index", "Home")"><span title="首页" class="unicon icon-home">&nbsp;</span><span>首页</span></a></li>
+    <li><a href="http://yqgx.sysu.edu.cn/" target="_blank"><span title="校级平台" class="unicon icon-organization">&nbsp;</span><span>校级平台</span></a></li>
+    @if (!systemPrivilige.IsEnableAuthorization || !netDiskPrivilige.IsEnableManage)
+    {
+    <li class='@(controllerName == "account" && actionName == "manage" ? "current" : "")'>
+        @if (isAjax)
+        {
+            @Ajax.IconActionLink("unicon icon-user", "我的档案", "我的档案", "Manage", "Account", null, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess" }, null)
+        }
+        else
+        {
+            @Html.HtmlIconActionLink("unicon icon-user", "我的档案", "我的档案", "Manage", "Account", null, null, null)
+        }
+    </li>
+    }
+    <li class='@(controllerName == "message" && actionName == "index" ? "current" : "")'>
+        @if (isAjax)
+        {
+            @Ajax.IconActionLink("unicon icon-mail", "消息<span class='f_red' id='topMsgCount'></span>", "消息", "Index", "Message", null, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess" }, null)
+        }
+        else
+        {
+            @Html.HtmlIconActionLink("unicon icon-mail", "消息<span class='f_red' id='topMsgCount'></span>", "消息", "Index", "Message", null, null, null)
+        }
+    </li>
+    @if (systemPrivilige.IsEnableAuthorization)
+    {
+    <li class='@(controllerName == "system" && actionName == "authorizationindex" ? "current" : "")'>
+        @if (isAjax)
+        {
+            @Ajax.IconActionLink("unicon icon-authorization", "授权管理", "授权管理", "AuthorizationIndex", "System", null, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess" }, null)
+        }
+        else
+        {
+            @Html.HtmlIconActionLink("unicon icon-authorization", "授权管理", "授权管理", "AuthorizationIndex", "System", null, null, null)
+        }
+    </li>
+    }
+    @if (netDiskPrivilige.IsEnableManage)
+    {
+        <li class='@(controllerName == "netdisk" && actionName == "index" ? "current" : "")'>
+        @if (isAjax)
+        {
+            @Ajax.IconActionLink("unicon icon-netdisk", "我的网盘", "我的网盘", "Index", "NetDisk", null, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess" }, null)
+        }
+        else
+        {
+            @Html.HtmlIconActionLink("unicon icon-netdisk", "我的网盘", "我的网盘", "Index", "NetDisk", null, null, null)
+        }
+    </li>
+    }
+    <li><a href="#" onclick="return doAdminLogOffSubmit();"><span title="退出" class="unicon icon-logout">&nbsp;</span><span>退出</span></a></li>
+    <li class="last">&nbsp;</li>
+</ul>
+@Html.Partial("../Account/CasLogout")
+<script type="text/javascript">
+    var isCasLoginMode = '@(isCasLoginMode.ToString().ToLower())' == "true";
+    function doAdminLogOffSubmit() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("LogOff", "Account")',
+            data: "date=" + new Date(),
+            success: function (data) {
+                if (isCasLoginMode) {
+                    casLogout();
+                }
+                else {
+                    location.href = "/";
+                }
+            }
+        });
+        return false;
+    }
+    function getTopMsgCount() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetNotReadMsgCount", "Message")',
+            data: "date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $("#topMsgCount").html("");
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $("#topMsgCount").html(msg);
+            }
+        });
+    }
+    $(function () {
+        setInterval("getTopMsgCount()", 10000);
+    });
+</script>
+}

@@ -1,0 +1,24 @@
+﻿@using com.Bynonco.LIMS.Utility
+
+<h2 class='title'>
+<span>学院仪器导航</span>     
+</h2>
+<div class='content-box content-box-186' style="background-color:#fff; height:168px;overflow-y:auto;">
+    @{
+        IList<com.Bynonco.LIMS.Model.LabOrganization> labOrganizationList = ViewData["SubLabOrganizationList"] == null ? null : (IList<com.Bynonco.LIMS.Model.LabOrganization>)ViewData["SubLabOrganizationList"];
+        var subTitleLength = 30;
+    }
+    @if (labOrganizationList != null && labOrganizationList.Count() > 0)
+    {
+        <ul class="news-list">
+            
+            @for (int i = 0; i < labOrganizationList.Count(); i++)
+            {
+                var item = labOrganizationList[i];
+                var name = "".PadLeft((item.XPath.Length - 6) * 2 / 3, ' ') + item.Name;
+                var cutName = ShortcutStringUtility.GetSubString(name, subTitleLength, "..");
+                <li><a href="@Url.Action("Index", "Home", new { XPath = item.XPath })" title='@item.Name'>@cutName</a></li>
+            }
+        </ul>
+    }
+</div>

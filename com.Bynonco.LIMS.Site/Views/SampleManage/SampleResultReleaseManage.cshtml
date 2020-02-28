@@ -1,0 +1,188 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@{
+    Layout = ViewBag.Layout;
+    var sampleRoleStr = ViewData["SampleRoleStr"].ToString();
+    var userEquipmentPrivilige = (UserEquipmentPrivilige)ViewData["UserPriviliges"];
+    var sendMailMode = ViewData["SendMailMode"].ToString();
+    var releaseEditDialog = Html.JDialog("divReleaseEdit").SetAutoDialog(false).SetModal(true).SetOkScript("doSave();return false;").SetCancelScript("sampleReleaseDialog.dialog('close');return false;").SetTitle("结果信息发布").SetIconCls("icon-upload");
+    if (userEquipmentPrivilige.IsEnableCharge)
+    {
+        releaseEditDialog.AddButton(new ToolBarButton() { Id = "btnReleaseCharge", Text = "扣费", IconCls = "icon-yen", Handler = "doCharge(sampleApplyId);return false;" });
+    }
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../SampleManage/SampleApplySearch")</div>
+</div>
+<div>@Html.Partial("../SampleManage/SampleApplyUnReleaseList")</div>
+<div style="display:none">@Html.Partial("../SampleManage/SampleApplyScriptContainer")</div>
+<div style="display:none" id="divReleaseEditDialog"></div>
+<div style="display:none" id="divBatchReleaseRelativeResult" ></div>
+<div style="display:none" id="divReportNumberManageDialog" ></div>
+<div style="display:none" id="divReportNumberInputDialog" ></div>
+<div style="display:none" id="divReportNumberInputDeleteDialog" ></div>
+<script type="text/javascript">
+    var sampleRoleStr = "@sampleRoleStr";
+    var sendMailMode = "@sendMailMode";
+    var sampleReleaseDialog;
+    function doRelease(id){
+        if(sampleReleaseDialog)sampleReleaseDialog.dialog("destroy");
+        var releaseEditUrl  = '@Url.Action("SampleResultReleaseEdit")' + "?sampleApplyid=" + id + "&time=" + new Date().getMilliseconds();
+        $('#divReleaseEditDialog').load(releaseEditUrl, function () {
+           sampleReleaseDialog = @(releaseEditDialog.ToMvcString());
+        });  
+        return false;
+    }
+
+    function doSearch(){
+        var queryExpression = generateQueryExpress();
+        $("#tbSampleUnReleaseList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleUnReleaseList").datagrid("load", { "queryExpression": queryExpression.trim(),"time":new Date().getMilliseconds() });
+        return false;
+    }
+    function doSendResult(id){
+          $.messager.confirm('提示', '确认发送结果?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在发送结果,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SendSampleResult")'+ "?time=" + new Date().getMilliseconds().toString(),
+                data: "sampleApplyid=" + id,
+                success: function (msg) {
+                    $.messager.progress("close");
+                    if (msg && (msg.indexOf("出错") != -1 || msg.indexOf("成功") != -1) ) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    function generateSelectedSampleApplyIds() {
+        return generateSelectedSampleApplyIdsByDataGridId("tbSampleUnReleaseList");
+    }
+    function doBatchReleaseRelativeOperate(operate){
+        var errorMsg = "";
+        var url = "";
+        var showResultFunction;
+        switch(operate){
+            case "sendResult":
+                url = '@Url.Action("BatchSendSampleResult","SampleManage")';
+                errorMsg = "请选择要发送结果的项";
+                showResultFunction = showBatchSendResultResult;
+                break;
+            case "release":
+                url = '@Url.Action("BatchSampleResultReleaseSave","SampleManage")';
+                errorMsg = "请选择要发布结果的项";
+                showResultFunction = showBatchReleaseResult;
+                break;
+        }
+        var ids = generateSelectedSampleApplyIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg: errorMsg, showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在处理,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url:url + "?ids=" + ids +  "&time=" + new Date().getMilliseconds(),
+            data: { "sampleRoleStr": sampleRoleStr, "ids": ids},
+            success: function (msg) {
+                $.messager.progress('close');
+                $("#divBatchReleaseRelativeResult").html(msg);
+                setTimeout(showResultFunction,100);
+                doSearch();
+            }
+        });
+   }
+   function doBatchSendResult(){
+        doBatchReleaseRelativeOperate("sendResult");
+   }
+   var batchSendResultResultDialog;
+   function showBatchSendResultResult(){
+        batchSendResultResultDialog = @(Html.JDialog("divBatchOperateResult").SetTitle("批量发送结果处理结果").SetIconCls("icon-tip").SetAutoDialog(false).SetOkScript("batchSendResultResultDialog.dialog('close');return false;").SetCancelScript("batchSendResultResultDialog.dialog('close');return false;").SetModal(true).ToMvcString());
+   }
+
+   function doBatchRelease(){
+        doBatchReleaseRelativeOperate("release");
+   }
+   var batchReleaseResultDialog;
+   function showBatchReleaseResult(){
+        batchReleaseResultDialog = @(Html.JDialog("divBatchOperateResult").SetTitle("批量结果发布处理结果").SetIconCls("icon-tip").SetAutoDialog(false).SetOkScript("batchReleaseResultDialog.dialog('close');return false;").SetCancelScript("batchReleaseResultDialog.dialog('close');return false;").SetModal(true).ToMvcString());
+   }
+
+   var sampleReportNumberManageDialog;
+   function doReportNumberManage(id) {
+        if(sampleReportNumberManageDialog) sampleReportNumberManageDialog.dialog('destroy');
+        var url =  '@Url.Action("SampleApplyReportNumberContainer")' +  "?sampleApplyId=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divReportNumberManageDialog").load(url, function () {
+            $.messager.progress('close');
+            sampleReportNumberManageDialog = @(Html.JDialog("divSampleApplyReportContainer").SetTitle("报告号信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("sampleReportNumberManageDialog.dialog('close');return false;").SetModal(true).SetOkScript("sampleReportNumberManageDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+
+   var sampleReportNumberInputDialog;
+   function doGenerateReportNumber(id) {
+        if(sampleReportNumberInputDialog) sampleReportNumberInputDialog.dialog('destroy');
+        var url =  '@Url.Action("SampleApplyReportNumberInput")' +  "?sampleApplyId=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divReportNumberInputDialog").load(url, function () {
+            $.messager.progress('close');
+            sampleReportNumberInputDialog = @(Html.JDialog("divSampleApplyReportNumberInput").SetTitle("报告号生成").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("sampleReportNumberInputDialog.dialog('close');return false;").SetModal(true).SetOkScript("execGenerateReportNumbe(id);return false;").ToMvcString());
+        });
+    }
+   function execGenerateReportNumbe(id) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GenerateSampleApplyReportNumber")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#frmSampleApplyReportNumberInput").serialize() + "&sampleApplyId=" + id,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doRefresh();
+                sampleReportNumberInputDialog.dialog('close'); 
+            }
+        });
+        return false;
+    }
+    var sampleReportNumberInputDeleteDialog;
+    function doDeleteReportNumber(id) {
+        if(sampleReportNumberInputDeleteDialog) sampleReportNumberInputDeleteDialog.dialog('destroy');
+        var url =  '@Url.Action("SampleApplyReportNumberDeleteInput")' +  "?sampleApplyId=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divReportNumberInputDeleteDialog").load(url, function () {
+            $.messager.progress('close');
+            sampleReportNumberInputDeleteDialog = @(Html.JDialog("divSampleApplyReportNumberDeleteInput").SetTitle("填写删除报告号确认信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("sampleReportNumberInputDeleteDialog.dialog('close');return false;").SetModal(true).SetOkScript("execDeleteReportNumber(id);return false;").ToMvcString());
+        });
+    }
+    function execDeleteReportNumber(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteSampleApplyReportNumber")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#frmSampleApplyReportNumberDeleteInput").serialize() + "&sampleApplyId=" + id,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doRefresh();
+                sampleReportNumberInputDeleteDialog.dialog('close'); 
+            }
+        });
+        return false;
+    }
+    function doRefresh(){
+        $("#tbSampleApplyReportNumberList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleApplyReportNumberList").datagrid("load", {"time":new Date().getMilliseconds() });
+        $("#tbSampleApplyReportNumberLogList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleApplyReportNumberLogList").datagrid("load", {"time":new Date().getMilliseconds() });
+    }
+</script>

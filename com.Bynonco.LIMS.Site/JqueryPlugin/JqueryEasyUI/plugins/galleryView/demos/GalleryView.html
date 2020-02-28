@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html><!-- InstanceBegin template="/Templates/main.dwt" codeOutsideHTMLIsLocked="false" --><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>GalleryView | spaceforaname</title>
+<!-- InstanceEndEditable -->
+<script src="GalleryView_files/ga.js" async="" type="text/javascript"></script><script src="GalleryView_files/jquery-1.js"></script>
+<script src="GalleryView_files/jquery-ui-1.js"></script>
+<script src="GalleryView_files/onready.js"></script> 
+<link type="text/css" rel="stylesheet" href="GalleryView_files/stylesheet.css" media="all">
+<link type="text/css" rel="stylesheet" href="GalleryView_files/screen.css" media="screen, projection">
+<link type="text/css" rel="stylesheet" href="GalleryView_files/print.css" media="print">
+<link type="text/css" rel="stylesheet" href="GalleryView_files/jquery-ui-1.css" media="screen, projection">
+<link type="text/css" rel="stylesheet" href="GalleryView_files/styles.css" media="all">
+<!--[if lt IE 8]>
+<link rel="stylesheet" href="../c/blueprint/ie.css" media="screen, projection">
+<![endif]-->
+<!--[if lt IE 9]>
+<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->  
+<!-- InstanceBeginEditable name="head" -->
+<!-- InstanceEndEditable -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-8526791-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body>
+    <div id="page" class="container">
+		<div class="topad">
+			<!-- InstanceBeginEditable name="AdRegion" --><script type="text/javascript"><!--
+google_ad_client = "ca-pub-0065142422414291";
+/* GalleryView Demo Ad */
+google_ad_slot = "6104984130";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript" src="GalleryView_files/show_ads.js">
+</script><ins style="display:inline-table;border:none;height:90px;margin:0;padding:0;position:relative;visibility:visible;width:728px"><ins id="aswift_0_anchor" style="display:block;border:none;height:90px;margin:0;padding:0;position:relative;visibility:visible;width:728px"><iframe allowtransparency="true" hspace="0" marginwidth="0" marginheight="0" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){i+='.call';setTimeout(h,0)}else if(h.match){i+='.nav';w.location.replace(h)}s.log&amp;&amp;s.log.push(i)}" vspace="0" id="aswift_0" name="aswift_0" style="left: 0px; position: absolute; top: 0px;" frameborder="0" height="90" scrolling="no" width="728"></iframe></ins></ins><!-- InstanceEndEditable -->
+		</div>
+        <header>
+            <h2><a href="http://spaceforaname.com/index.html">space<span class="heavy">for</span>a<span class="heavy">name</span></a></h2>
+        </header>
+        <section>
+        <h1><!-- InstanceBeginEditable name="TitleRegion" -->GalleryView<!-- InstanceEndEditable --></h1>
+        <!-- InstanceBeginEditable name="ContentRegion" -->
+        <aside id="warning" class="error">
+        	<h4>GalleryView Source Code Has Moved to GitHub!</h4>
+            <p>Now you don't have to wait for me to manually package up a
+ new release every few months. You can now watch for updates, submit 
+issues, create forks for your own modifications, and more! Use the links
+ below to access the repository or download the latest source.</p>
+</aside>
+    <article class="span-24">
+    	<p>Photo gallery jQuery plugins are everywhere you turn. Not a week
+ goes by without some web design blog featuring a list of jQuery 
+galleries, carousels, sliders and slideshows. GalleryView is my attempt 
+to write a single plugin capable of creating a wide variety of gallery 
+types.</p>
+        <p>My goal with GalleryView is to provide an extensive set of 
+options to the user. Not only will the user be able to adjust photo and 
+thumbnail sizes, and transition speeds, but he will also have the 
+ability to choose from a selection of element positions, transition 
+styles and other features.</p>
+   		
+        <h4>Download &amp; Usage</h4>
+        <aside id="download" class="notice">
+        	<p>Feel free to download the latest development script <strong>at your own risk</strong>.</p>
+			<a role="button" href="https://github.com/jackwanders/GalleryView" target="_blank" class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class="ui-button-text">View Galleryview @ GitHub</span></a>
+			<br><br>
+            <a role="button" href="https://github.com/jackwanders/GalleryView/zipball/master" target="_blank" class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class="ui-button-text">Download Current ZIP File</span></a>
+        </aside>
+        <p>The currently available package is my current development 
+script. It is undocumented, nor fully browser tested. I provide it 
+simply for educational purposes.</p>
+        <p>To use GalleryView, extract the included CSS and JS folders to an apporpriate directory, and add <code>&lt;script&gt;</code> and <code>&lt;link&gt;</code> tags for:</p>
+        <ul>
+        	<li>GalleryView JS</li>
+            <li>jQuery Timers Plugin JS</li>
+            <li>GalleryView CSS</li>
+        </ul>
+        <p>Create an unordered list of images and add the following function call to you JavaScript:</p>
+        <pre><code>$('#gallery').galleryView();</code></pre>
+        <p>Continue reading for some demonstrations of what GalleryView can do and a list of current plugin options.</p>
+        
+        <h4>Demonstrations</h4>
+        <p>I've put together a selection of demos that illustrate the 
+capabilities of GalleryView. This list will grow as features are 
+implemented.</p>
+        <ul>
+        	<li><a href="http://spaceforaname.com/galleryview/demo-default.html">Zero configuration</a></li>
+            <li><a href="http://spaceforaname.com/galleryview/demo-captions.html">Adding captions</a></li>
+            <li><a href="http://spaceforaname.com/galleryview/demo-details.html">Custom thumbnails and photo details</a></li>
+			<li><a href="http://spaceforaname.com/galleryview/demo-showall.html">Displaying all thumbnails</a></li>
+            <li><a href="http://spaceforaname.com/galleryview/demo-slider.html">Slider-style gallery</a></li>
+            <li><a href="http://spaceforaname.com/galleryview/demo-position.html">Varying element positioning</a></li>
+            <li><a href="http://spaceforaname.com/galleryview/demo-panning.html">Image panning</a></li>
+            <li><a href="http://spaceforaname.com/galleryview/gallery-creator.html">CREATE-A-GALLERY</a> (NEW)</li>
+        </ul>
+        
+        <h4>Development</h4>
+        <p>GalleryView is in active development, and new features are 
+being implemented on a regular basis. Below is a list of currently 
+implemented options, as well as a list of options I plan on implementing
+ as development continues.</p>
+        <h4>Implemented Options</h4>
+        <table>
+        	<thead>
+            	<tr>
+                	<th>option</th>
+                    <th>type</th>
+                    <th width="150">default value</th>
+                    <th>description</th>
+                </tr>
+            </thead>
+            <tbody>
+            	<tr>
+                	<td>transition_speed</td>
+                    <td>int</td>
+                    <td>1000</td>
+                    <td>the duration of photo transition animations in milliseconds.</td>
+                </tr>
+            	<tr class="even">
+                	<td>transition_interval</td>
+                    <td>int</td>
+                    <td>4000</td>
+                    <td>the delay between automated slideshow transitions in milliseconds.</td>
+                </tr>
+            	<tr>
+                	<td>easing</td>
+                    <td>string</td>
+                    <td>'swing'</td>
+                    <td>the easing method used in photo and thumbnail animations. any custom easing method may be used.</td>
+                </tr>
+            	<tr class="even">
+                	<td>show_panels</td>
+                    <td>boolean</td>
+                    <td><strong>true</strong></td>
+                    <td>flag to toggle display of main photo panel. set to <strong>false</strong> to create a carousel-style gallery. <em>(not fully implemented)</em></td>
+                </tr>
+            	<tr>
+                	<td>show_panel_nav</td>
+                    <td>boolean</td>
+                    <td><strong>true</strong></td>
+                    <td>flag to toggle display of <em>next</em> and <em>previous</em> buttons in the gallery panel.</td>
+                </tr>
+            	<tr class="even">
+                	<td>enable_overlays</td>
+                    <td>boolean</td>
+                    <td><strong>false</strong></td>
+                    <td>flag to toggle display of informational image overlays.</td>
+                </tr>
+            	<tr>
+                	<td>panel_width</td>
+                    <td>int</td>
+                    <td>800</td>
+                    <td>width of image panel in pixels.</td>
+                </tr>
+            	<tr class="even">
+                	<td>panel_height</td>
+                    <td>int</td>
+                    <td>400</td>
+                    <td>height of image panel in pixels.</td>
+                </tr>
+            	<tr>
+                	<td>panel_animation</td>
+                    <td>string</td>
+                    <td>'fade'</td>
+                    <td>the animation method used for panel image transitions. Options are 'fade', 'crossfade', 'slide'</td>
+                </tr>
+            	<tr class="even">
+                	<td>panel_scale</td>
+                    <td>string</td>
+                    <td>'crop'</td>
+                    <td>the scaling method for panel images. Options are 'crop', 'fit'.</td>
+                </tr>
+            	<tr>
+                	<td>overlay_position</td>
+                    <td>string</td>
+                    <td>'bottom'</td>
+                    <td>the positioning of informational panel overlays. Options are 'bottom', 'top'</td>
+                </tr>
+                <tr class="even">
+                	<td>pan_images</td>
+                    <td>boolean</td>
+                    <td><strong>false</strong></td>
+                    <td>flag to toggle drag-based panning of oversized panel images.</td>
+                </tr>
+                <tr>
+                	<td>pan_style</td>
+                    <td>string</td>
+                    <td>'drag'</td>
+                    <td>panning method used. 'drag' = user clicks and drags image to pan, 'track' = image automatically pans based on mouse position</td>
+                </tr>
+                <tr class="even">
+                	<td>start_frame</td>
+                    <td>int</td>
+                    <td>1</td>
+                    <td>index indicating which image to display when gallery loads</td>
+                </tr>
+                <tr>
+                	<td>show_filmstrip</td>
+                    <td>boolean</td>
+                    <td><strong>true</strong></td>
+                    <td>flag to toggle display of navigation filmstrip.</td>
+                </tr>
+                <tr class="even">
+                	<td>show_filmstrip_nav</td>
+                    <td>boolean</td>
+                    <td><strong>true</strong></td>
+                    <td>flag to toggle display of filmstrip-based navigation buttons.</td>
+                </tr>
+            	<tr>
+                	<td>enable_slideshow</td>
+                    <td>boolean</td>
+                    <td><strong>true</strong></td>
+                    <td>flag to toggle play/pause button and ability to start/stop slideshow</td>
+                </tr>
+            	<tr class="even">
+                	<td>autoplay</td>
+                    <td>boolean</td>
+                    <td><strong>false</strong></td>
+                    <td>flag to automatically start slideshow when gallery loads</td>
+                </tr>
+                <tr>
+                	<td>filmstrip_position</td>
+                    <td>string</td>
+                    <td>'bottom'</td>
+                    <td>location of filmstrip in relation to panel. Options are 'top', 'left', 'bottom', 'right'.</td>
+                </tr>
+            	<tr class="even">
+                	<td>frame_width</td>
+                    <td>int</td>
+                    <td>70</td>
+                    <td>width of filmstrip frames in pixels.</td>
+                </tr>
+            	<tr>
+                	<td>frame_height</td>
+                    <td>int</td>
+                    <td>40</td>
+                    <td>height of filmstrip frames in pixels.</td>
+                </tr>
+            	<tr class="even">
+                	<td>frame_opacity</td>
+                    <td>float</td>
+                    <td>0.4</td>
+                    <td>the default opacity of filmstrip frames (range 0.0 - 1.0)</td>
+                </tr>
+            	<tr>
+                	<td>frame_scale</td>
+                    <td>string</td>
+                    <td>'crop'</td>
+                    <td>the scaling method for frame images. Options are 'crop', 'fit'.</td>
+                </tr>
+            	<tr class="even">
+                	<td>frame_gap</td>
+                    <td>int</td>
+                    <td>5</td>
+                    <td>distance between frames in pixels.<br></td>
+                </tr>
+            	<tr>
+                	<td>show_captions</td>
+                    <td>boolean</td>
+                    <td><strong>false</strong></td>
+                    <td>flag to toggle display of frame captions (populated by image's <code>title</code> attribute).</td>
+                </tr>
+            	<tr class="even">
+                	<td>show_infobar</td>
+                    <td>boolean</td>
+                    <td><strong>true</strong></td>
+                    <td>flag to toggle display of image counter bar.</td>
+                </tr>
+            	<tr>
+                	<td>infobar_opacity</td>
+                    <td>float</td>
+                    <td>1.0</td>
+                    <td>the default opacity of infobar (range 0.0 - 1.0)</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>Future Options</h4>
+        <table>
+        	<thead>
+            	<tr>
+                	<th>option</th>
+                    <th>intended function</th>
+                </tr>
+            </thead>
+            <tbody>
+            	<tr>
+                	<td>overlay_opacity</td>
+                    <td>To allow the creation of translucent overlays by setting the opacity of the overlay's container.</td>
+                </tr>
+            	<tr class="even">
+                	<td>pan_style</td>
+                    <td>To provide the option of multiple panning 
+methods, including the current 'drag' method as well as a 'track' method
+ where the image pans as the mouse moves within the gallery.</td>
+                </tr>
+            	<tr>
+                	<td>pan_smoothness</td>
+                    <td>To allow the user to control the speed and smoothness of 'track' style panning.</td>
+                </tr>
+            	<tr class="even">
+                	<td>start_image</td>
+                    <td>To allow the user to load the gallery on an arbitrary image.</td>
+                </tr>
+            	<tr>
+                	<td>filmstrip_size</td>
+                    <td>Define number of images visible in filmstrip-only, carouself style galleries.</td>
+                </tr>
+            </tbody>
+        </table>
+    </article>
+    <hr>
+   
+	<!-- InstanceEndEditable -->    	
+        </section>
+        <footer>
+        	<h6>Website by Jack Anderson</h6>
+			<h6>johnwanderson [at] gmail</h6>
+        </footer>
+    </div>
+
+
+</body><!-- InstanceEnd --></html>

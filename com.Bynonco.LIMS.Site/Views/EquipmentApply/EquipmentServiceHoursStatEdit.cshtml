@@ -1,0 +1,30 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentServiceHoursStat
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEquipmentServiceHoursStatEdit" style="width:300px">
+    <form id="frmEquipmentServiceHoursStatEdit">
+        @Html.Hidden("EquipmentServiceHoursStatId", Model != null ? Model.Id.ToString() : "")
+        <table class="edit-table" style="width:100%">
+            <tr>
+                <th>年份</th>
+                <td>
+                   @Html.JComboBox("Year").SetData(ViewData["EquipmentServiceHoursStatYearJson"]).SetWidth(155).ToMvcString()
+                   <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>类型</th>
+                <td>
+                   @Html.JComboBox("EquipmentServiceHoursStatType").SetData(ViewData["EquipmentServiceHoursStatTypeJson"]).SetWidth(155).ToMvcString()
+                   <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>机时(小时)</th>
+                <td>
+                   @Html.JValidateBox("Hours").SetValue(Model != null ? Model.Hours.ToString() : "").SetWidth(150).ToMvcString()
+                   <span class="required">必填</span>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div> 

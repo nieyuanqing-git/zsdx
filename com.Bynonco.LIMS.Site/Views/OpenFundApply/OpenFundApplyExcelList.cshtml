@@ -1,0 +1,35 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JDataGrid("tbOpenFundApplyExcelList")
+       .SetUrl(Url.Action("GetGridOpenFundApplyExcelList", "OpenFundApply"))
+       .SetHeight(350)
+       .SetSortName("OpenFundApplyApplyNum D,EquipmentLabel")
+       .SetPageSize(10)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowRefreshButton(false)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(false);
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器编号", "EquipmentLabel").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器名称", "EquipmentName").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器所在单位", "EquipmentOrgName").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目编号", "OpenFundApplyApplyNum").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "OpenFundApplyName").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目申请人", "OpenFundApplyUserLabel").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目所在单位", "OpenFundApplyUserOrgName").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预计经费", "OpenFundSumStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("主要用途", "ScopeOfApplication").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("评审专家", "AuditUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("专家评审经费", "AuditMoney").SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("专家评审理由", "AuditRemark").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "CreateTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请状态", "Status").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchZPanel();", IconCls = "icon-search", Id = "btnGridSearchZPanel", Text = "搜索" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDealOpenFundApplyExcel();", IconCls = "icon-ok", Id = "btnDealOpenFundApplyExcel", Text = "开始同步下列Excel数据至开放基金" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doCleanOpenFundApplyExcel();", IconCls = "icon-delete", Id = "btnCleanOpenFundApplyExcel", Text = "清空下列Excel数据" });
+ }
+@(dataGrid.ToMvcString())

@@ -1,0 +1,175 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Achievement/AchievementStudentSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../Achievement/AchievementStudentList")
+</div>
+<div id="divAchievementStudentDialog"></div>
+<div id="divAchievementStudentImportExcelDialog"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbAchievementStudentList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbAchievementStudentList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    var achievementStudentDialog;
+    function doAchievementStudentDialog() {
+        if (achievementStudentDialog) {
+            achievementStudentDialog.dialog("destroy");
+        }
+        achievementStudentDialog =  @Html.JDialog("divAchievementStudentEdit").SetTitle("研究生培养信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("achievementStudentDialog.dialog('destroy');return false;").SetOnClose("achievementStudentDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveAchievementStudent();").ToMvcString();
+    }
+    function doAddOrEditAchievementStudent(id){
+        var url = '@Url.Action("AchievementStudentEdit","Achievement")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAchievementStudentDialog").load(url,function(){
+            $.messager.progress('close');
+            doAchievementStudentDialog();
+        })
+        return false;
+    }
+    function doAddAchievementStudent(id) {
+       doAddOrEditAchievementStudent(id);
+    }
+    function doEditAchievementStudent(id) {
+       if(!id || id.trim()==""){
+           var selectedSubject = $("#tbAchievementStudentList").datagrid("getSelected");
+           if(!selectedSubject || selectedSubject.Id=="" || selectedSubject.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择研究生培养", showType: 'show' });
+              return false;
+           }
+           id = selectedSubject.Id;
+       }
+       doAddOrEditAchievementStudent(id);
+    }
+    function doSaveAchievementStudent(){
+        if ($("#TutorId").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入导师",showType: 'show' });
+            return false;
+        }
+        if ($("#Degree").combobox("getValue").trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入学位",showType: 'show' });
+            return false;
+        }
+        if ($("#StudyType").combobox("getValue").trim() == "") {
+            $.messager.show({ title: '提示', msg:"请在读情况",showType: 'show' });
+            return false;
+        }
+
+        if ($("#StudentName").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入姓名",showType: 'show' });
+            return false;
+        }
+        if ($("#StudentNumber").val().trim() == "" || !$("#StudentNumber").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"请输入学号",showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AchievementStudentSave","Achievement")' ,
+            data: $("#frmAchievementStudentEdit").serialize() + "&attamentFiles=" + generateAttachmentFiles() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                achievementStudentDialog.dialog('destroy');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteAchievementStudent(id){
+        if(!id || id.trim() == ""){
+              var selectedSubject = $("#tbAchievementStudentList").datagrid("getSelected");
+                if(!selectedSubject || selectedSubject.Id.trim() == "" || selectedSubject.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedSubject.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AchievementStudentDelete", "Achievement")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function doAchievementStudentExportExcel()
+    {
+        var url='@Url.Action("AchievementStudentExportExcel","Achievement")';
+        window.open(url,'_blank');
+    }
+    function doAchievementStudentImportExcel()
+    {
+        var url = '@Url.Action("AchievementStudentImportExcel","Achievement")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAchievementStudentImportExcelDialog").load(url,function(){
+            doAchievementStudentImportExcelDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    var achievementStudentImportExcelDialog;
+    function doAchievementStudentImportExcelDialog() {
+        if (achievementStudentImportExcelDialog) {
+            achievementStudentImportExcelDialog.dialog("destroy");
+        }
+        achievementStudentImportExcelDialog =  @(Html.JDialog("divAchievementStudentImportExcelDialog")
+            .SetTitle("导入人才培养信息")
+            .SetIconCls("icon-import")
+            .SetAutoDialog(false)
+            .SetShowCancelButton(false)
+            .SetShowOkButton(false)
+            .SetModal(true)
+            .AddButton(new ToolBarButton() { Handler = "achievementStudentImportExcelDialog.dialog('destroy');return false;", Id = "btnClosedImportExcel", Text = "关闭", IconCls = "icon-cancel" })
+            .ToMvcString());
+    }
+    function ajaxFileUploadAchievementStudentExcel() {
+        var file = $("#fileAchievementStudentExcel").val();
+        if (!doValidatesAchievementStudentExcel(file)) return false;
+        $("#fileAchievementStudentExcel").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadAchievementStudentExcel", "Achievement")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileAchievementStudentExcel',
+            success: function (data, status) {
+                $.messager.progress('close');
+                $("#divAchievementStudentImportExcelResult").load('@Url.Action("AchievementStudentImportExcelResult","Achievement")',function(){})
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doValidatesAchievementStudentExcel(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+</script>
+ 

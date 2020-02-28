@@ -1,0 +1,89 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function doOnChargeItemChanged() {
+        var chargeItemName = $("#txtSampleChargeItemName").val();
+        var chargeItemId = $("#hidSampleChargeItemId").val();
+        if (chargeItemName.trim() != "" && chargeItemId.trim() != "" && chargeItemName == "其他") {
+            $("#txtSampleChargeItemOther").attr("disabled", false);
+        }
+        else {
+            $("#txtSampleChargeItemOther").val("");
+            $("#txtSampleChargeItemOther").attr("disabled", true);
+        }
+        if (chargeItemId.trim() == "") return;
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSampleChargeItemById","SampleChargeItem")' + "?time=" + new Date().getMilliseconds(),
+            data: { "id": chargeItemId },
+            complete: function (data) {
+                if (data && data != "") {
+                    var jsonData = eval("(" + data.responseText + ")");
+                    $("#txtSampleChargeItemPrice").val(jsonData.UnitPrice);
+                }
+                $.messager.progress('close');
+            }
+        });
+        return true;
+    }
+    function doSampleApplyChargeItemReset() {
+        $("#txtSampleChargeItemName").val("");
+        $("#hidSampleChargeItemId").val("");
+        $("#txtSampleChargeItemOther").val("");
+        $("#txtSampleChargeItemOther").attr("disabled", true);
+        $("#txtSampleChargeItemQuantity").val("1");
+        $("#txtSampleChargeItemRemark").val("");
+        $("#txtSampleChargeItemPrice").val("");
+        $("#hidSampleApplyChargeItemId").val("");
+        return true;
+    }
+    function doSetSampleApplyChargeItemValue(model) {
+        $("#hidSampleApplyId").val(model.SampleApplyId);
+        $("#hidSampleApplyChargeItemId").val(model.SampleApplyChargeItemId);
+        $("#txtSampleChargeItemName").val(model.SampleChargeItemName);
+        $("#hidSampleChargeItemId").val(model.SampleChargeItemId);
+        $("#txtSampleChargeItemOther").val(model.Other);
+        $("#txtSampleChargeItemOther").attr("disabled", true);
+        $("#txtSampleChargeItemQuantity").val("1");
+        $("#txtSampleChargeItemRemark").val(model.Remark);
+        $("#txtSampleChargeItemQuatity").val(model.Quantity);
+        $("#txtSampleChargeItemPrice").val(model.Price);
+        doOnChargeItemChanged();
+        return true;
+    }
+</script>
+@Html.Hidden("hidSampleApplyId", ViewData["SampleApplyId"].ToString())
+@Html.Hidden("hidSampleApplyChargeItemId")
+<div id="divSampleApplyChargeItemEdit">
+    <table class="edit-table">
+        <tr>
+            <th>项目</th>
+            <td>
+                @Html.JAutoComplete("txtSampleChargeItemName", "hidSampleChargeItemId").SetWidth(200).SetUrl(Url.Action("GetSampleChargeItemListByKeyWord", "SampleChargeItem", new { time = DateTime.Now.Millisecond.ToString() })).SetOnChange("doOnChargeItemChanged();").SetOnSelect("doOnChargeItemChanged();").SetTextField("Name").SetValueField("Id").SetDelay(1000).SetMinLength(1)
+            </td>
+        </tr>
+         <tr>
+            <th>其他</th>
+            <td>@Html.TextBox("txtSampleChargeItemOther","", new { style="width:200px;height:18px",disabled = true})</td> 
+        </tr>
+        <tr>
+            <th>数量</th>
+            <td>@Html.JValidateBox("txtSampleChargeItemQuantity").SetValue("1").SetWidth(200).SetValidateType(ValidateType.intNumber).SetInvalidMessage("请输入项目的数量")</td>
+        </tr>
+         <tr>
+            <th>金额</th>
+            <td>
+                @Html.JValidateBox("txtSampleChargeItemPrice").SetValue("1").SetWidth(200).SetValidateType(ValidateType.number).SetInvalidMessage("请输入金额")
+                <span>元</span>
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("txtSampleChargeItemRemark", new { style = "width:350px;height:60px;font-size:12px;font-weight:normal" })
+            </td> 
+        </tr>
+    </table>
+</div>
+
+

@@ -1,0 +1,207 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var label = ViewData["Label"] == null ? "" : ViewData["Label"].ToString();
+    var userName = ViewData["UserName"] == null ? "" : ViewData["UserName"].ToString();
+    var userOrgId = ViewData["userOrgId"] == null ? "" : ViewData["userOrgId"].ToString();
+    var userOrgName = ViewData["UserOrgName"] == null ? "" : ViewData["UserOrgName"].ToString();
+    var orgErrorMessage = ViewData["OrgErrorMessage"] == null ? "" : ViewData["OrgErrorMessage"].ToString();
+}
+<script type="text/javascript">
+    function doCheckColNameIsPass(objId, colName) {
+        if ($("#" + objId).val() == "") {
+            //$("#" + objId).parents(".edit-info").find("em").removeClass("hide");
+            $("#" + objId).parents(".edit-info").find(".errormt").removeClass("hide");
+            return false;
+        }
+        else {
+            //$("#" + objId).parents(".edit-info").find("em").addClass("hide");
+            $("#" + objId).parents(".edit-info").find(".errormt").addClass("hide");
+            return true;
+        }
+    }
+    function objfocus(obj) {
+        $(".text-over").removeClass('text-over');
+        $(obj).parents(".text-box").addClass('text-over');
+        var str = $(obj).val();
+        $(".tips").addClass("hide")
+        if (str == "") {
+            $(obj).parents(".edit-info").find(".tips").removeClass("hide")
+        }
+    }
+    $(function () {
+        $(".edit-info .textinp").focus(function () { objfocus(this); });
+        $(".edit-info .combo-text").focus(function () { objfocus(this); });
+        $("#token-input-TutorId").focus(function () { objfocus(this); });
+        $(".edit-info .textinp").change(function () {
+            var id = $(this).attr("id");
+            $(".text-over").removeClass('text-over');
+            $(this).parents(".text-box").addClass('text-over');
+            $(".tips").addClass("hide")
+            var str = $(this).val();
+            var isValid = false;
+            isValid = $(this).validatebox("isValid");
+            if ($(this).val() != "" && !isValid) {
+                $(this).parents(".edit-info").find(".errormt").removeClass("hide")
+                $(this).parents(".edit-info").find(".success").addClass("hide")
+            }
+            else {
+                $(this).parents(".edit-info").find(".errormt").addClass("hide")
+                if ($(this).val() != "")
+                    $(this).parents(".edit-info").find(".success").removeClass("hide");
+                else {
+                    $(this).parents(".edit-info").find(".success").addClass("hide");
+                }
+            }
+        });
+    });
+    function doOnUserTypeLoadSuccess() {
+        $("#UserTypeBox span input.combo-text.validatebox-text").val("");
+    }
+    function doOnUserTypeChange() {
+        $("#divTutor").addClass("hide");
+        $("#UserTypeId").parents(".edit-info").find(".errormt").addClass("hide");
+        var treeobj = $('#UserTypeId').combotree('tree');
+        var node = treeobj.tree('getSelected');
+        if (node) {
+            var b = treeobj.tree('isLeaf', node.target);
+            if (!b) {
+                $("#UserTypeId").parents(".edit-info").find(".errormt").removeClass("hide");
+                $("#UserTypeId").combotree("setValue", "");
+                $("#UserTypeId").combotree('reload');
+                return;
+            }
+        }
+        var usertypeid = $("#UserTypeId").combotree("getValue");
+        if (usertypeid != "" && !usertypeid.isDefaultGuid()) {
+            var urlCheckIsStudentUserType = '@Url.Action("CheckIsStudentUserType", "User")';
+            $.post(urlCheckIsStudentUserType, { usertypeid: usertypeid }, function (data) {
+                if (data == null) return;
+                else if (data == "True" || data == "true") {
+                    $("#divTutor").removeClass("hide");
+                    $.post('@Url.Action("CheckIsStudentNeedTutor", "User")', { usertypeid: usertypeid }, function (msg) {
+                        if (msg == null) return;
+                        else if (msg == "True" || msg == "true") {
+                            $("#emTutor").removeClass("hide");
+                        }
+                        else {
+                            $("#emTutor").addClass("hide");
+                        }
+                    });
+                }
+                else {
+                    $("#divTutor").addClass("hide");
+                    $("#TutorId").val("");
+                    $("#TutorId").tokenInput('clear');
+                }
+            });
+        }
+        else {
+            $("#UserTypeId").parents(".edit-info").find(".errormt").removeClass("hide");
+        }
+    }
+</script>
+<div id="divUserInfo">
+<form id="frmGFKJDXSSNCheck" action="#">
+
+<p class="title">统一身份认证信息完善</p>
+<div class="edit-info">
+    <div class="tit"><em>*</em>登录名</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                <input style="width:230px;height:27px" value="@label" readonly="readonly" class="easyui-validatebox textinp validatebox-text"/>
+                @Html.Hidden("Label", label)
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        @if (string.IsNullOrWhiteSpace(label))
+        {
+        <div class="errormt"><i></i><span id="infoLoginNameMsg">获取统一身份认证登陆名失败</span></div>
+        }
+    </div>
+</div>
+<div class="edit-info">
+    <div class="tit"><em>*</em>姓名</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                <input style="width:230px;height:27px" value="@userName" readonly="readonly" class="easyui-validatebox textinp validatebox-text"/>
+                @Html.Hidden("UserName", userName)
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        @if (string.IsNullOrWhiteSpace(userName))
+        {
+        <div class="errormt"><i></i><span>获取统一身份认证姓名失败</span></div>
+        }
+    </div>
+</div>
+<div class="edit-info" id="divOrganization">
+    <div class="tit"><em>*</em>单位机构</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong id="OrganizationBox">
+                <input style="width:230px;height:27px" value="@userOrgName" readonly="readonly" class="easyui-validatebox textinp validatebox-text"/>
+                @Html.Hidden("OrganizationId", userOrgId)
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        @if (!string.IsNullOrWhiteSpace(orgErrorMessage))
+        {
+        <div class="errormt"><i></i><span>@orgErrorMessage</span></div>
+        }
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info" id='divUserTypeBox'>
+    <div class="tit"><em>*</em>用户身份</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong  id="UserTypeBox">
+                @(Html.JComboTree("UserTypeId")
+                    .SetData(ViewData["UserTypeJson"])
+                    .SetOnChange("doOnUserTypeChange();")
+                    .SetMultiple(false)
+                    .SetDisabled(Model != null && Model.UserTypeId.HasValue)
+                    .SetWidth(233)
+                    .SetExpandAll(true)
+                    .SetOnCheck("objfocus(this);")
+                    .SetOnLoadSuccess("setTimeout('doOnUserTypeLoadSuccess();', 500);")
+                    .ToMvcString())
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span">请选择用户身份(父级身份不可选)</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info hide" id="divTutor">
+    <div class="tit"><em id='emTutor'>*</em>导师</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @(Html.TokenInput("TutorId")
+                    .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                    .SetSingle(true)
+                    .SetWidth(230)
+                    .AddClass("textinp")
+                    .SetOnAdd("objfocus(this);")
+                    .SetOnChange("doTutorChange()")
+                    .ToMvcString())
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="tips hide">导师不存在的话，须先完善导师信息，请联系导师登陆系统。</div>
+        <div class="errormt hide"><i></i><span">请输入选择导师</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+</form>
+</div>
+

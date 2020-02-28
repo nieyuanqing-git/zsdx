@@ -1,0 +1,151 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+<script type="text/javascript">
+    function doOnSexLoadSuccess(maleAmountElementId, maleAmount, femaleAmountEelementId, femaleAmount) {
+        $("#" + maleAmountElementId).val(maleAmount);
+        $("#" + femaleAmountEelementId).val(femaleAmount);
+    }
+    function doCalAnimalAmount(changedElementId, amountElementId, maleAmountElementId, femaleAmountElementId) {
+        var totalCount = $("#" + amountElementId).val().trim();
+        $("#" + amountElementId).val(totalCount);
+        if (!totalCount.isPositiveInt()) {
+            $.messager.show({ title: '提示', msg: "数量非法", showType: 'show' });
+            return;
+        }
+        if (changedElementId == amountElementId) {
+            $("#" + maleAmountElementId).val("");
+            $("#" + femaleAmountElementId).val("");
+        }
+        if (changedElementId == maleAmountElementId) {
+            var maleQuatity = $("#" + maleAmountElementId).val().trim();
+            if (!maleQuatity.isPositiveInt() && maleQuatity != "0") {
+                $("#" + maleAmountElementId).val("0");
+                if ($("#" + femaleAmountElementId).css("background-color").trim() != "rgb(195, 195, 195)") {
+                    $("#" + femaleAmountElementId).val(totalCount);
+                }
+                else {
+                    $("#" + femaleAmountElementId).val(0);
+                    $("#" + maleAmountElementId).val(totalCount);
+                }
+                $.messager.show({ title: '提示', msg: "♂数量非法", showType: 'show' });
+                return;
+            }
+            if (parseInt(maleQuatity) > parseInt(totalCount)) {
+                $("#" + maleAmountElementId).val("");
+                $.messager.show({ title: '提示', msg: "♂数量大于总数量", showType: 'show' });
+                return;
+            }
+            if ($("#" + femaleAmountElementId).css("background-color").trim() != "rgb(195, 195, 195)") {
+                $("#" + femaleAmountElementId).val(parseInt(totalCount) - parseInt(maleQuatity));
+            } 
+            else {
+                $("#" + femaleAmountElementId).val(0);
+                $("#" + maleAmountElementId).val(totalCount);
+            }
+        }
+        if (changedElementId == femaleAmountElementId) {
+            var femaleQuatity = $("#" + femaleAmountElementId).val().trim();
+            if (!femaleQuatity.isPositiveInt() && femaleQuatity != "0") {
+                $("#" + femaleAmountElementId).val("0");
+                if ($("#" + maleAmountElementId).css("background-color").trim() != "rgb(195, 195, 195)") {
+                    $("#" + maleAmountElementId).val(totalCount);
+                }
+                else {
+                    $("#" + maleAmountElementId).val("0");
+                    $("#" + femaleAmountElementId).val(totalCount);
+                }
+                $.messager.show({ title: '提示', msg: "♀数量非法", showType: 'show' });
+                return;
+            }
+            if (parseInt(femaleQuatity) > parseInt(totalCount)) {
+                $("#" + femaleAmountElementId).val("");
+                $.messager.show({ title: '提示', msg: "♀数量大于总数量", showType: 'show' });
+                return;
+            }
+            if ($("#" + maleAmountElementId).css("background-color").trim() != "rgb(195, 195, 195)") {
+                $("#" + maleAmountElementId).val(parseInt(totalCount) - parseInt(femaleQuatity));
+            }
+            else {
+                $("#" + maleAmountElementId).val("0");
+                $("#" + femaleAmountElementId).val(totalCount);
+            }
+        }
+    }
+</script>
+<script type="text/javascript">
+    function doOnAnimalCategoryChanged(newValue, oldValue, id,ethicsAmountEelementId, trEthicsAmountElementId, ethicsNoElementId, animalSourceIdEelementId, animalSourceNameElementId, hidAnimalSpecificationsElementId, animalSpecificationsElementId) {
+        var ethicsNo = $("#" + ethicsNoElementId).combobox("getValue").trim();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetEnableAppointmentAnimalAmount","AnimalAppointment")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: { "id": id, "ethicsNo": ethicsNo, "animalCategoryId": newValue },
+            success: function (msg) {
+                $.messager.progress('close');
+                var data = eval("(" + msg + ")");
+                $("#" + ethicsAmountEelementId).html("可申请总数量:" + data.TotalCount + "&nbsp;&nbsp;♂数量:" + data.MaleCount + "&nbsp;&nbsp;♀数量:" + data.FemaleCount + "&nbsp;&nbsp;&nbsp;&nbsp;剩余总数量:" + data.LeftTotalCount + "&nbsp;&nbsp;♂数量:" + data.LeftMaleCount + "&nbsp;&nbsp;♀数量:" + data.LeftFemaleCount);
+                $("#" + trEthicsAmountElementId).css("display", "");
+                //$("#" + animalSourceIdEelementId).val(data.AnimalSourceId);
+                //$("#" + animalSourceNameElementId).html(data.AnimalSourceName);
+                var animalSourceId = $("#" + animalSourceIdEelementId).combobox("getValue").trim();
+                if (animalSourceId == "" || animalSourceId == '@(Guid.Empty.ToString())') {
+                    $("#" + animalSourceIdEelementId).combobox("setValue", data.AnimalSourceId);
+                }
+                $("#" + hidAnimalSpecificationsElementId).val(data.AnimalSpecifications);
+                $("#" + animalSpecificationsElementId).html(data.AnimalSpecifications);
+            }
+        });
+    }
+    function doOnEthicsChange(newValue, oldValue, animalCategoryId, animalCategoryElementId, subjectProjectIdElementId, subjectNameElementId, subjectIdElementId) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetEthicsApplyRelativeData","EthicsApply")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: { "ethicsNo": newValue, "animalCategoryId": animalCategoryId },
+            success: function (msg) {
+                $.messager.progress('close');
+                var data = eval("(" + msg + ")");
+                $("#" + animalCategoryElementId).combobox("loadData", data.AnimalCategories ? data.AnimalCategories : null);
+                $("#" + subjectProjectIdElementId).combobox("setText", data.SubjectProjectName);
+                $("#" + subjectNameElementId).val(data.SubjectName);
+                $("#" + subjectIdElementId).val(data.SubjectId);
+            }
+        });
+    }
+    function doOnSexChange(newValue, oldValue,amountElementId,maleAmountElementId,femaleAmountElementId) {
+        $(".animalAmount").css("display", newValue.toString() == '@((int)AnimalAppointmentSex.All)' ? "none" : "");
+        var quantity = $("#" + amountElementId).val().trim();
+        switch (newValue) {
+            case '@((int)AnimalAppointmentSex.Female)':
+                $("#" + maleAmountElementId).val("0");
+                $("#" + maleAmountElementId).attr("readonly", "readonly");
+                $("#" + maleAmountElementId).css("background-color", "#c3c3c3");
+                $("#" + femaleAmountElementId).removeAttr("readonly");
+                $("#" + femaleAmountElementId).css("background-color", "");
+                $("#" + femaleAmountElementId).val("");
+                if (quantity.isPositiveInt()) {
+                    $("#" + femaleAmountElementId).val(quantity); 
+                }
+                break;
+            case '@((int)AnimalAppointmentSex.Male)':
+                $("#" + femaleAmountElementId).val("0");
+                $("#" + femaleAmountElementId).attr("readonly", "readonly");
+                $("#" + femaleAmountElementId).css("background-color", "#c3c3c3");
+                $("#" + maleAmountElementId).removeAttr("readonly");
+                $("#" + maleAmountElementId).css("background-color", "");
+                $("#" + maleAmountElementId).val("");
+                if (quantity.isPositiveInt()) {
+                    $("#" + maleAmountElementId).val(quantity);
+                }
+                break;
+            case '@((int)AnimalAppointmentSex.MaleAndFemale)':
+                $("#" + maleAmountElementId).removeAttr("readonly");
+                $("#" + femaleAmountElementId).removeAttr("readonly");
+                $("#" + maleAmountElementId).css("background-color", "");
+                $("#" + femaleAmountElementId).css("background-color", "");
+                $("#" + femaleAmountElementId).val("");
+                $("#" + maleAmountElementId).val("");
+                break;
+        }
+        
+    }
+</script>

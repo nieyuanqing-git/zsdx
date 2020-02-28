@@ -1,0 +1,58 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateDepositRecordQueryExpress() {
+        var queryExpression = "";
+        var searchName = $("#SearchDepositRecordName").val().trim();
+        if (searchName != "") {
+            queryExpression = "Name∽\"" + searchName.trim() + "\"";
+        }
+        var searchUserName = $("#SearchDepositRecordUserName").val().trim();
+        if (searchUserName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + searchUserName.trim() + "\"";
+        }
+        var operateTimeStart = $("#SearchDepositRecordOperateTimeStart").datebox("getValue").trim();
+        if (operateTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OperateTime>\"" + operateTimeStart + "\"";
+        }
+        var operateTimeEnd = $("#SearchDepositRecordOperateTimeEnd").datebox("getValue").trim();
+        if (operateTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OperateTime<\"" + operateTimeEnd + " 23:59:59\"";
+        }
+        return queryExpression;
+    }
+
+    function doMaterialDepositRecordReset() {
+        $("#SearchDepositRecordName").val("");
+        $("#SearchDepositRecordUserName").val("");
+        $("#SearchDepositRecordOperateTimeStart").datebox("setValue", "");
+        $("#SearchDepositRecordOperateTimeEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="vertical-align: top;">账户名称</label>
+        @Html.JValidateBox("SearchDepositRecordName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>用户名称</label>
+        @Html.JValidateBox("SearchDepositRecordUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    
+    <li>
+        <label>操作时间</label>
+        @Html.JDateTimePicker("SearchDepositRecordOperateTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchDepositRecordOperateTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnMaterialDepositRecordSearch", "查询").SetOnclick("doMaterialDepositRecordSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnMaterialDepositRecordReset", "清空").SetOnclick("doMaterialDepositRecordReset();").ToMvcString()
+        @Html.JLinkButton("btnMaterialDepositRecordClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

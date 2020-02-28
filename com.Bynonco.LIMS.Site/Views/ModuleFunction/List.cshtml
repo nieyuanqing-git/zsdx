@@ -1,0 +1,50 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function doOnBeforeLoadTree(row, param) {
+        $("#tbModuleFunctionList").treegrid('options').url = '@Url.Action("GetTreeGridModuleFunctionList", "ModuleFunction")' + "?ParentId=" + (row ? row.Id : "") + "&date=" + new Date().getMilliseconds();
+    }
+</script>
+@{
+    var moduleFunctionPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetModuleFunctionPrivilige(User.Identity.Name);
+    var dataGrid = Html.JTreeGrid("tbModuleFunctionList")
+       .SetTreeGrid("Id", "Name", Url.Action("GetTreeGridModuleFunctionList", "ModuleFunction"),"",false)
+       .SetHeight(2000)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetPagination(false)
+       .SetShowPrintButton(false)
+       .SetOnLoadSuccess("doOnloadTreeSuccess();")
+       .SetOnBeforeLoad("doOnBeforeLoadTree(row);")
+       .SetOnLoadError("doOnloadTreeError();");
+    if (moduleFunctionPrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+    }
+    dataGrid.SetShowAddButton(moduleFunctionPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(moduleFunctionPrivilige.IsEnableEdit);
+    if (moduleFunctionPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddModuleFunction('');");
+       dataGrid.SetEditScript("doEditModuleFunction('');");
+       dataGrid.SetOnDblClickRow("doEditModuleFunction(row.Id);");
+    }
+    dataGrid.SetShowDeleteButton(moduleFunctionPrivilige.IsEnableDelete);
+    if (moduleFunctionPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteModuleFunction('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetSortable(false).SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new DataGridColumn("父级调整", "ChangeParentOperate").SetWidth(80).SetAlign(Align.center).SetHidden(!moduleFunctionPrivilige.IsEnableChangeParent).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("Controller", "ControllerName").SetSortable(false).SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("Action", "ActionName").SetSortable(false).SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "ModuleFunctionTypeEnum").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("父分类编码", "ParentId").SetSortable(false).SetWidth(80).SetAlign(Align.center).SetHidden(true));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("父模块", "ParentName").SetSortable(false).SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("孩子模块数", "ChildrenCount").SetWidth(100).SetSortable(false).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("XPath", "XPath").SetSortable(false).SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetSortable(false).SetWidth(200).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

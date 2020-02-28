@@ -1,0 +1,142 @@
+﻿@model com.Bynonco.LIMS.Model.Business.DataDictModel
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var id = Model.Key.Id.ToString() + (Model.BusinessId.HasValue ? "_" + Model.BusinessId.Value : "");
+    var businessId = Model.BusinessId.HasValue ? "_" + Model.BusinessId.Value : "";
+ }
+<script type="text/javascript">
+    function doOnDataDictChanged() {
+        if (typeof (doOnDataDictChangedCallBack) == 'function') doOnDataDictChangedCallBack();
+    }
+</script>
+@switch (Model.Key.ControlCategoryEnum)
+{
+    case ControlType.CheckBox:
+        var checkBoxItems = Model.Key.Vals.Split(',');
+        foreach (var checkBoxItem in checkBoxItems){
+            var isChecked = !string.IsNullOrWhiteSpace(Model.Key.ControlDefaultValue) && Model.Key.ControlDefaultValue.Split(',').Contains(checkBoxItem);
+            if (!string.IsNullOrWhiteSpace(Model.Value))
+            {
+                isChecked = Model.Value.Split(',').Contains(checkBoxItem);
+            }
+            <input type="checkbox" onclick="doOnDataDictChanged('@(!string.IsNullOrWhiteSpace(Model.Value) ? Model.Value : "")');" name="@id" @(isChecked ? "checked='checked'" : "") value="@checkBoxItem"  />
+            @checkBoxItem
+        }
+        <script type="text/javascript">
+            function getDataDictValue(id) {
+                return "";
+            }
+        </script>
+        break;
+    case ControlType.ComboxBox:
+        IList<ComboboxData> datas = new List<ComboboxData>();
+        var comboboxItems = Model.Key.Vals.Split(',');
+        foreach (var comboboxItem in comboboxItems)
+        {
+            var selected = !string.IsNullOrWhiteSpace(Model.Key.ControlDefaultValue) ? Model.Key.ControlDefaultValue.Split(',').Contains(comboboxItem) : false;
+            if (!string.IsNullOrWhiteSpace(Model.Value))
+            {
+                selected = Model.Value == comboboxItem;
+            }
+            datas.Add(new ComboboxData() { id = comboboxItem, text = comboboxItem, selected = selected });
+        }
+        @(Html.JComboBox(id)
+            .SetWidth(Model.Key.ControlWidth.HasValue ? Model.Key.ControlWidth.Value : 150)
+            .SetHeight(Model.Key.ControlHeight.HasValue ? Model.Key.ControlHeight.Value : 20)
+            .SetData(Newtonsoft.Json.JavaScriptConvert.SerializeObject(datas))
+            .SetOnChange(string.Format("doOnDataDictChanged('{0}');", !string.IsNullOrWhiteSpace(Model.Value) ? Model.Value : ""))
+            .ToMvcString()
+         )
+        <script type="text/javascript">
+            function getDataDictValue(id) {
+                if ('@businessId' != "") {
+                    id = id + '_' + '@businessId';
+                }
+                return $('#' + id).combobox('getValue');
+            }
+        </script>
+        break;
+    case ControlType.DateTimePicker:
+        var dateTimePicker = Html.JDateTimePicker(id).SetOnChange(string.Format("doOnDataDictChanged('{0}');", !string.IsNullOrWhiteSpace(Model.Value) ? Model.Value : ""));
+        var date = DateTime.Now;
+        if (!string.IsNullOrWhiteSpace(Model.Key.ControlDefaultValue) && DateTime.TryParse(Model.Key.ControlDefaultValue, out date))
+        {
+            dateTimePicker.SetValue(Model.Key.ControlDefaultValue);
+        }
+        if (!string.IsNullOrWhiteSpace(Model.Value) && DateTime.TryParse(Model.Value, out date))
+        {
+            dateTimePicker.SetValue(Model.Value);
+        }
+        @(dateTimePicker.SetWidth(Model.Key.ControlWidth.HasValue ? Model.Key.ControlWidth.Value : 150).ToMvcString())
+        <script type="text/javascript">
+            function getDataDictValue(id) {
+                if ('@businessId' != "") {
+                    id = id + '_' + '@businessId';
+                }
+                return $('#' + id).datebox('getValue');
+            }
+        </script>
+                                break;
+    case ControlType.RadioButtion:
+                                var radioItems = Model.Key.Vals.Split(',');
+                                foreach (var radioItem in radioItems)
+                                {
+                                    var isChecked = !string.IsNullOrWhiteSpace(Model.Key.ControlDefaultValue) && Model.Key.ControlDefaultValue.Split(',').Contains(radioItem);
+                                    if (!string.IsNullOrWhiteSpace(Model.Value))
+                                    {
+                                        isChecked = Model.Value == radioItem;
+                                    }
+            <input type="radio" name="@id" onclick="doOnDataDictChanged('@(!string.IsNullOrWhiteSpace(Model.Value) ? Model.Value : "")');" @(isChecked ? "checked='checked'" : "") value="@radioItem"  />
+            @radioItem
+                                }
+        <script type="text/javascript">
+            function getDataDictValue(id) {
+                return "";
+            }
+        </script>
+                                break;
+    case ControlType.TextArea:
+                                if (!Model.Key.ControlWidth.HasValue)
+                                {
+                                    Model.Key.ControlWidth = 150;
+                                }
+                                if (!Model.Key.ControlHeight.HasValue)
+                                {
+                                    Model.Key.ControlHeight = 20;
+                                }
+        @Html.TextArea(id, !string.IsNullOrWhiteSpace(Model.Value) ? Model.Value : Model.Key.ControlDefaultValue, new { onchange = string.Format("doOnDataDictChanged('{0}');", !string.IsNullOrWhiteSpace(Model.Value) ? Model.Value : ""), style = string.Format("width:{0}px;height:{1}px", Model.Key.ControlWidth.Value, Model.Key.ControlHeight.Value) })
+        <script type="text/javascript">
+               function getDataDictValue(id) {
+                   if ('@businessId' != "") {
+                       id = id + '_' + '@businessId';
+                   }
+                   return $('#' + id).val();
+               }
+        </script>                     break;
+        case ControlType.TextBox:
+                                      if (!Model.Key.ControlWidth.HasValue)
+                                      {
+                                          Model.Key.ControlWidth = 150;
+                                      }
+                                      if (!Model.Key.ControlHeight.HasValue)
+                                      {
+                                          Model.Key.ControlHeight = 20;
+                                      }
+        @Html.TextBox(id, !string.IsNullOrWhiteSpace(Model.Value) ? Model.Value : Model.Key.ControlDefaultValue, new { onchange = string.Format("doOnDataDictChanged('{0}');", !string.IsNullOrWhiteSpace(Model.Value) ? Model.Value : ""), style = string.Format("width:{0}px;height:{1}px", Model.Key.ControlWidth.Value, Model.Key.ControlHeight.Value) })
+        
+        <script type="text/javascript">
+            function getDataDictValue(id) {
+                if ('@businessId' != "") {
+                    id = id + '_' + '@businessId';
+                }
+                return $('#' + id).val();
+            }
+        </script>      
+                                break;
+
+}
+@if (!string.IsNullOrWhiteSpace(Model.Key.Remark))
+{
+    <span style="color:Blue;font-weight:bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@Model.Key.Remark</span>
+}

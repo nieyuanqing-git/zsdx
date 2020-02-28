@@ -1,0 +1,33 @@
+﻿@Html.Partial("../Account/HomeLoginScriptContainer")
+<h2 class="title">用户登录</h2>
+<div class="content-box content-box-153">
+    @{
+        if (Request.IsAuthenticated && ViewData["LoginUser"] != null)
+        {
+            var loginUser = (com.Bynonco.LIMS.Model.User)ViewData["LoginUser"];
+        @Html.Partial("../Account/HomeLoginInfo", loginUser)
+        }
+        else
+        {
+            if (ViewData["LoginUrl"] != null && !string.IsNullOrEmpty(ViewData["LoginUrl"].ToString()))
+            {
+                 @Html.Partial(ViewData["LoginUrl"].ToString())
+            }
+            else
+            {
+                if (Convert.ToBoolean(ViewData["IsSchoolInnerOrOuterLoginMode"]))
+                {
+                    @Html.Partial("../Account/HomeSchoolInnerOrOuterLogin")
+                }
+                else if (Convert.ToBoolean(ViewData["IsCasLoginMode"]))
+                {
+                    @Html.Partial("../Account/HomeCasLogin")
+                }
+                else
+                {
+                    @Html.Partial("../Account/HomeLogin")
+                }
+            }
+        }
+    }
+</div>

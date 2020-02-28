@@ -1,0 +1,240 @@
+﻿
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div>
+    @Html.Partial("../LabOrganization/List")
+</div>
+<div id="divLabOrganizationDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doShowIsStop()
+    {
+        var obj_unchecked = $("#btnShowIsStop").find(".icon-unchecked");
+        var obj_checked = $("#btnShowIsStop").find(".icon-checked");
+        if(obj_unchecked.length > 0) 
+        {
+            obj_unchecked.addClass("icon-checked")
+            obj_unchecked.removeClass("icon-unchecked")
+            obj_unchecked.empty();
+            obj_unchecked.append("点击隐藏停用");
+        }
+        else if(obj_checked.length > 0)
+        {
+            obj_checked.addClass("icon-unchecked")
+            obj_checked.removeClass("icon-checked")
+            obj_checked.empty();
+            obj_checked.append("点击显示停用");
+        }
+        doSearch();
+    }
+   
+    function doSearch() {
+        $('#tbLabOrganizationList').treegrid('loadData', { total: 0, rows: [] });
+        $("#tbLabOrganizationList").treegrid("reload");
+        return false;
+    }
+    var labOrganizationDialog;
+    function doLabOrganizationDialog() {
+        if (labOrganizationDialog) {
+            labOrganizationDialog.dialog("destroy");
+        }
+        labOrganizationDialog =  @Html.JDialog("divLabOrganizationEdit").SetTitle("机构信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("labOrganizationDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveLabOrganization();").ToMvcString();
+    }
+    function doAddOrEditLabOrganizaton(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Edit","LabOrganization")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divLabOrganizationDialog").load(url,function(){
+            doLabOrganizationDialog();
+            $.messager.progress("close");
+        })
+        return false;
+    }
+    function doAddLabOrganizaton(id) {
+       doAddOrEditLabOrganizaton(id);
+    }
+    function doEditLabOrganizaton(id) {
+       if(!id || id.trim()==""){
+           var selectedLabOrganization = $("#tbLabOrganizationList").treegrid("getSelected");
+           if(!selectedLabOrganization || selectedLabOrganization.Id=="" || selectedLabOrganization.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择机构", showType: 'show' });
+              return false;
+           }
+           id = selectedLabOrganization.Id;
+       }
+       doAddOrEditLabOrganizaton(id);
+    }
+    function doSaveLabOrganization(){
+        if($("#Name").val().trim() == ""){
+            $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+            return false;
+        }
+        $("#ParentId").removeAttr("disabled");
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","LabOrganization")',
+            data: $("#frmLabOrganizationEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    if($("#Id").val() != '') $("#ParentId").attr("disabled","disabled");
+                    return false;
+                }
+                labOrganizationDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteLabOrganizaton(id){
+        if(!id || id.trim() == ""){
+              var selectedLabOrganization = $("#tbLabOrganizationList").treegrid("getSelected");
+                if(!selectedLabOrganization || selectedLabOrganization.Id.trim() == "" || selectedLabOrganization.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedLabOrganization.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "LabOrganization")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpath(xPath,compareTarget){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "LabOrganization")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false;
+   }
+
+   function ajaxFileUploadLabOrganizationLogo() {
+        var file = $("#fileLabOrganizationLogo").val();
+        if (!doValidatesUpLoadFile(file)) return false;
+        $("#fileLabOrganizationLogo").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadLabOrganizationLogo", "LabOrganization")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileLabOrganizationLogo',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.filePath) {
+                    $("#Logo").val(data.filePath);
+                    var src = "/" +  data.filePath + "?date=" + new Date().getMilliseconds();
+                    $("#imgOrganizationLogo").attr("src", src);
+                }
+                else if (data && (data.indexOf("出错") != -1)) {
+                    $("#imgOrganizationLogo").attr("src", "");
+                    $("#Logo").val("");
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function ajaxFileUploadLabOrganizationUserApplyFormDoc() {
+        var file = $("#fileLabOrganizationUserApplyFormDoc").val();
+        if (!doValidatesUpLoadFile(file)) return false;
+        $("#fileLabOrganizationUserApplyFormDoc").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadLabOrganizationUserApplyFormDoc", "LabOrganization")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileLabOrganizationUserApplyFormDoc',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.filePath) {
+                    $("#UserApplyFormDoc").val(data.filePath);
+                    $("#fileUserApplyFormDocPath").attr("href",'@Url.Content("~/")' + data.filePath);
+                    $("#fileUserApplyFormDocPath").removeClass("hide");
+                }
+                else if (data && (data.indexOf("出错") != -1)) {
+                    $("#UserApplyFormDoc").val("");
+                    $("#fileUserApplyFormDocPath").attr("href","javascript:;");
+                    $("#fileUserApplyFormDocPath").addClass("hide");
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doValidatesUpLoadFile(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    function doCleanLogo()
+    {
+        $("#imgOrganizationLogo").attr("src", "");
+        $("#Logo").val("");
+    }
+    function doCleanUserApplyFormDoc()
+    {
+         $("#UserApplyFormDoc").val("");
+        $("#fileUserApplyFormDocPath").attr("href","javascript:;");
+        $("#fileUserApplyFormDocPath").addClass("hide");
+    }
+    function doExaminationSetting(id){
+         var url = '@Url.Action("ExaminationIndex", "LabOrganization")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    
+    function doSetSiteMapPoint(id){
+        var url = '@Url.Action("SiteMapPoint","SiteMap")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+        return false;
+    }
+    function doGetSiteMapPoint()
+    {
+        $("#frmLabOrganizationEdit").find("#LatitudeAndlongitude").val($("#SetLatitudeAndlongitude").val());
+        siteMapPointDialog.dialog("destroy");
+    }
+    function doExaminationSetting(id) {
+        var url = '@Url.Action("ExaminationIndex", "LabOrganization")' + "?id=" + encodeURI(id)  + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+
+</script>

@@ -1,0 +1,54 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleTestRecord
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divSampleTestRecordEdit" class="edit-table">
+<form id="frmSampleTestRecordEdit" action="#">
+    @Html.Hidden("SampleTestRecordId", Model == null ? "" : Model.SampleTestRecordId.ToString())
+     <table id="tbSampleTestRecordEdit" style="border-collapse:collapse;">
+        <tr>
+            <th>开始时间</th>
+            <td>
+                @(Html.JValidateBox("BeginTime")
+                .SetReadOnly(true)
+                .SetValidateType(ValidateType.dateTime)
+                .SetWidth(230)
+                .SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") : Model.BeginTime.Value.ToString("yyyy-MM-dd HH:mm:ss")).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>结束时间</th>
+            <td>
+               @(Html.JValidateBox("EndTime")
+                .SetReadOnly(true)
+                .SetValidateType(ValidateType.dateTime)
+                .SetWidth(230)
+                .SetValue(Model == null || !Model.EndTime .HasValue? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") : Model.EndTime.Value.ToString("yyyy-MM-dd HH:mm:ss")).ToMvcString())
+            </td>
+        </tr>
+         <tr>
+            <th>类别</th>
+            <td>
+               @Html.JComboBox("Category").SetData(ViewData["TestCategoryJson"]).SetWidth(235).SetDisabled(true).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>温度</th>
+            <td>@Html.JValidateBox("Temperature").SetValue(Model == null || !Model.Temperature.HasValue ? "" : Model.Temperature.Value.ToString("0.00")).SetValidateType(ValidateType.number).SetWidth(230).ToMvcString()℃</td>
+        </tr>
+            <tr>
+            <th>湿度</th>
+            <td>@Html.JValidateBox("Humidity").SetValue(Model == null || !Model.Humidity.HasValue ? "" : Model.Humidity.Value.ToString("0.00")).SetValidateType(ValidateType.number).SetWidth(230).ToMvcString()%</td>
+        </tr>
+        <tr>
+            <th>检测内容</th>
+            <td>@Html.TextArea("TestContent", Model == null ? "" : Model.TestContent, new { style = "width:280px;height:60px;font-size:12px;font-weight:normal" })</td>
+        </tr>
+        <tr>
+           <th>备注</th>
+           <td>@Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:280px;height:60px;font-size:12px;font-weight:normal" })</td>
+        </tr>
+    </table>
+</form>
+</div>

@@ -1,0 +1,55 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentUseCondition
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divEquipmentUseConditionEdit" style="width:360px;overflow:hidden;">
+
+ <form id="frmEquipmentUseConditionEdit" action="#">
+    @Html.Hidden("EquipmentUseConditionId", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("EquipmentId", Model == null ? ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString() : Model.EquipmentId.ToString())
+    <table id="tdEquipmentUseConditionEdit" class="edit-table" style="width:100%">
+        @Html.Partial("DataDictTemplateEdit")
+        <tr style="display:none;">
+            <th>
+                计费方式
+            </th>
+            <td>
+               @Html.JComboBox("ChargeType").SetData(ViewData["ChargeTypeJson"]).SetWidth(155).ToMvcString()
+               <span>必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>计费价格</th>
+            <td>
+                @Html.JValidateBox("Price").SetValue(Model == null ? "" : Model.Price.ToString()).SetWidth(150).SetValidateType(ValidateType.positiveIntNumber).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>什么值计费<br />(为空都计费)</th>
+            <td>
+                @Html.JValidateBox("WhichValuesCharged").SetValue(Model == null ? "" : Model.WhichValuesCharged).SetWidth(150).ToMvcString()
+                <span>多个值,分隔</span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否使用折扣</th>
+            <td>@Html.CheckBox("IsUseDiscount")</td>
+        </tr>
+        <tr>
+            <th>计费是否乘以机时</th>
+            <td>@Html.CheckBox("IsMutiplyByDuration")</td>
+        </tr>
+        <tr>
+            <th>是否预约显示</th>
+            <td>
+                @Html.CheckBox("IsEnableSelectWhenAppointment", Model != null ? Model.IsEnableSelectWhenAppointment : true)
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:245px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

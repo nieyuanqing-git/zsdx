@@ -1,0 +1,59 @@
+﻿@model com.Bynonco.LIMS.Model.Building
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divBuildingEdit">
+ <form id="frmBuildingEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdBuildingEdit" class="edit-table" style="width:385px;">
+         <tr>
+            <th>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>助记符</th>
+            <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(200).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>XPath</th>
+            <td>@Html.JValidateBox("XPath").SetValue(Model == null ? "" : Model.XPath).SetWidth(200).SetDisabled(true).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>父楼宇</th>
+            <td id="tdParentId">
+                @(Html.JComboTree("ParentId")
+                .SetData(ViewData["ParentJson"])
+                .SetValue(Model == null || !Model.ParentId.HasValue ? "" : Model.ParentId.Value.ToString())
+                .SetOnLoadSuccess("setTimeout('doOnParentLoadSuccess();', 500);")
+                .SetMultiple(false)
+                .SetDisabled(Model != null)
+                .SetWidth(205).SetRequired(false).SetExpandAll(true).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:60px;width:295px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    function doOnNameChanged(){
+        $("#InputStr").val("");
+    }
+    function doOnParentLoadSuccess(){
+        if($("#Id").val().trim()==""){
+          var selectedBuilding = $("#tbBuildingList").treegrid("getSelected");
+          if(selectedBuilding && selectedBuilding.Id && selectedBuilding.Id.trim() != "" && !selectedBuilding.Id.isDefaultGuid()) {
+              var parentId = selectedBuilding.Id;
+              var parentName = selectedBuilding.Name;
+              $("#ParentId").combotree("setValue",parentId);
+              $("#tdBuildingEdit #tdParentId span input.combo-text.validatebox-text").val(parentName);  
+          }
+        }
+        else $("#tdBuildingEdit #tdParentId span input.combo-text.validatebox-text").val("@ViewData["ParentName"].ToString()");     
+    } 
+</script>

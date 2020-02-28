@@ -1,0 +1,17 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSelectTesterDialog" style="width:825px;">
+    <div class="search-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../User/Search")
+        </div>
+    </div>
+    <div>@Html.Partial("../User/SelectTesterListNoPaging")</div>
+</div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbSelectTesterList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSelectTesterList").datagrid("reload", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds()});
+        return false;
+    }
+</script>

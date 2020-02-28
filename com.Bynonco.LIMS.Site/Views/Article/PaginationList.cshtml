@@ -1,0 +1,38 @@
+﻿@model IList<com.Bynonco.LIMS.Model.View.ViewArticle>
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    DataGridSettings dataGridSettings = (DataGridSettings)ViewData["DataGridSettings"];
+    var articleCategoryId = ViewData["ArticleCategoryId"] == null ? "" : ViewData["ArticleCategoryId"].ToString();
+    if (Model != null && Model.Count() > 0)
+    {
+        <ul class="news-list style2-list dotted-list width-650">
+            @for (int i = 0; i < Model.Count();i ++ )
+            {
+                var item = Model[i];
+                var categoryId = item.ArticleCategoryId;
+                if (!string.IsNullOrWhiteSpace(articleCategoryId) && articleCategoryId.IsGuid()) { categoryId = new Guid(articleCategoryId); }
+                <li class='@(i == Model.Count()-1 ? "last": "")'>
+                    <a href='@Url.Action("Show", "Article", new { id = item.Id, ArticleCategoryId = categoryId, XPath = orgXPath })' title='@item.Title'>@item.Title</a>
+                    <span>@item.PublishAt.Value.ToString("yyyy-MM-dd HH:mm")</span>
+                </li>
+            }
+        </ul>
+        var pagination = Html.JPagination("PageArticleList")
+            .SetTotal(dataGridSettings.Total)
+            .SetPageSize(dataGridSettings.PageSize)
+            .SetPageNumber(dataGridSettings.PageIndex)
+            .SetOnSelectPage("doSelectPage(pageNumber, pageSize);");
+            @(pagination.ToMvcString()) 
+    }
+    else
+    {
+        <p>没有相关文章信息</p>
+    }
+}
+<script>
+    $(function () {
+        setlihover();
+    });
+</script>

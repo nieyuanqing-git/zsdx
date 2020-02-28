@@ -1,0 +1,80 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../User/Search")
+    </div>
+</div>
+<div class="layout-center-left">
+    @Html.Partial("../LabOrganizationAdmin/List")
+</div>
+<div class="layout-center-right">
+    @Html.Partial("../UserAuthorization/AdminCardList")
+</div>
+<div class="clear-both"></div>
+<script type="text/javascript">
+    function doSearch(xpath) {
+        if (!xpath || xpath.trim() == "") {
+            var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+            if (!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id == "" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+                return false;
+            }
+            xpath = selectedLabOrganizationAdmin.XPath;
+        }
+        var queryExpression = generateQueryExpress();
+        $("#tbAdminCardList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbAdminCardList").datagrid("load", { "queryExpression": queryExpression, "OrgXPath": xpath });
+    }
+
+    function doUpdateAdmins() {
+        var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+        if (!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id == "" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+            return false;
+        }
+        var id = selectedLabOrganizationAdmin.Id;
+        $.messager.confirm('提示', '是否确认通知服务器更新特权卡?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateAdmins", "UserAuthorization")',
+                data: "LabOrganizationId=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+            });
+        });
+    }
+    function doUpdateOfflineRecord() {
+        var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+        if (!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id == "" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+            return false;
+        }
+        var id = selectedLabOrganizationAdmin.Id;
+        $.messager.confirm('提示', '是否确认通知服务器更新离线记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateOfflineRecord", "UserAuthorization")',
+                data: "LabOrganizationId=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+            });
+        });
+    }
+    function doOnLabOrganizationAdminSelected(rowData) {
+        if (typeof (doReset) == 'function') doReset();
+        doSearch(rowData.XPath);
+    }
+</script>

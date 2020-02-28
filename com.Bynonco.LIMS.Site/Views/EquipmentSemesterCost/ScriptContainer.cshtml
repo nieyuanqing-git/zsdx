@@ -1,0 +1,269 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentSemesterCostPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentSemesterCostPrivilige(User.Identity.Name);
+}
+<div id="divEquipmentSemesterCostEditDialog" style="display:none;"></div>
+<script type="text/javascript">
+    function doSearchEquipmentSemesterCost(semesterId, equipmentGroupId) {
+        var queryExpression = generateEquipmentSemesterCostQueryExpress();
+        if (!semesterId || semesterId.trim() == "") {
+            semesterId = doGetSelectSemesterId();
+        }
+        if (!equipmentGroupId || equipmentGroupId.trim() == "") {
+            var selectedEquipmentGroup = $("#tbEquipmentGroup").datagrid("getSelected");
+            if (!selectedEquipmentGroup || selectedEquipmentGroup.Id.trim() == "" || selectedEquipmentGroup.Id.isDefaultGuid()) {
+                equipmentGroupId = null;
+            }
+            else equipmentGroupId = selectedEquipmentGroup.Id;
+        }
+        $("#tbEquipmentSemesterCost").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentSemesterCost").datagrid("load", { "queryExpression": queryExpression.trim(), "SemesterId": semesterId, "EquipmentGroupId": equipmentGroupId });
+    }
+    function doEquipmentGroupUnSelect() {
+        $("#tbEquipmentGroup").datagrid('clearSelections');
+        doSearchEquipmentSemesterCost();
+    } 
+    function doOnEquipmentGroupSelected(rowData) {
+        doSearchEquipmentSemesterCost('', rowData.Id);
+    }
+    function doSemesterOnSelect(record)
+    {
+        doSearchEquipmentSemesterCost(record.Id,'');
+    }
+    function doGetSelectSemesterId()
+    {
+        var selectSemesterId = $("#SelectSemesterId").combobox("getValue");
+        if (!selectSemesterId || selectSemesterId == "" || selectSemesterId.isDefaultGuid()) {
+            return "";
+        }
+        return selectSemesterId;
+    }
+    function generateSelectedEquipmentSemesterCostIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentSemesterCost").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    var mutiAddEquipmentSemesterCostDialog;
+    function doMutiAddEquipmentSemesterCostDialog() {
+        if (mutiAddEquipmentSemesterCostDialog) {
+            mutiAddEquipmentSemesterCostDialog.dialog("destroy");
+        }
+        mutiAddEquipmentSemesterCostDialog =  @(Html.JDialog("divEquipmentSemesterCostMutiAdd")
+            .SetTitle("仪器学期费用批量新增")
+            .SetIconCls("icon-mutiadd")
+            .SetAutoDialog(false)
+            .SetOnClose("mutiAddEquipmentSemesterCostDialog.dialog('destroy');return false;")
+            .SetCancelScript("mutiAddEquipmentSemesterCostDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(equipmentSemesterCostPrivilige.IsEnableMutiSave)
+            .SetOkScript("doMutiSaveEquipmentSemesterCost();")
+            .ToMvcString());
+    }
+    function doMutiAddEquipmentSemesterCost()
+    {
+        var selectSemesterId = doGetSelectSemesterId();
+        if(!selectSemesterId || selectSemesterId == "")
+        {
+            $.messager.show({ title: '提示', msg: "请选择学期", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("MutiAdd", "EquipmentSemesterCost")'+ "?semesterId=" + selectSemesterId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentSemesterCostEditDialog").load(url,function(){
+            doMutiAddEquipmentSemesterCostDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doMutiSaveEquipmentSemesterCost()
+    {
+        if($("#frmEquipmentSemesterCostMutiAdd").find("#EquipmentIds").val() == "")
+        {
+            $.messager.show({ title: '提示', msg: "仪器设备为空", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("MutiSave","EquipmentSemesterCost")',
+            data: $("#frmEquipmentSemesterCostMutiAdd").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错,") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                doSearchEquipmentSemesterCost();
+                mutiAddEquipmentSemesterCostDialog.dialog('destroy'); 
+            }
+        });
+        return false;
+    }
+
+    var equipmentSemesterCostDialog;
+    function doEquipmentSemesterCostDialog() {
+        if (equipmentSemesterCostDialog) {
+            equipmentSemesterCostDialog.dialog("destroy");
+        }
+        equipmentSemesterCostDialog =  @(Html.JDialog("divEquipmentSemesterCostEdit")
+            .SetTitle("仪器学期费用编辑")
+            .SetIconCls("icon-edit")
+            .SetAutoDialog(false)
+            .SetOnClose("equipmentSemesterCostDialog.dialog('destroy');return false;")
+            .SetCancelScript("equipmentSemesterCostDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(equipmentSemesterCostPrivilige.IsEnableSave)
+            .SetOkScript("doSaveEquipmentSemesterCost();")
+            .ToMvcString());
+    }
+    function doAddEquipmentSemesterCost()
+    {
+        doAddOrEditEquipmentSemesterCost();
+    }
+    function doEditEquipmentSemesterCost(id) {
+       if(!id || id.trim()==""){
+           id=generateSelectedEquipmentSemesterCostIds();
+           if (!id || id.length == 0) {
+                $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+                return false;
+           }
+            if (id && id.length > 1) {
+                $.messager.show({ title: '提示', msg: "不能多项编辑", showType: 'show' });
+                return false;
+           }
+           id =id.toString();
+       }
+       doAddOrEditEquipmentSemesterCost(id);
+    }
+    function doAddOrEditEquipmentSemesterCost(id)
+    {
+        var url = '';
+        if(!id || id =="")
+        {
+            var selectSemesterId = doGetSelectSemesterId();
+            if(!selectSemesterId || selectSemesterId == "")
+            {
+                $.messager.show({ title: '提示', msg: "请选择学期", showType: 'show' });
+                return false;
+            }
+            url = '@Url.Action("Add", "EquipmentSemesterCost")'+ "?semesterId=" + selectSemesterId + "&date=" + new Date().getMilliseconds();
+        }
+        else url = '@Url.Action("Edit", "EquipmentSemesterCost")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentSemesterCostEditDialog").load(url,function(){
+            doEquipmentSemesterCostDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doSaveEquipmentSemesterCost() {
+        var url = '@Url.Action("Save","EquipmentSemesterCost")';
+        return doSaveEquipmentSemesterCostByStatus(url);
+    }
+    function doSaveEquipmentSemesterCostByStatus(url)
+    {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmEquipmentSemesterCost").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错,") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                doSearchEquipmentSemesterCost();
+                try{equipmentSemesterCostDialog.dialog('destroy'); }catch(e){}
+                try{auditEquipmentSemesterCostDialog.dialog('destroy'); }catch(e){}
+            }
+        });
+        return false;
+    }
+
+    var auditEquipmentSemesterCostDialog;
+    function doAuditEquipmentSemesterCostDialog() {
+        if (auditEquipmentSemesterCostDialog) {
+            auditEquipmentSemesterCostDialog.dialog("destroy");
+        }
+        auditEquipmentSemesterCostDialog =  @(Html.JDialog("divEquipmentSemesterCostEdit")
+            .SetTitle("仪器学期费用审核")
+            .SetIconCls("icon-ok")
+            .SetAutoDialog(false)
+            .SetOnClose("auditEquipmentSemesterCostDialog.dialog('destroy');return false;")
+            .SetCancelScript("auditEquipmentSemesterCostDialog.dialog('destroy');return false;")
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton() { Handler = "doAuditPassEquipmentSemesterCost();return false;", Id = "btnAuditPassEquipmentSemesterCost", Text = "审核通过", IconCls = "icon-ok",Disabled = !equipmentSemesterCostPrivilige.IsEnableAuditPass })
+            .AddButton(new ToolBarButton() { Handler = "doAuditRejectEquipmentSemesterCost();return false;", Id = "btnAuditRejectEquipmentSemesterCost", Text = "审核不通过", IconCls = "icon-no",Disabled = !equipmentSemesterCostPrivilige.IsEnableAuditReject })
+            .AddButton(new ToolBarButton() { Handler = "doWaittingAuditEquipmentSemesterCost();return false;", Id = "btnWaittingEquipmentSemesterCost", Text = "置为待审", IconCls = "icon-info",Disabled = !equipmentSemesterCostPrivilige.IsEnableWaittingAudit })
+            .ToMvcString());
+    }
+    function doAuditEquipmentSemesterCost(id)
+    {
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("Audit", "EquipmentSemesterCost")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentSemesterCostEditDialog").load(url,function(){
+            doAuditEquipmentSemesterCostDialog();
+            $.messager.progress('close');
+        })
+    }
+    function doAuditPassEquipmentSemesterCost(){
+        var url = '@Url.Action("AuditPass","EquipmentSemesterCost")';
+        return doSaveEquipmentSemesterCostByStatus(url);
+    }
+    function doAuditRejectEquipmentSemesterCost(){
+        var url = '@Url.Action("AuditReject","EquipmentSemesterCost")';
+        return doSaveEquipmentSemesterCostByStatus(url);
+    }
+    function doWaittingAuditEquipmentSemesterCost(){
+        var url = '@Url.Action("WaittingAudit","EquipmentSemesterCost")';
+        return doSaveEquipmentSemesterCostByStatus(url);
+    }
+    function doDeleteEquipmentSemesterCost(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedEquipmentSemesterCostIds().toString() : ids;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","EquipmentSemesterCost")',
+                data: "ids=" + delIds,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchEquipmentSemesterCost();
+                }
+            });
+        });
+        return false;
+    }
+    function doExportExcelEquipmentSemesterCost()
+    {
+        var semesterId = doGetSelectSemesterId();
+        var selectedEquipmentGroup = "";
+        var queryExpression = generateEquipmentSemesterCostQueryExpress();
+        var selectedEquipmentGroup = $("#tbEquipmentGroup").datagrid("getSelected");
+        if (!selectedEquipmentGroup || selectedEquipmentGroup.Id.trim() == "" || selectedEquipmentGroup.Id.isDefaultGuid()) {
+            equipmentGroupId = null;
+        }
+        else equipmentGroupId = selectedEquipmentGroup.Id;
+        var  url = '@Url.Action("ExportExcel","EquipmentSemesterCost")' + "?queryExpression=" + queryExpression;
+         if (semesterId && semesterId.trim() != "") url += "&semesterId=" + semesterId.trim();
+         if (equipmentGroupId && equipmentGroupId.trim() != "") url += "&equipmentGroupId=" + equipmentGroupId.trim();
+        window.open(url,'_blank');
+    }
+   
+</script>

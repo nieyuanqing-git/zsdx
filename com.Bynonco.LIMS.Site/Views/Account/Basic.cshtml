@@ -1,0 +1,511 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUser
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    Layout = ViewBag.Layout;
+
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsUserWorkTeam = customer == null ? false : customer.GetIsUserWorkTeam();
+    var customerIsRegistUserAnimalExperimentInfo = customer == null ? false : customer.GetIsRegistUserAnimalExperimentInfo();
+    var customerIsRegistTutorMoneyCard = customer == null ? false : customer.GetIsRegistTutorMoneyCard();
+    var customerIsRegisterDoc = customer == null ? false : customer.GetIsRegisterDoc();
+
+    bool IsAuditWaitting = false;
+    bool IsAuditPass = false;
+    bool IsInBlackList = false;
+    bool IsInvalid = false;
+    bool IsAuditReject = false;
+    if (Model != null && Model.UserStatus.HasValue)
+    {
+        switch ((com.Bynonco.LIMS.Model.Enum.UserStatus)Model.UserStatus.Value)
+        {
+            case com.Bynonco.LIMS.Model.Enum.UserStatus.AuditWaitting:
+                IsAuditWaitting = true;
+                break;
+            case com.Bynonco.LIMS.Model.Enum.UserStatus.AuditPass:
+                IsAuditPass = true;
+                break;
+            case com.Bynonco.LIMS.Model.Enum.UserStatus.InBlackList:
+                IsInBlackList = true;
+                break;
+            case com.Bynonco.LIMS.Model.Enum.UserStatus.Invalid:
+                IsInvalid = true;
+                break;
+            case com.Bynonco.LIMS.Model.Enum.UserStatus.AuditReject:
+                IsAuditReject = true;
+                break;
+        }
+    }
+    bool isStudent = ViewData["IsStudent"] != null ? (bool)ViewData["IsStudent"] : false;
+    var registerNotNull = ViewData["RegisterNotNull"] == null ? "" : ViewData["RegisterNotNull"].ToString().Trim();
+}
+<script type="text/javascript">
+    function doCheckColNameIsPass(objId, colName) {
+        var registerNotNull = '@registerNotNull';
+        $("#lb" + objId + "Check").empty();
+        return checkColNameIsPass(objId, registerNotNull.indexOf(colName) != -1);
+    }
+    function checkColNameIsPass(objId, isRequired) {
+        $("#lb" + objId + "Check").empty();
+        var objValue = "";
+        if (objId == "Sex" ) objValue = $("#" + objId).combobox("getValue").trim();
+        else objValue = $("#" + objId).val().trim();
+        if (isRequired == true && objValue == "") {
+            $("#lb" + objId + "Check").append("必填");
+            $("#lb" + objId + "Check").removeClass("hide");
+            $("#img" + objId + "CheckedOK").addClass("hide");
+            return false;
+        }
+        else {
+            $("#lb" + objId + "Check").addClass("hide");
+            if (objValue != "") {
+                $("#img" + objId + "CheckedOK").removeClass("hide");
+            }
+            else $("#img" + objId + "CheckedOK").addClass("hide");
+            return true;
+        }
+    }
+    function doCheckEmail() {
+        var email = $("#Email").val();
+        var id = $("#Id").val();
+        $("#lbEmailCheck").empty();
+        if (email == "") {
+            $("#lbEmailCheck").append("必填");
+            $("#imgEmailCheckedError").addClass("hide");
+            $("#imgEmailCheckedOK").addClass("hide");
+        }
+        else if (!$("#Email").validatebox("isValid")) {
+            $("#lbEmailCheck").append("邮箱格式错误");
+            $("#imgEmailCheckedError").removeClass("hide");
+            $("#imgEmailCheckedOK").addClass("hide");
+        }
+        else {
+            $("#imgEmailChecking").removeClass("hide");
+            var urlCheckEmail = '@Url.Action("CheckEmail", "User")';
+            $.post(urlCheckEmail, { id: id, Email: email }, function (data) {
+                $("#imgEmailChecking").addClass("hide");
+                if (data == null) return;
+                else if (data == "False" || data == "false") {
+                    $("#lbEmailCheck").append("邮箱已存在");
+                    $("#imgEmailCheckedError").removeClass("hide");
+                    $("#imgEmailCheckedOK").addClass("hide");
+                }
+                else {
+                    $("#imgEmailCheckedError").addClass("hide");
+                    $("#imgEmailCheckedOK").removeClass("hide");
+                }
+            });
+        }
+    }
+    function doCheckPhoneNumber() {
+        var phoneNumber = $("#PhoneNumber").val();
+        var id = $("#Id").val();
+        $("#lbPhoneNumberCheck").empty();
+        if (phoneNumber == "") {
+            $("#lbPhoneNumberCheck").append("必填");
+            $("#imgPhoneNumberCheckedError").addClass("hide");
+            $("#imgPhoneNumberCheckedOK").addClass("hide");
+        }
+        else if (!$("#PhoneNumber").validatebox("isValid") && !phoneNumber.isMobile()) {
+            $("#lbPhoneNumberCheck").append("手机格式错误");
+            $("#imgPhoneNumberCheckedError").removeClass("hide");
+            $("#imgPhoneNumberCheckedOK").addClass("hide");
+        }
+        else {
+            $("#imgPhoneNumberChecking").removeClass("hide");
+            var urlCheckPhoneNumber = '@Url.Action("CheckPhoneNumber", "User")';
+            $.post(urlCheckPhoneNumber, { id: id, PhoneNumber: phoneNumber }, function (data) {
+                $("#imgPhoneNumberChecking").addClass("hide");
+                if (data == null) return;
+                else if (data == "False" || data == "false") {
+                    $("#lbPhoneNumberCheck").append("手机有误或已存在");
+                    $("#imgPhoneNumberCheckedError").removeClass("hide");
+                    $("#imgPhoneNumberCheckedOK").addClass("hide");
+                }
+                else {
+                    $("#imgPhoneNumberCheckedError").addClass("hide");
+                    $("#imgPhoneNumberCheckedOK").removeClass("hide");
+                }
+            });
+        }
+    }
+    function doCheckFixedPhone() {
+        var fixedPhone = $("#FixedPhone").val();
+        $("#lbFixedPhoneCheck").empty();
+        if (fixedPhone == "") {
+            $("#imgFixedPhoneCheckedError").addClass("hide");
+            $("#imgFixedPhoneCheckedOK").addClass("hide");
+            doCheckColNameIsPass("FixedPhone", "固话");
+        }
+        else if (!$("#FixedPhone").validatebox("isValid") || !fixedPhone.isFixTelephoneNo()) {
+            $("#lbFixedPhoneCheck").append("固话格式错误");
+            $("#imgFixedPhoneCheckedError").removeClass("hide");
+            $("#imgFixedPhoneCheckedOK").addClass("hide");
+        }
+        else {
+            $("#imgFixedPhoneCheckedError").addClass("hide");
+            $("#imgFixedPhoneCheckedOK").removeClass("hide");
+        }
+    }
+    function doSaveBasic() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SavePersonalBasic", "User")',
+            data: $("#frmLoginUserEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doAnimalExperimentNumChange() {
+        var isOk = false;
+        var reg = /^[0-9a-zA-Z\/]+$/;
+        var errorMsg = '由数字、字母、斜杠等组成';
+        if ($("#AnimalExperimentNum").length > 0) {
+            $("#lbAnimalExperimentNumCheck").empty();
+            var animalExperimentNum = $("#AnimalExperimentNum").val();
+            if (animalExperimentNum == "") {
+                $("#lbAnimalExperimentNumCheck").append("必填");
+                $("#imgAnimalExperimentNumCheckedError").addClass("hide");
+                $("#imgAnimalExperimentNumCheckedOK").addClass("hide");
+            }
+            else if (!reg.test(animalExperimentNum)) {
+                $("#lbAnimalExperimentNumCheck").append("格式错误,必须由数字、字母、斜杠等组成");
+                $("#imgAnimalExperimentNumCheckedError").removeClass("hide");
+                $("#imgAnimalExperimentNumCheckedOK").addClass("hide");
+            }
+            else {
+                $("#lbAnimalExperimentNumCheck").append("");
+                $("#imgAnimalExperimentNumCheckedError").addClass("hide");
+                $("#imgAnimalExperimentNumCheckedOK").removeClass("hide");
+                isOk = true;
+            }
+        }
+        else isOk = true;
+        return isOk;
+    }
+</script>
+<div class="layout-center-full">
+    <div class="edit-box">
+        <div class="notification attention">
+            @if (customerIsRegisterDoc)
+            {
+                <div>
+                    @Html.ActionLink("点击这里", "DownUserRegisterDoc", "Home", null, new { target = "_blank", style = "text-decoration:underline;" })
+                    重新打印《用户申请表》
+                    <br />
+                    @Html.ActionLink("点击这里", "DownUserDoc", "Home", null, new { target = "_blank", style = "text-decoration:underline;" })
+                    重新打印《仪器使用申请表》
+                </div>
+            }
+            else
+            {
+			<div>@Html.ActionLink("点击这里", "DownUserDoc", "Home", null, new { target = "_blank", style = "text-decoration:underline;" })
+                重新打印申请表
+            </div>
+            }
+		</div>
+        <form id="frmLoginUserEdit" action="#">
+            @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+            <p><span class="icon icon-userinfo"></span>个人信息</p>
+            <table class="edit-info">
+                <tr>
+                    <th>姓名</th>
+                    <td>
+                        @Html.JValidateBox("UserName").SetValue(Model == null ? "" : Model.UserName).SetOnChange("checkColNameIsPass('UserName', true);").SetWidth(250).SetRequired(true).ToMvcString()
+                        <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.UserName) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgUserNameCheckedOK" />
+                        <span id="lbUserNameCheck" class="required">@(Model == null || string.IsNullOrWhiteSpace(Model.UserName) ? "必填" : "")</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>性别</th>
+                    <td id="tdSex">
+                        @(Html.JComboBox("Sex")
+                        .SetEditable(false)
+                        .SetData(ViewData["SexJson"])
+                        .SetWidth(255)
+                        .SetOnChange("doCheckColNameIsPass('Sex','性别');")
+                        .ToMvcString())
+                        <img class='@(Model == null || !Model.Sex.HasValue ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgSexCheckedOK" />
+                        <span id="lbSexCheck" class="required @(registerNotNull.Contains("性别") ? "" : "hide")">@(Model == null || !Model.Sex.HasValue ? "必填" : "")</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>邮箱</th>
+                    <td>
+                        @(Html.JValidateBox("Email")
+                        .SetValue(Model == null ? "" : Model.Email)
+                        .SetValidateType(ValidateType.email)
+                        .SetWidth(250)
+                        .SetOnChange("doCheckEmail();")
+                        .SetRequired(true)
+                        .ToMvcString())
+                        <img class="hide" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" id="imgEmailChecking" />
+                        <img class="hide" src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-cancel.png" id="imgEmailCheckedError" />
+                        <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.Email) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgEmailCheckedOK" />
+                        <span id="lbEmailCheck" class="required @(registerNotNull.Contains("邮箱") ? "" : "hide")">@(Model == null || string.IsNullOrWhiteSpace(Model.Email) ? "必填" : "")</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>手机</th>
+                    <td>
+                        @(Html.JValidateBox("PhoneNumber")
+                        .SetValidateType(ValidateType.mobileTelephoneNo)
+                        .SetValue(Model == null ? "" : Model.PhoneNumber)
+                        .SetWidth(250)
+                        .SetOnChange("doCheckPhoneNumber();")
+                        .SetRequired(true)
+                        .ToMvcString())
+                        <img class="hide" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" id="imgPhoneNumberChecking"/>
+                        <img class="hide" src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-cancel.png" id="imgPhoneNumberCheckedError"/>
+                        <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgPhoneNumberCheckedOK"/>
+                        <span id="lbPhoneNumberCheck" class="required @(registerNotNull.Contains("手机") ? "" : "hide")">@(Model == null || string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "必填" : "")</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>固定电话</th>
+                    <td>
+                        @(Html.JValidateBox("FixedPhone")
+                        .SetValue(Model == null ? "" : Model.FixedPhone)
+                        .SetValidateType(ValidateType.fixTelephoneNo)
+                        .SetOnChange("doCheckFixedPhone();")
+                        .SetWidth(250)
+                        .ToMvcString())
+                        <img class="hide" src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-cancel.png" id="imgFixedPhoneCheckedError"/>
+                        <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.FixedPhone) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgFixedPhoneCheckedOK"/>
+                        <span id="lbFixedPhoneCheck" class="required @(registerNotNull.Contains("固话") ? "" : "hide")">@(Model == null || string.IsNullOrWhiteSpace(Model.FixedPhone) ? "必填" : "")</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>联系地址</th>
+                    <td>
+                        @Html.JValidateBox("ContactAddress").SetValue(Model == null ? "" : Model.ContactAddress).SetOnChange("doCheckColNameIsPass('ContactAddress','联系地址');").SetWidth(250).ToMvcString()
+                        <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.ContactAddress) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgContactAddressCheckedOK"/>
+                        <span id="lbContactAddressCheck" class="required @(registerNotNull.Contains("联系地址") ? "" : "hide")">@(Model == null || string.IsNullOrWhiteSpace(Model.ContactAddress) ? "必填" : "")</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>证件类型</th>
+                    <td>
+                        @(Model == null ? "" : Model.CertificateTypeName)
+                    </td>
+                </tr>
+                <tr>
+                    <th>证件号码</th>
+                    <td>
+                        @(Model == null ? "" : Model.IdentityCardNo)
+                    </td>
+                </tr>
+                <tr>
+                    <th>单位机构</th>
+                    <td>
+                        @(Model == null ? "" : Model.OrganizationName)
+                    </td>
+                </tr>
+                @if (customerIsUserWorkTeam)
+                {
+                <tr>
+                    <th>所属团队</th>
+                    <td>
+                        @(Model == null ? "" : Model.UserWorkTeam)
+                    </td>
+                </tr>
+                }
+                <tr>
+                    <th>用户类型</th>
+                    <td>
+                        @(Model == null ? "" : Model.TagName)
+                    </td>
+                </tr>
+                 <tr>
+                    <th>身份</th>
+                    <td id="tdUserType">
+                        @(Model == null ? "" : Model.UserTypeName)
+                    </td>
+                </tr>
+                <tr id="trGrade" class='@(isStudent ? "" : "hide")'>
+                    <th>年级</th>
+                    <td>
+                        @Html.JValidateBox("Grade").SetValue(Model == null ? "" : Model.Grade).SetOnChange("doCheckColNameIsPass('Grade','年级');").SetWidth(250).ToMvcString()
+                        <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.Grade) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgGradeCheckedOK"/>
+                        <span id="lbGradeCheck" class="required @(registerNotNull.Contains("年级") ? "" : "hide")">@(Model == null || string.IsNullOrWhiteSpace(Model.Grade) ? "必填" : "")</span>
+                    </td>
+                </tr>
+                <tr id="trTutor" class='@(isStudent ? "" : "hide")'>
+                    <th>导师</th>
+                    <td>
+                        @(Model == null ? "" : Model.TutorName)
+                    </td>
+                </tr>
+                @if (customerIsRegistTutorMoneyCard)
+                {
+                     <tr class='@(!isStudent ? "" : "hide")'>
+                        <th>经费卡号</th>
+                        <td>
+                            @Html.JValidateBox("MoneyCard").SetValue(Model == null || Model.MoneyCard == null ? "" : Model.MoneyCard).SetOnChange("checkColNameIsPass('MoneyCard',true);").SetWidth(250).ToMvcString()
+                            <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.MoneyCard) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgMoneyCardCheckedOK"/>
+@*                            <span id="lbMoneyCardCheck">@(Model == null || string.IsNullOrWhiteSpace(Model.MoneyCard) ? "必填" : "")</span>*@
+                        </td>
+                    </tr>
+                }
+                <tr id="trJobtitle" class='@(!isStudent ? "" : "hide")'>
+                    <th>职称</th>
+                    <td>
+                        @Html.JValidateBox("Jobtitle").SetValue(Model == null ? "" : Model.Jobtitle).SetOnChange("doCheckColNameIsPass('Jobtitle','职称');").SetWidth(250).ToMvcString()
+                        <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.Jobtitle) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgJobtitleCheckedOK"/>
+                        <span id="lbJobtitleCheck" class="required @(registerNotNull.Contains("职称") ? "" : "hide")">@(Model == null || string.IsNullOrWhiteSpace(Model.Jobtitle) ? "必填" : "")</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>专业</th>
+                    <td>
+                        @Html.JValidateBox("Speciality").SetValue(Model == null ? "" : Model.Speciality).SetOnChange("doCheckColNameIsPass('Speciality','专业');").SetWidth(250).ToMvcString()
+                        <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.Speciality) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgSpecialityCheckedOK"/>
+                        <span id="lbSpecialityCheck" class="required @(registerNotNull.Contains("专业") ? "" : "hide")">@(Model == null || string.IsNullOrWhiteSpace(Model.Speciality) ? "必填" : "")</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>研究方向</th>
+                    <td>
+                        @Html.JValidateBox("ResearchDirection").SetValue(Model == null ? "" : Model.ResearchDirection).SetOnChange("doCheckColNameIsPass('ResearchDirection','研究方向');").SetWidth(250).ToMvcString()
+                        <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.ResearchDirection) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgResearchDirectionCheckedOK"/>
+                        <span id="lbResearchDirectionCheck" class="required @(registerNotNull.Contains("研究方向") ? "" : "hide")">@(Model == null || string.IsNullOrWhiteSpace(Model.ResearchDirection) ? "必填" : "")</span>
+                    </td>
+                </tr>
+                <tr id="trThesisTopic" class='@(isStudent ? "" : "hide")'>
+                    <th>拟研究论文题目</th>
+                    <td>
+                        @Html.JValidateBox("ThesisTopic").SetValue(Model == null ? "" : Model.ThesisTopic).SetOnChange("doCheckColNameIsPass('ThesisTopic','拟研究论文题目');").SetWidth(250).ToMvcString()
+                        <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.ThesisTopic) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgThesisTopicCheckedOK"/>
+                        <span id="lbThesisTopicCheck" class="required @(registerNotNull.Contains("拟研究论文题目") ? "" : "hide")">@(Model == null || string.IsNullOrWhiteSpace(Model.ThesisTopic) ? "必填" : "")</span>
+                    </td>
+                </tr>
+                @if (customerIsRegistUserAnimalExperimentInfo)
+                {
+                    <tr>
+                        <th>动物实验伦理编号</th>
+                        <td>
+                            @(Html.JValidateBox("AnimalExperimentNum")
+                            .SetValue(Model == null || Model.AnimalExperimentNum == null ? "" : Model.AnimalExperimentNum)
+                            .SetOnChange("doAnimalExperimentNumChange();")
+                            .SetWidth(250).ToMvcString())
+                            <img class="hide" src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-cancel.png" id="imgAnimalExperimentNumCheckedError"/>
+                            <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.AnimalExperimentNum) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgAnimalExperimentNumCheckedOK"/>
+                            <span id="lbAnimalExperimentNumCheck">@(Model == null || string.IsNullOrWhiteSpace(Model.AnimalExperimentNum) ? "必填" : "")</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>实验名称</th>
+                        <td>
+                            @Html.JValidateBox("AnimalExperimentName").SetValue(Model == null || Model.AnimalExperimentName == null ? "" : Model.AnimalExperimentName).SetOnChange("checkColNameIsPass('AnimalExperimentName',true);").SetWidth(250).ToMvcString()
+                            <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.AnimalExperimentName) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgAnimalExperimentNameCheckedOK"/>
+                            <span id="lbAnimalExperimentNameCheck">@(Model == null || string.IsNullOrWhiteSpace(Model.AnimalExperimentName) ? "必填" : "")</span>
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <th>卡号</th>
+                    <td>
+                        @(Model == null ? "" : Model.CardStr)
+                    </td>
+                </tr>
+                <tr>
+                    <th>有效时间</th>
+                    <td>
+                        @(Model == null ? "" : Model.ValidityTime.HasValue ? Model.ValidityTime.Value.ToString("yyyy-MM-dd") : "")
+                    </td>
+                </tr>
+                <tr>
+                    <th>绑定帐号</th>
+                    <td>
+                        @(Model == null ? "" : Model.NetId)
+                    </td>
+                </tr>
+                <tr>
+                    <th>备注</th>
+                    <td>
+                        @(Model == null ? "" : Model.Remark)
+                    </td>
+                </tr>
+                <tr class='@(Model == null ? "hide" : "")'>
+                    <th>用户状态</th>
+                    <td id="tdUserStatus">
+                        @(IsAuditWaitting ? UserStatus.AuditWaitting.ToCnName() : IsAuditPass ? UserStatus.AuditPass.ToCnName() : IsInvalid ? UserStatus.Invalid.ToCnName() : IsAuditReject ? UserStatus.AuditReject.ToCnName() : "")
+                    </td>
+                </tr>
+                <tr class='@(Model == null ? "hide" : "")'>
+                    <th>注册时间</th>
+                    <td>
+                        @(Model == null || !Model.RegisterTime.HasValue ? "" : Model.RegisterTime.Value.ToString())
+                    </td>
+                </tr>
+                <tr class='@(IsAuditPass || IsAuditReject ? "" : "hide")'>
+                    <th>审核人</th>
+                    <td>
+                        @(Model == null ? "" : Model.AuditorName)
+                    </td>
+                </tr>
+                <tr class='@(IsAuditPass || IsAuditReject ? "" : "hide")'>
+                    <th>审核时间</th>
+                    <td>
+                        @(Model == null || !Model.AuditTime.HasValue ? "" : Model.AuditTime.Value.ToString())
+                    </td>
+                </tr>
+                <tr class='@(IsAuditReject ? "" : "hide")'>
+                    <th>拒绝理由</th>
+                    <td>
+                        @(Model == null ? "" : Model.RefuseCause)
+                    </td>
+                </tr>
+                <tr class='@(IsInvalid || IsInBlackList ? "" : "hide")'>
+                    <th>禁止人</th>
+                    <td>
+                        @(Model == null ? "" : Model.ForbiderName)
+                    </td>
+                </tr>
+                <tr class='@(IsInvalid || IsInBlackList ? "" : "hide")'>
+                    <th>禁止时间</th>
+                    <td>
+                        @(Model == null || !Model.ForbidTime.HasValue ? "" : Model.ForbidTime.Value.ToString())
+                    </td>
+                </tr>
+                <tr class='@(IsInvalid || IsInBlackList ? "" : "hide")'>
+                    <th>禁止理由</th>
+                    <td>
+                        @(Model == null ? "" : Model.ForbidCause)
+                    </td>
+                </tr>
+                <tr class='@(Model == null ? "hide" : "")'>
+                    <th>登录次数</th>
+                    <td>
+                        @(Model == null || !Model.LoginTimes.HasValue ? "" : Model.LoginTimes.Value.ToString())
+                    </td>
+                </tr>
+                <tr class='@(Model == null ? "hide" : "")'>
+                    <th>最后登录时间</th>
+                    <td>
+                        @(Model == null || !Model.LastLoginTime.HasValue ? "" : Model.LastLoginTime.Value.ToString())
+                    </td>
+                </tr>
+                <tr class='@(Model == null ? "hide" : "")'>
+                    <th>最后登录IP</th>
+                    <td>
+                        @(Model == null ? "" : Model.LastLoginIP)
+                    </td>
+                </tr>
+            </table>
+        </form>
+        
+        <div class="edit-operate" style="margin-left:50px;">
+            @Html.JLinkButton("btnSaveBasic", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveBasic();return false;").ToMvcString()
+        </div>
+  </div>
+</div>

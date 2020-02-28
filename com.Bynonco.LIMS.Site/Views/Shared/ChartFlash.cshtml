@@ -1,0 +1,5 @@
+﻿@model com.Bynonco.LIMS.Model.Business.ChartFlashData
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divChartFlashBox" style="width:@(Model.Width + 40)px;height:@(Model.Height + 100)px;">
+    @Html.JChartFlash(Model.Id).SetSwfName(Model.ChartFlashSwfName).SetBackgroundColor(Model.BgColor).SetSettingsFileUrl(Model.SettingsFileUrl).SetDataFileUrl(Model.DataFileUrl).SetWidth(Model.Width).SetHeight(Model.Height).ToMvcString()
+</div>

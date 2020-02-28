@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    ViewBag.Title = "实施培训计划";
+    Layout = "~/Views/Shared/_OneColumnLayout.cshtml";
+    bool isLogin = Request.IsAuthenticated && ViewData["LoginUser"] != null;
+}
+@section ImportCssAndJs
+{
+    <script type="text/javascript">
+        function doSignUpEquipmentOpenTrainingCarryOut(id) 
+        {
+            if (id == null || id == "") {
+                $.messager.show({ title: '提示', msg: "请选择要报名的培训实施计划", showType: 'show' });
+                return false;
+            }
+            if('@isLogin.ToString().ToLower()' == 'true') {
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SignUp", "EquipmentOpenTrainingCarryOutSignUp")',
+                    data: { "equipmentOpenTrainingCarryOutId": id, "date": new Date().getMilliseconds() },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    }
+                });
+            }
+            else {
+                backToLogin();
+            }
+            return false;
+        }
+    </script>
+}
+@section MainFull
+{
+    <h2 class="title" style='text-align:center;'>
+        面向本科生开放的大型精密贵重仪器设备实施培训计划(@(ViewData["SemesterName"] == null ? "" : ViewData["SemesterName"].ToString()))
+    </h2>
+    <div class="content-box ">
+        @Html.Partial("../EquipmentOpenTrainingCarryOut/ShowCarryOutList")
+    </div>
+}

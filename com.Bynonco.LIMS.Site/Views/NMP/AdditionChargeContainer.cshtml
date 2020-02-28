@@ -1,0 +1,40 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{ 
+    var equipmentAdditionChargeItemList = ViewData["EquipmentAdditionChargeItems"] != null ? (IList<com.Bynonco.LIMS.Model.EquipmentAdditionChargeItem>)ViewData["EquipmentAdditionChargeItems"] : null;
+    var isEnableEidtUsedConfirmEquipmentAddtionChargeItem = ViewData["IsEnableEidtUsedConfirmEquipmentAddtionChargeItem"] != null ? (bool)ViewData["IsEnableEidtUsedConfirmEquipmentAddtionChargeItem"] : false;
+ }
+@if (equipmentAdditionChargeItemList != null && equipmentAdditionChargeItemList.Count>0)
+{
+    var equipmentAdditionChargeItems = ViewData["UsedConfirmEquipmentAdditionChargeItems"] != null ? (IDictionary<Guid, com.Bynonco.LIMS.Model.Business.ChargeItem>)ViewData["UsedConfirmEquipmentAdditionChargeItems"] : null;
+    equipmentAdditionChargeItemList = equipmentAdditionChargeItemList.OrderBy(p => p.Name).ToList();
+    foreach (var equipmentAdditionChargeItem in equipmentAdditionChargeItemList)
+    {
+        double price = equipmentAdditionChargeItem.StandardPrice;
+        var amount = 1;
+        if (equipmentAdditionChargeItems != null && equipmentAdditionChargeItems.Count > 0 && equipmentAdditionChargeItems.Any(p => p.Key == equipmentAdditionChargeItem.Id))
+        {
+            price = equipmentAdditionChargeItems[equipmentAdditionChargeItem.Id].Price;
+            amount = equipmentAdditionChargeItems[equipmentAdditionChargeItem.Id].Amount;
+        }
+        <tr>
+            <th>
+                @equipmentAdditionChargeItem.Name 
+            </th>
+            <td>
+               @Html.Hidden("hidOriginalUsedConfirmEquipmentAddtionChargeItemAmount" + equipmentAdditionChargeItem.Id, amount)
+               @Html.Hidden("hidOriginalUsedConfirmEquipmentAddtionChargeItemPrice" + equipmentAdditionChargeItem.Id, price)
+               @Html.Hidden("hidUsedConfirmEquipmentAddtionChargeItemAmount" + equipmentAdditionChargeItem.Id, amount)
+               @Html.Hidden("hidUsedConfirmEquipmentAddtionChargeItemPrice" + equipmentAdditionChargeItem.Id, price)
+               @Html.Hidden("hidUsedConfirmEquipmentAddtionChargeItemAmountChanged" + equipmentAdditionChargeItem.Id, false)
+               @Html.Hidden("hidUsedConfirmEquipmentAddtionChargeItemPriceChanged" + equipmentAdditionChargeItem.Id, false)
+               <span>数量:</span><span id='@("spanUsedConfirmEquipmenAddtionChargeItemAmount" + equipmentAdditionChargeItem.Id.ToString())'>@amount</span> 
+               <span>价格:</span><span id='@("spanUsedConfirmEquipmentAddtionChargeItemPrice" + equipmentAdditionChargeItem.Id.ToString())'>@price</span> 
+               @if (isEnableEidtUsedConfirmEquipmentAddtionChargeItem)
+               {
+                   
+                   @Html.JLinkButton("btn" + equipmentAdditionChargeItem.Id, "修改").SetOnclick(string.Format("doEditUsedConfirmEquipmentAdditionChargeItem('{0}');", equipmentAdditionChargeItem.Id)).SetPlain(true).SetIconCls("icon-edit").ToMvcString()
+               }
+            </td>
+        </tr>
+    }
+}

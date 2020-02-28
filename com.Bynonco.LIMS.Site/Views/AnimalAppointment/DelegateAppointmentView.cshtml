@@ -1,0 +1,161 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimalAppointment
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divAnimalAppointmentView" style="height:530px; width:600px; overflow-x:hidden;">
+    <h5>1.申请单审核</h5>
+     <table class="edit-table" style="width:100%">
+        <tr>
+             <th>
+               状态
+            </th>
+            <td>
+                 @System.Web.Mvc.MvcHtmlString.Create(Model.StatusStr)
+            </td>
+             <th>
+               审核人
+            </th>
+            <td>
+                 @Model.AutitorName
+            </td> 
+        </tr>
+        <tr>
+            <th>
+               审核时间
+            </th>
+            <td colspan="3">
+                @Model.AuditTimeStr
+            </td> 
+        </tr>
+        <tr>
+             <th>
+               审核备注
+            </th>
+            <td colspan="3">
+                 @Model.AuditRemark
+            </td> 
+        </tr>
+        <tr>
+            <th>
+                实际采购数量
+            </th>
+            <td>
+                总数量:@(Model.StatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalAppointmentStatus.Purchased ? Model.RealQuatityStr : "0")    &nbsp;&nbsp;♀数量:@(Model.StatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalAppointmentStatus.Purchased ? Model.MaleQuatity.ToString() : "0")   &nbsp;&nbsp;♂数量:@(Model.StatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalAppointmentStatus.Purchased ? Model.FemaleQuatity.ToString() : "0")
+            </td>
+            <th>
+                批次编号
+            </th>
+            <td>
+                @Model.AnimalCode
+            </td>    
+        </tr>
+        <tr>
+            <th>
+                质量合格证编号
+            </th>
+            <td colspan="3">
+                @Model.AnimalQualifiedNo
+            </td> 
+        </tr>
+        <tr>
+            <th>代购人</th>
+            <td>@Model.OperatorName</td>
+            <th>代购时间</th>
+            <td>@Model.OperatorTimeStr</td>
+        </tr>
+    </table>
+    <h5>2.采购登记信息</h5>
+    <table class="edit-table" style="width:100%">
+         <tr>
+             <th>
+               采购登记人
+            </th>
+            <td>
+                 @Model.PurchaseOperatorName
+            </td> 
+             <th>
+               采购登记时间
+            </th>
+            <td>
+                @Model.PurchaseTimeStr
+            </td>
+        </tr>
+        <tr>
+           
+             <th>
+               采购登记备注
+            </th>
+            <td  colspan="3">
+                 @Model.PurchaseRemark
+            </td> 
+        </tr>
+
+    </table>
+    <h5>3.申请信息</h5>
+    <table class="edit-table" style="width:100%">
+        <tr>
+            <th>
+                申请日期
+            </th>
+            <td>
+              @Model.ApplyTimeStr
+            </td>
+            <th>
+               申请人
+            </th>
+            <td>
+                 @Model.ApplicantName
+            </td> 
+        </tr>
+        <tr>
+            <th>
+               联系电话
+            </th>
+            <td>
+                @Model.ApplicantLinkTelNo
+            </td>
+             <th>
+               伦理编号
+            </th>
+            <td>
+                 @Model.EthicsNo
+            </td> 
+        </tr>
+        <tr>
+            <th>
+               动物品系
+            </th>
+            <td>
+                @Model.AnimalCategoryName
+            </td>
+             <th>
+               规格
+            </th>
+            <td>
+                 @Model.AnimalSpecifications
+            </td> 
+        </tr>
+        <tr>
+            <th>
+               性别
+            </th>
+            <td>
+                @Model.AnimalSexStr
+            </td>
+           <th>
+                申请动物数量
+            </th>
+            <td>
+                总数量: @Model.Quantity.ToString()  &nbsp;&nbsp;♂数量:@Model.MaleQuatity   &nbsp;&nbsp;♀数量:@Model.FemaleQuatity
+            </td>
+            
+        </tr>
+        <tr>
+             <th>
+               备注
+            </th>
+            <td colspan="3">
+                 @Model.Remark
+            </td> 
+        </tr>
+    </table>
+   
+</div>

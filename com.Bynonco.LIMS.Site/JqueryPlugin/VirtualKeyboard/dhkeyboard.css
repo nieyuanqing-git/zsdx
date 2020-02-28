@@ -1,0 +1,66 @@
+.clearfix {
+	ZOOM: 1
+}
+.clearfix:after {
+	DISPLAY: block; HEIGHT: 0px; VISIBILITY: hidden; CLEAR: both
+}
+.key {
+	WIDTH: 58px; HEIGHT: 55px; CURSOR: pointer
+}
+.row1 {
+	POSITION: absolute; PADDING-BOTTOM: 0px; LIST-STYLE-TYPE: none; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; TOP: 21px; LEFT: 21px
+}
+.row1 LI {
+	FLOAT: left; MARGIN-RIGHT: 4px
+}
+#k_shiftState {
+	COLOR: #999; FONT-SIZE: 1em
+}
+#k_capsState {
+	COLOR: #999; FONT-SIZE: 1em
+}
+.row2 {
+	POSITION: absolute; PADDING-BOTTOM: 0px; LIST-STYLE-TYPE: none; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; TOP: 79px; LEFT: 16px
+}
+.row2 LI {
+	FLOAT: left; MARGIN-RIGHT: 4px
+}
+#k_list {
+	TEXT-ALIGN: center; WIDTH: 151px; MARGIN-RIGHT: 2px
+}
+#ChiList {
+	BORDER-BOTTOM: medium none; BORDER-LEFT: medium none; BACKGROUND-COLOR: transparent; WIDTH: 151px; DISPLAY: block; HEIGHT: 182px; FONT-SIZE: 14px; OVERFLOW: auto; BORDER-TOP: medium none; CURSOR: default; BORDER-RIGHT: medium none
+}
+#tempwordsshow {
+	MIN-HEIGHT: 16px
+}
+#imemodulenow {
+	MARGIN: 0px 5px
+}
+.btn-up {
+	BORDER-BOTTOM: #dde23b 1px solid; BORDER-LEFT: #dde23b 1px solid; WIDTH: 30px; BACKGROUND: #8090c8; HEIGHT: 20px; FONT-SIZE: 8px; BORDER-TOP: #dde23b 1px solid; BORDER-RIGHT: #dde23b 1px solid
+}
+.btn-down {
+	BORDER-BOTTOM: #dde23b 1px solid; BORDER-LEFT: #dde23b 1px solid; WIDTH: 30px; BACKGROUND: #8090c8; HEIGHT: 20px; FONT-SIZE: 8px; BORDER-TOP: #dde23b 1px solid; BORDER-RIGHT: #dde23b 1px solid
+}
+.row3 {
+	POSITION: absolute; PADDING-BOTTOM: 0px; LIST-STYLE-TYPE: none; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; TOP: 137px; LEFT: 171px
+}
+.row3 LI {
+	FLOAT: left; MARGIN-RIGHT: 4px
+}
+.row4 {
+	POSITION: absolute; PADDING-BOTTOM: 0px; LIST-STYLE-TYPE: none; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; TOP: 195px; LEFT: 171px
+}
+.row4 LI {
+	FLOAT: left; MARGIN-RIGHT: 4px
+}
+.row5 {
+	POSITION: absolute; PADDING-BOTTOM: 0px; LIST-STYLE-TYPE: none; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; TOP: 253px; LEFT: 171px
+}
+.row5 LI {
+	FLOAT: left; MARGIN-RIGHT: 4px
+}
+#k_space {
+	WIDTH: 492px
+}

@@ -1,0 +1,90 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateViewUsedConfirmQueryExpression() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+        var labRoomXPath = $("#SearchLabRoomXPath").val().trim();
+        if (labRoomXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "LabRoomXPath→\"" + labRoomXPath + "\"";
+        }
+        var tutorName = $("#SearchTutorName").val().trim();
+        if (tutorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "TutorName∽\"" + tutorName + "\"";
+        }
+        var beginAtStart = $("#SearchBeginAtStart").datebox("getValue").trim();
+        if (beginAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt>\"" + beginAtStart + "\"";
+        }
+        var beginAtEnd = $("#SearchBeginAtEnd").datebox("getValue").trim();
+        if (beginAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt<\"" + beginAtEnd + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doViewUsedConfirmReset() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchUserName").val("");
+        $("#SearchTutorName").val("");
+        $("#SearchLabRoomXPath").val("");
+        $("#SearchLabRoomId").val('@Guid.Empty.ToString()');
+        $("#SearchBeginAtStart").datebox("setValue", "");
+        $("#SearchBeginAtEnd").datebox("setValue", "");
+        return false;
+    }
+
+    function getViewUsedConfirmSearchLabRoomXPath(element) {
+        $("#SearchLabRoomXPath").val("");
+        var labRoomId = element.value;
+        if (labRoomId != "" && !labRoomId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labRoomId }, function (data) {
+                if (data && data != "")
+                    $("#SearchLabRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="width:60px">使用者</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">放置地点</label>
+        @Html.DropDownList("SearchLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px;", onchange = "getViewUsedConfirmSearchLabRoomXPath(this);" })
+        @Html.Hidden("SearchLabRoomXPath")
+    </li>
+    <li>
+        <label style="width:60px">课题负责人</label>
+        @Html.JValidateBox("SearchTutorName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">开始时间</label>
+        @Html.JDateTimePicker("SearchBeginAtStart").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">结束时间</label>
+        @Html.JDateTimePicker("SearchBeginAtEnd").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+
+    <li class="button">
+        @Html.JLinkButton("btnViewUsedConfirmSearch", "查询").SetOnclick("doViewUsedConfirmSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnViewUsedConfirmReset", "清空").SetOnclick("doViewUsedConfirmReset();").ToMvcString()
+        @Html.JLinkButton("btnViewUsedConfirmClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

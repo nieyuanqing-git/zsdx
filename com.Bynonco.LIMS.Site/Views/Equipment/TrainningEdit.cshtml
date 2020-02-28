@@ -1,0 +1,59 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentTrainning
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divEquipmentTrainningEdit">
+ <form id="frmEquipmentTrainningEdit" action="#">
+    @Html.Hidden("EquipmentTrainningId", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("EquipmentId", Model == null ? ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString() : Model.EquipmentId.ToString())
+    <table id="tdEquipmentTrainningEdit" class="edit-table"  style="width:420px;">
+         <tr>
+            <th>申请人</th>
+            <td id="tdCreator">
+                @(Html.TokenInput("CreatorId")
+                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                    .SetPrePopulate(ViewData["CreatorJson"] == null || string.IsNullOrWhiteSpace(ViewData["CreatorJson"].ToString()) ? null : ViewData["CreatorJson"].ToString())
+                    .SetSingle(true)
+                    .SetPreventDuplicates(true)
+                    .SetWidth(200)
+                    .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>申请日期</th>
+            <td>
+                @Html.JDateTimePicker("CreateTime").SetWidth(205).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.CreateTime.ToString("yyyy-MM-dd")).ToMvcString()
+                <span class="">必填</span>
+            </td>
+        </tr>
+         <tr>
+            <th>当前状态</th>
+            <td>
+                @(Html.JComboBox("Status")
+                .SetData(ViewData["StatusJson"])
+                .SetWidth(205).ToMvcString())
+                <span class="">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>登记日期</th>
+            <td>@Html.JDateTimePicker("RegisterTime").SetDisabled(true).SetWidth(205).SetValue(Model == null || !Model.RegisterTime.HasValue ? "" : Model.RegisterTime.Value.ToString("yyyy-MM-dd")).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>登记人</th>
+            <td>
+                @Html.JValidateBox("RegisterName").SetWidth(200).SetReadOnly(true).SetValue(Model == null || !Model.RegisterId.HasValue ? "" : Model.RegisterName).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:320px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdCreator ul.token-input-list-facebook").css("width", "205px");
+    });
+</script>

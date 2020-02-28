@@ -1,0 +1,20 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUser
+<div id="divUserSetInvalid">
+    <form id="frmUserSetInvalid" action="#">
+        @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+        <table class="edit-table" style="width:385px;">
+            <tr>
+                <th>用户</th>
+                <td>
+                    @(Model == null ? "" : Model.UserName.ToString())
+                </td>
+            </tr>
+            <tr>
+                <th>禁止理由</th>
+                <td>
+                    @Html.TextArea("ForbidCause", "", new { style = "font-size:12px;text-decoration:none;height:60px;width:295px;margin-right:5px;" })
+                </td>
+            </tr>
+        </table>
+    </form>
+</div> 

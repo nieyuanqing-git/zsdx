@@ -1,0 +1,73 @@
+﻿ @{
+     var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+     var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+ }
+ <script type="text/javascript">
+     var perPageSize = 10;
+     function doSelectNMPPageTop(pageNumber, pageSize) {
+         var pageNumber = $('#PageNMPListTop').pagination("options").pageNumber;
+         var pageSize = $('#PageNMPListTop').pagination("options").pageSize;
+         doLoadNMPList(pageNumber, pageSize);
+         return false;
+     }
+     function doSelectNMPPage(pageNumber, pageSize) {
+         var pageNumber = $('#PageNMPList').pagination("options").pageNumber;
+         var pageSize = $('#PageNMPList').pagination("options").pageSize;
+         doLoadNMPList(pageNumber, pageSize);
+         return false;
+     }
+     function GetNMPIsHome() {
+         if ('@(isHome.ToString().ToLower())' == 'true') {
+             return "&isHome=true";
+         }
+         return "";
+     }
+     function GetNMPSort() {
+         if (!$("div.sort-item.current")) return "";
+         var sortname = $("div.sort-item.current").attr("sortname");
+         var sort = $("div.sort-item.current").hasClass("datagrid-sort-desc") ? "desc" : "asc";
+         return "&sort=" + sortname + "&order=" + sort;
+     }
+     function doLoadNMPList(pageNumber, pageSize) {
+         $(".panel-header").removeClass('hide');
+         if ($("#NMPList").length > 0) {
+             $.messager.progress({ title: '提示', msg: '正在加载仪器信息,请稍候……' });
+             $.ajax({
+                 type: "Post",
+                 url: '@Url.Action("PaginationList", "NMP")',
+                 data: $("#frmNMPSearchCondition").serialize() + GetNMPIsHome() + GetNMPSort() + "&page=" + pageNumber + "&rows=" + pageSize + "&date=" + new Date(),
+                 success: function (data) {
+                     $.messager.progress('close');
+                     if (data && data.indexOf("出错") != -1) {
+                         $.messager.show({ title: '提示', msg: "获取工位信息出错", showType: 'show' });
+                     }
+                     else {
+                         $("#NMPList").html(data);
+                     }
+                     ajaxloadsuccess();
+                     return false;
+                 }
+             });
+         }
+     }
+     $(function () {
+         doLoadNMPList(1, perPageSize);
+         $(".sort-item").click(function () {
+             var sortclass = "datagrid-sort-desc";
+             if ($(this).hasClass("datagrid-sort-desc"))
+                 sortclass = "datagrid-sort-asc";
+             $(this).removeClass("datagrid-sort-asc");
+             $(this).removeClass("datagrid-sort-desc");
+             $(this).addClass(sortclass);
+             $(this).addClass("current");
+             $(this).siblings().removeClass("current");
+             doLoadNMPList(1, perPageSize);
+         });
+     });
+     function doShowNMPDetailInfo(nmpId) {
+         var url = '@Url.Action("Detail", "NMP")' + "?id=" + nmpId + "&time=" + new Date().getMilliseconds();
+         ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+         return false;
+     }
+     
+</script>

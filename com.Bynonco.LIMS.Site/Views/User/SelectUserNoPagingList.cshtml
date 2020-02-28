@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JDataGrid("tbSelectUserNoPagingList")
+       .SetUrl(Url.Action("GetSelectViewUserList", "User"))
+       .AddQueryParam("queryExpression", ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString())
+       .SetHeight(550)
+       .SetSortName("UserName")
+       .SetShowAddButton(false)
+       .SetShowEditButton(false)
+       .SetShowDeleteButton(false)
+       .SetShowRefreshButton(false)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(false)
+       .SetOnCheck("doOnSelectUserNoPagingOnCheck(rowIndex,rowData);")
+       .SetOnUncheck("doOnSelectUserNoPagingOnUncheck(rowIndex,rowData);")
+       .SetOnCheckAll("doOnSelectUserNoPagingOnCheckAll(rows);")
+       .SetOnUncheckAll("doOnSelectUserNoPagingOnUncheckAll(rows);")
+       .SetOnLoadSuccess("doInitSelectedUsers();");
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(45).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("姓名", "UserName").SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "UserStatusStr").SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("身份", "UserTypeName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "TutorName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "TagName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("单位", "OrganizationName").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("邮箱", "Email").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("电话", "PhoneNumber").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("注册时间", "RegisterTimeStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchZPanel();", IconCls = "icon-search", Id = "btnGridSearchZPanel", Text = "搜索" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowUserSelectList();", IconCls = "icon-ok", Id = "btnShowSelect", Text = "显示选择" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearch();", IconCls = "icon-reload", Id = "btnReload", Text = "显示全部" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doUserEmptySlecet();", IconCls = "icon-delete", Id = "btnUserEmptySlecet", Text = "清空选择" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSelectAllSearch();", IconCls = "icon-users", Id = "btnSelectAllSearch", Text = "跨页全选" });
+}
+@(dataGrid.ToMvcString())

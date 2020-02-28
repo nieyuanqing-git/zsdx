@@ -1,0 +1,103 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core; 
+@Html.Hidden("Id",Model.Id.ToString())
+@{var nmpPrivilige = Model != null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.Id);}
+<p><span class="icon icon-pic"></span>工位图标</p>
+<div style="position:relative; height:380px;">
+    <div style="position:absolute; top:10px;">@Html.Partial("IconList")</div>
+</div>
+@if (nmpPrivilige.IsEnableAdd)
+{
+    <div class="edit-operate">
+        <span>
+            图片文件
+            <input id="fileToUpload" type="file" name="fileToUpload" />
+            </span>
+        <span style="padding-left:15px">
+            是否默认
+            @Html.CheckBox("IsDefault")
+        </span>
+        <span style="padding-left:15px">
+            @Html.JLinkButton("btnUpLoad", "上传图片").SetPlain(true).SetDisabled(!nmpPrivilige.IsEnableSaveIcon).SetIconCls("icon-upload").SetOnclick("ajaxFileUpload();return false;").ToMvcString()
+        </span>
+       <br />
+       <span style="padding-left:45px;font-weight:bold">@ViewData["UpploadFileTip"]</span>
+       <br />
+    </div>
+}
+<script type="text/javascript">
+    function doDeletNMPIcon() {
+        var rows = $('#tbNMPIconList').datagrid("getSelections");
+        if (!rows || rows == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的工位图片", showType: 'show' });
+            return false;
+        }
+        var iconNames = "";
+        var id =  $("#Id").val();
+        for (var i = 0; i < rows.length; i++) {
+            var iconName = rows[i].IconName + "." + rows[i].IconExt ;
+            iconNames += i == 0 ? iconName : ";" + iconName;
+        }
+        $.messager.progress({ title: '提示', msg: '正在删除工位图片,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteIcon","NMP")' + "?time=" + new Date().getMilliseconds(),
+            data: { "id": id, "iconNames": encodeURI(iconNames) },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false; 
+    }
+    function ajaxFileUpload() {
+        var file = $("#fileToUpload").val();
+        if (!doValidates(file)) return false;
+        var id = $("#Id").val();
+        var isDefault = $("#IsDefault").attr("checked");
+        $.ajaxFileUpload({
+            url: '@Url.Action("SaveIcon","NMP")' + "?time=" + new Date().getMilliseconds() + "&id=" + id + "&isDefault=" + (isDefault ? "true" : "false"),
+            secureuri: false,
+            dataType:"text",
+            fileElementId: 'fileToUpload',
+            success: function (data, status) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false;
+    }
+    function doValidates(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        var fileName = file.getFileName().trim();
+        if (fileName.indexOf("\\") != -1 || fileName.indexOf("/") != -1) {
+            $.messager.show({ title: '提示', msg: "文件名包含非法字符【\\】【/】", showType: 'show' });
+            return false;
+        }
+        var rows = $("#tbNMPIconList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if ((rows[i].IconName.trim() + "." + rows[i].IconExt.trim()) == fileName) {
+                    $.messager.show({ title: '提示', msg: "文件名【" + fileName + "】已经存在", showType: 'show' });
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    function doSearch() {
+        $("#tbNMPIconList").datagrid("reload");
+    }
+</script>

@@ -1,0 +1,91 @@
+﻿@{
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+    var sbUserDefinedParams = ViewBag.UserDefinedParams == null ? "" : ViewBag.UserDefinedParams.ToString();
+    if (ViewData["NavMenu"] != null)
+    {
+        IList<com.Bynonco.LIMS.Model.ModuleFunction> moduleFunctionList = (IList<com.Bynonco.LIMS.Model.ModuleFunction>)ViewData["NavMenu"];
+        if (moduleFunctionList != null && moduleFunctionList.Count > 0)
+        {
+            if (moduleFunctionList.Count == 1 && moduleFunctionList.First().ControllerName == "Admin" && moduleFunctionList.First().ActionName == "Home")
+            {
+            }
+            else
+            {
+                bool isShowHome = true;
+                if (moduleFunctionList.First().ControllerName == "Admin" && moduleFunctionList.First().ActionName == "Home")
+                {
+                    isShowHome = false;
+                }
+            <div class="nav-menu-current">
+                <ul>
+                    @if (isShowHome)
+                    {
+                        <li class="first">
+                            <span class="nav-middle">
+                                <span class="nav-left">
+                                    <span class="nav-right">
+                                        @if (isAjax)
+                                        {
+                                            @Ajax.ActionLink("个人首页", "Home", "Admin", new { userParameters = sbUserDefinedParams.ToString(), date = DateTime.Now.Millisecond }, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess", OnBegin = "ajaxloadbegin" })
+                                        }
+                                        else
+                                        {
+                                            @Html.ActionLink("个人首页", "Home", "Admin", null, null)
+                                        }
+                                    </span>
+                                </span>
+                            </span>
+                        </li>
+                    }
+                    @for (int i = 0; i < moduleFunctionList.Count(); i++)
+                    {
+                        var item = moduleFunctionList[i];
+                        if (i == moduleFunctionList.Count() - 1)
+                        {
+                            <li class="last">
+                                <span class="nav-middle">
+                                    <span class="nav-left">
+                                        <span class="nav-right">
+                                            <a href="javascript:;">@(item.text + (Model == null || Model.Id == Guid.Empty ? "" : " - " + Model.text + ""))</a>
+                                        </span>
+                                    </span>
+                                </span>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class='@(i == 0 && !isShowHome ? "first" : "")'>
+                                <span class="nav-middle">
+                                    <span class="nav-left">
+                                        <span class="nav-right">
+                                            @{   
+                                               var id = Model == null || Model.Id == Guid.Empty ? "" : Model.Id.ToString();
+                                               var text = item.text;
+                                               if (Model != null && Model.GetType() == typeof(com.Bynonco.LIMS.Model.View.ViewEquipmentRepair)
+                                                   && item.ActionName.ToLower() == "edit" && item.ControllerName.ToLower() == "equipment")
+                                               {
+                                                   id = Model == null ? "" : Model.EquipmentId.ToString();
+                                                   text += Model == null ? "" : " - " + Model.EquipmentName;
+                                               }
+                                               if (isAjax)
+                                               {
+                                                    @Ajax.ActionLink(text, item.ActionName, item.ControllerName, new { id = id, userParameters = sbUserDefinedParams.ToString(), date = DateTime.Now.Millisecond }, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess", OnBegin = "ajaxloadbegin" })
+                                               }
+                                               else
+                                               {
+                                                    @Html.ActionLink(text, item.ActionName, item.ControllerName, new { id = id, userParameters = sbUserDefinedParams.ToString() }, null)
+                                               }
+                                            }
+                                        </span>
+                                    </span>
+                                </span>
+                            </li>
+                        }
+                    }
+                    <div class="clear-both"></div>
+                </ul>
+            </div>
+            }
+        }
+    }
+}

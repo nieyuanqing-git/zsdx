@@ -1,0 +1,21 @@
+﻿@model IList<com.Bynonco.LIMS.Model.LabOrganization>
+@using com.Bynonco.JqueryEasyUI.Core;
+@if (Model != null && Model.Count > 0)
+{
+    foreach(var org in Model)
+    {
+        @Html.Partial("ExaminationSettingForShow",org)
+    }
+    
+}
+else
+{
+    <p>无相关信息</p>
+}
+<script type="text/javascript">
+    function doExaminationSettingForOrgAdmin(id, returnUrl) {
+        var url = '@Url.Action("ExaminationIndexForOrgAdmin", "LabOrganization")' + "?id=" + encodeURI(id) + "&returnUrl=" + encodeURI(returnUrl) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>

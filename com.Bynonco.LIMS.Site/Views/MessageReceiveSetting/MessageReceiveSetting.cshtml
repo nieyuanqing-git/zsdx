@@ -1,0 +1,61 @@
+﻿@model IList<com.Bynonco.LIMS.Model.UserMessageNoticeSetting>
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var messageReceiveSettingPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetMessageReceiveSettingPrivilige(User.Identity.Name);
+    var userInnerMessageNoticeSettingList = Model.Where(p => p.MessageSendType == (int)com.Bynonco.LIMS.Model.Enum.MessageSender.InnerMessageSender);
+    var userEmailNoticeSettingList = Model.Where(p => p.MessageSendType == (int)com.Bynonco.LIMS.Model.Enum.MessageSender.EmailMessageSender);
+    var userShortMessageNoticeSettingList = Model.Where(p => p.MessageSendType == (int)com.Bynonco.LIMS.Model.Enum.MessageSender.ShortMessageSender);
+    var userWeiXinManagerMessageNoticeSettingList = Model.Where(p => p.MessageSendType == (int)com.Bynonco.LIMS.Model.Enum.MessageSender.weixinManagerMessageSender);
+ }
+<form id="frmUserMessageNoticeSetting" action="#">
+    @Html.Hidden("UserId", ViewData["User"] != null ? ((com.Bynonco.LIMS.Model.User)ViewData["User"]).Id.ToString() : "")
+    <p>相关操作说明</p>
+    <table class="edit-Info">
+         <tr>
+            <th style="color:Red;"><b><span style="color:Blue;">蓝色</span>的设置是不可能修改的，有的系统消息涉及到系统业务流程，只能接收才能完成相关流程</b></th>
+         </tr>
+         <tr>
+            <th style="color:Red;"><b>接收时间格式(HH:mm-HH:mm),如08:00-20:00,多个时间段逗号分隔</b></th>
+         </tr>
+    </table>
+    @Html.Partial("MessageReceiveSettingItem", userWeiXinManagerMessageNoticeSettingList)
+    @Html.Partial("MessageReceiveSettingItem", userInnerMessageNoticeSettingList)
+    @Html.Partial("MessageReceiveSettingItem", userEmailNoticeSettingList)
+    @Html.Partial("MessageReceiveSettingItem", userShortMessageNoticeSettingList)
+   
+    <div class="edit-operate">
+        @Html.JLinkButton("btnSave", "保存").SetPlain(true).SetDisabled(messageReceiveSettingPrivilige == null || !messageReceiveSettingPrivilige.IsEnableSave).SetOnclick("doSaveUserMessageNoticeSetting();").SetIconCls("icon-save").ToMvcString()
+    </div>
+</form>
+<script type="text/javascript">
+    function doOnIsUseDefaultSettingChange(defaultEelement, trEelementId, defaultEelementId, messgeSenderType) {
+        var isSelect = $(defaultEelement).attr("checked");
+        $("#" + trEelementId).css("display", isSelect ? "none" : "");
+        if (isSelect) {
+            if (defaultEelement.id.indexOf("-1") != -1) {
+                $("." + messgeSenderType).attr("checked", "checked");
+                $(".tr" + messgeSenderType).css("display", "none");
+            }
+        }
+        else if (defaultEelement.id.indexOf("-1") == -1) {
+            $("#" + defaultEelementId).removeAttr("checked");
+        }
+    }
+    function doSaveUserMessageNoticeSetting() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveMessageReceiveSetting", "MessageReceiveSetting")' + "?time=" + new Date().getMilliseconds(),
+            data: $("#frmUserMessageNoticeSetting").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+    }
+</script>

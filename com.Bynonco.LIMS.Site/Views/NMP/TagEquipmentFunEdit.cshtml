@@ -1,0 +1,37 @@
+﻿@model com.Bynonco.LIMS.Model.NMPTagEquipmentFun
+@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+     #tdWorkTimes th,#tdWorkTimes td{ border:none}
+</style>
+<div id="divTagEquipmentFunEdit">
+    <form id="frmTagEquipmentFunEdit" action="#">
+    @Html.Hidden("NMPTagEquipmentFunId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style="width:700px;">
+        <tr>
+            <th>用户类型<span class="required">*</span></th>
+            <td id="tdTagId">
+                   @(Html.TokenInput("TagId")
+                    .SetUrl(Url.Action("GetTagListByKeyWord", "UserTag"))
+                    .SetPrePopulate(ViewData["TagJson"] == null || string.IsNullOrWhiteSpace(ViewData["TagJson"].ToString()) ? null : ViewData["TagJson"].ToString())
+                    .SetSingle(true)
+                    .SetPreventDuplicates(true)
+                    .SetWidth(350)
+                    .ToMvcString())
+              
+            </td>
+        </tr>
+        <tr>
+            <th>预留时间段</th>
+            <td  id="tdWorkTimes">
+               @Html.Partial("../Equipment/AppointmentTimesOfDay")
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdTagId ul.token-input-list-facebook").css("width", "520px");
+        $("#tdTagId ul.token-input-list-facebook").css("height", "20px");
+    });
+</script>

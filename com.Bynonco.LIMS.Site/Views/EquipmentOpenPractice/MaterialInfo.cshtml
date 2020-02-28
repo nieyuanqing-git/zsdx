@@ -1,0 +1,8 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPracticeMaterial
+@if (Model != null)
+{
+    <tr>
+        <td style='text-align:center;'>@Model.MaterialName</td>
+        <td style='text-align:center;'>@Math.Round(Model.ApplyMoney,2).ToString()</td>
+    </tr>
+}

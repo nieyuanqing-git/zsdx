@@ -1,0 +1,115 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var doorId = ViewData["DoorId"] == null ? "" : ViewData["DoorId"].ToString();
+    var userId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString();
+}
+<div id='divUserDoorContinuedAuthorizationManage' style='@(doorId==""?"" : "width:800px;")'>
+    <div class="y-panel-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../Door/SearchAuthorization")
+        </div>
+    </div>
+    <div>
+        @Html.Partial("../Door/UserDoorContinuedAuthorizationList")
+    </div>
+    <div id="divUserDoorContinuedAuthorizationDialog" style="display:none"></div>
+</div>
+<script type="text/javascript">
+    function generateUserDoorContinuedAuthorizationSelectedIds() {
+        var ids = [];
+        var rows = $("#tbUserDoorContinuedAuthorizationList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDeleteUserDoorContinuedAuthorization(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateUserDoorContinuedAuthorizationSelectedIds().toString(): ids;
+        if (delIds == null || delIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否删除该周期性授权信息?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UserDoorContinuedAuthorizationDelete", "Door",new { date=DateTime.Now.Millisecond})',
+                data: { "ids": delIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    SearchUserDoorContinuedAuthorization();
+                }
+            });
+        });
+        return false;
+    }
+
+    var userDoorContinuedAuthorizationDialog;
+    function doUserDoorContinuedAuthorizationDialog() {
+        if (userDoorContinuedAuthorizationDialog) {
+            userDoorContinuedAuthorizationDialog.dialog("destroy");
+        }
+        userDoorContinuedAuthorizationDialog =  @Html.JDialog("divUserDoorContinuedAuthorizationEdit").SetTitle("门禁周期性授权信息").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("userDoorContinuedAuthorizationDialog.dialog('destroy');return false;").SetCancelScript("userDoorContinuedAuthorizationDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveUserDoorContinuedAuthorization();").ToMvcString();
+    }
+    function doAddOrEditUserDoorContinuedAuthorization(id){
+        var doorId = '@(ViewData["DoorId"]==null? "" :ViewData["DoorId"].ToString())';
+        var userId = '@(ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString())';
+        var url = '@Url.Action("UserDoorContinuedAuthorizationEdit","Door")';
+        $("#divUserDoorContinuedAuthorizationDialog").load(url,{"id":id,"DoorId":doorId,"UserId":userId,"date":new Date().getMilliseconds()},function(){
+            doUserDoorContinuedAuthorizationDialog();
+        })
+        return false;
+    }
+    function doAddUserDoorContinuedAuthorization(id) {
+       doAddOrEditUserDoorContinuedAuthorization(id);
+    }
+    function doEditUserDoorContinuedAuthorization(id) {
+       if(!id || id.trim()==""){
+           var selectedUserDoorContinuedAuthorization = $("#tbUserDoorContinuedAuthorizationList").datagrid("getSelected");
+           if(!selectedUserDoorContinuedAuthorization || selectedUserDoorContinuedAuthorization.Id=="" || selectedUserDoorContinuedAuthorization.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedUserDoorContinuedAuthorization.Id;
+       }
+       doAddOrEditUserDoorContinuedAuthorization(id);
+    }
+    function doSaveUserDoorContinuedAuthorization(){
+        if($("#tdUserDoorContinuedAuthorizationEdit #DoorId").val().trim() == ""){
+             $.messager.show({ title: '提示', msg: "门禁为空", showType: 'show' });
+             return false;
+        }
+        if($("#tdUserDoorContinuedAuthorizationEdit #UserId").val().trim() == ""){
+             $.messager.show({ title: '提示', msg: "用户为空", showType: 'show' });
+             return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("UserDoorContinuedAuthorizationSave","Door",new { date=DateTime.Now.Millisecond})',
+            data: $("#frmUserDoorContinuedAuthorizationEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                userDoorContinuedAuthorizationDialog.dialog('destroy');
+                SearchUserDoorContinuedAuthorization();
+            }
+        });
+    }
+    function SearchUserDoorContinuedAuthorization()
+    {
+        var queryExpression = generateDoorAuthorizationQueryExpress();
+        $("#tbUserDoorContinuedAuthorizationList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUserDoorContinuedAuthorizationList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+</script>

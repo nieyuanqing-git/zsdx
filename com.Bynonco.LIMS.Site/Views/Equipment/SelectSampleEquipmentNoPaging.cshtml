@@ -1,0 +1,21 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSelectEquipmentDialog">
+    <div class="search-grid hide">
+        <div class="search-inner-box">@Html.Partial("../Equipment/SelectEquipmentSearch")</div>
+    </div>
+    <div>@Html.Partial("../Equipment/SelectSampleEquipmentListNoPaging")</div>
+</div>
+<script type="text/javascript">
+    function doEquipmentSearch() {
+        var queryExpression = generateEquipmentQueryExpress();
+        var url = $("#tbSelectEquipmentList").datagrid("options").url;
+        var pos = url.indexOf("?");
+        if (pos != -1) {
+            url = url.substring(0, pos);
+            $("#tbSelectEquipmentList").datagrid("options").url = url;
+        }
+        $("#tbSelectEquipmentList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSelectEquipmentList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+</script>

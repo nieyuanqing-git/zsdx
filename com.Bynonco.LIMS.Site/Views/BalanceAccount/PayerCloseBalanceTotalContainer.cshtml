@@ -1,0 +1,115 @@
+﻿@model com.Bynonco.LIMS.Model.BalanceAccount
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+<div style="display:none">@Html.Partial("../SampleManage/SampleApplyScriptContainer")</div>
+<div id="divBalanceAccountDetail" style="height:620px;width:900px;overflow:hidden">
+    <div class="z-panel-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../BalanceAccount/PayerBalanceTotalSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../BalanceAccount/BalanceAccountDetail")</div>
+    <div>@Html.Partial("../BalanceAccount/PayerCloseBalanceTotalList")</div>
+   <div id="divCloseBalanceTotalDetailDialog" style="display:none"></div>
+</div>
+<script type="text/javascript">
+    var curBalanceAccountQueryExpression = "";
+    var balanceAccountId = '@(Model.Id.ToString())';
+    var viewCloseBalanceTotalDetailDialog;
+    function doViewBalanceTotalDetail(payerId) {
+        var url = '@Url.Action("ViewCloseBalanceTotalDetail", "BalanceAccount")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if(viewCloseBalanceTotalDetailDialog){
+            viewCloseBalanceTotalDetailDialog.dialog("destroy");
+        }
+        $("#divCloseBalanceTotalDetailDialog").load(url, {"payerId": payerId,"balanceAccountId":balanceAccountId,"queryExpression": curBalanceAccountQueryExpression.trim() }, function () {
+            $.messager.progress('close');
+            viewCloseBalanceTotalDetailDialog = @(Html.JDialog("divUnCloseBalanceTotalDetail").SetTitle("付费人扣费列表").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("viewCloseBalanceTotalDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewCloseBalanceTotalDetailDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    function doSearch() {
+        var queryExpression = generatePayerBalanceTotalQueryExpression();
+        $("#tbPayerCloseBalanceTotalList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbPayerCloseBalanceTotalList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        curBalanceAccountQueryExpression = queryExpression;
+    }
+    function doExportPayerCloseBalanceTotal() {
+        var queryData = getPayerBalanceTotalQueryData();
+        var url = '@Url.Action("ExportPayerCloseBalanceTotal", "BalanceAccount")'
+                  + "?beginDate=" + queryData.beginDate
+                  + "&endDate=" + queryData.endDate
+                  + "&payerId=" + queryData.payerId
+                  + "&subjectId=" + queryData.subjectId
+                  + "&equipmentId=" + queryData.equipmentId
+                  + "&queryExpression=" + curBalanceAccountQueryExpression
+                  + "&balanceAccountId=" + balanceAccountId
+                  + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    function doExportPayerCloseBalanceTotalDetail() {
+        var queryData = getPayerBalanceTotalQueryData();
+        var url = '@Url.Action("ExportPayerCloseBalanceTotalDetail", "BalanceAccount")'
+                  + "?beginDate=" + queryData.beginDate
+                  + "&endDate=" + queryData.endDate
+                  + "&payerId=" + queryData.payerId
+                  + "&subjectId=" + queryData.subjectId
+                  + "&equipmentId=" + queryData.equipmentId
+                  + "&queryExpression=" + curBalanceAccountQueryExpression
+                  + "&balanceAccountId=" + balanceAccountId
+                  + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    function doExportBalanceAppointmentDetail() {
+        var queryData = getPayerBalanceTotalQueryData();
+        var url = '@Url.Action("ExportBalanceAppointmentDetail", "BalanceAccount")'
+                  + "?beginDate=" + queryData.beginDate
+                  + "&endDate=" + queryData.endDate
+                  + "&payerId=" + queryData.payerId
+                  + "&subjectId=" + queryData.subjectId
+                  + "&equipmentId=" + queryData.equipmentId
+                  + "&queryExpression=" + curBalanceAccountQueryExpression
+                  + "&balanceAccountId=" + balanceAccountId
+                  + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    function doExportBalanceSampleApplyDetail() {
+        var queryData = getPayerBalanceTotalQueryData();
+        var url = '@Url.Action("ExportBalanceSampleApplyDetail", "BalanceAccount")'
+                  + "?beginDate=" + queryData.beginDate
+                  + "&endDate=" + queryData.endDate
+                  + "&payerId=" + queryData.payerId
+                  + "&subjectId=" + queryData.subjectId
+                  + "&equipmentId=" + queryData.equipmentId
+                  + "&queryExpression=" + curBalanceAccountQueryExpression
+                  + "&balanceAccountId=" + balanceAccountId
+                  + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    function doExportBalanceManualCostDeductDetail() {
+        var queryData = getPayerBalanceTotalQueryData();
+        var url = '@Url.Action("ExportBalanceManualCostDeductDetail", "BalanceAccount")'
+                  + "?beginDate=" + queryData.beginDate
+                  + "&endDate=" + queryData.endDate
+                  + "&payerId=" + queryData.payerId
+                  + "&subjectId=" + queryData.subjectId
+                  + "&equipmentId=" + queryData.equipmentId
+                  + "&queryExpression=" + curBalanceAccountQueryExpression
+                  + "&balanceAccountId=" + balanceAccountId
+                  + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    function doExportBalanceAppointmentPredictDetail() {
+        var queryData = getPayerBalanceTotalQueryData();
+        var url = '@Url.Action("ExportBalanceAppointmentPredictDetail", "BalanceAccount")'
+                  + "?beginDate=" + queryData.beginDate
+                  + "&endDate=" + queryData.endDate
+                  + "&payerId=" + queryData.payerId
+                  + "&subjectId=" + queryData.subjectId
+                  + "&equipmentId=" + queryData.equipmentId
+                  + "&queryExpression=" + curBalanceAccountQueryExpression
+                  + "&balanceAccountId=" + balanceAccountId
+                  + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    
+</script>

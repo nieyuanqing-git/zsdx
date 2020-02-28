@@ -1,0 +1,82 @@
+﻿@model com.Bynonco.LIMS.Model.DelinquencyRule
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+<style type="text/css">
+     #tbPunishConfirm th,#tbPunishConfirm td span{font-weight:bold}
+</style>
+<script type="text/javascript">
+    var punishConfirmDialog;
+    function doShowPunishConfirmDialog() {
+        punishConfirmDialog = @(Html.JDialog("divPunishConfirmContainer").SetTitle("不良行为处罚确认").SetAutoDialog(false).SetOkScript("doPunish();return false;").SetCancelScript("doCancelPunish();return false;").SetIconCls("icon-save").ToMvcString());
+    }
+    function doOnPunishConfirmStopTypeChange(){
+        var punishConfirmStopType = $("#isAutoStop").combobox("getValue");
+        if(!punishConfirmStopType) return;
+        if(punishConfirmStopType=="true") $("#divEndAt").show();
+        else $("#divEndAt").hide();  
+    }
+    function doPunish(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("Punish", "Delinquency")',
+            data: $("#frmPublishConfirm").serialize(),
+            success: function (msg) {
+                if(typeof(doPunishConfirmCallBack)=="function"){
+                   doPunishConfirmCallBack();
+                }
+                $.messager.progress('close');
+                
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                punishConfirmDialog.dialog('close');
+              }
+       });
+    }
+    function doCancelPunish(){
+        if(typeof(doPunishConfirmCallBack)=="function"){
+            doPunishConfirmCallBack();
+        }
+        punishConfirmDialog.dialog('close');
+    }
+</script>
+<div id="divPunishConfirmContainer" style="width:350px">
+    <form id="frmPublishConfirm" action="#">
+    @Html.Hidden("punishRecordId", ViewData["PunishRecordId"].ToString())
+    <table id="tbPunishConfirm" class="edit-table">
+         @if (Model.TypeEnum > PunishType.TutorWarning)
+         {
+            <tr>
+                <th>惩罚停止方式</th>
+                <td>
+                    @Html.JComboBox("isAutoStop").SetWidth(200).SetData(ViewData["PunishConfirmStopTypeJson"]).SetOnChange("doOnPunishConfirmStopTypeChange();").ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>惩罚开始时间</th>
+                <td>
+                    @Html.JDateTimePicker("beginAt").SetValue(DateTime.Today.ToString("yyyy-MM-dd")).SetWidth(200).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>惩罚结束时间</th>
+                <td>
+                    <div id="divEndAt">
+                        @Html.JDateTimePicker("endAt").SetValue(Model.PersisDays.HasValue ? DateTime.Today.AddDays(Model.PersisDays.Value).ToString("yyyy-MM-dd") : "").SetWidth(200).ToMvcString()
+                    </div>  
+                </td>
+            </tr>
+         }
+        <tr>
+            <th colspan="2" style="background-color:transparent; border:none">
+                @string.Format("您确认将对{0}作为{1}处罚吗?",ViewData["UserName"],Model.TypeEnum.ToCnName())
+                @Html.Hidden("content",ViewData["Content"])
+                @Html.Hidden("userName", ViewData["UserName"])
+            </th>
+        </tr>
+    </table>
+    </form>
+</div>

@@ -1,0 +1,61 @@
+﻿@model com.Bynonco.LIMS.Model.AnimalFrame
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divAnimalFrameEdit"> 
+<form id="frmAnimalFrame" action="#">
+    @Html.Hidden("Id",Model == null ? "" : Model.Id.ToString())
+    <table id="tbAnimalFrameEdit" class="edit-table">
+        <tr>
+            <th><span class="required">*</span>名称</th>
+            <td>
+                 @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+                
+            </td>
+        </tr>
+         <tr>
+            <th>编号</th>
+            <td>
+                 @Html.JValidateBox("Code").SetValue(Model == null ? "" : Model.Code).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+                
+            </td>
+        </tr>
+         <tr>
+            <th>助记符</th>
+            <td>
+                 @Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+                
+            </td>
+        </tr>
+         <tr>
+            <th><span class="required">*</span>所在房间</th>
+            <td>
+                 @Html.DropDownList("LabRoomId", ViewData["LabRoomSelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["LabRoomSelectListItem"], new { style = "width:235px" })
+                
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>行数</th>
+            <td>
+                 @Html.JValidateBox("RowCnt").SetValue(Model == null ? "" : Model.RowCnt.ToString()).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>列数</th>
+            <td>
+                 @Html.JValidateBox("ColCnt").SetValue(Model == null ? "" : Model.ColCnt.ToString()).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+           <th><span class="required">*</span>是否停用</th>
+           <td>
+                @Html.JComboBox("IsStop").SetData(ViewData["IsStopJson"]).SetWidth(235).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, 3, 50, null)
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>

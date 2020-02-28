@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentOpenPracticeQueryExpress() {
+        var queryExpression = "";
+        var name = $("#SearchName").val().trim();
+        if (name != "") {
+            queryExpression = "Name∽\"" + name.trim() + "\"";
+        }
+        var applyUserName = $("#SearchApplyUserName").val().trim();
+        if (applyUserName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(ApplyUserName∽\"" + applyUserName.trim() + "\"";
+        }
+        var userOrgName = $("#SearchUserOrgName").val().trim();
+        if (userOrgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserOrgName∽\"" + userOrgName.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doResetEquipmentOpenPractice() {
+        $("#SearchName").val("");
+        $("#SearchApplyUserName").val("");
+        $("#SearchUserOrgName").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>项目名称</label>
+        @Html.JValidateBox("SearchName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>申请人</label>
+        @Html.JValidateBox("SearchApplyUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>所属机构</label>
+        @Html.JValidateBox("SearchUserOrgName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentOpenPracticeSearch", "查询").SetOnclick("doSearchEquipmentOpenPractice();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentOpenPracticeReset", "清空").SetOnclick("doResetEquipmentOpenPractice();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentOpenPracticeClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

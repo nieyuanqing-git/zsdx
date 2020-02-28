@@ -1,0 +1,16 @@
+﻿ @{
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+}
+<script type="text/javascript">
+    var isAjax = "@(isAjax.ToString().ToLower().Trim())" == "true";
+    var isIE6 = false;
+    var isIE7 = false;
+    var browser = navigator.appName
+    var b_version = navigator.appVersion
+    if (b_version.indexOf(";") != -1) {
+        var version = b_version.split(";");
+        var trim_Version = version[1].replace(/[ ]/g, "");
+        if (browser == "Microsoft Internet Explorer" && trim_Version == "MSIE6.0")  isIE6 = true;
+        if (browser == "Microsoft Internet Explorer" && trim_Version == "MSIE7.0") isIE7 = true;
+    }
+</script>

@@ -1,0 +1,227 @@
+﻿@model com.Bynonco.LIMS.Model.Business.EthicsSetting
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = null;
+    var ethicsSettingPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEthicsSettingPrivilige(User.Identity.Name);
+}
+<style type="text/css">
+    div.panel-title panel-with-icon{color:Black;}
+</style>
+<div class="layout-center-full">
+     <div class="edit-box">
+        <form id="frmEthicsSetting">
+            <div style="line-height:35px; height:35px;"><span style="font-weight:bold">是否需要通过培训 </span> @Html.CheckBox("IsNeedTrainningBeforeApply")</div>
+            <div>@Html.Partial("NeedPassTrainningTypeList")</div>
+            <div style="margin-top:20px;">@Html.Partial("ShowLinksWhenApplyPassList")</div>
+            <div style="margin-left:150px;margin-top:10px;margin-bottom:10px;">@Html.JLinkButton("btnSaveEthicsSetting", "保存").SetOnclick("doSaveEthicsSetting();").SetIconCls("icon-save").SetVisible(ethicsSettingPrivilige.IsEnableSave).ToMvcString()</div>
+        </form>
+    </div>
+</div>
+<div id="divNeedPassTrainningTypeEditDialog" style="display:none;"></div>
+<div id="divShowLinksWhenApplyPassEditDialog" style="display:none;"></div>
+<script type="text/javascript">
+    var editNeedPassTrainningTypeDialog;
+    function doAddOrEditNeedPassTrainningType(id) {
+        if(editNeedPassTrainningTypeDialog) editNeedPassTrainningTypeDialog.dialog('destroy');
+        var url = (id != "" ? '@Url.Action("EditNeedPassTrainningType")' : '@Url.Action("AddNeedPassTrainningType")') + "?trainningTypeId=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divNeedPassTrainningTypeEditDialog").load(url, function () {
+            $.messager.progress('close');
+            editNeedPassTrainningTypeDialog = @(Html.JDialog("divEditNeedPassTrainningType").SetTitle("考试类型信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("editNeedPassTrainningTypeDialog.dialog('close');return false;").SetModal(true).SetOkScript(ethicsSettingPrivilige.IsEnableSaveNeedPassTrainningType?"doSaveNeedPassTrainningType(id);":"alert('无操作权限');").ToMvcString());
+        });
+    }
+   
+    function doSaveNeedPassTrainningType(id) {
+        var trainningTypes = $("#TrainningTypeId").tokenInput("get");
+        if(!trainningTypes || trainningTypes.length==0){
+              $.messager.show({ title: '提示', msg: "请选择考试类型", showType: 'show' });
+              return;
+        }
+        var rows = $("#tbNeedPassTrainningTypeList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if(trainningTypes[0].id==rows[i].Id && (id == "" || id != rows[i].Id)){
+                    $.messager.show({ title: '提示', msg: "考试类型:【" + trainningTypes[0].text +  "】已经存在", showType: 'show' });
+                    return;
+                }
+            }
+        }
+        if(id == ""){
+            $("#tbNeedPassTrainningTypeList").datagrid("insertRow",{row:{"Id":trainningTypes[0].id,"Name":trainningTypes[0].text}});
+        }
+        else{
+            var rows = $("#tbNeedPassTrainningTypeList").datagrid("getRows");
+            for (var i = 0; i < rows.length; i++) {
+                 if(rows[i].Id==id){
+                    $("#tbNeedPassTrainningTypeList").datagrid("updateRow",{index:i,row:{Id:trainningTypes[0].id,Name:trainningTypes[0].text}});
+                 }
+            }
+       }
+       editNeedPassTrainningTypeDialog.dialog("close");
+    }
+    function generateSelectedNeedPassTrainningTypeIds() {
+        var ids = [];
+        var rows = $("#tbNeedPassTrainningTypeList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    function generateNeedPassTrainningTypeIds() {
+        var ids = [];
+        var rows = $("#tbNeedPassTrainningTypeList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    function doDeleteNeedPassTrainningType(){
+        var ids  = generateSelectedNeedPassTrainningTypeIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            var rows = $("#tbNeedPassTrainningTypeList").datagrid("getRows");
+            if(rows.length > 0){
+                for(var i=rows.length-1;i>=0;i--){
+                    if(ids.indexOf(rows[i].Id)!=-1){
+                        $("#tbNeedPassTrainningTypeList").datagrid("deleteRow",i);
+                    }
+                }
+            }
+        });
+    }
+    function doEditNeedPassTrainningType() {
+        var rows = $("#tbNeedPassTrainningTypeList").datagrid("getSelections");
+        if(rows.length > 0){
+           doAddOrEditNeedPassTrainningType(rows[0].Id);
+        }
+    }
+    
+</script>
+<script type="text/javascript">
+    var editShowLinksWhenApplyPassDialog;
+    function doAddOrEditShowLinksWhenApplyPass(name,url) {
+        if(editShowLinksWhenApplyPassDialog) editShowLinksWhenApplyPassDialog.dialog('destroy');
+        var postUrl = (name != "" ? '@Url.Action("EditShowLinksWhenApplyPass")' : '@Url.Action("AddShowLinksWhenApplyPass")') + "?name=" + name + "&url=" + url + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divShowLinksWhenApplyPassEditDialog").load(postUrl, function () {
+            $.messager.progress('close');
+            editShowLinksWhenApplyPassDialog = @(Html.JDialog("divEditShowLinksWhenApplyPass").SetTitle("链接信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("editShowLinksWhenApplyPassDialog.dialog('close');return false;").SetModal(true).SetOkScript(ethicsSettingPrivilige.IsEnableSaveShowLinksWhenApplyPass?"doSaveShowLinksWhenApplyPass(name,url);":"alert('无操作权限');").ToMvcString());
+        });
+    }
+   
+    function doSaveShowLinksWhenApplyPass(name,url) {
+       var linkName = $("#LinkName").val().trim();
+       var url = $("#URL").val().trim();
+       if(linkName==""){
+            $.messager.show({ title: '提示', msg: "请输入链接名称", showType: 'show' });
+            return;
+       }
+       if(linkName.indexOf("~")!=-1 || linkName.indexOf("|")!=-1){
+            $.messager.show({ title: '提示', msg: "链接名称包含【~|】字符", showType: 'show' });
+            return;
+       }
+       if(url==""){
+            $.messager.show({ title: '提示', msg: "请输入链接地址", showType: 'show' });
+            return;
+       }
+       if(url.indexOf("~")!=-1 || url.indexOf("|")!=-1){
+            $.messager.show({ title: '提示', msg: "链接地址包含【~|】字符", showType: 'show' });
+            return;
+      }
+      var rows = $("#tbShowLinksWhenApplyPassList").datagrid("getRows");
+      if (rows && rows.length > 0) {
+        for (var i = 0; i < rows.length; i++) {
+            if(linkName==rows[i].Name && (name == "" || name != rows[i].Name)){
+                $.messager.show({ title: '提示', msg: "链接名称:【" + linkName +  "】已经存在", showType: 'show' });
+                return;
+            }
+        }
+      }
+      if(name == ""){
+            $("#tbShowLinksWhenApplyPassList").datagrid("insertRow",{row:{"Name":linkName,"URL":url}});
+      }
+      else{
+            var rows = $("#tbShowLinksWhenApplyPassList").datagrid("getRows");
+            for (var i = 0; i < rows.length; i++) {
+                 if(rows[i].Name==name){
+                    $("#tbShowLinksWhenApplyPassList").datagrid("updateRow",{index:i,row:{Name:linkName,URL:url}});
+                 }
+            }
+       }
+       editShowLinksWhenApplyPassDialog.dialog("close");
+    }
+    function generateShowLinksWhenApplyPassNames() {
+        var names = [];
+        var rows = $("#tbShowLinksWhenApplyPassList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                names.push(rows[i].Name);
+            }
+        }
+        return names.toString();
+    }
+    function doDeleteShowLinksWhenApplyPass(){
+        var names  = generateShowLinksWhenApplyPassNames();
+        if(names == ""){
+            $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            var rows = $("#tbShowLinksWhenApplyPassList").datagrid("getRows");
+            if(rows.length > 0){
+                for(var i=rows.length-1;i>=0;i--){
+                    if(names.indexOf(rows[i].Name)!=-1){
+                        $("#tbShowLinksWhenApplyPassList").datagrid("deleteRow",i);
+                    }
+                }
+            }
+        });
+    }
+    function doEditShowLinksWhenApplyPass() {
+        var rows = $("#tbShowLinksWhenApplyPassList").datagrid("getSelections");
+        if(rows.length > 0){
+           doAddOrEditShowLinksWhenApplyPass(rows[0].Name);
+        }
+    }
+    function generateShowLinksWhenApplyPasses() {
+        var showLinksWhenApplyPasses = "";
+        var rows = $("#tbShowLinksWhenApplyPassList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var showLinksWhenApplyPass = rows[i].Name + "~" + rows[i].URL;
+                showLinksWhenApplyPasses += (showLinksWhenApplyPasses == "" ? showLinksWhenApplyPass : ("|" + showLinksWhenApplyPass));
+            }
+        }
+        return showLinksWhenApplyPasses;
+    }
+</script>
+<script type="text/javascript">
+    function doSaveEthicsSetting() {
+        var trainningTypeIds = generateNeedPassTrainningTypeIds();
+        var showLinksWhenApplyPasses = generateShowLinksWhenApplyPasses();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#frmEthicsSetting").serialize() + "&trainningTypeIds=" + trainningTypeIds + "&showLinksWhenApplyPasses=" + showLinksWhenApplyPasses,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+        return false;
+    }
+</script>

@@ -1,0 +1,61 @@
+﻿@model com.Bynonco.LIMS.Model.Business.StatisticsInfo
+@if (Model != null && (Model.IsShowMaterialInfoWaittingPurchase
+                    || Model.IsShowMaterialPurchaseWaittingInput
+                    || Model.IsShowMaterialRecipientWaittingAudit
+                    || Model.IsShowMaterialRecipientWaittingOutput
+                ))
+{
+    <p><span class="icon icon-materialinfo">&nbsp;</span>耗材管理</p>
+    <table class="edit-info admin-statistics">
+        @if (Model.IsShowMaterialInfoWaittingPurchase)
+        {
+            <tr>
+                <td class='col-first'><span class="icon icon-materialinfo" title='耗材库存警告' style='margin-right: 0;'>&nbsp;</span></td>
+                <th><a href="#" onclick="doLoadMaterialInfoList();return false;">耗材库存警告</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadMaterialInfoList();return false;">@Model.MaterialInfoWaittingPurchase</a>
+                </td>
+            </tr>
+        }
+        @if (Model.IsShowMaterialPurchaseWaittingInput)
+        {
+            <tr>
+                <td class='col-first'><span class="icon icon-materialpurchase" title='待入库采购单' style='margin-right: 0;'>&nbsp;</span></td>
+                <th><a href="#" onclick="doLoadMaterialPurchaseList();return false;">待入库采购单</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadMaterialPurchaseList();return false;">@Model.MaterialPurchaseWaittingInput</a>
+                </td>
+            </tr>
+        }
+        @if (Model.IsShowMaterialRecipientWaittingAudit || Model.IsShowMaterialRecipientWaittingOutput)
+        {
+            <tr>
+                <td class='col-first'><span class="icon icon-materialapply" title='领用单管理' style='margin-right: 0;'>&nbsp;</span></td>
+                @if (Model.IsShowMaterialRecipientWaittingAudit)
+                {
+                    <th><a href="#" onclick="doLoadMaterialRecipientList();return false;">待审核领用单</a></th>
+                    <td class='@(Model.IsShowMaterialRecipientWaittingOutput ? "" : "col-last")'>
+                        <a href="#" onclick="doLoadMaterialRecipientList();return false;">@Model.MaterialRecipientWaittingAudit</a>
+                    </td>
+                }
+                @if (Model.IsShowMaterialRecipientWaittingOutput)
+                {
+                    <th><a href="#" onclick="doLoadMaterialRecipientList();return false;">待出库领用单</a></th>
+                    <td class='col-last'>
+                        <a href="#" onclick="doLoadMaterialRecipientList();return false;">@Model.MaterialRecipientWaittingOutput</a>
+                    </td>
+                }
+            </tr>
+        }
+        @if (Model.IsShowMaterialOutputWaittingDeduct)
+        {
+            <tr>
+                <td class='col-first'><span class="icon icon-materialpurchase" title='待扣费出库单' style='margin-right: 0;'>&nbsp;</span></td>
+                <th><a href="#" onclick="doLoadMaterialOutputList();return false;">待扣费出库单</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadMaterialOutputList();return false;">@Model.MaterialOutputWaittingDeduct</a>
+                </td>
+            </tr>
+        }
+    </table>
+}

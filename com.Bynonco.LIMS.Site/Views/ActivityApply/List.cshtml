@@ -1,0 +1,48 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var activityApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetActivityApplyPrivilige(User.Identity.Name);
+    var isAllowAdd = ViewData["IsAllowAdd"] == null ? false : (bool)ViewData["IsAllowAdd"];
+    var dataGrid = Html.JDataGrid("tbActivityApply")
+    .SetUrl(Url.Action("GetGridViewActivityApplyList", "ActivityApply"))
+    .AddQueryParam("QueryExpression", ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString())
+    .SetHeight(600)
+    .SetPageSize(10)
+    .SetSortName("ActivityTime")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowPrintButton(false)
+    .SetShowEditButton(false)
+    .SetShowDeleteButton(false)
+    .SetMutiSelect(false)
+    .SetSingleSelect(true)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .SetShowAddButton(activityApplyPrivilige.IsEnableAdd && isAllowAdd);
+    if (activityApplyPrivilige.IsEnableAdd && isAllowAdd)
+    {
+        dataGrid.SetAddScript("doAddActivityApply();");
+    }
+    if (activityApplyPrivilige.IsEnableExportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportExcelActivityApply();", IconCls = "icon-export", Id = "btnExportExcelActivityApply", Text = "导出" });
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(52).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("日期", "ActivityTimeNickName").SetWidth(350).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusNickName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("费用类型", "ActivityTypeName").SetWidth(70).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("金额(元)", "ReimbursementMoney").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("外出理由", "ActivityReason").SetWidth(120).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(100).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("组群负责人", "AuditGroupAdminName").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("组群负责人审核时间", "AuditGroupAdminTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("组群负责人备注", "AuditGroupAdminRemark").SetWidth(100).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("中心主任", "AuditDirectorName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("中心主任审核时间", "AuditDirectorTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("中心主任备注", "AuditDirectorRemark").SetWidth(100).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("经办人", "AuditOperatorName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("经办人审核时间", "AuditOperatorTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("经办人备注", "AuditOperatorRemark").SetWidth(100).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器所在组群", "EquipmentGroupName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("活动申请人", "UserName").SetWidth(70).SetAlign(Align.center));
+  }
+  @(dataGrid.ToMvcString())

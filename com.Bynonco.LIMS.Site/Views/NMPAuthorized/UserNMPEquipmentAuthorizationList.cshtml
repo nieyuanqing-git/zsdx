@@ -1,0 +1,32 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var nmpEquipmentAuthorizationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPEquipmentAuthorizationPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbUserNMPEquipmentAuthorizationList")
+        .SetUrl(Url.Action("GetGridUserNMPEquipmentAuthorizationList", "NMPEquipmentId", new { NMPEquipmentId = ViewData["NMPEquipmentId"] == null ? "" : ViewData["NMPEquipmentId"].ToString(), UserId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString() }))
+        .SetMutiSelect(true)
+        .SetSingleSelect(false)
+        .SetHeight(550)
+        .SetPageSize(15)
+        .SetShowPrintButton(false);
+    dataGrid.SetShowAddButton(nmpEquipmentAuthorizationPrivilige.IsEnableNMPEquipmentAuthorizationEdit);
+    dataGrid.SetShowEditButton(false);
+    if (nmpEquipmentAuthorizationPrivilige.IsEnableNMPEquipmentAuthorizationEdit)
+    {
+        dataGrid.SetAddScript("doAddUserNMPEquipmentAuthorization('');");
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "ModifyOperate").SetSortable(false));
+    }
+    dataGrid.SetShowDeleteButton(nmpEquipmentAuthorizationPrivilige.IsEnableNMPEquipmentAuthorizationEdit);
+    if (nmpEquipmentAuthorizationPrivilige.IsEnableNMPEquipmentAuthorizationEdit)
+    {
+        dataGrid.SetDeleteScript("doDeleteUserEquipmentAuthorization('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "Name").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户名称", "UserName").SetWidth(70).SetAlign(Align.center));  
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "StartDateStr").SetWidth(110).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndDateStr").SetWidth(110).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("授权人", "Authorizer").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("授权时间", "AuthorizationTime").SetWidth(110).SetAlign(Align.center).SetSortable(false));
+    
+ }
+@(dataGrid.ToMvcString())

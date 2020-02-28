@@ -1,0 +1,241 @@
+﻿@model com.Bynonco.LIMS.Model.Business.StatisticsInfo
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    Layout = ViewBag.Layout;
+    var LoginUser = ViewData["LoginUser"] == null ? null : (User)ViewData["LoginUser"];
+    var waitingForAuditStudents = ViewData["WaitingForAuditStudents"] != null ? (IList<User>)ViewData["WaitingForAuditStudents"] : null;
+    bool isShowUserStatus = LoginUser == null || !LoginUser.UserStatus.HasValue ? false : LoginUser.UserStatus.Value == (int)UserStatus.AuditPass ? false : true;
+    isShowUserStatus = isShowUserStatus | (LoginUser != null && (LoginUser.IsWithMutiCard || LoginUser.IsNeedTutorAudit));
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsRegisterDoc = customer == null ? false : customer.GetIsRegisterDoc();
+    bool isShowZero = Model == null ? false : Model.IsShowZero;
+}
+@Html.Partial("../Admin/ManageScript")
+<div class="layout-center-full" id="divAdminStatisticsInfo">
+    <div class="edit-box">
+        @if (isShowUserStatus)
+        {
+            <div style="padding:10px;">
+               
+                @if (LoginUser != null && LoginUser.UserStatus.HasValue)
+                {
+                    switch (LoginUser.UserStatus.Value)
+                    {
+                        case (int)UserStatus.AuditPass:
+                            <div class="notification pass" style="margin:0;">
+			                    <div>您好,@(LoginUser.UserName)!  您当前的用户状态为@(UserStatus.AuditPass.ToCnName()), 状态正常. </div>
+		                    </div>
+                            break;
+                        case (int)UserStatus.AuditWaitting:
+                            if (!LoginUser.IsNeedTutorAudit || LoginUser.TutorAuditStatusEnum == TutorAuditStatus.Passed)
+                            {
+                                <div class="notification attention">
+                                    @if (customerIsRegisterDoc)
+                                    {
+                                        <div>注意: 您的注册信息还在等待管理员审核. 请打印以下申请表,签名后找管理员审核. 现在您还不能预约设备.<br />
+                                            @Html.ActionLink("点击这里", "DownUserRegisterDoc", "Home", null, new { target = "_blank", style = "text-decoration:underline;" })
+                                            打印《用户申请表》
+                                            <br />
+                                            @Html.ActionLink("点击这里", "DownUserDoc", "Home", null, new { target = "_blank", style = "text-decoration:underline;" })
+                                            打印《仪器使用申请表》
+                                        </div>
+                                    }
+                                    else
+                                    {
+			                        <div>注意: 您的注册信息还在等待管理员审核. 请
+                                        @Html.ActionLink("点击这里", "DownUserDoc", "Home", null, new { target = "_blank", style = "text-decoration:underline;" })
+                                        打印申请表,签名后找管理员审核. 现在您还不能预约设备
+                                    </div>
+                                    }
+		                        </div>
+                            }
+                            break;
+                        case (int)UserStatus.InBlackList:
+                            <div class="notification error">
+			                    <div>注意： 您目前处于黑名单状态中,现在您不能预约设备.</div>
+		                    </div>
+                            break;
+                        case (int)UserStatus.Invalid:
+                            <div class="notification error">
+			                    <div>注意： 您目前处于禁止登录状态中,系统将于 <span id='logOffTime' style="color:Green;">5</span> 秒后自动退出.</div>
+                                <script type="text/javascript">
+                                    var cnt = 5;
+                                    function logoff() {
+                                        if (cnt == 0) {
+                                            location.href = '@(Url.Action("LogOff", "Account"))';
+                                        }
+                                        else if (cnt > 0) {
+                                            $("#logOffTime").html(cnt);
+                                        }
+                                        cnt--;
+                                        setTimeout("logoff()", 1000);
+                                    }
+                                    logoff();
+                                </script>
+		                    </div>
+                            break;
+                        case (int)UserStatus.AuditReject:
+                            <div class="notification error">
+			                    <div>注意： 您目前处于审核拒绝状态中,现在您不能预约设备.</div>
+		                    </div>
+                            break;
+                    }
+                }
+            </div>
+            <div style="padding:10px;">
+                 @if (LoginUser.IsWithMutiCard)
+                 {
+                     <p><span class="icon icon-user">&nbsp;</span>绑定卡号</p>
+                     <div class="notification error" style="margin:0;">
+			              <div>您存在多个卡号，请联系管理员进行卡号绑定，否则无法进行刷卡上机实验！</div>
+		             </div>
+                 }
+                @if (LoginUser != null && LoginUser.IsNeedTutorAudit && LoginUser.TutorAuditStatusEnum == TutorAuditStatus.WaitingAudit)
+                {
+                    if (LoginUser.TutorId == null)
+                    {
+                        <p><span class="icon icon-user">&nbsp;</span>绑定导师</p>
+                        if (!LoginUser.BindTutorId.HasValue)
+                        {
+                            <div class="notification attention" style="margin:0;">
+			                    <div>您未指定导师,将无法进行相关操作,请<a href="javascript:void(0)" style="text-decoration:underline;" onclick="doShowBindTutorContainer('@(LoginUser.Id.ToString())');">点击这里</a>进行导师绑定！</div>
+		                    </div>
+                        }
+                        else
+                        {
+                            <div class="notification attention" style="margin:0;">
+			                    <div>
+                                    您申请加入导师<b>@(LoginUser.BindTutorName)</b>课题组的请求已经提交，请耐心等待导师审核！
+                                    @Html.JLinkButton("btnChangeTutor", "修改").SetIconCls("icon-pencil").SetOnclick("doShowBindTutorContainer('" + LoginUser.Id.ToString() + "');").SetPlain(true).ToMvcString()
+                                </div>
+		                    </div>
+                        }
+                    }
+                    else
+                    {
+                         <p><span class="icon icon-user">&nbsp;</span>等待导师审核</p>
+                         <div class="notification attention" style="margin:0;">
+			                    <div>需要导师审核通过才能正常使用系统,请耐心等待导师审核！</div>
+		                 </div>
+                    }
+                }
+                @if (LoginUser != null && LoginUser.IsNeedTutorAudit && LoginUser.TutorAuditStatusEnum == TutorAuditStatus.Refused)
+                {
+                    <p><span class="icon icon-user">&nbsp;</span>绑定导师</p>
+                     <div class="notification attention" style="margin:0;">
+			            <div>导师@(LoginUser.BindTutorName)拒绝您加入TA的课题组,原因:@(LoginUser.TutorAuditRemark),请<a href="javascript:void(0)" style="text-decoration:underline;" onclick="doShowBindTutorContainer('@(LoginUser.Id.ToString())');">点击这里</a>重新选择导师.</div>
+		            </div>
+                }
+            </div>
+        }
+        @if (waitingForAuditStudents != null && waitingForAuditStudents.Count > 0)
+        { 
+            <p><span class="icon icon-user">&nbsp;</span>等待审核的学生列表</p>
+            <table class="edit-info admin-statistics" style="border-collapse:collapse">
+                @foreach (var waitingForAuditStudent in waitingForAuditStudents)
+                {
+                    <tr class='@(waitingForAuditStudent.Id != waitingForAuditStudents[0].Id ? "nofirst" : "");'>
+                        <td class='col-first'><span class="icon icon-user" title='管理相关' style='margin-right: 0;'>&nbsp;</span></td>
+                        <th>@waitingForAuditStudent.UserName</th>
+                        <td class="col-last">
+                            @waitingForAuditStudent.SexStr
+                        </td>
+                        <td class="col-last" colspan="2" style="width:190px;text-align:center;">
+                            <a id="btnTutorAuditPass_@(waitingForAuditStudent.Id.ToString())" style="color:Green;" href="javascript:void(0)" onclick="doTutorAudit('agree','@waitingForAuditStudent.UserName','@waitingForAuditStudent.Id.ToString()','@LoginUser.Id.ToString()');return false;">同意</a>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a id="btnTutorAuditNotPass_@(waitingForAuditStudent.Id.ToString())" style="color:Red;" href="javascript:void(0)" onclick="doTutorAudit('reject','@waitingForAuditStudent.UserName','@waitingForAuditStudent.Id.ToString()','@LoginUser.Id.ToString()');return false;">拒绝</a>
+                        </td>
+                    </tr>
+                }
+            </table>
+        }
+        <div id='divStatisticsInfo'></div>
+        <p>&nbsp;</p>
+        注：
+        <span class="icon icon-globe" title='管理相关'>&nbsp;</span><span style='margin-right: 10px;'>管理相关</span>
+        <span class="icon icon-subject" title='课题组相关'>&nbsp;</span><span style='margin-right: 10px;'>课题组相关</span>
+        <span class="icon icon-user" title='个人相关'>&nbsp;</span><span style='margin-right: 10px;'>个人相关</span>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StatisticsInfoSampleApply", "Admin")' + "?isShowZero=" + "@(isShowZero.ToString().Trim())" + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                $("#divStatisticsInfo").append(msg);
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StatisticsInfoAuditUser", "Admin")' + "?isShowZero="+ "@(isShowZero.ToString().Trim())" + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                $("#divStatisticsInfo").append(msg);
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StatisticsInfoAuditExperimenterSubject", "Admin")' + "?isShowZero=" + "@(isShowZero.ToString().Trim())" + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                $("#divStatisticsInfo").append(msg);
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StatisticsInfoAuditDepositRecord", "Admin")' + "?isShowZero=" + "@(isShowZero.ToString().Trim())" + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                $("#divStatisticsInfo").append(msg);
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StatisticsInfoAuditOpenFundDepositRecord", "Admin")' + "?isShowZero=" + "@(isShowZero.ToString().Trim())" + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                $("#divStatisticsInfo").append(msg);
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StatisticsInfoUsedConfirm", "Admin")' + "?isShowZero=" + "@(isShowZero.ToString().Trim())" + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                $("#divStatisticsInfo").append(msg);
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StatisticsInfoAppointment", "Admin")' + "?isShowZero=" + "@(isShowZero.ToString().Trim())" + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                $("#divStatisticsInfo").append(msg);
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StatisticsInfoMaterial", "Admin")' + "?isShowZero=" + "@(isShowZero.ToString().Trim())" + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                $("#divStatisticsInfo").append(msg);
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StatisticsInfoEquipment", "Admin")' + "?isShowZero=" + "@(isShowZero.ToString().Trim())" + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                $("#divStatisticsInfo").append(msg);
+            }
+        }); 
+
+    });
+</script>

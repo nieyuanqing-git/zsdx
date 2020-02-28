@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    
+    var userSampleItemDiscountPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserSampleItemDiscountPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbUserSampleItemDiscount")
+          .SetUrl(Url.Action("GetViewUserSampleItemDiscountList", "SampleItem", new { time = DateTime.Now.Millisecond.ToString() }))
+          .SetHeight(650)
+          .SetPageSize(20)
+          .SetShowAddButton(userSampleItemDiscountPrivilige.IsEnableUserDiscountAdd);
+          if (userSampleItemDiscountPrivilige.IsEnableBatchStart)
+          {
+              dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStartUserSampleItemDiscount();return false;", IconCls = "icon-play", Id = "btnBatchStartUserSampleItemDiscount", Text = "启用" });
+          }
+          if (userSampleItemDiscountPrivilige.IsEnableBatchStop)
+          {
+              dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStopUserSampleItemDiscount();return false;", IconCls = "icon-stop", Id = "btnBatchStopUserSampleItemDiscount", Text = "停用" });
+          }
+          if(userSampleItemDiscountPrivilige.IsEnableUserDiscountAdd)
+          {
+              dataGrid.SetAddScript("doAddOrEdit('');");
+          }
+          if (userSampleItemDiscountPrivilige.IsEnableDeleteUserSampleItemDiscount)
+          {
+              dataGrid.SetDeleteScript("doDelete('');");
+          }
+          dataGrid.SetShowDeleteButton(userSampleItemDiscountPrivilige.IsEnableDeleteUserSampleItemDiscount);
+          if (userSampleItemDiscountPrivilige.IsEnableUserDiscountEdit)
+          {
+            dataGrid.SetOnDblClickRow("doAddOrEdit(rowData.Id);");
+          }
+          if (userSampleItemDiscountPrivilige.IsEnableUserDiscountEdit)
+          {
+            dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetWidth(60).SetAlign(Align.center));
+          }
+          dataGrid.SetSortName("SampleItemName")
+          .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+          .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SampleItemName").SetWidth(200).SetAlign(Align.left))
+          .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户", "UserName").SetWidth(100).SetAlign(Align.center))
+          .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("折扣比", "Discount").SetWidth(100).SetAlign(Align.center))
+          .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopNickName").SetWidth(80).SetAlign(Align.center))
+          .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left));
+ }
+ @(dataGrid.ToMvcString())

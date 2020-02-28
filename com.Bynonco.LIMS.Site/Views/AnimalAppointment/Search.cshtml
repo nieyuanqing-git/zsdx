@@ -1,0 +1,93 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var applicantName = $("#txtQueryApplicantName").val().trim();
+        if (applicantName != "") {
+            queryExpression = "ApplicantName∽\"" + applicantName + "\"";
+        }
+
+        var ethicsNo = $("#txtQueryEthicsNo").val().trim();
+        if (ethicsNo != "") {
+            queryExpression += (queryExpression == "" ? "EthicsNo∽\"" + ethicsNo + "\"" : "*EthicsNo∽\"" + ethicsNo + "\"");
+        }
+        var animalCode = $("#txtQueryAnimalCode").val().trim();
+        if (animalCode != "") {
+            queryExpression += (queryExpression == "" ? "AnimalCode∽\"" + animalCode + "\"" : "*AnimalCode∽\"" + animalCode + "\"");
+        }
+        var animalQualifiedNo = $("#txtQueryAnimalQualifiedNo").val().trim();
+        if (animalQualifiedNo != "") {
+            queryExpression += (queryExpression == "" ? "AnimalQualifiedNo∽\"" + animalQualifiedNo + "\"" : "*AnimalQualifiedNo∽\"" + animalQualifiedNo + "\"");
+        }
+        var animalCategoryId = $("#SearchAnimalCategoryId").val().trim();
+        if (animalCategoryId != "" && animalCategoryId != '@Guid.Empty.ToString()') {
+            queryExpression += (queryExpression == "" ? "AnimalCategoryId=\"" + animalCategoryId + "\"" : "*AnimalCategoryId=\"" + animalCategoryId + "\"");
+        }
+        var status = $("#SearchStatus").combobox("getValue").trim();
+        if (status != "" && status != "-1") {
+            queryExpression += (queryExpression == "" ? "Status=\"" + status + "\"" : "*Status=\"" + status + "\"");
+        }
+        var applyTimeStart = $("#SearchApplyTimeStart").datebox("getValue").trim();
+        if (applyTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime>\"" + applyTimeStart + "\"";
+        }
+        var applyTimeEnd = $("#SearchApplyTimeEnd").datebox("getValue").trim();
+        if (applyTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime<\"" + applyTimeEnd + " 23:59:59\"";
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#txtQueryApplicantName").val("");
+        $("#txtQueryEthicsNo").val("");
+        $("#txtQueryAnimalCode").val("");
+        $("#txtQueryAnimalQualifiedNo").val("");
+        $("#SearchAnimalCategoryId").val('@Guid.Empty.ToString()');
+        $("#SearchStatus").combobox("setValue", "-1");
+        $("#SearchApplyTimeStart").datebox("setValue", "");
+        $("#SearchApplyTimeEnd").datebox("setValue", "");
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>申请人</label>
+        @Html.JValidateBox("txtQueryApplicantName").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label>伦理编号</label>
+        @Html.JValidateBox("txtQueryEthicsNo").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label>批次编号</label>
+        @Html.JValidateBox("txtQueryAnimalCode").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label>合格证号</label>
+        @Html.JValidateBox("txtQueryAnimalQualifiedNo").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label>品系名称</label>
+         @Html.DropDownList("SearchAnimalCategoryId", (IEnumerable<SelectListItem>)ViewData["SearchAnimalCategorySelectListItem"], new { style = "width:155px" })
+    </li>
+    <li>
+        <label>状态</label>
+        @Html.JComboBox("SearchStatus").SetWidth(155).SetData(ViewData["SearchStatusJson"]).ToMvcString()
+    </li>
+    <li>
+        <label>开始时间</label>
+        @Html.JDateTimePicker("SearchApplyTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchApplyTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

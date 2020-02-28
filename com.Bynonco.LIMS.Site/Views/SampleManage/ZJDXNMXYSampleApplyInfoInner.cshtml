@@ -1,0 +1,300 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+<style type="text/css">
+    #tbSampleApplyInfo tr th{text-align:right; width:75px; line-height:30px; height:30px; font-weight:normal; border:1px solid #F0F0F0; vertical-align:middle;padding:2px 5px 2px 0;color:Gray;}
+    #tbSampleApplyInfo tr td{text-align:left;line-height:30px;height:30px; border:1px solid #F0F0F0; vertical-align:middle;padding:2px 0 2px 2px;}
+    #tbSampleApplyInfo tr th h5{text-align:left;padding-left:10px; line-height:30px; height:30px;}
+    .hide{display:none;}
+    .show{display:inline;}
+</style>
+@{
+    var attachmentJson = ViewData["AttachmentJson"] == null ? "null" : ViewData["AttachmentJson"];
+    var sampleApplySerialNo = ViewData["SampleApplySerilaNo"] == null ? "" : ViewData["SampleApplySerilaNo"].ToString();
+    var selectedSampleItemId = Request["SampleItemId"];
+    var selectedSampleItemName = Request["SampleItemName"];
+    var selectedEquipmentId = Request["EquipmentId"];
+    var selectedEquipmentName = Request["EquipmentName"];
+    var user = (User)ViewData["LoginUser"];
+    var equipment = ViewData["Equipment"] == null ? null : (Equipment)ViewData["Equipment"];
+    var sampleItem = ViewData["SampleItem"] == null ? null : (SampleItem)ViewData["SampleItem"];
+    var selectSubjectProjectId = Model == null || Model.SampleApply == null || !Model.SampleApply.SubjectProjectId.HasValue ? "" : Model.SampleApply.SubjectProjectId.Value.ToString();
+    var isSampleItemTestConditionRequired = (bool)ViewData["IsSampleItemTestConditionRequired"];
+}
+ <script type="text/javascript">
+     function getSelectedSubjectProjectId() {
+         return '@selectSubjectProjectId';
+     }
+</script>
+@Html.Partial("../Subject/LoadSubjectProjectScript")
+<div style="display:none">
+    @Html.Partial("../SampleManage/SampleApplyScriptContainer")
+    @Html.Partial("../Equipment/SelectSampleEquipmentContainerNoPaging")
+    @Html.Partial("../SampleItem/SelectSampleItemNoPagingContainer")
+    @Html.Partial("../SampleManage/SampleNoMake")
+    @Html.Partial("../SampleManage/SampleItemDescriptions")
+    @Html.Partial("../SampleManage/SelectSampleSendTime")
+</div>
+<script type="text/javascript">
+    var sampleApplyId = '@(Model == null ? "" : Model.Id.ToString())';
+    var attachmentJson = "@attachmentJson".toJson();
+    $(function () {
+        $("#Id").val(sampleApplyId); //处理ajax情况下导致Id错误的问题；
+        if (attachmentJson != "null" && attachmentJson != "") $('#trAttachments').fadeIn();
+    });
+</script>
+<form action="#" id="fromSampleApplyEdit" style="width:100%;">
+<div id="divContainer" style="width:735px">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("IsInner","true")
+    @Html.Hidden("ApplicantId", Model == null ? user.Id : Model.ApplicantId)
+    @Html.Hidden("TagId", user.Tag != null ? user.Tag.Id.ToString() : "")
+    @Html.Hidden("Status", Model == null ? ((int)SampleApplyStatus.UnAudit).ToString() : ((int)Model.SampleStatus).ToString())
+    @Html.Hidden("PreSelectedSampleItemIds", Model == null ? "" : Model.SampleItemId.ToString())
+    <div style="display:none">
+        @Html.CheckBox("IsNewUser",false)
+    </div>
+    <table id="tbSampleApplyInfo" style="border-collapse:collapse;width:100%; margin:2px;">
+         <tr>
+            <th colspan="4">
+                <h5 style="text-align:center">校内送样委托申请单</h5>
+            </th>
+        </tr>
+         <tr>
+            <th colspan="4">
+                <h5>1.选择仪器设备</h5>
+            </th>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>选择仪器</th>
+            <td id="tbSelectEquipments" colspan="3">
+                <ul>
+                    <li style="float:left;"> 
+                        @(Html.TokenInput("SelectedEquipmentIds")
+                        .SetUrl(Url.Action("GetSampleViewEquipmentList", "Equipment"))
+                        .SetPrePopulate(ViewData["EquipmentJson"] == null ? null : ViewData["EquipmentJson"].ToString())
+                        .SetOnAdd("doOnEquipmentChanged();")
+                        .SetOnDelete("doOnEquipmentChanged();")
+                        .SetOnReady("getSampleItemsJson(false);")
+                        .SetSingle(false)
+                        .ToMvcString())
+                    </li>
+                    <li style="float:left;">
+                        @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-ok").SetPlain(true).SetOnclick("doSelectEquipmentDialog('SelectedEquipmentIds');return false;").ToMvcString()
+                    </li>
+                </ul>
+            </td>
+        </tr>
+        <tr>  
+            <th colspan="4">
+                <h5>2.委托人基本信息</h5>
+            </th>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>委托人</th>
+            <td> 
+                @Html.Label(Model == null ? user.UserName : Model.ApplicantName)
+            </td>
+            <th><span class="required">*</span>联系电话</th>
+            <td>
+                @Html.JValidateBox("TelephoneNo").SetWidth(138).SetValue(Model == null ? user.PhoneNumber : Model.TelephoneNo).SetValidateType(ValidateType.mobileTelephoneNo).SetInvalidMessage("请输入联系电话").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>电子邮箱</th>
+            <td> 
+                @Html.JValidateBox("Email").SetWidth(138).SetValue(Model == null ? user.Email : Model.Email).SetValidateType(ValidateType.email).SetRequired(true).SetInvalidMessage("请输入Email").ToMvcString()
+            </td>
+            <th><span class="required">*</span>委托单位</th>
+            <td> 
+                @Html.JValidateBox("OrganizationName").SetWidth(138).SetValue(Model == null ? user.Organization != null ? user.Organization.Name : user.OrganizationName : Model.OrganizationName).SetValidateType(ValidateType.required).SetInvalidMessage("请输入单位名称").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>地址及邮编</th>
+            <td colspan="3"> @Html.TextBox("ContactAddress", Model == null ? "" : Model.Description, new { style = "border:none;width:560px;background-color:transparent;" })</td>
+        </tr>
+        <tr>
+            <th colspan="4">
+               <h5>3.填写课题组信息</h5>
+            </th>
+        </tr>
+        <tr>
+             <th>
+                <span class="required">*</span>使用性质
+            </th>
+            <td>@Html.JComboBox("UseNature").SetData(ViewData["UseNatureJson"]).SetWidth(142).ToMvcString()</td>
+            <th><span class="required">*</span>课题组名称</th>
+            <td>@Html.JComboBox("SubjectId").SetEditable(false).SetWidth(142).SetData(ViewData["SubjectJson"]).SetOnChange("doOnSubjectChanged(newValue, oldValue);").SetMutiSelect(false).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>@(ViewData["ProjectShowName"].ToString())</th>
+            <td  colspan="3">
+                @Html.JComboBox("SubjectProjectId").SetWidth(537).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th colspan="4">
+               <h5>4.填写样品信息</h5>
+            </th>
+        </tr>
+        <tr style="display:none">
+            <th>支付方式</th>
+            <td>@Html.JComboBox("PaymentMethod").SetWidth(142).SetData(ViewData["PaymentMethodJson"]).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>样品名称</th>
+            <td>@Html.JValidateBox("Description").SetWidth(138).SetValue(Model == null ? "" : Model.Description).SetValidateType(ValidateType.required).SetInvalidMessage("请输入样品名称").ToMvcString()</td>
+            <th><span class="required">*</span>送样单号</th>
+            <td> 
+                @Html.JValidateBox("SampleNo").SetReadOnly(true).SetWidth(138).SetValue(Model == null ? sampleApplySerialNo : Model.SampleNo).SetValidateType(ValidateType.required).SetInvalidMessage("请输入样品编号").ToMvcString()
+                @Html.JLinkButton("btnShowMakeSampleNoDialog", "手动编号").SetIconCls("icon-edit").SetPlain(true).SetOnclick("showSampleNoMakingDialog($('#Quatity').val());return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>样品数量</th>
+            <td> 
+                @Html.JValidateBox("Quatity").SetOnBlur("renderChargeCategoryPrice();").SetOnChange("renderChargeCategoryPrice();generateSampleApplyNumbers('SampleNo','Quatity');").SetWidth(138).SetValue(Model == null ? "1" : Model.Quatity.ToString()).SetValidateType(ValidateType.intNumber).SetRequired(true).SetInvalidMessage("请输入整数的样品数量").ToMvcString()
+            </td>
+            <th><span class="required">*</span>送样时间</th>
+            <td id="tbExpectSendDate">
+                <span  class="date">@Html.JDateTimePicker("ExpectSendDate").SetWidth(93).SetDisabled(true).SetValue(Model == null || !Model.ExpectSendDate.HasValue ? DateTime.Now.ToString("yyyy-MM-dd") : Model.ExpectSendDate.Value.ToString("yyyy-MM-dd")).ToMvcString()</span>
+                @Html.JValidateBox("ExpectSendTime").SetReadOnly(true).SetWidth(41).SetValue(Model == null || !Model.ExpectSendDate.HasValue ? "" : Model.ExpectSendDate.Value.ToString("HH:mm")).ToMvcString()
+                @Html.JLinkButton("btnSelectSampleSendTime", "选择").SetOnclick("doSelectSampleSendTime('Id','ExpectSendDate','ExpectSendTime','SelectedEquipmentIds');").SetIconCls("icon-ok").SetPlain(true).SetDisabled(equipment == null ? true : !equipment.IsEnableSelectSampleSendTime).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>样品材料</th>
+            <td>
+                @Html.JValidateBox("SampleStuff").SetWidth(138).SetValue(Model == null ? "" : Model.SampleStuff).ToMvcString()
+            </td>
+            <th>样品尺寸</th>
+            <td>
+                @Html.JValidateBox("SampleSize").SetWidth(138).SetValue(Model == null ? "" : Model.SampleSize).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>期望完成时间</th>
+            <td>
+                @Html.JDateTimePicker("ExpectResultDate").SetWidth(143).SetValue(Model == null ? "" : Model.ExpectResultDate.HasValue ? Model.ExpectResultDate.Value.ToString("yyyy-MM-dd") : "").ToMvcString()
+            </td>
+            <th>样品是否退回</th>
+            <td>@Html.JComboBox("TestCondition").SetEditable(false).SetWidth(142).SetData(ViewData["TestConditionJson"]).SetMutiSelect(false).ToMvcString()</td>
+            <th style="display:none;">来样状态</th>
+            <td style="display:none;">
+                @Html.JComboBox("SampleStatus").SetWidth(142).SetData(ViewData["ArriveSampleStatusJson"]).SetEditable(false).SetMutiSelect(false).SetOnSelect("doSampleStatusSelected();loadSampleParameters();").SetOnLoadSuccess("doSampleStatusSelected();").ToMvcString()
+                @Html.JValidateBox("SampleStatusRemark").SetValue(Model == null ? "" : Model.SampleStatusReamrk).SetWidth(100).ToMvcString()
+            </td>
+        </tr>
+        <tr style="display:none">
+            <th>实际完成时间</th>
+            <td>@Html.JDateTimePicker("FinishDate").SetWidth(143).SetValue(Model == null ? "" : Model.FinishDate.HasValue ? Model.FinishDate.Value.ToString("yyyy-MM-dd") : "").SetDisabled(true).ToMvcString()</td>
+            <th>取报告/结果方式</th>
+            <td>@Html.JComboBox("GetResultWay").SetEditable(false).SetWidth(142).SetData(ViewData["GetResultWayJson"]).SetMutiSelect(false).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>由机组前处理</th>
+            <td>
+                @Html.JComboBox("IsNeedHandle").SetWidth(142).SetData(ViewData["IsNeedHandleJson"]).SetEditable(false).ToMvcString()
+                <span class="required"><b>前处理会产生额外费用</b></span>
+            </td>
+            <th>是否保密</th>
+            <td>@Html.JComboBox("IsSecret").SetWidth(142).SetData(ViewData["IsSecretJson"]).SetEditable(false).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>是否加急</th>
+            <td colspan="3">
+                @Html.JComboBox("IsUrgent").SetWidth(142).SetData(ViewData["IsUrgentJson"]).SetEditable(false).ToMvcString()
+                <span class="required"><b>加急会产生额外费用</b></span>
+            </td>
+        </tr>
+        <tr>
+            <th>相关附件</th>
+            <td colspan="3"> 
+                <input id="fileToUpload" type="file" name="fileToUpload" />
+                @Html.JLinkButton("btnUpLoad", "上传").SetPlain(true).SetIconCls("icon-upload").SetOnclick("$('#trAttachments').fadeIn(500);ajaxFileUpload();return false;").ToMvcString()
+                @Html.JLinkButton("btnShowAttachment", "显示").SetPlain(true).SetOnclick("$('#trAttachments').fadeIn(500);return false;").ToMvcString()
+                @Html.JLinkButton("btnHideAttachment", "隐藏").SetPlain(true).SetOnclick("$('#trAttachments').fadeOut(500);return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr id="trAttachments" style="display:none">
+            <th>附件列表</th>
+            <td colspan="3"> 
+                <div style="width:595px;overflow:hidden;">
+                    @(Html.Partial("SampleApplyAttachmentList"))
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="4">
+               <h5>5.填写项目信息</h5>
+            </th>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>检测项目</th>
+            <td colspan="3"> 
+                @Html.JComboBox("SelectedSampleItemIds").SetMutiSelect(true).SetData(ViewData["SampleItemsJson"]).SetOnChange("setTimeout('doOnSelectSampleItemChanged();',100);").SetWidth(540).ToMvcString()
+                @Html.JLinkButton("btnSelectSampleItem", "选择").SetIconCls("icon-ok").SetPlain(true).SetOnclick("doSelectSampleItemDialog('SelectedEquipmentIds','SelectedSampleItemIds',true);return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>检测条件<br />及要求填<br />写说明</th>
+            <td colspan="3">
+                <div style="width:540px;" id="divSampleItemDescriptions"></div>
+            </td>
+        </tr>
+        <tr>
+            <th>目的</th>
+            <td colspan="3">
+                <textarea id="Target" name="Target"  style="border:1px solid #8496BA;overflow:auto;width:540px;height:80px;font-size:12px;" rows="3" cols="20" >@(Model != null ? Model.Target : "")</textarea>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @if (isSampleItemTestConditionRequired)
+                {
+                    <span class="required">*</span>
+                }
+                检测条件<br />及要求<br />&nbsp;
+            </th>
+            <td colspan="3">
+               @Html.TextArea("TestDemand", Model == null ? "" : Model.TestDemand, new { rows = "3", style = "border:1px solid #8496BA;overflow:auto;width:540px;height:80px;font-size:12px;" })
+            </td>
+        </tr>
+        <tr>
+           <th>预估收费金额</th>
+           <td>
+                @Html.TextBox("Price","", new { style = "border-style:none;width:100px;background-color:transparent;text-align:left;font-weight:bold;", disabled = true })
+           </td>
+           <th>计费方式</th>
+           <td>
+                <span style="display:none">@Html.JComboBox("ChargeCategory").SetEditable(false).SetWidth(143).SetData(ViewData["ChargeCategoryJson"]).SetMutiSelect(false).ToMvcString()</span> 
+                <span id="spanChargeCategoryName" style="font-weight:bold;">@(sampleItem == null ? SampleItemChargeCategory.SampleQuatity.ToCnName() : sampleItem.ChargeCategoryEnum.ToCnName())</span>
+           </td>
+        </tr>
+        <tr id="trEquipmentOpenFundChargeRemark" style="display:none;">
+            <th>开发基金<br />扣费说明</th>
+            <td colspan="3" style="color:#888888; font-weight:bold">
+                <div id="divOpenFundFee" style="color:Blue; font-weight:bold;"></div>
+                <span id="spanOpenFundFeeRemark"></span>
+            </td>
+        </tr>
+    </table>
+</div>
+<div style="width:735px" id="divSampleParameterContainer"></div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#tbSelectEquipments ul.token-input-list-facebook").css("width", "540px");
+        var isIE6 = jQuery.browser.msie && (jQuery.browser.version == "6.0") && !jQuery.support.style;
+        if (isIE6) {
+            $("#tbExpectSendDate span.date span.datebox").css("width", "73px");
+            $("#tbExpectSendDate span.date span.datebox INPUT").css("width", "73px");
+            $("#tbExpectSendDate span.date INPUT.easyui-datebox").css("width", "73px");
+        }
+        loadSampleParameters();
+        renderChargeCategoryPrice();
+    });
+</script>

@@ -1,0 +1,429 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Business;
+@{
+    Layout = ViewBag.Layout;
+    var customer = CustomerFactory.GetCustomer();
+    var equipmentTimeAppointmemtMode = (com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode)ViewData["EquipmentTimeAppointmemtMode"];
+}
+@Html.Hidden("EquipmentId", Model.Id.ToString())
+@Html.Hidden("ChangeAppointmentId", ViewData["ChangeAppointmentId"])
+@Html.Hidden("AppointmentUserId", ViewData["AppointmentUserId"])
+@Html.Hidden("VirtualEquipmentBindId", ViewData["VirtualEquipmentBindId"] != null ? ViewData["VirtualEquipmentBindId"].ToString() : "")
+@{
+    var totalTitle = string.Format("{0}{1}的汇总信息", Model.Name, !string.IsNullOrWhiteSpace(Model.Model) ? "(" + Model.Model + ")" : "");
+    var basicTitle = string.Format("{0}{1}的概要信息", Model.Name, !string.IsNullOrWhiteSpace(Model.Model) ? "(" + Model.Model + ")" : "");
+    var resourceTitle = string.Format("{0}{1}的资源信息", Model.Name, !string.IsNullOrWhiteSpace(Model.Model) ? "(" + Model.Model + ")" : "");
+    AppointmentBeforeValidate appointmentBeforeValidate = ViewData["AppointmentBeforeValidate"] == null ? new AppointmentBeforeValidate() : (AppointmentBeforeValidate)ViewData["AppointmentBeforeValidate"];
+    var isWithoutCheck = ViewData["IsWithoutCheck"] == null ? false : (bool)ViewData["IsWithoutCheck"];
+    var isNeedInputSampleCount = (bool)ViewData["IsNeedInputSampleCount"];
+    bool isEnableInputAppointmentTimes = com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer().GetIsEnableInputAppointmentTimes();
+    var equipmentPartList = ViewData["EquipmentParts"] != null ? (IList<com.Bynonco.LIMS.Model.EquipmentPart>)ViewData["EquipmentParts"] : null;
+    bool isHasEquipmentPart = equipmentPartList != null && equipmentPartList.Count > 0;
+    var appointmentInputSetting = (com.Bynonco.LIMS.Model.Business.AppointmentInputSetting)ViewData["AppointmentInputSetting"];
+}
+@Html.Hidden("EquipmentTimeAppointmemtMode", (int)equipmentTimeAppointmemtMode)
+<div id="divLoadUserRelativeInfoForCalendarDialog" style="display:none;"></div>
+<div style="display:none;">@Html.Partial("../Appointment/ScriptContainer")</div>
+<div class="layout-center-full">
+    <div id="divAppointmentContainer" class="edit-box" style='@(equipmentTimeAppointmemtMode == com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.DragableCalendar ? "padding:5px 5px;" : "")'>
+         @if (Model != null && !string.IsNullOrWhiteSpace(Model.AppointmentNote))
+         {
+            <div class="notification attention">
+		        <div>@System.Web.Mvc.MvcHtmlString.Create(Model.AppointmentNote.Replace("\r\n", "<br />"))</div>
+	        </div>
+         }
+         @if (!isWithoutCheck && appointmentBeforeValidate != null && !appointmentBeforeValidate.IsAllValidate)
+         {
+            @Html.Partial("../Appointment/AppointmentBefore", Model)
+         }
+         else
+         {
+            <div id="divEquipmentRelativeInfo">
+                @if (equipmentTimeAppointmemtMode == com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.CommondCalendar)
+                {
+                    @*<p><span class="icon icon-detail"></span><a id="btnAppointmentEquipmentTotal" href="javascript:void(0)" onclick="doSetEquipmentTotalVisibility();return false;">@(totalTitle + "(点击展开)")</a></p>
+                    <div id="divAppointmentEquipmentTotal" style="display:none;padding: 10px 0 10px 20px;">@Html.Partial("../Equipment/AppointmentEquipmentTotalInfo")</div>
+                    <p>
+                        <span class="icon icon-equipmentinfo"></span>
+                        <a id="btnAppointmentEquipmentSimpleInfo" href="javascript:void(0)" onclick="doSetEquipmentInfoVisibility();return false;">@(basicTitle + "(点击展开)")</a>
+                    </p>
+                    <div id="divAppointmentEquipmentSimpleInfo" style="display:none; padding-left:10px">@Html.Partial("../Equipment/AppointmentEquipmentSimpleInfo")</div>
+                    <p><span class="icon icon-cal"></span>@resourceTitle</p>*@
+                }
+                <div>
+                        <table class="edit-info">
+                            @Html.Partial("../Equipment/EquipmentPartContainer")
+                        </table>
+                </div>
+                <div id="divResource" style='@(isHasEquipmentPart ? "display:none;" : "")'>
+                    <div id="divAppointmentTimesContainer" style='@(equipmentTimeAppointmemtMode == EquipmentTimeAppointmemtMode.CommondCalendar ? "padding: 0px 0 10px 20px;" : "")'></div>
+                    @if (equipmentTimeAppointmemtMode == com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.CommondCalendar || equipmentTimeAppointmemtMode == com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.Classic)
+                    {
+                        <div style='padding: 0px 0 10px 75px; font-weight:bold;@(!isEnableInputAppointmentTimes ? "display:none;" : "")'>
+                            @Html.CheckBox("IsSelectTimeScope", false, new { onclick = "doOnSelectTimeScopeChanged(this);" })
+                            <label for="IsSelectTimeScope">点击手动输入预约时间范围,上面选择的预约时间无效,以输入时间为准</label>
+                        </div>
+                        <div id="divAppointmentTimeScopeContainer" style="display:none;padding: 0px 0 10px 75px;">
+                            @Html.Partial("../Equipment/AppointmentTimeScopeContainer")
+                        </div>
+                    }
+                </div>
+            </div>
+            <div id="divUserRelativeInfo" style="display:none"></div>
+            <div id="divAppointmentTotalInfoContainer" style="display:none">
+                <div id="divAppointmentTotalInfo"></div>
+                @Html.CheckBox("HasReadTheNotice")我已仔细阅读并同意以上条款
+            </div>
+           if (equipmentTimeAppointmemtMode != com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.DragableCalendar)
+           {
+                <div id="divAppointmentBoxOperate" style="margin-left:170px;margin-bottom:3px;margin-top:3px">@Html.Partial("../Equipment/AppointmentBoxOperate")</div>
+           }
+         }
+    </div>
+</div>
+<div style="display:none">@Html.Partial("ScriptContainer")</div>
+<script type="text/javascript">
+    var curIndex = 0;
+    $(function () {
+        if ('@(isHasEquipmentPart.ToString().ToLower())' != "true") {
+            loadEquipmentAppointmentTimes();
+        }
+        var isIE6 = jQuery.browser.msie && (jQuery.browser.version == "6.0") && !jQuery.support.style;
+        if (isIE6) {
+            $("#tdAppointmentBeginAt span.date span.datebox").css("width", "82px");
+            $("#tdAppointmentBeginAt span.date span.datebox INPUT").css("width", "82px");
+            $("#tdAppointmentBeginAt span.date INPUT.easyui-datebox").css("width", "82px");
+            $("#tdAppointmentBeginAt span.time INPUT.combo-text").css("width", "30px");
+            $("#tdAppointmentEndAt span.date span.datebox").css("width", "82px");
+            $("#tdAppointmentEndAt span.date span.datebox INPUT").css("width", "82px");
+            $("#tdAppointmentEndAt span.date INPUT.easyui-datebox").css("width", "82px");
+            $("#tdAppointmentEndAt span.time INPUT.combo-text").css("width", "30px");
+        }
+    });
+    function doOnSelectTimeScopeChanged() {
+        var isSelectTimeScope = $("#IsSelectTimeScope").attr("checked");
+        if (isSelectTimeScope) {
+            $("#divAppointmentTimeScopeContainer").fadeIn();
+        }
+        else {
+            $("#divAppointmentTimeScopeContainer").fadeOut();
+        }
+    }
+    function doSetEquipmentTotalVisibility() {
+        if ($("#divAppointmentEquipmentTotal").css("display") == "none") {
+            $("#divAppointmentEquipmentTotal").css("display", "block")
+            $("#btnAppointmentEquipmentTotal").html('@(totalTitle + "(点击隐藏)")');
+        }
+        else{
+            $("#divAppointmentEquipmentTotal").css("display", "none")
+            $("#btnAppointmentEquipmentTotal").html('@(totalTitle + "(点击展开)")');
+        }
+    }
+    function doSetEquipmentInfoVisibility() {
+        if ($("#divAppointmentEquipmentSimpleInfo").css("display") == "none") {
+            $("#divAppointmentEquipmentSimpleInfo").css("display", "block")
+            $("#btnAppointmentEquipmentSimpleInfo").html('@(basicTitle + "(点击隐藏)")');
+        }
+        else{
+            $("#divAppointmentEquipmentSimpleInfo").css("display", "none")
+            $("#btnAppointmentEquipmentSimpleInfo").html('@(basicTitle + "(点击展开)")');
+        }
+    }
+    function loadEquipmentAppointmentTimes() {
+        if ($("#divAppointmentTimesContainer").length > 0) {
+           var equipmentPartIds = getEquipmentPartIds();
+           var url = '@Url.Action("AppointmentTimesContainer", "Equipment")';
+           var weekIndex = $("#WeekIndex").val();
+           var equipmentId = $("#EquipmentId").val();
+           var appointmentUserId = $("#AppointmentUserId").val();
+           var equipmentTimeAppointmemtMode = $("#EquipmentTimeAppointmemtMode").val();
+           $.messager.progress({ title: '提示', msg: '正在提交请求数据,请稍候……' });
+           $("#divAppointmentTimesContainer").load(url, { "EquipmentTimeAppointmemtMode":equipmentTimeAppointmemtMode,"userId": appointmentUserId, "EquipmentPartIds": equipmentPartIds, "EquipmentId": equipmentId, "WeekIndex": weekIndex ? weekIndex : "0", "date": new Date().getMilliseconds() }, function (data) {
+               $.messager.progress('close');
+           });
+        }
+    }
+    function doPreviousOperate() {
+        curIndex--;
+        doShowInfo();
+        $("#btnPrevious").linkbutton(curIndex > 0 ? "enable" : "disable");
+        $("#btnNext").linkbutton(curIndex <3 ? "enable" : "disable");
+    }
+    function doNextOperate() {
+        switch(curIndex){
+            case 0:
+                if(!doRelativeInfoValidate()) return;
+                doLoadUserRelativeInfo();
+                break;
+            case 1:
+                if(!doUserAppointmentInfoValidate()) return;
+                doLoadAppointmentTotalInfo(); 
+                break;
+            case 2: 
+                if(!doSubmitAppointmentValidate()) return;
+                doSubmitAppointment(false, @((customer.GetSchoolName() == com.Bynonco.LIMS.BLL.HDSFDX.SchoolName).ToString().ToLower()));
+                break;
+        }
+        curIndex++;
+        doShowInfo();
+        $("#btnPrevious").linkbutton(curIndex > 0 ? "enable" : "disable");
+        $("#btnNext").linkbutton(curIndex <3 ? "enable" : "disable");
+    }
+    function doShowInfo() {
+        switch (curIndex) {
+            case 0:
+                $("#divEquipmentRelativeInfo").show();
+                $("#divUserRelativeInfo").hide();
+                $("#divAppointmentTotalInfoContainer").hide();
+                $("#btnNext span.l-btn-text").text("下一步");    
+                break;
+            case 1:
+                $("#divEquipmentRelativeInfo").hide();
+                $("#divUserRelativeInfo").show();
+                $("#divAppointmentTotalInfoContainer").hide();
+                $("#btnNext span.l-btn-text").text("下一步");    
+                break;
+            case 2:
+                $("#divEquipmentRelativeInfo").hide();
+                $("#divUserRelativeInfo").hide();
+                $("#divAppointmentTotalInfoContainer").show();
+                $("#btnNext span.l-btn-text").text("完成");    
+                break;
+        }
+    }
+    function doUserAppointmentInfoValidate(){
+        var subjectId= $("#SubjectId").combobox("getValue").trim();
+        if(subjectId==""){
+            $.messager.alert('提示', "请选择课题组", 'warning');
+            return false;
+        }
+        if ('@isNeedInputSampleCount'.toLowerCase() == "true") {
+            var sampleCountStr = $("#SampleCount").val().trim();
+            if (sampleCountStr == "") {
+                $.messager.alert('提示', "请输入样品数", 'warning');
+                return false;
+            }
+            if (!sampleCountStr.isPositiveInt()) {
+                $.messager.alert('提示', "样品数不是大于0的整数", 'warning');
+                return false;
+            }
+        }
+        if('@(appointmentInputSetting.IsUseNatureRequired.ToString().ToLower())'=="true")
+        {
+            var useNature = $("#UseNature").combobox("getValue").trim();
+            if(useNature==""){
+                $.messager.alert('提示', "请选择使用性质", 'warning');
+                return false ;
+            }
+        }
+        if('@(appointmentInputSetting.IsExperimentContentRequired.ToString().ToLower())'=="true")
+        {
+            var experimentationContent = $("#ExperimentationContent").val().trim();
+            if (experimentationContent == "") {
+                $.messager.alert('提示', "实验内容为空", 'warning');
+                return false;
+            }
+        }
+        return true;
+    }
+    function doLoadAppointmentTotalInfo() {
+        var isSelectTimeScope = $("#IsSelectTimeScope").attr("checked") == "checked";
+        var timeScope = getTimeScope();
+        var appointmentUserId = $("#AppointmentUserId").val().trim();
+        var equipmentId = $("#EquipmentId").val();
+        var subjectName = $("#SubjectId").combobox("getText");
+        var useNature = $("#UseNature").combobox("getText");
+        var appointmentTimes = getSelectedAppointmentTimeIds();
+        var url = '@Url.Action("AppointmentTotalInfo", "Appointment")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求数据,请稍候……' });
+        $("#divAppointmentTotalInfo").load(url, { "isSelectTimeScope": isSelectTimeScope, "beginTime": timeScope.beginTime, "endTime": timeScope.endTime, "userId": appointmentUserId, "EquipmentId": equipmentId, "AppointmentTimes": appointmentTimes, "SubjectName": subjectName, "UsedNature": useNature, "date": new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+        });
+    }
+    function doRelativeInfoValidate() {
+        if (!isSelectEquipmentPart()) {
+            $.messager.alert('提示', "至少选择一个设备部件", 'warning');
+            return false;
+        }
+        var isSelectTimeScope = $("#IsSelectTimeScope").attr("checked") == "checked";
+        if (!isSelectTimeScope) {
+            var appointmentTimeIds = getSelectedAppointmentTimeIds();
+            if (appointmentTimeIds == "") {
+                $.messager.alert('提示', "请选择预约时间段", 'warning');
+                return false;
+            }
+        }
+        else {
+            var beginDateStr = $("#BeginAt").datebox("getValue");
+            if (beginDateStr.trim() == "") {
+                $.messager.alert('提示', "预约起始日期为空", 'warning');
+                return false;
+            }
+            if (!Date.parse(beginDateStr)) {
+                $.messager.alert('提示', "预约起始日期非法", 'warning');
+                return false;
+            }
+            if (beginDateStr.isSeCurrentDate()) {
+                $.messager.alert('提示', "预约起始日期小于当前日期", 'warning');
+                return false;
+            }
+            var endDateStr = $("#EndAt").datebox("getValue");
+            if (endDateStr.trim() == "") {
+                $.messager.alert('提示', "预约结束日期为空", 'warning');
+                return false;
+            }
+            if (!Date.parse(endDateStr)) {
+                $.messager.alert('提示', "预约结束日期非法", 'warning');
+                return false;
+            }
+            if (endDateStr.isSeCurrentDate()) {
+                $.messager.alert('提示', "预约结束小于当前日期", 'warning');
+                return false;
+            }
+            var beginDate = Date.parse(beginDateStr);
+            var endDate = Date.parse(endDateStr);
+            var beginHour = $("#BeginAtHour").combobox("getValue");
+            var beginMinute = $("#BeginAtMinute").combobox("getValue");
+            var endHour = $("#EndAtHour").combobox("getValue");
+            var endMinute = $("#EndAtMinute").combobox("getValue");
+            var beginTime = new Date(new Date(beginDate).getFullYear(), new Date(beginDate).getMonth(), new Date(beginDate).getDay(), beginHour, beginMinute, 0);
+            var endTime = new Date(new Date(endDate).getFullYear(), new Date(endDate).getMonth(), new Date(endDate).getDay(), endHour, endMinute, 0);
+            if (endTime <= beginTime) {
+                $.messager.alert('提示', "预约结束时间不能小于或者等于预约起始时间", 'warning');
+                return false;
+            }
+        }
+        if($("#ChangeAppointmentId").val().trim() != ""){
+            var rowNos = getSelectedRownos().split(",");
+            if(rowNos.length > 1){
+                for(var i = 0 ; i < rowNos.length ; i++){
+                    if(i <= rowNos.length - 2 && parseInt(rowNos[i + 1]) - parseInt(rowNos[i]) != 1){
+                         $.messager.alert('提示', "改约,请选择连续时间段", 'warning');
+                         return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    var userRelativeInfoForCalendarDialog;
+    function doLoadUserRelativeInfoForCalendar(beginTime, endTime) {
+        if (userRelativeInfoForCalendarDialog) userRelativeInfoForCalendarDialog.dialog('destroy');
+        var equipmentId = $("#EquipmentId").val();
+        var appointmentUserId = $("#AppointmentUserId").val();
+        var changeAppointmentId = $("#ChangeAppointmentId").val();
+        var url = '@Url.Action("AppointmentUserRelativeInfo", "Appointment")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divLoadUserRelativeInfoForCalendarDialog").load(url,{"equipmentTimeAppointmemtMode":'@((int)EquipmentTimeAppointmemtMode.DragableCalendar)',"beginTime":beginTime,"endTime":endTime,"equipmentId":equipmentId,"userId":appointmentUserId,"changeAppointmentId":changeAppointmentId,"date": new Date().getMilliseconds()}, function () {
+            $.messager.progress('close');
+             userRelativeInfoForCalendarDialog = @(Html.JDialog("divLoadUserRelativeInfoForCalendar").SetTitle("设备预约").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("userRelativeInfoForCalendarDialog.dialog('close');return false;").SetOkScript("doSubmitAppointment(true);return false;").SetModal(true).ToMvcString());
+        });
+    }
+    function doLoadUserRelativeInfo(){
+        if($("#divUserRelativeInfo").html()!="") return;
+        var equipmentId = $("#EquipmentId").val();
+        var appointmentUserId = $("#AppointmentUserId").val();
+        var changeAppointmentId = $("#ChangeAppointmentId").val();
+        var url = '@Url.Action("AppointmentUserRelativeInfo", "Appointment")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求数据,请稍候……' });
+        $("#divUserRelativeInfo").load(url, {equipmentTimeAppointmemtMode:'@((int)EquipmentTimeAppointmemtMode.CommondCalendar)',"equipmentId":equipmentId,"userId":appointmentUserId,"changeAppointmentId":changeAppointmentId,"date": new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+        });
+    }
+
+    function doSubmitAppointmentValidate(){
+        if(!$("#HasReadTheNotice").attr("checked")){
+            $.messager.alert('提示', "请勾选上我已仔细阅读并同意以上条款", 'warning');
+            return false;
+        }
+        return true;
+    }
+    function doSubmitAppointment(isSuccessBackToList, appointmentFeeTips) {
+        if (!appointmentFeeTips) appointmentFeeTips = false;
+        var isSelectTimeScope = $("#IsSelectTimeScope").attr("checked") == "checked";
+        var timeScope = getTimeScope();
+        var equipmentId = $("#EquipmentId").val();
+        var appointmentTimes = !isSelectTimeScope?getSelectedAppointmentTimeIds() : "";
+        var appointmentStep = $("#AppointmentStep").val();
+        var changeAppointmentId = $("#ChangeAppointmentId").val().trim();
+        var appointmentUserId = $("#AppointmentUserId").val();
+        var virtualEquipmentBindId = $("#VirtualEquipmentBindId").val();
+        var selectedDesOptionsIds = getEquipmentPartIds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = changeAppointmentId == ""? '@Url.Action("Appointment", "Appointment")' : '@Url.Action("ChangeAppointment", "Appointment")';
+        $.ajax({
+            type: "Post",
+            url: url,
+            data: $("#frmAppointmentUserRelativeInfo").serialize() + "&isSelectTimeScope=" + isSelectTimeScope + "&beginTime=" + timeScope.beginTime + "&endTime=" + timeScope.endTime + "&userId=" + appointmentUserId + "&AppointmentStep=" + appointmentStep + "&AppointmentTimes=" + appointmentTimes + "&EquipmentId=" + equipmentId + "&EquipmentPartIds=" + selectedDesOptionsIds + "&ChangeAppointmentId=" + changeAppointmentId + "&VirtualEquipmentBindId=" + virtualEquipmentBindId + '&AppointmentFeeTips=' + appointmentFeeTips,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") == 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return;
+                }
+                if (msg && msg.indexOf("确认") == 0) {
+                    $.messager.confirm('确认', msg, function(r) {
+                        if (r) {
+                            doSubmitAppointment(isSuccessBackToList, false);
+                        } else {
+                            $("#btnNext").linkbutton("enable");
+                        }
+                    });
+                    return;
+                }
+                if(isSuccessBackToList){
+                    doBack2();
+                }
+                else{
+                    $("#divAppointmentContainer").html(msg);
+                }
+            }
+        });
+        return false;
+    }
+
+    function doStartAppointment(isWithoutCheck) {
+        if (!isWithoutCheck && isWithoutCheck != true) isWithoutCheck = false;
+        var equipmentId = $("#EquipmentId").val();
+        var appointmentUserId = $("#AppointmentUserId").val();
+        var changeAppointmentId = $("#ChangeAppointmentId").val();
+        var url = '@Url.Action("AppointmentBoxContainer", "Equipment", new { id = Model.Id , userParameters = "" })' + "?IsWithoutCheck=" + isWithoutCheck + "&AppointmentUserId=" + appointmentUserId + "&changeAppointmentId=" + encodeURI(changeAppointmentId) + "&date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "divMainContentBox", ajaxloadsuccess, dialogOpen, true);
+    }
+    function doStartAppointmentWithoutCheck() {
+        doStartAppointment(true);
+    }
+    function doOnDesOptionsChangedCallBack(va) {
+        if (!isSelectEquipmentPart()) {
+            $("#divResource").css("display", "none");
+            return false;
+        }
+        loadEquipmentAppointmentTimes();
+        $("#divResource").css("display", "");
+        return true;
+    }
+    function doAppointmentSearch() {
+        loadEquipmentAppointmentTimes();
+    }
+    function doBack2() {
+//    window.location.reload();
+//        isWithoutCheck = false;
+//        var url = '@Url.Action("AppointmentBoxContainer", "Equipment")' + "?time=" + new Date().getMilliseconds();
+//        ajaxActionLink(url,"Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+//        return false;
+         userRelativeInfoForCalendarDialog.dialog('close');
+         doOnDesOptionsChanged(this);     
+         return false;    
+    }
+
+    function doBack() {
+       var url = '@Url.Action("Index", "Equipment")' + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+         
+    }
+
+</script>

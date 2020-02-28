@@ -1,0 +1,176 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL;
+<div id="divViewEquipmentApplyDialog" style="display:none"></div>
+<div id="divEquipmentAuditRemarkInputDialog" style="display:none"></div>
+<div id="divEquipmentApplyBatchAuditDialog" style="display:none"></div>
+<div style="display:none;">
+    <div id="divEquipmentApplyAuditResultContainer" style="width:450px"></div>
+</div>
+<script type="text/javascript">
+    var equipmentApplyBatchAuditResultDialog;
+    function showEquipmentApplyBatchAuditResult(result){
+        $("#divEquipmentApplyAuditResultContainer").html(result);
+        equipmentApplyBatchAuditResultDialog = @(Html.JDialog("divEquipmentApplyAuditResultContainer").SetTitle("设备入网申请审核结果").SetAutoDialog(false).SetOkScript("equipmentApplyBatchAuditResultDialog.dialog('close');").SetCancelScript("equipmentApplyBatchAuditResultDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+    }
+    function execEquipmentApplyBatchAudit(equipmentApplyRole) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("BatchAudit", "EquipmentApply")',
+            data: $("#frmEquipmentApplyAudit").serialize()+"&equipmentApplyRole=" + equipmentApplyRole + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentApplyBatchAuditDialog.dialog("close");
+                doSearch();
+                showEquipmentApplyBatchAuditResult(msg);
+            }
+        });
+    }
+    var equipmentApplyBatchAuditDialog;
+    function doEquipmentApplyBatchAudit(equipmentApplyRole){
+        var selectedEquipmentApplyIds = generateSelectedEquipmentApplyIds();
+        if(selectedEquipmentApplyIds==""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的申请单", showType: 'show' });
+            return false;
+        } 
+        var url = "";
+        switch(equipmentApplyRole.toString()){
+            case "@((int)EquipmentApplyRole.LabRoomDirector)":
+                url = '@Url.Action("LabRoomAuditContainer", "EquipmentApply")';
+                break;
+            case "@((int)EquipmentApplyRole.SchoolDirector)":
+                url = '@Url.Action("SchoolAuditContainer", "EquipmentApply")';
+                break;
+            case "@((int)EquipmentApplyRole.ShareEDirector)":
+                url = '@Url.Action("ShareEAuditContainer", "EquipmentApply")';
+             break;
+        }
+        if(equipmentApplyBatchAuditDialog) {
+            equipmentApplyBatchAuditDialog.dialog("destroy");
+        }
+        
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentApplyBatchAuditDialog").load(url, { "equipmentApplyIds":selectedEquipmentApplyIds,"date": new Date().getMilliseconds() }, function () {
+            equipmentApplyBatchAuditDialog = @(Html.JDialog("divEquipmentApplyBatchAuditContainer").SetTitle("设备入网审核").SetAutoDialog(false).SetOkScript("execEquipmentApplyBatchAudit(equipmentApplyRole);").SetCancelScript("equipmentApplyBatchAuditDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+            $.messager.progress('close');
+        });
+    }
+    function doAddOrEquipmentApply(id) {
+        var url = '@Url.Action("EditIndex", "EquipmentApply")' + "?id=" + id +  "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doCancelEquipmentApply(id) {
+        $.messager.confirm('提示', '确认取消?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Cancel", "EquipmentApply")',
+                data: { "id": id,"time":new Date().getMilliseconds() },
+                success: function (msg) {
+                    $.messager.progress("close");
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    var viewEquipmentApplyDialog;
+    function doViewEquipmentApply(id) {
+        if (viewEquipmentApplyDialog) {
+            viewEquipmentApplyDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divViewEquipmentApplyDialog').load('@Url.Action("View", "EquipmentApply")',{ "id": id,"time":new Date().getMilliseconds()},function(){
+            $.messager.progress("close");
+            viewEquipmentApplyDialog = @(Html.JDialog("divEquipmentApplyDetail").SetAutoDialog(false).SetModal(true).SetOkScript("viewEquipmentApplyDialog.dialog('close');return false;").SetCancelScript("viewEquipmentApplyDialog.dialog('close');return false;").SetTitle("设备入网申请单信息").SetIconCls("icon-save").ToMvcString());
+        });  
+        return false;
+    }
+    var equipmentApplyAuditDialog;
+    function doShowEquipmentApplyAuditInput(id,status) {
+        var url = "";
+        switch(status.toString())
+        {
+            case '@((int)EquipmentApplyStatus.LabRoomDirectotAuditPassed)':
+            case '@((int)EquipmentApplyStatus.LabRoomDirectotAuditNoPassed)':
+                url ='@Url.Action("LabRoomDirectorAuditRemarkInput","EquipmentApply")';
+                break;
+            case '@((int)EquipmentApplyStatus.SchoolDirectorAuditPassed)':
+            case '@((int)EquipmentApplyStatus.SchoolDirectorAuditNoPassed)':
+                 url ='@Url.Action("SchoolDirectorAuditRemarkInput","EquipmentApply")';
+                break;
+            case '@((int)EquipmentApplyStatus.SharEDirectorAuditPassed)':
+            case '@((int)EquipmentApplyStatus.SharEDirectorAuditNoPassed)':
+                url ='@Url.Action("ShareEDirectorAuditRemarkInput","EquipmentApply")';
+                break;
+        }
+        if (equipmentApplyAuditDialog) {
+            equipmentApplyAuditDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divEquipmentAuditRemarkInputDialog').load(url,{ "id": id,"time":new Date().getMilliseconds()},function(){
+            $.messager.progress("close");
+            equipmentApplyAuditDialog = @(Html.JDialog("divEquipmentAuditRemarkInput").SetAutoDialog(false).SetModal(true).SetOkScript("execEquipmentApplyAudit(id,status)").SetCancelScript("equipmentApplyAuditDialog.dialog('close');return false;").SetTitle("  ").SetIconCls("icon-tip").ToMvcString());
+        });  
+        return false;
+        
+    }
+   
+    function execEquipmentApplyAudit(id,status){
+        var url = "";
+        switch(status.toString())
+        {
+            case '@((int)EquipmentApplyStatus.LabRoomDirectotAuditPassed)':
+                url ='@Url.Action("LabRoomDirectorAuditPass","EquipmentApply")';
+                break;
+            case '@((int)EquipmentApplyStatus.LabRoomDirectotAuditNoPassed)':
+                url ='@Url.Action("LabRoomDirectorAuditNoPass","EquipmentApply")';
+                break;
+            case '@((int)EquipmentApplyStatus.SchoolDirectorAuditPassed)':
+                url ='@Url.Action("SchoolDirectorAuditPass","EquipmentApply")';
+                break;
+            case '@((int)EquipmentApplyStatus.SchoolDirectorAuditNoPassed)':
+                url ='@Url.Action("SchoolDirectorAuditNoPass","EquipmentApply")';
+                break;
+            case '@((int)EquipmentApplyStatus.SharEDirectorAuditPassed)':
+                url ='@Url.Action("ShareEDirectorAuditPass","EquipmentApply")';
+                break;
+            case '@((int)EquipmentApplyStatus.SharEDirectorAuditNoPassed)':
+                url ='@Url.Action("ShareEDirectorAuditNoPass","EquipmentApply")';
+                break;
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmEquipmentAuditRemarkInput").serialize()+"&time="+ new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                doSearch();
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentApplyAuditDialog.dialog("close");
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+        return false;
+        
+    }
+    function doExpertEquipmentApply(id){
+        var url = '@Url.Action("Expert","EquipmentApply")' + "?id=" + id + "&time=" + new Date().getMilliseconds();
+        window.open(url,"_blank");
+    }
+</script>

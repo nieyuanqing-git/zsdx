@@ -1,0 +1,16 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenTrainingPlan
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var infoId = Model == null ? Guid.NewGuid() : Model.Id;
+}
+<tr id='@("tr_" + infoId)'>
+    <td>
+        <input id="Id_@(infoId)" type="hidden" value="@(infoId)" name="Id_@(infoId)"/>
+        @Html.JLinkButton("btnRemovePlan_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemovePlan('" + infoId + "');return false;").ToMvcString()
+    </td>
+    <td>@Html.JValidateBox("Name_" + infoId).SetValue(Model == null ? "" : Model.Name).SetWidth(80).ToMvcString()</td>
+    <td>@Html.JValidateBox("TrainingHours_" + infoId).SetValue(Model == null || !Model.TrainingHours.HasValue ? "" : Math.Round(Model.TrainingHours.Value,2).ToString()).SetWidth(60).ToMvcString()</td>
+    <td>@Html.JValidateBox("UserCount_" + infoId).SetValue(Model == null || !Model.UserCount.HasValue ? "" : Model.UserCount.ToString()).SetWidth(60).ToMvcString()</td>
+    <td>@Html.JValidateBox("PlanMoney_" + infoId).SetValue(Model == null || !Model.PlanMoney.HasValue ? "" : Math.Round(Model.PlanMoney.Value,2).ToString()).SetWidth(60).ToMvcString()</td>
+    <td>@Html.JValidateBox("LeaseHolder_" + infoId).SetValue(Model == null ? "" : Model.LeaseHolder).SetWidth(50).ToMvcString()</td>
+</tr>

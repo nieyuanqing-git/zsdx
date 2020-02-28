@@ -1,0 +1,112 @@
+﻿@model com.Bynonco.LIMS.Model.OpenFundApply
+@using com.Bynonco.LIMS.Model.View; 
+@using com.Bynonco.LIMS.Model.Enum; 
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var applySerialNo = ViewData["ApplySerilaNo"] == null ? "" : ViewData["ApplySerilaNo"].ToString();
+}
+<div id="divOpenFundApplyEdit">
+ <form id="frmOpenFundApplyEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tdOpenFundApplyEdit" class="edit-table"  style="width:640px;">
+        @if (Model != null)
+        {
+        <tr>
+            <th colspan='4' style='font-weight:bold;'>@(Model.CreateTime.Year)年@(Model.CreateTime.Month < 7 ? "上" : "下")半年开放基金</th>
+        </tr>
+        }
+        <tr>
+            <th><span class="required">* </span>申请单号</th>
+            <td>
+                @Html.JValidateBox("ApplyNum").SetReadOnly(Model != null).SetValue(Model == null ? applySerialNo : Model.ApplyNum).SetWidth(200).ToMvcString()
+            </td>
+            <th><span class="required">* </span>申请时间</th>
+            <td>
+                @Html.JDateTimePicker("ApplyTime").SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.ApplyTime.ToString("yyyy-MM-dd")).SetWidth(155).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>项目名称</th>
+            <td colspan='3'>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(400).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>申请人</th>
+            <td id="tdApplyUser" colspan="3" >
+                @(Html.TokenInput("UserId")
+                .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["UserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserJson"].ToString()) ? null : ViewData["UserJson"].ToString())
+                .SetSingle(true)
+                .SetWidth(125)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>申请存款额度</th>
+            <td>@Html.JValidateBox("ApplyMoney").SetValue(Model == null ? "" : Model.ApplyMoney.ToString()).SetOnChange("doApplyMoneyChange();").SetWidth(200).SetRequired(true).SetValidateType(ValidateType.number).ToMvcString()</td>
+            <th>补贴基金额度</th>
+            <td id="tdSubsidies"></td>
+        </tr>
+        <tr>
+            <th>可用设备</th>
+            <td colspan="3" style="padding:0;border:0;">
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            @(Html.TokenInput("EquipmentIds")
+                                .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                                .SetSingle(false)
+                                .SetWidth(400)
+                                .SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString())
+                                .ToMvcString())
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectEquipment();return false;").ToMvcString()
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnCleanEquipment", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanEquipment();return false;").ToMvcString()
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan="3" >
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:60px;width:520px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    function doApplyMoneyChange() {
+        $("#tdSubsidies").empty();
+        if ($("#ApplyMoney").val().trim() != '0' && ($("#ApplyMoney").val().trim() == "" || !$("#ApplyMoney").validatebox("isValid"))) 
+        {
+        }
+        else {
+            $("#tdSubsidies").append($("#ApplyMoney").val());
+        }
+    }
+    function doCleanEquipment() {
+        $("#EquipmentIds").tokenInput("clear");
+    }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+
+        $("#EquipmentIds").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#EquipmentIds").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+    function doSelectEquipment() {
+        doSelectEquipmentDialog('EquipmentIds', { "SelectEquipmentMode": '@((int)com.Bynonco.LIMS.Model.Enum.SelectEquipmentMode.All)' });
+        return false;
+    }
+</script>

@@ -1,0 +1,113 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    @Html.Partial("../UserType/List")
+</div>
+<div id="divUserTypeDialog"></div>
+
+<script type="text/javascript">
+    function doSearch() {
+        $('#tbUserTypeList').treegrid('loadData', { total: 0, rows: [] });
+        $("#tbUserTypeList").treegrid("reload");
+        return false;
+    }
+    var userTypeDialog;
+    function doUserTypeDialog() {
+        if (userTypeDialog) {
+            userTypeDialog.dialog("destroy");
+        }
+        userTypeDialog =  @Html.JDialog("divUserTypeEdit").SetTitle("用户类型信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("userTypeDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveUserType();").ToMvcString();
+    }
+    function doAddOrEditUserType(id){
+        var url = '@Url.Action("Edit","UserType")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divUserTypeDialog").load(url,function(){
+            doUserTypeDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAddUserType(id) {
+       doAddOrEditUserType(id);
+    }
+    function doEditUserType(id) {
+       if(!id || id.trim()==""){
+           var selectedUserType = $("#tbUserTypeList").treegrid("getSelected");
+           if(!selectedUserType || selectedUserType.Id=="" || selectedUserType.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择用户类型", showType: 'show' });
+              return false;
+           }
+           id = selectedUserType.Id;
+       }
+       doAddOrEditUserType(id);
+    }
+    function doSaveUserType(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"名称为空", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","UserType")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmUserTypeEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                userTypeDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteUserType(id){
+        if(!id || id.trim() == ""){
+              var selectedUserType = $("#tbUserTypeList").treegrid("getSelected");
+                if(!selectedUserType || selectedUserType.Id.trim() == "" || selectedUserType.Id.isDefaultGuid()){
+                    $.messager.alert('提示', '请选择要删除的项', 'warning');
+                    return false;
+                }
+                id = selectedUserType.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "UserType")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpath(xPath,compareTarget){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "UserType")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false;
+   }
+</script>

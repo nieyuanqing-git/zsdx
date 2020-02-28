@@ -1,0 +1,86 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAppointment
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var viewUsedConfirm = ViewData["ViewUsedConfirm"] != null ? (com.Bynonco.LIMS.Model.View.ViewUsedConfirm)ViewData["ViewUsedConfirm"] : null;
+    var loginUserId = (Guid?)ViewData["LoginUserId"];
+    System.Text.StringBuilder sbOperate = new System.Text.StringBuilder();
+    if(loginUserId.HasValue)
+    {
+        if (loginUserId == Model.UserId)
+        {
+            if (!string.IsNullOrWhiteSpace(Model.CancelOperate)) { sbOperate.Append(Model.CancelOperate); }
+            if (!string.IsNullOrWhiteSpace(Model.ChangeOperate)) { sbOperate.Append(Model.ChangeOperate); }
+        }
+        if (!string.IsNullOrWhiteSpace(Model.AuditAppointmentOperate)) { sbOperate.Append(Model.AuditAppointmentOperate); 
+    }
+ } 
+}
+<link type="text/css" href="@Url.Content("~/Content/main3.0.2.4.css")" rel="stylesheet" />
+<table id="tbAppointmentToolTip" class="edit-table">
+    <tr>
+        <th>仪器名称</th>
+        <td>@Model.EquipmentName</td>
+        <th>预约时间</th>
+        <td>@Model.BeginTimeStr ~ @Model.EndTimeStr</td>
+    </tr>
+    @if (viewUsedConfirm != null)
+    {
+        <tr>
+            <th>使用时间</th>
+            <td>@viewUsedConfirm.BeginAtStr ~ @viewUsedConfirm.EndAtStr</td>
+            <th>使用时长</th>
+            <td>@viewUsedConfirm.DurationStr</td>
+        </tr>
+    }
+    <tr>
+        <th>支付方式</th>
+        <td>@Model.PaymentMethodStr</td>
+        <th>预约单位</th>
+        <td>@Model.Appointment.User.OrganizationName</td>
+    </tr>
+    @if (Model.IsNeedAudit.HasValue && Model.IsNeedAudit.Value)
+    {
+        <tr>
+            <th>状态</th>
+            <td>@(Model.AuditStatusEnum == AppointmentAuditStatus.UnAudit ? "新预约" : Model.AuditStatusEnum == AppointmentAuditStatus.Pass ? "通过" : "不通过")</td>
+            <th>备注</th>
+            <td>@Model.AuditingNoPassWhy</td>
+        </tr>
+    }
+    else
+    {
+        <tr>
+            <th>状态</th>
+            <td>@(Model.StatusEnum == AppointmentStatus.Waitting ? "新预约" : Model.StatusEnum == AppointmentStatus.Success ? "完成实验" : Model.StatusEnum.ToCnName())</td>
+            <th>备注</th>
+            <td>@Model.AuditingNoPassWhy</td>
+        </tr>
+    }
+    <tr>
+        <th>申请人</th>
+        <td>
+           @Model.UserName &nbsp; &nbsp; 
+           @if (Model.Appointment.User.Tutor != null)
+           {
+                @("PI:" + Model.Appointment.User.Tutor.UserName) 
+           }
+        </td>
+        <th>固定电话</th>
+        <td>@Model.Appointment.User.FixedPhone</td>
+    </tr>
+    <tr>
+        <th>支付方式</th>
+        <td>@Model.PaymentMethodStr</td>
+        <th>手机</th>
+        <td>@Model.Appointment.User.PhoneNumber</td>
+    </tr>
+    @if (!string.IsNullOrWhiteSpace(sbOperate.ToString()))
+    {
+        <tr>
+            <th>相关操作</th>
+            <td colspan="3">
+                <span class='button-box'>@System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())</span>
+            </td>
+        </tr>
+    }
+</table>

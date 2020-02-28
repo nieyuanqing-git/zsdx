@@ -1,0 +1,57 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var searchSendUserName = $("#SearchSendUserName").val().trim();
+        if (searchSendUserName != "") {
+            queryExpression = "(SendUserName∽\"" + searchSendUserName.trim() + "\")";
+        }
+        var searchContent = $("#SearchContent").val().trim();
+        if (searchContent != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(ContentNoHTML∽\"" + searchContent + "\"+Subject∽\"" + searchContent + "\")";
+        }
+        var searchSendAtStart = $("#SearchSendAtStart").datebox("getValue").trim();
+        if (searchSendAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "SendAt>\"" + searchSendAtStart + "\"";
+        }
+        var searchSendAtEnd = $("#SearchSendAtEnd").datebox("getValue").trim();
+        if (searchSendAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "SendAt<\"" + searchSendAtEnd + " 23:59:59\"";
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#SearchSendUserName").val("");
+        $("#SearchContent").val("");
+        $("#SearchSendAtStart").datebox("setValue", "");
+        $("#SearchSendAtEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>发件人</label>
+        @Html.JValidateBox("SearchSendUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>内容</label>
+        @Html.JValidateBox("SearchContent").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>开始时间</label>
+        @Html.JDateTimePicker("SearchSendAtStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchSendAtEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,17 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var animalOutAppointmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAnimalOutAppointmentPrivilige(User.Identity.Name);
+}
+<div>@Html.Partial("../AnimalOutAppointment/ScriptContainer")</div>
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../AnimalOutAppointment/Search")</div>
+</div>
+<div>@Html.Partial("../AnimalOutAppointment/List")</div>
+<script type="text/javascript">
+    function doAnimalOutAppointmentSearch() {
+        var queryExpression = generateAnimalOutAppointmentQueryExpress();
+        $("#tbAnimalOutAppointment").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbAnimalOutAppointment").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+    } 
+</script>

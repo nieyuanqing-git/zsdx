@@ -1,0 +1,28 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMPEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@if (Model != null)
+{
+    var tipType = ViewData["TipType"] == null ? "" : ViewData["TipType"].ToString().Trim().ToLower();
+    @Html.Hidden("WeekIndex" + Model.NMPId.Value +  Model.Id + tipType, ViewData["WeekIndex"])
+    <div class="times-operate-box">
+       <ul>
+            <li style="padding-left:85px">
+                @Html.JLinkButton("btnDataScope" + Model.NMPId.Value + Model.Id + tipType, string.Format("{0}～{1}", ViewData["AppoinmentBeginDate"].ToString(), ViewData["AppoinmentEndDate"]).ToString()).SetPlain(true).AddClass("f_bold").AddClass("f_13").SetOnclick("loadTipEquipmentAppointmentTimes('" + Model.Id + "','" + tipType + "');return false;").ToMvcString()
+            </li>
+            <li style="padding-left:30px">
+                @Html.JLinkButton("btnPreviousWeek"+ Model.NMPId.Value + Model.Id + tipType, "<<上周").SetPlain(true).AddClass("f_bold").SetOnclick("doTipGeneratePreviousNMPWeekAppointmentTimes('" + Model.Id + "','" +  Model.NMPId.Value + "','" + tipType + "');return false;").ToMvcString()
+            </li>
+            <li>
+                @Html.JLinkButton("btnCurWeek"+ Model.NMPId.Value + Model.Id + tipType, "本周").SetPlain(true).AddClass("f_bold").SetOnclick("doTipGenerateCurWeekNMPAppointmentTimes('" + Model.Id + "','" +  Model.NMPId.Value + "','" + tipType + "');return false;").SetDisabled(ViewData["WeekIndex"] == null || ViewData["WeekIndex"].ToString() == "0").ToMvcString()
+            </li>
+            <li>
+                @Html.JLinkButton("btnNextWeek"+ Model.NMPId.Value + Model.Id + tipType, "下周>>").SetPlain(true).AddClass("f_bold").SetOnclick("doTipGenerateNextWeekNMPAppointmentTimes('" + Model.Id + "','"+  Model.NMPId.Value + "','" + tipType + "');return false;").ToMvcString()
+            </li>
+            <div class="clear-both"></div>
+       </ul>
+    </div>
+    <div>@Html.Partial("../Equipment/AppointmentTimes")</div>
+    <div style="margin-top:5px">@Html.Partial("../Equipment/AppointmentTimesDescription")</div>
+    <div style="margin-top:5px">@Html.Partial("../Equipment/AppointmentTimesDescriptionExtend")</div>
+}
+

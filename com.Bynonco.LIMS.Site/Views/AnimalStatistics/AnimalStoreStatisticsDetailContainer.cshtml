@@ -1,0 +1,103 @@
+﻿@model IList<com.Bynonco.LIMS.Model.View.ViewAnimal>
+<style type="text/css">
+    #tbAnimalStoreStatisticsDetail{border:1px solid gray; border-collapse:collapse;}
+    #tbAnimalStoreStatisticsDetail th,#tbAnimalStoreStatisticsDetail td {border:1px solid gray; text-align:center; line-height:40px;color:Black; }
+</style>
+@if (Model != null && Model.Count > 0)
+{
+    var beginDate = (DateTime)ViewData["BeginDate"];
+    var endDate = (DateTime)ViewData["EndDate"];
+    var dayCount = (int)(endDate.Date - beginDate.Date).TotalDays;
+    var animalCategorys = Model.GroupBy(p => new { AnimalCategoryId = p.AnimalCategoryId, AnimalCategoryName = p.AnimalCategoryName });
+    <table id="tbAnimalStoreStatisticsDetail" class="edit-info">
+        <tr>
+            <th rowspan="2" style="height:100px;width:100px">品系/日期</th>
+            @foreach (var animalCategory in animalCategorys)
+            {
+                <th colspan="5" style="width:113px; text-align:center;">@animalCategory.Key.AnimalCategoryName</th>
+            }
+            <th rowspan="2" style="height:100px;width:80px">备注</th>
+
+        </tr>
+        <tr>
+            @foreach (var animalCategory in animalCategorys)
+            {
+                <td>录入</td>
+                <td>入库</td>
+                <td>登记死亡</td>
+                <td>取材</td>
+                <td>死亡</td>
+            }
+        </tr>
+        @for (int i = 0; i <= dayCount; i++)
+        {
+            <tr>
+                <td>@beginDate.AddDays(i).ToString("yyyy-MM-dd")</td>
+                @foreach (var animalCategory in animalCategorys)
+                {
+                    var curDate = beginDate.AddDays(i).Date;
+                    int inputCount = 0, inCount = 0, registerDeathCount = 0, getOutCount = 0, dieCount = 0;
+                    if (Model.Any(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Input && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId && p.OperatorTime.Date == curDate))
+                    {
+                        inputCount = Model.Count(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Input && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId && p.OperatorTime.Date == curDate);
+                    }
+                    if (Model.Any(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.In && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId && p.InDate.HasValue && p.InDate.Value.Date == curDate))
+                    {
+                        inCount = Model.Count(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.In && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId && p.InDate.HasValue && p.InDate.Value.Date == curDate);
+                    }
+                    if (Model.Any(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterDeath && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId && p.RegisterDeathDate.HasValue && p.RegisterDeathDate.Value.Date == curDate))
+                    {
+                        registerDeathCount = Model.Count(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterDeath && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId && p.RegisterDeathDate.HasValue && p.RegisterDeathDate.Value.Date == curDate);
+                    }
+                    if (Model.Any(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.GetOut && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId && p.OutDate.HasValue && p.OutDate.Value.Date == curDate))
+                    {
+                        getOutCount = Model.Count(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.GetOut && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId && p.OutDate.HasValue && p.OutDate.Value.Date == curDate);
+                    }
+                    if (Model.Any(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Die && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId && p.DieTime.HasValue && p.DieTime.Value.Date == curDate))
+                    {
+                        dieCount = Model.Count(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Die && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId && p.DieTime.HasValue && p.DieTime.Value.Date == curDate);
+                    }
+                    <td><a href="javascript:doShowAnimalStoreStatisticsDetail('@animalCategory.Key.AnimalCategoryId','@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Input)','@curDate.ToString("yyyy-MM-dd HH:mm:ss")','@curDate.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm:ss")');" title='@(string.Format("{0}-{1}", animalCategory.Key.AnimalCategoryName, "录入"))'>@(inputCount == 0 ? "" : inputCount.ToString())</a></td>
+                    <td><a href="javascript:doShowAnimalStoreStatisticsDetail('@animalCategory.Key.AnimalCategoryId','@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.In)','@curDate.ToString("yyyy-MM-dd HH:mm:ss")','@curDate.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm:ss")');" title='@(string.Format("{0}-{1}", animalCategory.Key.AnimalCategoryName, "入库"))' >@(inCount == 0 ? "" : inCount.ToString())</a></td>
+                    <td><a href="javascript:doShowAnimalStoreStatisticsDetail('@animalCategory.Key.AnimalCategoryId','@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterDeath)','@curDate.ToString("yyyy-MM-dd HH:mm:ss")','@curDate.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm:ss")');" title='@(string.Format("{0}-{1}", animalCategory.Key.AnimalCategoryName, "登记死亡"))'>@(registerDeathCount == 0 ? "" : registerDeathCount.ToString())</a></td>
+                    <td><a href="javascript:doShowAnimalStoreStatisticsDetail('@animalCategory.Key.AnimalCategoryId','@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.GetOut)','@curDate.ToString("yyyy-MM-dd HH:mm:ss")','@curDate.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm:ss")');" title='@(string.Format("{0}-{1}", animalCategory.Key.AnimalCategoryName, "取材"))'>@(getOutCount == 0 ? "" : getOutCount.ToString())</a></td>
+                    <td><a href="javascript:doShowAnimalStoreStatisticsDetail('@animalCategory.Key.AnimalCategoryId','@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Die)','@curDate.ToString("yyyy-MM-dd HH:mm:ss")','@curDate.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm:ss")');" title='@(string.Format("{0}-{1}", animalCategory.Key.AnimalCategoryName, "死亡"))'>@(dieCount == 0 ? "" : dieCount.ToString())</a></td>
+                }
+                <td></td>
+            </tr>
+        }
+        <tr>
+            <td>总共</td>
+            @foreach (var animalCategory in animalCategorys)
+            {
+                int inputCountSum = 0, inCountSum = 0, registerDeathCountSum = 0, getOutCountSum = 0, dieCountSum = 0;
+                if (Model.Any(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Input && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId))
+                {
+                    inputCountSum = Model.Where(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Input && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId).Count();
+                }
+                if (Model.Any(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.In && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId))
+                {
+                    inCountSum = Model.Where(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.In && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId).Count();
+                }
+                if (Model.Any(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterDeath && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId))
+                {
+                    registerDeathCountSum = Model.Where(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterDeath && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId).Count();
+                }
+                if (Model.Any(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.GetOut && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId))
+                {
+                    getOutCountSum = Model.Where(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.GetOut && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId).Count();
+                }
+                if (Model.Any(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Die && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId))
+                {
+                    dieCountSum = Model.Where(p => p.StoreStatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Die && p.AnimalCategoryId == animalCategory.Key.AnimalCategoryId).Count();
+                }
+                <td><a href="javascript:doShowAnimalStoreStatisticsDetail('@animalCategory.Key.AnimalCategoryId','@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Input)','@beginDate.ToString("yyyy-MM-dd HH:mm:ss")','@endDate.ToString("yyyy-MM-dd HH:mm:ss")');" title='@(string.Format("{0}-{1}", animalCategory.Key.AnimalCategoryName, "录入"))'>@(inputCountSum == 0 ? "" : inputCountSum.ToString())</a></td>
+                <td><a href="javascript:doShowAnimalStoreStatisticsDetail('@animalCategory.Key.AnimalCategoryId','@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.In)','@beginDate.ToString("yyyy-MM-dd HH:mm:ss")','@endDate.ToString("yyyy-MM-dd HH:mm:ss")');" title='@(string.Format("{0}-{1}", animalCategory.Key.AnimalCategoryName, "入库"))'>@(inCountSum == 0 ? "" : inCountSum.ToString())</a></td>
+                <td><a href="javascript:doShowAnimalStoreStatisticsDetail('@animalCategory.Key.AnimalCategoryId','@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterDeath)','@beginDate.ToString("yyyy-MM-dd HH:mm:ss")','@endDate.ToString("yyyy-MM-dd HH:mm:ss")');" title='@(string.Format("{0}-{1}", animalCategory.Key.AnimalCategoryName, "登记死亡"))'>@(registerDeathCountSum == 0 ? "" : registerDeathCountSum.ToString())</a></td>
+                <td><a href="javascript:doShowAnimalStoreStatisticsDetail('@animalCategory.Key.AnimalCategoryId','@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.GetOut)','@beginDate.ToString("yyyy-MM-dd HH:mm:ss")','@endDate.ToString("yyyy-MM-dd HH:mm:ss")');" title='@(string.Format("{0}-{1}", animalCategory.Key.AnimalCategoryName, "取材"))'>@(getOutCountSum == 0 ? "" : getOutCountSum.ToString())</a></td>
+                <td><a href="javascript:doShowAnimalStoreStatisticsDetail('@animalCategory.Key.AnimalCategoryId','@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Die)','@beginDate.ToString("yyyy-MM-dd HH:mm:ss")','@endDate.ToString("yyyy-MM-dd HH:mm:ss")');" title='@(string.Format("{0}-{1}", animalCategory.Key.AnimalCategoryName, "死亡"))'>@(dieCountSum == 0 ? "" : dieCountSum.ToString())</a></td>
+            }
+            <td></td>
+        </tr>
+    </table>
+}

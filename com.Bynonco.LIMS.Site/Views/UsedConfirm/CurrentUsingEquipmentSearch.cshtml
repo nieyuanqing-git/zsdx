@@ -1,0 +1,75 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateCurrentUsingEquipmentQueryExpression() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+
+        var labRoomXPath = $("#SearchLabRoomXPath").val().trim();
+        if (labRoomXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "LabRoomXPath→\"" + labRoomXPath + "\"";
+        }
+
+        var subjectDirectorName = $("#SearchSubjectDirectorName").val().trim();
+        if (subjectDirectorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "TutorName∽\"" + subjectDirectorName + "\"";
+        }
+
+        return queryExpression;
+    }
+
+    function doCurrentUsingEquipmentSearchReset() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchUserName").val("");
+        $("#SearchSubjectDirectorName").val("");
+        $("#SearchLabRoomXPath").val("");
+        $("#SearchLabRoomId").val('@Guid.Empty.ToString()') ;
+        return false;
+    }
+
+    function getCurrentUsingEquipmentSearchLabRoomXPath(element) {
+        $("#SearchLabRoomXPath").val("");
+        var labRoomId = element.value;
+        if (labRoomId != "" && !labRoomId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labRoomId }, function (data) {
+                if (data && data != "")
+                    $("#SearchLabRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="width:60px">使用者</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">放置地点</label>
+        @Html.DropDownList("SearchLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px;", onchange = "getCurrentUsingEquipmentSearchLabRoomXPath(this);" })
+        @Html.Hidden("SearchLabRoomXPath")
+    </li>
+    <li>
+        <label style="width:60px">课题负责人</label>
+        @Html.JValidateBox("SearchSubjectDirectorName").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnCurUsingEquipmentSearch", "查询").SetOnclick("doCurUsingEquipmentSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnCurUsingEquipmentReset", "清空").SetOnclick("doCurrentUsingEquipmentSearchReset();").ToMvcString()
+        @Html.JLinkButton("btnCurUsingEquipmentClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,19 @@
+﻿@{
+    var casLogoutURL = ViewData["CasLogoutURL"] != null ? ViewData["CasLogoutURL"].ToString() : "";
+ }
+<div id="divCasLogout" style="display:none">
+     <iframe id="ifrmCasLogout" name="ifrmCasLogout" src="" frameborder="no" scrolling="no"  width="200px"  height="200px"></iframe>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#ifrmCasLogout").load(function () {
+            if ($("#ifrmCasLogout").attr("src") != "")
+                location.href = '/';
+        });
+    });
+    function casLogout() {
+        if ('@casLogoutURL' != "") {
+            $("#ifrmCasLogout").attr("src", '@casLogoutURL');
+        }
+    }
+</script>

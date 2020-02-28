@@ -1,0 +1,506 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var sampleQrCodePrintSettings = ViewData["SampleQrCodePrintSettings"] != null ? (QrCodePrintSettings)ViewData["SampleQrCodePrintSettings"] : new QrCodePrintSettings("", 50, 50, 0, 0);
+ }
+<div id="divSampleApplyInfo"></div>
+<div id="divMessage" style="display:none"></div>
+<div id="divCharge" style="display:none"></div>
+<div id="divConfirmDialog"></div>
+<div id="divBatchSendMsgNoticeDialog" style="display:none"></div>
+<div id="divBatchSendMessageResultdialog" style="display:none;"></div>
+<div id="divFeedBackAttachmentdialog" style="display:none;"></div>
+<div id="divSampleApplyTutorAuditDialog" style="display:none;"></div>
+<div style="display:none" id="divFinishedQuatityInputDialog" ></div>
+<div id="divLodopPrinter" style="width:300px;height:80px;display:none;">
+    <table class="edit-table" style="width:100%; height:100%;">
+        <tr>
+            <th>插件包(32位)</th>
+            <td><a href="../../Lodop/install_lodop32.exe" onclick="if(lodopPrinterDialog){lodopPrinterDialog.dialog('close');}">点击下载安装插件包</a></td>
+        </tr>
+        <tr>
+            <th>插件包(64位)</th>
+            <td><a href="../../Lodop/install_lodop64.exe" onclick="if(lodopPrinterDialog){lodopPrinterDialog.dialog('close');}">点击下载安装插件包</a></td>
+        </tr>
+    </table>
+</div>
+<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0> 
+	<embed id="LODOP_EM" type="application/x-print-lodop" width="0" height="0" pluginspage="../../Lodop/install_lodop32.exe"></embed>
+</object>
+<script type="text/javascript">
+     var now= '@DateTime.Now.ToString("yyyy-MM-dd")';
+     var isInitEquipmentInfo = false;
+     var sampleItemArray = {};
+     var viewSampleApplyInfodialog;
+     function doViewSampleApplyInfo(id){
+        var url = '@Url.Action("ViewSampleApplyInfo","SampleManage")' + "?id=" + id + "&time=" + new Date().getMilliseconds();
+        if(viewSampleApplyInfodialog) viewSampleApplyInfodialog.dialog("destroy");
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $("#divSampleApplyInfo").load(url,function(){
+            viewSampleApplyInfodialog = @(Html.JDialog("divViewSampleApplyInfo").SetTitle("原始委托单").SetIconCls("icon-tip").SetAutoDialog(false).SetOkScript("viewSampleApplyInfodialog.dialog('close');return false;").SetCancelScript("viewSampleApplyInfodialog.dialog('close');return false;").SetModal(true).ToMvcString());
+            $.messager.progress('close');
+        });
+     }
+     var chargeItemDialog;
+     function doCharge(id){
+        if(chargeItemDialog) chargeItemDialog.dialog("destroy");
+        var url = '@Url.Action("ChargeItem","SampleAsistant") ' + "?id=" + id + "&time=" + new Date().getMilliseconds();
+        $("#divCharge").load(url,function(){
+            chargeItemDialog = @(Html.JDialog("divChargeItem").SetTitle("收费明细信息").SetIconCls("icon-currency").SetCancelScript("chargeItemDialog.dialog('close');return false;").SetAutoDialog(false).SetModal(true).ToMvcString());
+            $.messager.progress('close');
+        });
+        return false;
+     }
+    var messageDialog;
+    function doSendMessage(id,isAuto){
+        if(messageDialog)messageDialog.dialog("destroy");
+        var url = '@Url.Action("SendMail")' +"?SampleApplyId=" + id + "&isAuto=" + isAuto + "&sampleRoleStr=" + sampleRoleStr  + "&time=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $("#divMessage").load(url,function(data){
+            messageDialog = @(Html.JDialog("divSendMessage").SetTitle("发送信息").SetIconCls("icon-sendemail").SetAutoDialog(false).SetModal(true).SetOkScript("doSendEmail();if(typeof(sendMailSuccedCallBack)=='function'){sendMailSuccedCallBack();}").SetCancelScript("messageDialog.dialog('close');if(typeof(sendMailSuccedCallBack)=='function'){sendMailSuccedCallBack();}").ToMvcString()); 
+            $.messager.progress('close');
+            return;
+        });
+        $.messager.progress('close');
+    }
+    function doResetSampleItemRelativeInfo(){
+        $("#divSampleItemDescriptions").text("");
+        $("#spanChargeCategoryName").html("");
+        $("#Price").val("");
+    }
+    function doOnSelectSampleItemChanged(){
+        if($("#SelectedSampleItemIds").length>0){
+            var selectedSampleItems = [];
+            if(sampleItemArray && sampleItemArray.length > 0 ){
+                var sampleItemIds = $("#SelectedSampleItemIds").combobox("getValues");
+                doResetSampleItemRelativeInfo();
+                var length = sampleItemArray.length;
+                for(var i=0;i<length;i++){
+                    if(sampleItemIds.toString().indexOf(sampleItemArray[i].Id.toString())!=-1){
+                        selectedSampleItems.push(sampleItemArray[i]);
+                    }
+                }
+                generateSampleItemDescriptions(selectedSampleItems,"divSampleItemDescriptions");
+                renderChargeCategoryPrice();
+                loadSampleParameters();
+            }
+        }
+          
+    }
+    function getSampleItemsJson(isInitializControl){
+        var equipmentIds = $("#SelectedEquipmentIds").val();
+        if(equipmentIds!=""){
+            $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetSampleItemsJsonByEquipmentIds","SampleItem")' + "?time=" + new Date().getMilliseconds(),
+                data:{"equipmentIds":equipmentIds},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if(msg && msg!=""){
+                    sampleItemArray = eval(msg);
+                    if(isInitializControl) $("#SelectedSampleItemIds").combobox("loadData",sampleItemArray);
+                  }
+                }
+            });
+        }
+       
+    }
+    function doOnEquipmentChanged(){ 
+        $("#btnSelectSampleSendTime").linkbutton("disable");
+        $("#ExpectSendDate").datebox("setText",now);
+        $("#ExpectSendTime").val("");
+        doResetSampleItemRelativeInfo();
+        sampleItemArray = [];
+        $("#SelectedSampleItemIds").combobox("loadData",[]);
+        $("#SelectedSampleItemIds").combobox("clear");
+        getSampleItemsJson(true);
+        if(!isInitEquipmentInfo){
+        var equipmentIds = $("#SelectedEquipmentIds").val();
+            if(equipmentIds != "" && equipmentIds.indexOf(",") == -1 ){
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetEquipmentById","Equipment")' + "?time=" + new Date().getMilliseconds(),
+                    data:{"id":equipmentIds} ,
+                    success: function (msg) {
+                        $.messager.progress("close");
+                        var equipment = eval("(" + msg + ")");
+                        if(equipment.IsEnableSelectSampleSendTime.toString().toLowerCase()== "true"){
+                            $("#btnSelectSampleSendTime").linkbutton("enable");
+                        }
+                    }
+                });
+            }
+        }
+    }
+    function getSelectedSampleEquipmentsCallBack(selectedEquipmentNames,selectedEquipmentIds,isEnableSelectSampleSendTime){
+        isInitEquipmentInfo = true;
+        $("#ExpectSendDate").datebox("setText",now);
+        $("#btnSelectSampleSendTime").linkbutton("disable");
+        $("#ExpectSendTime").val("");
+        doResetSampleItemRelativeInfo();
+        var preSelectedEquipmentIds = $("#SelectedEquipmentIds").val();
+        $("#SelectedSampleItemIds").combobox("loadData",[]);
+        $("#SelectedSampleItemIds").combobox("clear");
+        $("#SelectedEquipmentIds").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.toString().split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.toString().split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var j = 0; j < selectedEquipmentIdsArray.length; j++) {
+                $("#SelectedEquipmentIds").tokenInput("add", { "id": selectedEquipmentIdsArray[j], "text": selectedEquipmentNamesArray[j]});
+            }
+        }
+        if(isEnableSelectSampleSendTime == "true" && selectedEquipmentIds != ""  && selectedEquipmentIds.indexOf(",")== -1){
+            $("#btnSelectSampleSendTime").linkbutton("enable");
+        }
+        isInitEquipmentInfo = false;
+        loadSampleParameters();
+    }        
+    function getSelectedSampleItemsCallBack(selectedSampleItemNames,selectedSampleItemIds,selectedItemsJsonArray){
+         sampleItemArray = selectedItemsJsonArray;
+         $("#SelectedSampleItemIds").combobox("setValues",selectedSampleItemIds.split(","));
+         generateSampleItemDescriptions(selectedItemsJsonArray,"divSampleItemDescriptions");
+         renderChargeCategoryPrice();
+         loadSampleParameters();
+    }
+    function getSelectedTestersCallBack(selectedTesterNames,selectedTesterIds){
+         $("#SelectedTesterNames").val(selectedTesterNames);
+         $("#SelectedTesterIds").val(selectedTesterIds);
+    }
+    function doSampleStatusSelected() {
+        if ($("#SampleStatus").combobox("getText") == "其他") {
+            $("#SampleStatusRemark").removeClass("hide");
+            $("#SampleStatusRemark").addClass("show");
+        }
+        else {
+            $("#SampleStatusRemark").addClass("hide");
+            $("#SampleStatusRemark").removeClass("show");
+        }
+    }
+    function generateOpenFundRelativeData(chargeData) {
+         $("#Price").val(Number(chargeData.PredictFee) || chargeData.PredictFee == "0.00" || chargeData.PredictFee == "0"? chargeData.PredictFee : "");
+         if(chargeData.IsOpenFundCostDeduct.toString().toLowerCase()=="true"){
+            $("#trOpenFundCostDeductTip").css("display","");
+         }
+         $("#spanOpenFundFeeRemark").html(chargeData.OpenFundCostDeductRemark);
+         $("#trEquipmentOpenFundChargeRemark").css("display", chargeData.IsOpenFundCostDeduct.toString().toLowerCase()  == "true" ||  chargeData.IsHidePredictPrice.toString().toLowerCase()  == "true"? "" : "none");
+         $("#divOpenFundFee").html("总费用:" + chargeData.Fee + "元,其中开放基金:" + chargeData.OpenFundFee + "元,普通币:" + chargeData.PredictFee + "元");
+     }
+    function renderChargeCategoryPrice(){
+        $("#trOpenFundCostDeductTip").css("display","none");
+        $("#Price").val("");
+        $("#ChargeCategory").combobox("setValue",'@((int)SampleItemChargeCategory.SampleQuatity)');
+        $("#spanChargeCategoryName").html("");
+        var sampleItemId= $("#SelectedSampleItemIds").combobox("getValues");
+        if(sampleItemId != "" ){
+            var quantity = $("#Quatity").val();
+            var userId = $("#ApplicantId").val();
+            var tagId = "";
+            if($("#TagId.combobox-f").length>0){
+                tagId = $("#TagId").combobox("getValue");
+            }
+            if(tagId == "" || tagId == '@Guid.Empty.ToString()'){
+                tagId =  $("#TagId").val();
+            }
+            var sampleApplyId = $("#Id").val();
+            var subjectId = $("#IsNewUser").attr("checked")? "": $("#SubjectId").combobox("getValue");
+            var urlChargeCategory = '@Url.Action("GetSampleChargeCatogory", "SampleItem")' + "?sampleItemId=" + sampleItemId  + "&time=" + new Date().getMilliseconds();
+            $.post(urlChargeCategory,function(data){
+                var sampleChargeCategory = !data.ChargeCategory  ? "0" : data.ChargeCategory;
+                var sampleChargeCategoryName = !data.ChargeCategoryName ? "" : data.ChargeCategoryName;
+                var urlPrice = '@Url.Action("GetSampleItemPrice", "SampleItem")' + "?sampleItemId=" + sampleItemId + "&sampleApplyId=" + sampleApplyId +"&subjectId=" + subjectId +  "&chargeCategory=" + sampleChargeCategory + "&quantity=" + quantity +"&userId=" + userId + "&tagId=" + tagId + "&time=" + new Date().getMilliseconds();
+                $("#ChargeCategory").combobox("setValue",sampleChargeCategory);
+                $("#spanChargeCategoryName").html(sampleChargeCategoryName);
+                if(quantity.trim()!= "" && quantity.isInt() && tagId.trim() != ""){
+                    $.post(urlPrice,function(result){
+                        if(result!=""){
+                            var chargeData= eval("(" + result  +")");
+                            generateOpenFundRelativeData(chargeData);
+                        }
+                    });
+                }
+            });
+        }
+    }
+    function doPrint(id) {
+        var id = id==""?$("#Id").val():id;
+        if (id.trim() == "") return false;
+        window.open('@Url.Action("PintSampleApply","SampleManage")' + "?id=" + id + "&time=" + new Date().getMilliseconds(), "_blank");
+        return false;
+    }
+
+    var chargeItemDialog;
+    function doCharge(id){
+        if(chargeItemDialog) chargeItemDialog.dialog("destroy");
+        var url = '@Url.Action("SampleApplyChargeItemManage", "SampleManage")' + "?id=" + id + "&time=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $("#divCharge").load(url,function(){
+            chargeItemDialog = @Html.JDialog("divChargeItem").SetTitle("收费明细信息").SetIconCls("icon-currency").SetCancelScript("chargeItemDialog.dialog('close');return false;").SetAutoDialog(false).SetModal(true).ToMvcString();
+            $.messager.progress('close');
+        });
+        return false;
+    }
+    var confirmDialog;
+    function doShowConfirmDialog() {
+        if(confirmDialog)confirmDialog.dialog("destroy");
+        var url = '@Url.Action("SampleAuditConfirm", "SampleManage")' + "?time=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $("#divConfirmDialog").load(url,function(){
+            $.messager.progress('close');
+            confirmDialog = @(Html.JDialog("divConfirm").SetTitle("请输入审核备注信息").SetAutoDialog(false).SetModal(true).SetOkScript("doConirmCallBack();").SetCancelScript("doConfirmCancelCallBack();").SetIconCls("icon-tip").ToMvcString());
+           
+        });
+    }
+    function loadSampleParameters() {
+        var sampleApplyId = $("#Id").val();
+        var equipmentIds  = $("#SelectedEquipmentIds").val();
+        var sampleItemIds = $("#SelectedSampleItemIds").val();
+        var sampleStatusName = $("#SampleStatus").combobox("getText");
+        if (equipmentIds.trim() == "") {
+            $("#divSampleParameterContainer").html("");
+            return;
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载样品参数数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SampleParameters","SampleManage")' + "?time=" + new Date().getMilliseconds(),
+            data: $("#fromSampleApplyEdit").serialize() + "&sampleApplyId=" + sampleApplyId + "&equipmentIds=" + equipmentIds + "&sampleStatusName=" + sampleStatusName,
+            success: function (msg) {
+                $.messager.progress("close");
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $("#divSampleParameterContainer").html(msg);
+            }
+        });
+    }
+</script>
+<script type="text/javascript">
+    function generateSelectedSampleApplyIdsByDataGridId(dataGridId) {
+        var ids = [];
+        var rows = $("#" + dataGridId).datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    var batchSendMsgNoticedialog
+    function doBatchSendMsgNotice() {
+        var ids = generateSelectedSampleApplyIds();
+        if(ids==""){
+            $.messager.show({ title: '提示', msg: "请选择要发信的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("BatchSendMessageContainer","SampleManage")'+"?ids=" + ids +"&time=" + new Date().getMilliseconds();
+        if(batchSendMsgNoticedialog) batchSendMsgNoticedialog.dialog("destroy");
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $("#divBatchSendMsgNoticeDialog").load(url,function(){
+            batchSendMsgNoticedialog = @(Html.JDialog("divBatchSendMsgNoticeResult").SetTitle("批量发信").SetIconCls("icon-mail").SetAutoDialog(false).SetOkScript("exccBatchSendSampleMsgNotice(batchSendMsgNoticedialog);return false;").SetCancelScript("batchSendMsgNoticedialog.dialog('close');return false;").SetModal(true).ToMvcString());
+            $.messager.progress('close');
+        });
+    }
+
+</script>
+<script type="text/javascript">
+    var feedBackAttachementDialog;
+    function doFeedBack(id) {
+        if(feedBackAttachementDialog)feedBackAttachementDialog.dialog("destroy");
+        var url = '@Url.Action("SampleFeedBackAttachmentEdit", "SampleManage")' + "?sampleApplyId=" + id +  "&time=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $("#divFeedBackAttachmentdialog").load(url,function(){
+            $.messager.progress('close');
+            feedBackAttachementDialog = @(Html.JDialog("divSampleFeedBackAttachmentEdit").SetTitle("反馈信息").SetAutoDialog(false).SetModal(true).SetOkScript("doSaveSampleFeedBack(feedBackAttachementDialog);").SetCancelScript("feedBackAttachementDialog.dialog('close');").SetIconCls("icon-tip").ToMvcString());
+        });
+        
+    }
+
+</script>
+<script type ="text/javascript">
+    var lodopPrinterDialog;
+    function showLodopPrinterInstall() {
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        lodopPrinterDialog = @(Html.JDialog("divLodopPrinter").SetTitle("打印插件安装向导").SetAutoDialog(false).SetModal(true).SetOkScript("lodopPrinterDialog.dialog('close');").SetCancelScript("lodopPrinterDialog.dialog('close');").SetIconCls("icon-tip").ToMvcString());
+        $.messager.progress('close');
+    } 
+    function doBatchPringQrCode(dataGirdId) {
+        var sampleNos = "";
+        var rows = $("#" + dataGirdId).datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].Status.toString() == '@(((int)SampleApplyStatus.Canceled).ToString())') continue;
+                var curSampleNo = rows[i].SampleNo + "_" + rows[i].RowNo;
+                sampleNos += sampleNos == "" ? curSampleNo: "," + curSampleNo;
+                
+            }
+        }
+        if (sampleNos == "") {
+            $.messager.show({ title: '提示', msg: "请选择要打印二位码的项，已撤销的项不能打印二位码", showType: 'show' });
+            return false;
+        }
+        doPringQrCode(sampleNos);
+    }
+    function doPringQrCode(sampleNos) {
+        var LODOP = getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM'));  
+        if(!LODOP){
+            showLodopPrinterInstall();
+            return false;
+        }
+        var printerName = '@(sampleQrCodePrintSettings.DefaultPrinterName)';
+        var width = @(sampleQrCodePrintSettings.Width);
+        var height = @(sampleQrCodePrintSettings.Height);
+        var leftMargin  = @(sampleQrCodePrintSettings.LeftMargin);
+        var topMargin = @(sampleQrCodePrintSettings.TopMargin);
+        var sampleNoArray = sampleNos.split(",");
+        $.messager.progress({ title: '提示', msg: '正在打印,请稍候……' });
+        LODOP.PRINT_INITA(0,0,800,1600,"打印二维码【"  + sampleNos + "】");
+        for(var i=0;i<sampleNoArray.length;i++){
+            var sampleNo  = sampleNoArray[i];
+            var top = (height + topMargin) * i;
+            var left = leftMargin;
+            LODOP.ADD_PRINT_BARCODE(top + topMargin,left,width,height,"QRCode",sampleNoArray[i]);
+        }
+        if (printerName != "") {
+             LODOP.SET_PRINTER_INDEXA(printerName)
+        }
+        LODOP.PREVIEW();
+        $.messager.progress('close');
+    }
+    function doPringQrCodeBackUp(sampleNos) {
+        var LODOP = getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM'));  
+        if(!LODOP){
+            showLodopPrinterInstall();
+            return false;
+        }
+        var width = @(sampleQrCodePrintSettings.Width),height = @(sampleQrCodePrintSettings.Height);
+        var sampleNoArray = sampleNos.split(",");
+        $.messager.progress({ title: '提示', msg: '正在打印,请稍候……' });
+        var iframe = document.getElementById('IFRAME');
+        if(iframe){
+            document.body.removeChild(iframe);
+        }
+        iframe =  document.createElement('IFRAME');
+        var doc = null;
+        $(iframe).attr('style', 'position:relative;margin:0;padding:0;width:0px;height:0px;');
+        document.body.appendChild(iframe);
+        doc = iframe.contentWindow.document;
+        var totalHeight = (height + @(sampleQrCodePrintSettings.TopMargin)) * sampleNoArray.length;
+        var totalWidth=@(sampleQrCodePrintSettings.LeftMargin) + @(sampleQrCodePrintSettings.Width);
+        for(var i=0;i<sampleNoArray.length;i++){
+            var sampleNo  = sampleNoArray[i];
+            var top = (height + @(sampleQrCodePrintSettings.TopMargin)) * i;
+            var left  = @(sampleQrCodePrintSettings.LeftMargin);
+            var divQrCodeId = "div" + sampleNo + new Date().getMilliseconds();
+            doc.write('<div style="position:absolute;top:%top%;left:%left%;width:%width%;height:%height%;margin-left:%leftMargin%;" id="' + divQrCodeId + '" ></div>'
+            .replace("%left%",left + "px")
+            .replace("%top%",top + "px")
+            .replace("%width%",width + "px")
+            .replace("%height%",height + "px"));
+            var divQrcode = doc.getElementById(divQrCodeId);
+            $(divQrcode).qrcode({ width: width, height: height, correctLevel: 0, text: sampleNo });  
+        }
+        doc.close();
+        iframe.contentWindow.focus(doc);
+        LODOP.PRINT_INITA(0,0,800,1600,"打印二维码");
+        
+        LODOP.PREVIEW();
+        $.messager.progress('close');
+    }
+</script>
+<script type ="text/javascript">
+    function doBatchTutorAuditPass(tutorId){
+        var sampleApplyIds = generateSelectedSampleApplyIds();
+        if(sampleApplyIds==""){
+            $.messager.show({ title: '提示', msg: "请选择要同意的项", showType: 'show' });
+            return false;
+        }
+        doBatchTutorAudit(sampleApplyIds,tutorId,'@((int)AuditStatus.Passed)');
+    }
+    function doBatchTutorAuditNotPass(tutorId){
+        var sampleApplyIds = generateSelectedSampleApplyIds();
+        if(sampleApplyIds==""){
+            $.messager.show({ title: '提示', msg: "请选择要否决的项", showType: 'show' });
+            return false;
+        }
+        doBatchTutorAudit(sampleApplyIds,tutorId,'@((int)AuditStatus.NotPassed)');
+    }
+    function doTutorAuditPass(id,tutorId,auditStatus) {
+        doBatchTutorAudit(id,tutorId,auditStatus);
+    }
+    function doTutorAuditNotPass(id,tutorId,auditStatus) {
+        doBatchTutorAudit(id,tutorId,auditStatus);
+    }
+    var tutorAuditDialog
+    function doBatchTutorAudit(ids,tutorId,auditStatus){
+        var url= '@Url.Action("TutorAuditContainer","SampleManage")';
+        if(tutorAuditDialog) {
+            tutorAuditDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSampleApplyTutorAuditDialog").load(url, { "tutorId":tutorId,"sampleApplyIds":ids,"tutorAuditStatus":auditStatus, "date": new Date().getMilliseconds() }, function () {
+            tutorAuditDialog = @(Html.JDialog("divSampleApplyTutorAuditContainer").SetTitle("送样导师审核").SetAutoDialog(false).SetOkScript("execTutorAudit(ids,tutorId,auditStatus);").SetCancelScript("tutorAuditDialog.dialog('close');").SetIconCls("icon-tip").ToMvcString());
+            $.messager.progress('close');
+        });
+    }
+    function execTutorAudit(ids,tutorId,auditStatus) {
+        var url = '@Url.Action("BatchTutorAuditPass", "SampleManage")';
+        if('@((int)AuditStatus.NotPassed)'==auditStatus.toString()){
+            url= '@Url.Action("BatchTutorAuditNotPass", "SampleManage")';
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: url,
+            data: $("#frmSampleApplyTutorAudit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                tutorAuditDialog.dialog("close");
+                doSearch();
+            }
+        });
+    }
+</script>
+<script type ="text/javascript">
+    var sampleFinishedQuatityInputDialog;
+    function doFinishedQuatityInput(id) {
+        if(sampleFinishedQuatityInputDialog) sampleFinishedQuatityInputDialog.dialog('destroy');
+        var url =  '@Url.Action("FinishedQuatityInputContainer")' +  "?id=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divFinishedQuatityInputDialog").load(url, function () {
+            $.messager.progress('close');
+            sampleFinishedQuatityInputDialog = @(Html.JDialog("divFinishedQuatityInput").SetTitle("填写实际完成样品数量").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("sampleFinishedQuatityInputDialog.dialog('destroy');return false;").SetCancelScript("sampleFinishedQuatityInputDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("execFinishedQuatityInput(id);return false;").ToMvcString());
+        });
+   }
+   function execFinishedQuatityInput(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("InputFinishedQuatity")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#frmFinishedQuatityInput").serialize() + "&id=" + id + "&sampleRoleStr=" + sampleRoleStr,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                sampleFinishedQuatityInputDialog.dialog('destroy'); 
+                if(typeof(doEditTestRecord)=='function'){
+                    doEditTestRecord(id);
+                }
+                if(typeof(doSearch)=='function'){
+                    doSearch();
+                }
+            }
+        });
+        return false;
+   }
+</script>

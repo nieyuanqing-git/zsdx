@@ -1,0 +1,109 @@
+﻿@model com.Bynonco.LIMS.Model.OpenFundApply
+@using com.Bynonco.LIMS.Model.View; 
+@using com.Bynonco.LIMS.Model.Enum; 
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var applySerialNo = ViewData["ApplySerilaNo"] == null ? "" : ViewData["ApplySerilaNo"].ToString();
+}
+@if (Model != null && Model.StatusEnum == OpenFundApplyStatus.AuditPass)
+{
+<div id="divOpenFundApplyEdit">
+ <form id="frmOpenFundApplyEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tdOpenFundApplyBalance" class="edit-table"  style="width:640px;">
+        <tr>
+            <th colspan='4' style='font-weight:bold;'>@(Model.CreateTime.Year)年@(Model.CreateTime.Month <7 ? "上" :"下")半年开放基金</th>
+        </tr>
+        <tr>
+            <th>申请单号</th>
+            <td>@(Model.ApplyNum)</td>
+            <th>申请时间</th>
+            <td>@(Model.ApplyTime.ToString("yyyy-MM-dd"))</td>
+        </tr>
+        <tr>
+            <th>申请人</th>
+            <td id="tdApplyUser">
+                @(Html.TokenInput("UserId")
+                .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["UserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserJson"].ToString()) ? null : ViewData["UserJson"].ToString())
+                .SetSingle(true)
+                .SetWidth(125)
+                .ToMvcString())
+            </td>
+            <th>有效时间</th>
+            <td>@(Model.ValidTime.ToString("yyyy-MM-dd"))</td>   
+        </tr>
+        <tr>
+            <th>开放基金额度</th>
+            <td colspan='3'>
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <th></th>
+                        <th style='width:150px;'>真实币额度</th>
+                        <th style='width:150px;'>补贴币额度</th>
+                        <th style='width:150px;'>总额度</th>
+                    </tr>
+                    <tr>
+                        <th>申请额度</th>
+                        <td style='text-align:center;'>@(Math.Round(Model.ApplyMoney, 2))</td>
+                        <td style='text-align:center;'>@(Model.SubsidiesMoneyStr)</td>
+                        <td style='text-align:center;'>@(Model.AuditMoney.HasValue ? Math.Round(Model.AuditMoney.Value,2).ToString() : "--")</td>
+                    </tr>
+                    <tr>
+                        <th>已用额度</th>
+                        <td style='text-align:center;'>@(Math.Round(Model.DepositRealCurrencySum, 2))</td>
+                        <td style='text-align:center;'>@(Math.Round(Model.DepositCurrencySum - Model.DepositRealCurrencySum, 2))</td>
+                        <td style='text-align:center;'>@(Math.Round(Model.DepositCurrencySum, 2))</td>
+                    </tr>
+                    <tr>
+                        <th>剩余额度</th>
+                        <td style='text-align:center;'>@(Math.Round(Model.ApplyMoney - Model.DepositRealCurrencySum, 2))</td>
+                        <td style='text-align:center;'>@(Math.Round(Model.SubsidiesMoney - (Model.DepositCurrencySum - Model.DepositRealCurrencySum), 2))</td>
+                        <td style='text-align:center;'>@(Model.AuditMoney.HasValue ? Math.Round(Model.AuditMoney.Value - Model.DepositCurrencySum, 2) : Math.Round(0 - Model.DepositCurrencySum, 2))</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>监控设备</th>
+            <td colspan="3" style="padding:0;border:0;" id ="tdEquipmentIds">
+                @(Html.TokenInput("EquipmentIds")
+                    .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                    .SetSingle(false)
+                    .SetWidth(500)
+                    .SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString())
+                    .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <td colspan='4'>
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <th style='width:150px;'>剩余补贴基金<span style='color:Red;'>( 待结算金额 )</span></th>
+                        <td style='text-align:center; color:red;width:100px;'>@(Model.BalanceMoneySum)</td>
+                        <td style='text-align:center;color:Red;'>提示: 结算完成后, 自付存款转为普通存款使用, 补贴金额将无法使用.</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan="3" >@Model.Remark</td>
+        </tr>
+        @if (!string.IsNullOrWhiteSpace(Model.AuditRemark))
+        {
+         <tr>
+            <th>审核备注</th>
+            <td colspan="3" >@Model.AuditRemark</td>
+        </tr>
+        }
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdApplyUser ul.token-input-list-facebook").css("width", "150px");
+        $("#tdEquipmentIds ul.token-input-list-facebook").css("width", "555px");
+    });
+</script>
+}

@@ -1,0 +1,21 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+}
+<ul class="search">
+    @if (statisticsPrivilige.IsEnableSJ1StatisticsExportDoc && false)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnSJ1StatisticsExportDoc", "导出doc").SetIconCls("icon-word").SetOnclick("doSJ1StatisticsExportDoc('');").ToMvcString()
+        </li>
+    }
+    @if (statisticsPrivilige.IsEnableSJ1StatisticsExportTxt)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnSJ1StatisticsExportTxt", "导出txt").SetIconCls("icon-note").SetOnclick("doSJ1StatisticsExportTxt('');").ToMvcString()
+        </li>
+    }
+    <li style='float:none; height:25px;'>
+        @Html.JLinkButton("btnSJ1StatisticsExportClose", "关闭").SetIconCls("icon-cancel").SetOnclick("doCloseSearch();").ToMvcString()
+    </li>
+</ul>

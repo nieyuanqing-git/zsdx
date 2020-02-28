@@ -1,0 +1,101 @@
+﻿@model com.Bynonco.LIMS.Model.OpenFundDepositRecord
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsDepositPhoto = customer == null ? false : customer.GetIsDepositPhoto();
+}
+<div id="divOpenFundDepositRecordViewInfo">
+@if (Model != null)
+{
+    <table class="edit-table"  style="width:600px;">
+         <tr>
+            <th>状态</th>
+            <td>
+                @(Model.HasChecked ? "已确定" : "等待审核")
+            </td>
+         </tr>
+         <tr>
+            <th><span class="required">* </span>开放申请单</th>
+            <td id='tdOpenFundApply'>
+                <b style="padding:2px">@(ViewData["OpenFundApplyName"] == null ? "" : ViewData["OpenFundApplyName"].ToString())</b>
+            </td>
+            <th><span class="required">* </span>存款时间</th>
+            <td>
+                @(Model.DepositDate.ToString("yyyy-MM-dd"))
+            </td>
+         </tr>
+         <tr>
+            <th>导师</th>
+            <td id='tdTutor' style='font-weight:bold;'>
+                @(ViewData["TutorName"] == null ? "" : ViewData["TutorName"].ToString())
+            </td>
+             <th>联系电话</th>
+            <td>
+                @(ViewData["TutorPhoneNumber"] == null ? "" : ViewData["TutorPhoneNumber"].ToString())
+            </td>
+        </tr>
+       <tr>
+            <th>开放基金信息</th>
+            <td id='tdOpenFundApplyInfo' colspan="3">
+                @System.Web.Mvc.MvcHtmlString.Create(ViewData["OpenFundApplyInfo"] == null ? "" : ViewData["OpenFundApplyInfo"].ToString())
+            </td>
+       </tr>
+        <tr>
+            <th><span class="required">* </span>存款金额</th>
+            <td>@(Model.DepositSum.ToString())</td>
+            <th>补贴基金</th>
+            <td style='width:100px;'>
+                @(Model.DepositSum.ToString())
+            </td>
+        </tr>
+        @if (customerIsDepositPhoto)
+        {
+        <tr>
+            <th><span class="required">* </span>凭证号</th>
+            <td>
+                @(Model == null ? "" : Model.CertificateNum)
+            </td>
+            <th>发票号</th>
+             <td>
+                @(Model == null ? "" : Model.InvoiceNo)
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>存款验证图</th>
+            <td colspan="3">
+                <a id='fileDepositRecordPhotoPath' href='@(string.IsNullOrWhiteSpace(Model.DepositRecordPhoto) ? "javascript:;" : Url.Content("~/" + Model.DepositRecordPhoto))' target="_blank" class='@(string.IsNullOrWhiteSpace(Model.DepositRecordPhoto) ? "hide" : "")' style='text-decoration:underline;'>
+                    @(Model != null && !string.IsNullOrWhiteSpace(Model.DepositRecordPhotoName) ? Model.DepositRecordPhotoName : "(点击查看存款验证图片/附件)")
+                </a>
+            </td>
+        </tr>
+        }
+        <tr>
+            <th>备注</th>
+            <td colspan="3">
+                @(Model.Remark)
+            </td>
+        </tr>
+         @if (Model.HasChecked)
+         {
+         <tr>
+            <th>审核人</th>
+            <td>
+                @(Model.AuditUser == null ? "" : Model.AuditUser.UserName)
+            </td>
+            <th>审核时间</th>
+            <td>
+                @(!Model.AuditTime.HasValue ? "" : Model.AuditTime.Value.ToString())
+            </td>
+        </tr>
+        <tr>
+            <th>审核备注</th>
+            <td  colspan='3'>
+                @(Model.AuditRemark)
+            </td>
+        </tr>
+         }
+    </table>
+}
+</div> 

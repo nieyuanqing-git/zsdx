@@ -1,0 +1,7 @@
+﻿@{
+    var LimitPayerId = ViewData["LimitPayerId"] == null ? "" : ViewData["LimitPayerId"].ToString();
+}
+<div class="layout-center-full" id="divViewCostDeductEquipment" style='@(LimitPayerId == "" ? "" : "width:750px;overflow-x:auto;")'>
+    @Html.Hidden("LimitPayerId",LimitPayerId)
+    @Html.Partial("../Statistics/CostDeductEquipmentList")
+</div>

@@ -1,0 +1,110 @@
+﻿@model com.Bynonco.LIMS.Model.PunishAction
+@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+    #tbPunishDetail,#tbDelinquencyConfirm{ border-collapse:collapse; border:1px solid Gray; padding:5px}
+    #tbPunishDetail tr th,#tbDelinquencyConfirm tr th{border:1px solid Gray;width:80px;padding:2px; text-align:center}
+    #tbPunishDetail tr td,#tbDelinquencyConfirm tr td{border:1px solid Gray;padding:2px; text-align:left}
+</style>
+<div id="divPunishDetail" style="height:500px; overflow:auto;">
+    <table id="tbPunishDetail">
+        <tr>
+            <th>
+                姓名
+            </th>
+            <td colspan="2">
+                @Model.PunishRecord.Punisher.Name
+            </td>
+        </tr>
+        <tr>
+            <th>
+                起止时间
+            </th>
+            <td colspan="2">
+                @Model.BeginAt.ToString("yyyy-MM-dd")
+                @if (Model.PunishTypeEnum > com.Bynonco.LIMS.Model.Enum.PunishType.TutorWarning)
+                {
+                  
+                    @(Model.HasStoped ? Model.StopAt.Value.ToString("至 yyyy-MM-dd") : (Model.EndAt.HasValue ? Model.EndAt.Value.ToString("至 yyyy-MM-dd") : "至无限期"))
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>
+                处罚通知
+            </th>
+            <td colspan="2">
+                @System.Web.Mvc.MvcHtmlString.Create(Model.ContentStr == null ? "" : Model.ContentStr)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                是否撤销
+            </th>
+            <td colspan="2">
+                @(Model.HasRepeal?"是":"否")
+            </td>
+        </tr>
+        <tr>
+            <th>
+                撤销时间
+            </th>
+            <td colspan="2">
+                @(Model.RepealDelinquency == null ? "" : Model.RepealDelinquency.RepealAt.ToString("yyyy-MM-dd"))
+            </td>
+        </tr>
+        <tr>
+            <th>
+                撤销通知
+            </th>
+            <td colspan="2">
+                @if (Model.RepealDelinquency!=null && Model.RepealDelinquency.Content != null)
+                {
+                    @System.Web.Mvc.MvcHtmlString.Create(Model.RepealDelinquency.Content)
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>
+                不良行为
+            </th>
+            <td colspan="2">
+                <table id="tbDelinquencyConfirm">
+                    <tr>
+                        <th style="text-align:center;">
+                            时间
+                        </th>
+                        <th style="text-align:center;">
+                            行为描述
+                        </th>
+                        <th style="text-align:center;">
+                            不良行为种类
+                        </th>
+                        <th style="text-align:center;">
+                            严重程度值
+                        </th>
+                    </tr>
+                    @foreach (var delinquencyConfirm in Model.DelinquencyConfirms)
+                    {
+                        <tr>
+                            <td>
+                                @delinquencyConfirm.DelinquencyAt.ToShortDateString()
+                            </td>
+                            <td>
+                                @delinquencyConfirm.Cause
+                            </td>
+                            <td>
+                                @delinquencyConfirm.DelinquencyName
+                            </td>
+                            <td>
+                                @delinquencyConfirm.SeverityValue
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+

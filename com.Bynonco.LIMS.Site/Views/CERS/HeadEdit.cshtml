@@ -1,0 +1,101 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type ="text/css">
+    .required{margin-right:5px;}
+</style>
+<p><span class="icon icon-setting-1"></span>上报表头信息设置</p>
+<form id="frmCERSHeadEdit" action="#">
+    <table class="edit-info">
+        <tr>
+            <th><span class="required">*</span>学校代码</th>
+            <td>
+                @(Html.JValidateBox("SchoolCode").SetOnChange("doCreateHeadInfo();").SetValue(ViewData["SchoolCode"] == null ? "" : ViewData["SchoolCode"].ToString()).SetWidth(50).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>填表上报时间</th>
+            <td>
+                @Html.JDateTimePicker("UploadTime").SetOnChange("doCreateHeadInfo();").SetValue(ViewData["UploadTime"] == null ? "" : ViewData["UploadTime"].ToString()).SetWidth(100).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>填报联系人</th>
+            <td>
+                @(Html.JValidateBox("ContactPerson").SetOnChange("doCreateHeadInfo();").SetValue(ViewData["ContactPerson"] == null ? "" : ViewData["ContactPerson"].ToString()).SetWidth(100).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>联系人电话</th>
+            <td>
+                @(Html.JValidateBox("Telephone").SetOnChange("doCreateHeadInfo();").SetValue(ViewData["Telephone"] == null ? "" : ViewData["Telephone"].ToString()).SetWidth(200).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>联系人邮箱</th>
+            <td>
+                @(Html.JValidateBox("Email").SetOnChange("doCreateHeadInfo();").SetValue(ViewData["Email"] == null ? "" : ViewData["Email"].ToString()).SetWidth(200).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>CersService链接</th>
+            <td>
+                @(Html.JValidateBox("CersServiceURL").SetOnChange("doCreateHeadInfo();").SetValue(ViewData["CersServiceURL"] == null ? "" : ViewData["CersServiceURL"].ToString()).SetWidth(250).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>XmlURL</th>
+            <td id='tdPlatformDescXmlURL'>
+                @(ViewData["CersServiceURL"] == null || string.IsNullOrWhiteSpace(ViewData["CersServiceURL"].ToString()) ? "" : ViewData["CersServiceURL"].ToString().Trim('/') + "/CersService.asmx/GetPlatform")
+            </td>
+        </tr>
+        <tr>
+            <th>XmlURL认证的账户名</th>
+            <td>
+                @(Html.JValidateBox("UserName").SetOnChange("doCreateHeadInfo();").SetValue(ViewData["UserName"] == null ? "" : ViewData["UserName"].ToString()).SetWidth(200).ToMvcString())
+                &nbsp;<span class="icon icon-info-blue" title="接口地址有密码保护的校级平台还需向全国平台提供账号与密码"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>XmlURL认证的密码</th>
+            <td>
+                @(Html.JValidateBox("Password").SetOnChange("doCreateHeadInfo();").SetValue(ViewData["Password"] == null ? "" : ViewData["Password"].ToString()).SetWidth(200).ToMvcString())
+                &nbsp;<span class="icon icon-info-blue" title="接口地址有密码保护的校级平台还需向全国平台提供账号与密码"></span>
+            </td>
+        </tr>
+    </table>
+</form>
+<div class="edit-operate">
+    @Html.JLinkButton("btnSaveBasic", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveCERSHead();return false;").ToMvcString()
+</div>
+ <div class="notification information">
+	<div>各高等学校校级平台填报联系人以电子邮件或者其他方式手工上报下述的信息，作为全国平台与校级平台进行自动数据获取的开始。</div>
+</div>
+<table class="edit-info">
+    <tr>
+        <td>
+            @Html.TextArea("HeadInfo", "", new { style = "text-decoration:none;height:250px;width:600px;border:1px solid #ccc;padding:10px;background:none;" })
+        </td>
+    </tr>
+</table>
+<script type="text/javascript">
+    function doCreateHeadInfo() {
+        var cersServiceURL = $("#CersServiceURL").val();
+        var platformDescXmlURL = "";
+        if (cersServiceURL != "") {
+            platformDescXmlURL = cersServiceURL + "/CersService.asmx/GetPlatform";
+        }
+        $("#tdPlatformDescXmlURL").empty();
+        $("#tdPlatformDescXmlURL").html(platformDescXmlURL);
+        var str = '学校代码:  ' + $("#SchoolCode").val() + '\r\n\r\n'
+        + '填表上报时间:  ' + $("#UploadTime").val() + '\r\n\r\n'
+        + '填报联系人:  ' + $("#ContactPerson").val() + '\r\n\r\n'
+        + '联系人邮箱:  ' + $("#Telephone").val() + '\r\n\r\n'
+        + '联系人邮箱:  ' + $("#Email").val() + '\r\n\r\n'
+        + '校级平台介绍信息XML文档自动获取的入口:  ' + platformDescXmlURL + '\r\n\r\n'
+        + 'XmlURL认证的账户名:  ' + $("#UserName").val() + '\r\n\r\n'
+        + 'XmlURL认证的密码:  ' + $("#Password").val();
+        $("#HeadInfo").val(str);
+    }
+    $(function () {
+        doCreateHeadInfo();
+    });
+</script>

@@ -1,0 +1,155 @@
+﻿@model com.Bynonco.LIMS.Model.Subject
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var subjectId = Model == null ? Guid.NewGuid() : Model.Id;
+    var scientificProjects = Model != null && Model.Projects != null ? Model.Projects.Where(p => p.ProjectTypeEnum == SubjectProjectType.Scientific && !p.IsDelete) : null;
+    var educationProjects = Model != null && Model.Projects != null ? Model.Projects.Where(p => p.ProjectTypeEnum == SubjectProjectType.Education && !p.IsDelete) : null;
+    var societyProjects = Model != null && Model.Projects != null ? Model.Projects.Where(p => p.ProjectTypeEnum == SubjectProjectType.Society && !p.IsDelete) : null;
+    
+}
+@Html.Hidden("SubjectId", subjectId)
+<div class="edit-info">
+    <div class="tit" style='float:left;'><span>@SubjectProjectType.Scientific.ToCnName()</span></div>
+    <div class="bdmain" style='float:left;padding-left:10px;'>
+        <div class="text-box" style="border:0;background:none;">
+            <strong style='background:none;'>
+               @Html.JLinkButton("btnAddScientificProject", "新增").SetOnclick(string.Format("doAddProject('{0}','{1}','divScientificProjects');", (int)SubjectProjectType.Scientific, subjectId)).SetIconCls("icon-add").SetPlain(false).ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class='clear-both'></div>
+    <table cellpadding="0" cellspacing="0" border="0" class="edit-table" id="divScientificProjects">
+        <tr>
+            <th style='width:20px;'></th>
+            <th>名称</th>
+            <th>项目编号</th>
+            <th>项目来源</th>
+            <th>项目领域</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>描述</th>
+        </tr>
+        @if (scientificProjects != null && scientificProjects.Count() > 0)
+        {
+            foreach (var scientificProject in scientificProjects)
+            {
+                @Html.Partial("../Account/RegisterSubjectProjectEdit", scientificProject);
+            }
+        }
+    </table>
+</div>
+<div class="edit-info">
+    <div class="tit" style='float:left;'><span>@SubjectProjectType.Education.ToCnName()</span></div>
+    <div class="bdmain" style='float:left;padding-left:10px;'>
+        <div class="text-box" style="border:0;background:none;">
+            <strong style='background:none;'>
+               @Html.JLinkButton("btnAddEducationProject", "新增").SetOnclick(string.Format("doAddProject('{0}','{1}','divEducationProjects');", (int)SubjectProjectType.Education, subjectId)).SetIconCls("icon-add").SetPlain(false).ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class='clear-both'></div>
+    <table cellpadding="0" cellspacing="0" border="0" class="edit-table" id='divEducationProjects'>
+        <tr>
+            <th style='width:20px;'></th>
+            <th>名称</th>
+            <th>项目编号</th>
+            <th>项目来源</th>
+            <th>项目领域</th>
+            <th>教材</th>
+            <th>教材名称</th>
+            <th style='width:50px;'>人数</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>描述</th>
+        </tr>
+        @if (educationProjects != null && educationProjects.Count() > 0)
+        {
+            foreach (var educationProject in educationProjects)
+            {
+                @Html.Partial("../Account/RegisterSubjectProjectEdit", educationProject)
+            }
+        }
+    </table>
+</div>
+<div class="edit-info">
+    <div class="tit" style='float:left;'><span>@SubjectProjectType.Society.ToCnName()</span></div>
+    <div class="bdmain" style='float:left;padding-left:10px;'>
+        <div class="text-box" style="border:0;background:none;">
+            <strong style='background:none;'>
+               @Html.JLinkButton("btnAddSocietyProject", "新增").SetOnclick(string.Format("doAddProject('{0}','{1}','divEducationSocietys');", (int)SubjectProjectType.Society, subjectId)).SetIconCls("icon-add").SetPlain(false).ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class='clear-both'></div>
+    <table cellpadding="0" cellspacing="0" border="0" class="edit-table" id='divEducationSocietys'>
+        <tr>
+            <th style='width:20px;'></th>
+            <th>名称</th>
+            <th>项目编号</th>
+            <th>项目来源</th>
+            <th>项目领域</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>描述</th>
+        </tr>
+        @if (societyProjects != null && societyProjects.Count() > 0)
+        {
+            foreach (var societyProject in societyProjects)
+            {
+                @Html.Partial("../Account/RegisterSubjectProjectEdit", societyProject);
+            }
+        }
+    </table>
+</div>
+<script type="text/javascript">
+    function doAddProject(projectType, subjectId, elementId) {
+        var url = "";
+        switch (projectType) {
+            case "@(((int)SubjectProjectType.Scientific).ToString())":
+                url = '@Url.Action("AddScientificProject", "Account")'
+                break;
+            case "@(((int)SubjectProjectType.Education).ToString())":
+                url = '@Url.Action("AddEducationProject", "Account")'
+                break;
+            case "@(((int)SubjectProjectType.Society).ToString())":
+                url = '@Url.Action("AddSocietyProject", "Account")'
+                break;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url + "?date=" + new Date().getMilliseconds(),
+            data: { "projectType": projectType, "subjectId": subjectId },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $("#" + elementId).append(msg);
+            }
+        });
+    }
+    function doDeleteSubjectProject(id, projectType) {
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteProject", "Subject")' + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    var willDelEelement = document.getElementById(id);
+                    willDelEelement.parentNode.removeChild(willDelEelement);
+                }
+            });
+        });
+    }
+</script>

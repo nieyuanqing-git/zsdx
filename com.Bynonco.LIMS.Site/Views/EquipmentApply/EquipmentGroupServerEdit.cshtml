@@ -1,0 +1,44 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentGroupServer
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEquipmentGroupServerEdit" style="width:300px">
+    <form id="frmEquipmentGroupServerEdit">
+        @Html.Hidden("EquipmentGroupServerId", Model != null ? Model.Id.ToString() : "")
+        <table class="edit-table" style="width:100%">
+            <tr>
+                <th>姓名</th>
+                <td>
+                   @Html.JValidateBox("ServerName").SetValue(Model != null ? Model.Name : "").SetWidth(150).ToMvcString()
+                   <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>职称</th>
+                <td>
+                   @Html.JValidateBox("Title").SetValue(Model != null ? Model.Title : "").SetWidth(150).ToMvcString()
+                   <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>类型</th>
+                <td>
+                   @Html.JComboBox("EquipmentGroupServerType").SetData(ViewData["EquipmentGroupServerTypeJson"]).SetWidth(155).ToMvcString()
+                   <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>
+                   @Html.JValidateBox("Email").SetValue(Model != null ? Model.Email : "").SetWidth(150).ToMvcString()
+                   <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>电话</th>
+                <td>
+                   @Html.JValidateBox("TelPhoneNo").SetValue(Model != null ? Model.TelPhoneNo : "").SetWidth(150).ToMvcString()
+                   <span class="required">必填</span>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div> 

@@ -1,0 +1,52 @@
+﻿body{background: url("images/bg.gif") repeat-x scroll left 25px #FFF;}
+.body-inner .main-box{  background-color: #FFFFFF;}
+
+/*------------ banner-box ------------------------*/
+.banner-box{background: url("images/banner.jpg") no-repeat scroll left top #FFFFFF; height:186px;margin-top:25px;}
+
+
+/*------------ menu-box ------------------------*/
+.menu-box{background: url("images/bg-menu.gif") repeat-x scroll left top #FFFFFF;}
+a.fg-button:hover, a.fg-button.current,.fg-button-l {background-color: #00aef5;color: #EEEEEE; }
+.menu-box .home-menu a.fg-button{margin:0;border-right: 1px solid #83cef0;border-left:1px solid #0a6d9f;}
+.menu-box .home-menu a.first{border-left:0;}
+.menu-box .home-menu a.last{border-right:0;}
+
+.ui-widget-content {background-color: #00aef5;border: 1px solid #0a6d9f;}
+.fg-menu-container a, .fg-menu-container a:link,
+.fg-menu-container a:visited,
+.fg-menu-container a:active { border: 1px solid #00aef5;}
+.fg-menu-container a.ui-state-hover{border: 1px solid #0a6d9f;background-color: #83cef0;}
+.fg-button-l .ui-icon {background: url("images/bg-menu-down.png") no-repeat scroll 0 0 transparent;}  
+.ui-state-active, .ui-widget-content .ui-state-active {background-color: #00aef5;}
+
+
+.main-box-left h2.title{background: url("images/bg-title-left.gif") no-repeat scroll left top transparent;color:#0a599b;}
+.main-box-left-xl h2.title{background: url("images/bg-title-left-xl.gif") no-repeat scroll left top transparent;color:#0a599b;}
+.main-box-right-l h2.title{background: url("images/bg-title-right-l.gif") no-repeat scroll left top transparent;color:#0a599b;}
+.main-box-center h2.title{background: url("images/bg-title-center.gif") no-repeat scroll left top transparent;color:#0a599b;}
+.main-box-right-sl h2.title{background: url("images/bg-title-right-sl.gif") no-repeat scroll left top transparent;color:#0a599b;}
+.main-box-right h2.title{background: url("images/bg-title-right.gif") no-repeat scroll left top transparent;color:#0a599b;}
+.main-box-full h2.title{background: url("images/bg-title-full.gif") no-repeat scroll left top transparent;color:#0a599b;}
+.main-box-right-l .content-box p.parent-item,
+.main-box-full .content-box p.parent-item{background:url("images/bg-li-title-200.gif") no-repeat left top;}
+.main-box-left .content-box p.parent-item{background:url("images/bg-li-title-200.gif") no-repeat left top;}
+.main-box-right-l .home-search-box a.botton{background: url("images/home-search-botton.gif") no-repeat scroll 0 3px transparent;}
+.main-box-left h2.title-gray a.current,
+.main-box-center h2.title-gray a.current,
+.main-box-right h2.title-gray a.current{background: url("images/bg-title-current.gif") repeat-x scroll left top transparent;}
+.main-box-left h2.title,
+.main-box-left-xl h2.title,
+.main-box-right-l h2.title,
+.main-box-center-l h2.title,
+.main-box-right-sl h2.title,
+.main-box-right h2.title,
+.main-box-right-l h2.title,
+.main-box-full h2.title{padding-left:25px;}
+.main-box-left h2.title a,
+.main-box-center h2.title a,
+.main-box-right h2.title a,
+.main-box-right-l h2.title a,
+.main-box-full h2.title a{ color:#0A599B; }
+
+.footer{background:url("images/bg-foot.gif") repeat-x scroll left top transparent}

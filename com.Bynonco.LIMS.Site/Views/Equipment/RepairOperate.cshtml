@@ -1,0 +1,67 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentRepair
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];}
+<div style="margin-left:300px">
+    @{
+        var equipmentPrivilige = Model == null ?
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, Model.EquipmentId);
+     }
+     @Html.JLinkButton("btnSave", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSave();return false;").SetVisible(equipmentPrivilige.IsEnableSaveRepair).ToMvcString()
+     @Html.JLinkButton("btnDelete", "删除").SetIconCls("icon-cancel").SetPlain(true).SetVisible(equipmentPrivilige.IsEnableDeleteRepair && Model != null).SetOnclick("doDelete();return false;").ToMvcString()
+     @Html.JLinkButton("btnBack", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doBack();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSave() {
+        var beforeRepairStatusRemak = $("#BeforeRepairStatusId").combobox("getText");
+        var beforeRepairUsableStatusRemark = $("#BeforeRepairUsableStatusId").combobox("getText");
+        var afterRepairStatusRemark = $("#AfterRepairStatusId").combobox("getText");
+        var afterRepairUsableStatusRemark = $("#AfterRepairUsableStatusId").combobox("getText");
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveRepair","Equipment")',
+            data: $("#frmRepairEdit").serialize() + "&BeforeRepairStatusRemak=" + beforeRepairStatusRemak  +"&BeforeRepairUsableStatusRemark=" + beforeRepairUsableStatusRemark + "&AfterRepairStatusRemark=" +  afterRepairStatusRemark + "&AfterRepairUsableStatusRemark=" +  afterRepairUsableStatusRemark + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                doBack();
+            }
+        });
+        return false;
+    }
+    function doBack() {
+        var equipmentId = $("#EquipmentId").val();
+        var url = '@Url.Action("Edit", "Equipment")' + "?TagAction=RepairContainer&TagController=Equipment&datetime=" + new Date().getMilliseconds() + "&id=" + equipmentId; ;
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doDelete() {
+        var id = $("#Id").val().trim();
+        if (id == "") {
+            $.messager.show({ title: '警告', msg: "编码为空,不能删除", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除该维修单信息?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteRepair", "Equipment")' + "?Ids=" + id + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    doBack();
+                }
+            });
+        });
+        return false;
+    }
+</script>

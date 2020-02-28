@@ -1,0 +1,45 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL;
+@{
+    var animalAppointmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAnimalAppointmentPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbAnimalAppointmentList")
+    .SetUrl(Url.Action("GetDelegateGridViewAnimalAppointmentList", "AnimalAppointment"))
+    .SetHeight(550)
+    .SetPageSize(10)
+    .SetMutiSelect(false)
+    .SetSortName("ApplyTime")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowAddButton(animalAppointmentPrivilige.IsEnableAddDelegateAppointment)
+    .SetAddScript("doAddOrEditDelegateAnimalAppointment('');");
+    if(animalAppointmentPrivilige.IsEnableExpertDelegateAppointment)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doExpertDelegateAppointment();", IconCls = "icon-export", Id = "btnExpertDelegateAppointment", Text = "导出" });
+    } 
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(50).SetAlign(Align.center))    
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请人", "NameStr").SetWidth(200).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请时间", "ApplyTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "ApplicantLinkTelNo").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("伦理编号", "EthicsNo").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("动物品系", "AnimalCategoryName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("规格", "AnimalSpecifications").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("数量(只)", "Quantity").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实际采购数量(只)", "RealQuatityStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("代购人", "OperatorName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("代购时间", "OperatorTimeStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "AuditorName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核时间", "AuditTimeStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核备注", "AuditRemark").SetWidth(500).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("取消人", "CancelOperatorName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("取消时间", "CancelTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("批次编号", "AnimalCode").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("质量合格证编号", "AnimalQualifiedNo").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("采购登记人", "PurchaseOperatorName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("采购登记时间", "PurchaseTimeStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("采购登记备注", "PurchaseRemark").SetWidth(500).SetAlign(Align.left))
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+}
+@(dataGrid.ToMvcString()) 

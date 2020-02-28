@@ -1,0 +1,95 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateWaterControlDeductQueryExpression() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+
+        var selectedStudent = $("#cbxQueryStudent").combobox("getValues");
+        var selectedStudentIds = selectedStudent.toString().split(",");
+        if (selectedStudentIds.length > 1 || (selectedStudentIds[0].trim() != "" && selectedStudentIds[0].trim() != "@(Guid.Empty.ToString())" && selectedStudentIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedStudentIds.length; i++) {
+                if (selectedStudentIds[i].trim() == "" || selectedStudentIds[i].trim() == "@(Guid.Empty.ToString())") { index++; continue; }
+                var queryExpressionTemp = "UserId=\"" + selectedStudentIds[i].trim() + "\"";
+                queryExpression += (i == index ? queryExpressionTemp : "+" + queryExpressionTemp);
+            }
+            queryExpression += ")";
+        }
+
+        var title = $("#SearchTitle").val().trim();
+        if (title != "") {
+            queryExpression = "Title∽\"" + title + "\"";
+        }
+
+        var payerName = $("#SearchPayerName").val().trim();
+        if (payerName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "PayerName∽\"" + payerName + "\"";
+        }
+        var hasClossingAccount = $("#HasClossingAccount").combobox("getValue").trim();
+        if (hasClossingAccount != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "HasClossingAccount=" + hasClossingAccount;
+        }
+        var beginAtStart = $("#SearchBeginAtStart").datebox("getValue").trim();
+        if (beginAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DeductAt>\"" + beginAtStart + "\"";
+        }
+        var beginAtEnd = $("#SearchBeginAtEnd").datebox("getValue").trim();
+        if (beginAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DeductAt<\"" + beginAtEnd + "\"";
+        }  
+        return queryExpression;
+    }
+
+    function doWaterControlDeductReset() {
+        $("#SearchTitle").val("");
+        $("#SearchUserName").val("");
+        $("#SearchPayerName").val("");
+        $("#HasClossingAccount").combobox("setValue", "");
+        $("#cbxQueryStudent").combobox("setValue", "@Guid.Empty.ToString()");
+        $("#SearchBeginAtStart").val("");
+        $("#SearchBeginAtEnd").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="width:60px;">状态</label>
+        @Html.JComboBox("HasClossingAccount").SetData(ViewData["HasClossingAccountJson"]).SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">使用者</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">课题组成员</label>
+        @Html.JComboBox("cbxQueryStudent").SetWidth(155).SetData(ViewData["StudentJson"]).SetMutiSelect(true).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">名目</label>
+        @Html.JValidateBox("SearchTitle").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">付费人</label>
+        @Html.JValidateBox("SearchPayerName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">开始时间</label>
+        @Html.JDateTimePicker("SearchBeginAtStart").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px;">结束时间</label>
+        @Html.JDateTimePicker("SearchBeginAtEnd").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnWaterControlDeductSearch", "查询").SetOnclick("doWaterControlDeductSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnWaterControlDeductReset", "清空").SetOnclick("doWaterControlDeductReset();").ToMvcString()
+        @Html.JLinkButton("btnWaterControlDeductClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,48 @@
+﻿@model com.Bynonco.LIMS.Model.MaterialUserAccount
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+<div id="divMaterialUserAccountEdit">
+ <form id="frmMaterialUserAccountEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdMaterialUserAccountEdit" class="edit-table"  style="width:385px;">
+        <tr>
+            <th><span class="required">* </span>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+            </td>
+        </tr>
+         <tr>
+            <th><span class="required">* </span>导师</th>
+            <td id='tdTutor'>
+                @{
+                    var hasTutor = ViewData["TutorJson"] != null && !string.IsNullOrWhiteSpace(ViewData["TutorJson"].ToString());
+                    @(Html.TokenInput("UserId")
+                        .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                        .SetSingle(true)
+                        .SetWidth(200)
+                        .SetPrePopulate(ViewData["TutorJson"] == null || string.IsNullOrWhiteSpace(ViewData["TutorJson"].ToString()) ? null : ViewData["TutorJson"].ToString())
+                        .ToMvcString())
+                }
+            </td>
+        </tr>
+        @if (Model != null)
+        {
+            <tr>
+                <th>金额</th>
+                <td>@Model.CurrencyStr</td>
+            </tr>
+        }
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:60px;width:295px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdTutor ul.token-input-list-facebook").css("width", "205px");
+    });
+</script>

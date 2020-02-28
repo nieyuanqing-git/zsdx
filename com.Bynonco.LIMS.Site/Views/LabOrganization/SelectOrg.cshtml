@@ -1,0 +1,5 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<span class="span-title">组织机构</span>
+<span id="spOrgIdSelect">
+    @Html.DropDownList("OrgIdSelect", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:205px", onchange = "doOrgChange(this);" })
+</span>

@@ -1,0 +1,209 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@{
+     var equipmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, Model.Id);
+     var id = Model == null ? "" : Model.Id.ToString();
+     var isUnControl = Model == null || !Model.ControllerType.HasValue || Model.ControllerType.Value == (int)EquipmentControllerType.UnControl;
+     var isPop = ViewData["IsPop"] == null ? false : bool.Parse(ViewData["IsPop"].ToString());
+}
+<p  class='@(isUnControl ? "hide" : "")'>
+    <span class="icon icon-remote"></span>远程控制 【远程状态:<span id="lbRemoteControllerStatus"></span>】
+    <img id="imgLoading" src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif")"/>
+</p>
+<table class="edit-info @(isUnControl ? "hide" : "")">
+    <tr>
+        <td>
+            @(Html.JLinkButton("btnRemoteOpen", "打开").SetIconCls("icon-powerconnect").SetOnclick("doRemoteOpen();return false;").SetVisible(!isUnControl && equipmentPrivilige.IsEnableRemoteOpen).SetPlain(true).ToMvcString())
+            @(Html.JLinkButton("btnRemoteClose", "关闭").SetIconCls("icon-powerdisconnect").SetOnclick("doRemoteClose();return false;").SetVisible(!isUnControl && equipmentPrivilige.IsEnableRemoteClose).SetPlain(true).SetPlain(true).ToMvcString())
+            @(Html.JLinkButton("btnRemoteControl", "远程监控")
+                .SetOnclick("doRemoteControl();")
+                .SetIconCls("icon-eye")
+                .SetPlain(true)
+                .SetVisible(equipmentPrivilige.IsEnableRemoteControl && Model.ControllerType.HasValue && (Model.ControllerType.Value == (int)EquipmentControllerType.SoftwareControl || Model.ControllerType.Value == (int)EquipmentControllerType.SoftwareControlWithLoginDialog))
+                .ToMvcString())
+            @(Html.JLinkButton("btnRemoteReloadControllerStatus", "刷新状态").SetOnclick("doRemoteReloadControllerStatus();return false;").SetIconCls("icon-reload").SetVisible(!isUnControl && equipmentPrivilige.IsEnableRemoteReloadControllerStatus).SetPlain(true).ToMvcString())
+            @(Html.JLinkButton("btnRemoteUpdateAdminCard", "更新特权卡").SetOnclick("doRemoteUpdateAdminCard();return false;").SetIconCls("icon-userinfo").SetVisible(!isUnControl && equipmentPrivilige.IsEnableRemoteUpdateAdminCard).SetPlain(true).ToMvcString())
+            
+        </td>
+    </tr>
+    @if (Model.ControllerType.HasValue && Model.ControllerType.Value == (int)EquipmentControllerType.PowerControlWithScreen)
+    {
+        <tr>
+            <td>
+                @(Html.JLinkButton("btnRemoteUpdateOfflineNum", "更新离线授权数").SetOnclick("doRemoteUpdateOfflineNum();return false;").SetIconCls("icon-offline").SetVisible(!isUnControl && equipmentPrivilige.IsEnableRemoteUpdateOfflineNum).SetPlain(true).ToMvcString())
+                @(Html.JLinkButton("btnRemoteUpdateOfflineRecord", "更新离线授权记录").SetOnclick("doRemoteUpdateOfflineRecord();return false;").SetIconCls("icon-offline").SetVisible(!isUnControl && equipmentPrivilige.IsEnableRemoteUpdateOfflineRecord).SetPlain(true).ToMvcString())
+                @(Html.JLinkButton("btnRemoteDeleteOfflineRecord", "清空离线授权记录").SetOnclick("doRemoteDeleteOfflineRecord();return false;").SetIconCls("icon-delete").SetVisible(!isUnControl && equipmentPrivilige.IsEnableRemoteDeleteOfflineRecord).SetPlain(true).ToMvcString())
+                @(Html.JLinkButton("btnRemoteUpdateEquipmentInfo", "更新仪器信息").SetOnclick("doRemoteUpdateEquipmentInfo();return false;").SetIconCls("icon-equipmentinfo").SetVisible(!isUnControl && equipmentPrivilige.IsEnableRemoteUpdateEquipmentInfo).SetPlain(true).ToMvcString())
+            </td>
+        </tr>
+    }
+</table>
+
+<div id="divEquipmentRemoteControlDialog" style="display:none"></div>
+@if (!isPop)
+{
+<div class="edit-operate">
+   
+    @Html.JLinkButton("btnSaveUseControlSetting", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveUseControlSetting();return false;").SetVisible(equipmentPrivilige.IsEnableSaveUseControlSetting).ToMvcString()
+    @Html.JLinkButton("btnDelete", "删除").SetIconCls("icon-cancel").SetPlain(true).SetVisible(equipmentPrivilige.IsEnableDelete && Model != null).SetOnclick("doDelete();return false;").ToMvcString()
+    @Html.JLinkButton("btnBack", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doBack();return false;").ToMvcString()
+</div>
+}
+<script type="text/javascript">
+    var IntervalRemoteControlRun;
+
+    function doSaveUseControlSetting() {
+        var useDefaultIsNeedTranningBeforeUse = $("#UseDefaultIsNeedTranningBeforeUse").attr("checked");
+        var isDefaultNeedTranningBeforeUse = useDefaultIsNeedTranningBeforeUse ? true : false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUseControlSetting", "Equipment")' + "?date=" + new Date().getMilliseconds(),
+            data: $("#frmUseControlSettingEdit").serialize() + "&UseDefaultIsNeedTranningBeforeUse=" + isDefaultNeedTranningBeforeUse.toString(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                if($("#ControllerType").val() != '@((int)EquipmentControllerType.UnControl)')
+                    doRemoteReloadControllerStatus();;
+            }
+        });
+        return false;
+    }
+
+    var remoteControlDialog;
+    function doRemoteControlDialog() {
+        if (remoteControlDialog) {
+            remoteControlDialog.dialog("destroy");
+        }
+        remoteControlDialog =  @Html.JDialog("divEquipmentRemoteControl").SetTitle("远程监控").SetIconCls("icon-eye").SetAutoDialog(false).SetOnClose("doCloseRemoteControlDialog();return false;").SetCancelScript("doCloseRemoteControlDialog();return false;").SetModal(true).SetOkScript("doCloseRemoteControlDialog();").ToMvcString();
+    }
+    function doRemoteControl() {
+        var id = '@id';
+        if(!id || id == "") {
+            $.messager.show({ title: '提示', msg: "找不到设备Id", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("RemoteControl", "Equipment")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentRemoteControlDialog").load(url,function(){
+            doRemoteControlDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    function doCloseRemoteControlDialog(){
+        remoteControlDialog.dialog('close');
+        if (remoteControlDialog) {
+            remoteControlDialog.dialog("destroy");
+        }
+        if(IntervalRemoteControlRun){
+            clearInterval(IntervalRemoteControlRun)
+        }
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ReleaseMonitor", "Equipment")',
+            data: "date=" + new Date().getMilliseconds()
+        });
+        return false;
+    }
+    function doRemoteAction(url,msgObjId, comfirmMsg)
+    {
+        var id = '@id';
+        if(!id || id == "") {
+            $.messager.show({ title: '提示', msg: "找不到设备Id", showType: 'show' });
+            return false;
+        }
+        
+        if(msgObjId && msgObjId != "")
+        {
+            $("#" + msgObjId).empty();
+            $("#imgLoading").removeClass("hide");
+        }
+        else 
+        {
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        }
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: "id=" + id + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                if(msgObjId && msgObjId != "") $("#imgLoading").addClass("hide");
+                else $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                if(msgObjId && msgObjId != "") $("#" + msgObjId).append(msg);
+                else
+                {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    doRemoteReloadControllerStatus();
+                }
+            }
+        });
+
+    }
+    function doRemoteOpen()
+    {
+        $.messager.confirm('提示', '是否确认远程开机?', function (r) {
+            if (!r) return;
+            doRemoteAction('@Url.Action("RemoteOpen", "Equipment")');
+        });
+    }
+    function doRemoteClose()
+    {
+        $.messager.confirm('提示', '是否确认远程关机?', function (r) {
+            if (!r) return;
+            doRemoteAction('@Url.Action("RemoteClose", "Equipment")');
+        });
+    }
+    function doRemoteReloadControllerStatus()
+    {
+        doRemoteAction('@Url.Action("RemoteReloadControllerStatus", "Equipment")','lbRemoteControllerStatus');
+    }
+    function doRemoteUpdateAdminCard()
+    {
+        $.messager.confirm('提示', '是否确认远程更新特权卡?', function (r) {
+            if (!r) return;
+            doRemoteAction('@Url.Action("RemoteUpdateAdminCard", "Equipment")');
+        });
+    }
+    function doRemoteUpdateOfflineNum()
+    {
+        $.messager.confirm('提示', '是否确认更新离线授权数?', function (r) {
+            if (!r) return;
+            doRemoteAction('@Url.Action("RemoteUpdateOfflineNum", "Equipment")');
+        });
+    }
+    function doRemoteUpdateOfflineRecord()
+    {
+        $.messager.confirm('提示', '是否确认更新离线授权记录?', function (r) {
+            if (!r) return;
+            doRemoteAction('@Url.Action("RemoteUpdateOfflineRecord", "Equipment")');
+        });
+    }
+    function doRemoteDeleteOfflineRecord()
+    {
+        $.messager.confirm('提示', '是否确认清空离线授权记录?', function (r) {
+            if (!r) return;
+            doRemoteAction('@Url.Action("RemoteDeleteOfflineRecord", "Equipment")');
+        });
+    }
+    function doRemoteUpdateEquipmentInfo()
+    {
+        $.messager.confirm('提示', '是否确认更新仪器信息?', function (r) {
+            if (!r) return;
+            doRemoteAction('@Url.Action("RemoteUpdateEquipmentInfo", "Equipment")');
+        });
+    }
+    $(function(){
+    if("@(isUnControl.ToString().ToLower())" == "false") doRemoteReloadControllerStatus();
+    });
+</script>

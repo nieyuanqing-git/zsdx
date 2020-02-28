@@ -1,0 +1,28 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+ <div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Door/DoorAccessRecordSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+     @Html.Partial("../Door/DoorAccessRecordList")
+</div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbDoorAccessRecordList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbDoorAccessRecordList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doDoorAccessRecordExcel() {
+        $.messager.confirm('提示', '开门记录数据量较大,建议您加上时间限制。是否继续导出?', function (r) {
+            if (!r) return;
+            var queryExpression = generateQueryExpress();
+            var url = '@Url.Action("DoorAccessRecordExportExcel","Door")' + "?queryExpression=" + queryExpression;
+            window.open(url, '_blank');
+        });
+    }
+
+</script>

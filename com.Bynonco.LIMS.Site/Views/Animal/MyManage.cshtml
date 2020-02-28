@@ -1,0 +1,74 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+    var animalStoreStatus = ViewData["AnimalStoreStatus"] == null ? "" : ViewData["AnimalStoreStatus"].ToString().ToLower().Trim();
+}
+
+ <div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Animal/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+   
+    <div>
+        <ul class="tabs" style="border-bottom:0;">
+            <li class='@(animalStoreStatus == "" ? "tabs-selected" : "")' id="liAnimalAll"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">全部</span><span class="tabs-icon"></span></a></li>
+            <li class='@(animalStoreStatus == ((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterDeath).ToString() ? "tabs-selected" : "")' id="liRegisterDeath"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterDeath.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li class='@(animalStoreStatus == ((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterGettingOut).ToString() ? "tabs-selected" : "")' id="liRegisterGettingOut"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterGettingOut.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li class='@(animalStoreStatus == ((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Die).ToString() ? "tabs-selected" : "")' id="liDie"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Die.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li class='@(animalStoreStatus == ((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.GetOut).ToString() ? "tabs-selected" : "")' id="liGetOut"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.GetOut.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li class='@(animalStoreStatus == ((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.In).ToString() ? "tabs-selected" : "")' id="liIn"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.In.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li class='@(animalStoreStatus == ((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Input).ToString() ? "tabs-selected" : "")' id="liInput"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Input.ToCnName()</span><span class="tabs-icon"></span></a></li>
+        </ul>
+        @Html.Partial("../Animal/MyList")
+        
+    </div>
+</div>
+<div style="display:none;">@Html.Partial("../Animal/ScriptContainer")</div>
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            doAnimalSearch();
+        });
+    });
+    function doAnimalSearch() {
+        var queryExpression = generateAnimalQueryExpress();
+        if($(".tabs .tabs-selected"))
+        {
+            var tabId = $(".tabs .tabs-selected").attr("id");
+            var queryAnimalStoreStatus = "";
+            switch(tabId)
+            {
+                case "liAnimalAll":
+                    queryAnimalStoreStatus = "";
+                    break;
+                case "liRegisterDeath":
+                    queryAnimalStoreStatus = "StoreStatus=" + "@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterDeath)";
+                    break;
+                case "liRegisterGettingOut":
+                    queryAnimalStoreStatus = "StoreStatus=" + "@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.RegisterGettingOut)";
+                    break;
+                case "liDie":
+                    queryAnimalStoreStatus = "StoreStatus=" + "@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Die)";
+                    break;
+                case "liGetOut":
+                    queryAnimalStoreStatus = "StoreStatus=" + "@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.GetOut)";
+                    break;
+                case "liIn":
+                    queryAnimalStoreStatus = "StoreStatus=" + "@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.In)";
+                    break;
+                case "liInput":
+                    queryAnimalStoreStatus = "StoreStatus=" + "@((int)com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus.Input)";
+                    break;
+            }
+            if (queryAnimalStoreStatus != "")
+                queryExpression += (queryExpression == "" ? "" : "*") + queryAnimalStoreStatus;
+        }
+        $("#tbMyAnimalList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbMyAnimalList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+</script>

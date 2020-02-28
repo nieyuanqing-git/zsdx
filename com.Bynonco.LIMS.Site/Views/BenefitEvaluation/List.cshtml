@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Privilige
+@{
+    var dataGrid = Html.JDataGrid("tbEvaluationTableList")
+       .SetUrl(Url.Action("List", "BenefitEvaluation"))
+       .AddQueryParam("queryExpression", "EquipmentLabel=-null")
+       .SetHeight(550)
+       .SetPageSize(10)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowAddButton(false)
+       .SetShowEditButton(false)
+       .SetShowDeleteButton(false)
+       .SetShowRefreshButton(false)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    var privilege = PriviligeFactory.GetEvaluationTablePrivilige(User.Identity.Name);
+    if (privilege.IsEnableDownLoad)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton { Id = "ExportStat", Text = "导出审核通过统计", Handler = "doDownLoadStat();", IconCls = "icon-export" });
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentNameStr").SetWidth(300).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备编号", "EquipmentLabel").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "AuditStatusStr").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("自评单位", "OrganizationName").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("自评类型", "EvaluationType").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("机时利用", "MachineUsed").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("人才培养", "TalentTrain").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("科研成果", "ResearchAchievement").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开放共享", "OpenShare").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("功能开发与利用", "FunctionOpenUsed").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备管理", "EquipmentManage").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("得分", "TotalScore").SetWidth(80).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

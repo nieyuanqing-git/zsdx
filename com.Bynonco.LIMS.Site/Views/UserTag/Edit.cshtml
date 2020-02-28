@@ -1,0 +1,52 @@
+﻿@model com.Bynonco.LIMS.Model.Tag
+@using com.Bynonco.JqueryEasyUI.Core; 
+<script type="text/javascript">
+    function doOnNameChanged(){
+        $("#InputStr").val("");
+    }
+</script>
+<div id="divTagEdit">
+ <form id="frmTagEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdTagEdit" class="edit-table"  style="width:385px;">
+         <tr>
+            <th>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>可预约天数</th>
+            <td>@Html.JValidateBox("EnableAppointmentDays").SetValue(Model == null || !Model.EnableAppointmentDays.HasValue ? "" : Model.EnableAppointmentDays.Value.ToString()).SetWidth(200).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>助记符</th>
+            <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(200).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>是否默认</th>
+            <td>
+                @Html.CheckBox("IsDefault", Model == null ? false : Model.IsDefault)
+            </td>
+        </tr>
+        <tr>
+            <th>是否停用</th>
+            <td>
+                @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+        <tr>
+            <th>XPath</th>
+            <td>@Html.JValidateBox("XPath").SetValue(Model == null ? "" : Model.XPath).SetWidth(200).SetDisabled(true).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:60px;width:295px;margin-right:5px;" })
+            </td>
+        </tr>
+        @Html.Hidden("IsShow", Model == null ? "false" : Model.IsShow.ToString().ToLower())
+    </table>
+  </form>
+</div> 

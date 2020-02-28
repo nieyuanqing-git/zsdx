@@ -1,0 +1,33 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentNotice
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divReadNotice" style="width:600px;height:500px;">
+    @Html.Hidden("EquipmentNoticeId",Model==null ? "" : Model.Id.ToString())
+    @if(Model != null)
+    {
+        <h2 style="padding:10px 5px;">@Model.Title</h2>
+        <div style="padding:10px;line-height:25px;">
+            @System.Web.Mvc.MvcHtmlString.Create(Model.Content.Replace("\r\n", "<br />"))
+            @if (Model.Attachments != null && Model.Attachments.Count() > 0)
+            {
+                <div style="margin:20px;background-color:#eee;">
+                    <ul>
+                    @foreach (var attachment in Model.Attachments)
+                    {
+                        <li class='border-b' style="padding:5px 20px;">
+                            @System.Web.Mvc.MvcHtmlString.Create(attachment.FileNameStr)
+                            <span style="font-size:12px;color:#aaa;margin-left:10px;">[@attachment.FileSizeStr]</span>
+                        </li>
+                    }
+                    </ul>
+                </div>
+            }
+        </div>
+        if(Model.IsMustReadBeforeAppointment)
+        {
+            <div style="padding-left:10px;">
+                @Html.CheckBox("IsReadNotice")
+                <label>我已阅读并同意公告内容.</label>
+            </div>
+        }
+    }
+</div>

@@ -1,0 +1,29 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    //var workGroupPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetWorkGroupPrivilige(User.Identity.Name);
+    var workGroupId = ViewData["WorkGroupId"] == null ? "" : ViewData["WorkGroupId"].ToString();
+    var dataGrid = Html.JDataGrid("tbViewWorkGroupUserList")
+        .SetUrl(Url.Action("GetGridWorkGroupUserList", "WorkGroup"))
+        .AddQueryParam("WorkGroupId", workGroupId)
+        .SetSortName("Name")
+        .SetWidth(860)
+        .SetHeight(540)
+        .SetPagination(true)
+        .SetMutiSelect(false)
+        //.SetSingleSelect(true)
+        .SetPageSize(20)
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false);
+   
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("角色名称", "Name").SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户名称", "UserName").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("机构", "OrganizationName").SetWidth(180).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("身份", "UserTypeName").SetWidth(180).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("电话", "PhoneNumber").SetWidth(120).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

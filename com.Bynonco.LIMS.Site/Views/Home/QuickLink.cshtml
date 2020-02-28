@@ -1,0 +1,78 @@
+﻿@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    var isLogin = Request.IsAuthenticated && ViewData["LoginUser"] != null;
+}
+
+<div class='quick-link-box'>
+    <h2 class='title''>
+        <span>快速通道</span>
+    </h2>
+    <div class="content-box" style='padding:0 5px;'>
+        <ul class='quick-link'>
+            <li class='quick-link-sample' onclick='doQuickSample();'><a href='#'>样品委托</a></li>
+            <li class='quick-link-appointment' onclick='doQuickAppointment();'><a href='#'>预约记录</a></li>
+            <li class='quick-link-userhome' onclick='doQuickUserHome();'><a href='javascript:;'>个人中心</a></li>
+            <li class='quick-link-equipment' onclick='doQuickEquipment();'><a href='#'>仪器设备</a></li>
+        </ul>
+        <script type="text/javascript">
+            $(function () {
+                $(".quick-link-box .quick-link li").mouseover(function () {
+                    $(this).siblings().removeClass("current");
+                    $(this).siblings().each(function () {
+                        var css = $(this).attr("class");
+                        css = css.replace("-current", "");
+                        $(this).attr("class", css);
+                    });
+                    var css = $(this).attr("class");
+                    $(this).attr("class", css + "-current");
+                    $(this).addClass("current");
+                });
+                $(".quick-link-box .quick-link li").mouseout(function () {
+                    var css = $(this).attr("class");
+                    css = css.replace("-current", "");
+                    $(this).attr("class", css);
+                    $(this).removeClass("current")
+                });
+            });
+            function doQuickSample() {
+                if ('@isLogin.ToString().ToLower()' == 'true') {
+
+                    var url = '@Url.Action("SampleApplyPersonalListIndex", "SampleManage")' + "?date=" + new Date().getMilliseconds();
+                    ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+                }
+                else {
+                    $.messager.show({ title: '提示', msg: "请登录系统", showType: 'show' });
+                }
+                return false;
+            }
+            function doQuickAppointment() {
+                if ('@isLogin.ToString().ToLower()' == 'true') {
+
+                    var url = '@Url.Action("HistoryIndex", "Appointment")' + "?date=" + new Date().getMilliseconds();
+                    ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+                }
+                else {
+                    $.messager.show({ title: '提示', msg: "请登录系统", showType: 'show' });
+                }
+                return false;
+            }
+            function doQuickUserHome() {
+                if ('@isLogin.ToString().ToLower()' == 'true') {
+
+                    var url = '@Url.Action("Manage", "Account")' + "?date=" + new Date().getMilliseconds();
+                    ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+                }
+                else {
+                    $.messager.show({ title: '提示', msg: "请登录系统", showType: 'show' });
+                }
+                return false;
+            }
+            function doQuickEquipment() {
+                var url = '@Url.Action("ShowList", "Equipment", routeCurrentXPathValue)'
+                location.href = url;
+            }
+
+        </script>
+    </div>
+</div>

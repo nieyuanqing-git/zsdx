@@ -1,0 +1,61 @@
+﻿@{
+    var listType = ViewData["ListType"] == null ? "" : ViewData["ListType"].ToString().Trim().ToLower();
+}
+<script type="text/javascript">
+    function doUsedConfirmSearch() {
+        var queryExpression = generateUsedConfirmTotalQueryExpression();
+        $("#tbUsedConfirmSearchList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUsedConfirmSearchList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doShowPersonalUsedConfirm() {
+        $(".panel-header .icon-user").removeClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action("MyUsedConfirmList", "UsedConfirm")' + "?date= " + new Date().getMilliseconds();
+        doLoadUsedConfirmRecordList(url);
+    }
+    function doShowTurtorUsedConfirm() {
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").removeClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action("MyUsedConfirmList", "UsedConfirm")' + "?ListType=Subject&date= " + new Date().getMilliseconds();
+        doLoadUsedConfirmRecordList(url);
+    }
+    function doShowEquipmentUsedConfirm() {
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").removeClass("icon-globe-unselect");
+        var url = '@Url.Action("MyUsedConfirmList", "UsedConfirm")' + "?ListType=Equipment&date= " + new Date().getMilliseconds();
+        doLoadUsedConfirmRecordList(url);
+    }
+
+    function doLoadUsedConfirmRecordList(url) {
+        $(".tabs li").each(function () {
+            $(this).removeClass("tabs-selected");
+        });
+        $("#liAll").addClass("tabs-selected");
+        $("#divUsedConfirmRecordList").empty();
+        $.ajax({
+            type: "Post",
+            url: url,
+            success: function (data) {
+                $("#divUsedConfirmRecordList").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        switch ('@listType') {
+            case 'subject':
+                doShowTurtorUsedConfirm() ;
+                break;
+            case 'equipment':
+                doShowEquipmentUsedConfirm();
+                break;
+            default:
+                doShowPersonalUsedConfirm();
+                break;
+        }
+    });
+</script>

@@ -1,0 +1,48 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateNMPQueryExpression() {
+        var queryExpression = "";
+        var nmpName = $("#SearchNMPName").val().trim();
+        if (nmpName != "") {
+            queryExpression = "Name∽\"" + nmpName + "\"";
+        }
+        var roomId = $("#SearchLabRoomId").val().trim();
+        if (roomId != "" && roomId !='@Guid.Empty') {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RoomId=\"" + roomId + "\"";
+        }
+        var doorId = $("#SearchDoorId").val().trim();
+        if (doorId != "" && doorId != '@Guid.Empty') {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DoorId=\"" + doorId + "\"";
+        }
+        return queryExpression;
+    }
+    
+    function doNMPReset() {
+        $("#SearchNMPName").val("");
+        $("#SearchLabRoomId").val("@Guid.Empty.ToString()");
+        $("#SearchDoorId").val("@Guid.Empty.ToString()");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>工位名称</label>
+        @Html.JValidateBox("SearchNMPName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>所在房间</label>
+        @Html.DropDownList("SearchLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px;" })
+    </li>
+    <li>
+        <label>门禁</label>
+        @Html.DropDownList("SearchDoorId", (IEnumerable<SelectListItem>)ViewData["SearchDoorSelectListItem"], new { style = "width:155px;" })
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnNMPSearch", "查询").SetOnclick("doNMPSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnNMPReset", "清空").SetOnclick("doNMPReset();").ToMvcString()
+        @Html.JLinkButton("btnNMPClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

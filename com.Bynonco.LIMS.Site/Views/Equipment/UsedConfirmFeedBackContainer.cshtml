@@ -1,0 +1,63 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+@{
+    var usedConfirmPrivilige = Model == null ?
+    com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUsedConfirmPrivilige(User.Identity.Name) :
+    com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUsedConfirmPrivilige(User.Identity.Name,Model.Id);
+ }
+ <div class="search-grid hide" style="width:280px">
+    <div class="search-inner-box">
+        @Html.Partial("../Equipment/UsedConfirmFeedBackSearch")
+    </div>
+</div>
+<div>@Html.Partial("../Equipment/UsedConfirmFeedBackList")</div>
+<div>@Html.Partial("../UsedConfirm/UsedConfirmFeedBackScriptContainer")</div>
+<script type="text/javascript">
+    function doEditUsedConfirmFeedBack() {
+        var selectedRow = $("#tbUsedConfirmFeedBackList").datagrid("getSelected");
+        if (!selectedRow) {
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if (selectedRow) doAddUsedConfirmFeedBack(selectedRow.UsedConfirmId);
+    }
+    function doDeleteUsedConfirmFeedBack() {
+        var selectedRows = $('#tbUsedConfirmFeedBackList').datagrid("getSelections");
+        var ids = "";
+        if (selectedRows && selectedRows.length > 0) {
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for (var i = 0; i < selectedRows.length; i++) {
+                    ids += ids == "" ? selectedRows[i].UsedConfirmId : "," + selectedRows[i].UsedConfirmId;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteUsedConfirmFeedBack","UsedConfirm")',
+                    data: { "date": new Date().getMilliseconds(), "ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doUsedConfirmFeedBackSearch();
+                    }
+                });
+            });
+        }
+    }
+    function doSaveUsedConfirmFeedBackCallBack() {
+        doUsedConfirmFeedBackSearch();
+    }
+    function doUsedConfirmFeedBackSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbUsedConfirmFeedBackList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUsedConfirmFeedBackList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        return false;
+    }
+</script>

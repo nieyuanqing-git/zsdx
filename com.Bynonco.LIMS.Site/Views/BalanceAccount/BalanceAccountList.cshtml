@@ -1,0 +1,49 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isCostDeductOpenFund = ViewData["IsCostDeductOpenFund"] == null ? false : bool.Parse(ViewData["IsCostDeductOpenFund"].ToString());
+    var balanceAccountPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetBalanceAccountPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbBalanceAccountList")
+    .SetUrl(Url.Action("GetGridBalanceAccountList", "BalanceAccount"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetMutiSelect(true)
+    .SetSortName("CreateAt")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowPrintButton(false);
+    if (balanceAccountPrivilige.IsEnableViewBalanceAccountDetail)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("查看明细", "ViewBalanceAccountDetailOperate").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+    }
+    if (balanceAccountPrivilige.IsEnableExportBalanceAccountDetailDoc)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("生成结算单", "ExportBalanceAccountDetailDocOperate").SetSortable(false).SetWidth(90).SetAlign(Align.center));
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结算单号", "BalanceNo").SetSortable(false).SetWidth(80).SetAlign(Align.center).SetFormatter("return (value==''||value==null)?'未生成':value"))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "HasConfirm").SetSortable(false).SetWidth(80).SetAlign(Align.center).SetFormatter("return value?'已确认':'未确认'"))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "BeginAtStr").SetSortable(false).SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndAtStr").SetSortable(false).SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结算时间", "CreateAtStr").SetSortable(false).SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结算人", "CreatorName").SetSortable(false).SetSortable(false).SetWidth(60).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("人数", "TotalPersons").SetSortable(false).SetWidth(60).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总额(元)", "TotalMoneyStr").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总真实币元)", "TotalRealCurrencyStr").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总奖励币(元)", "TotalVirtualCurrencyStr").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总补贴币(元)", "TotalSubsidiesCurrencyStr").SetHidden(!isCostDeductOpenFund).SetSortable(false).SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结算标题", "BalanceAccountTitle").SetWidth(500).SetSortable(false).SetAlign(Align.left))
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+    if (balanceAccountPrivilige.IsEnableExportBalanceAccountTotalDoc)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doExportBalanceAccountTotalDoc();", IconCls = "icon-word", Id = "btnBalanceAccountTotalDoc", Text = "生成结算汇总表" });
+    }
+    if (balanceAccountPrivilige.IsEnableUnSettle)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doUnSettle();", IconCls = "icon-undo", Id = "btnUnSettle", Text = "删除结算单" });
+    }
+    if (balanceAccountPrivilige.IsEnableSettleConfirm)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doSettleConfirm();", IconCls = "icon-ok", Id = "btnSettleConfirm", Text = "确认结算单" });
+    }
+ }
+@(dataGrid.ToMvcString()) 

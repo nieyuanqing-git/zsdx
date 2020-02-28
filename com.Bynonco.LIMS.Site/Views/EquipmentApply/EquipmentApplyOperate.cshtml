@@ -1,0 +1,56 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@{ var equipmentApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentApplyPrivilige(User.Identity.Name);}
+<div style="padding:0px;background-color:White">
+    <div style="margin-left:210px;padding-bottom:10px;">
+        @Html.JLinkButton("btnSaveEquipmentApply", "保存").SetIconCls("icon-save").SetOnclick("doSaveEquipmentApply();").SetVisible(equipmentApplyPrivilige.IsEnableSave).ToMvcString()
+        @Html.JLinkButton("btnPrintEquipmentApply", "打印").SetIconCls("icon-print").SetOnclick(string.Format("doExpertEquipmentApply('{0}');", Model != null ? Model.Id.ToString() : "")).SetVisible(equipmentApplyPrivilige.IsEnableExpert && Model != null).ToMvcString()
+        @Html.JLinkButton("btnBackEquipmentApply", "返回").SetIconCls("icon-back").SetOnclick("doBack();").ToMvcString()
+    </div>
+</div>
+<script type="text/javascript">
+    function doBack() {
+        var url = '@Url.Action("EquipmentApplyIndex", "EquipmentApply")' + "?id=''" + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doSaveEquipmentApply() {
+        var icons = getIcons();
+        var equipmentServiceHoursStats = getEquipmentServiceHoursStats();
+        var equipmentGroupServers = getEquipmentGroupServers();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","EquipmentApply")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#frmEquipmentApplyEdit").serialize() + "&icons=" + icons + "&equipmentServiceHoursStats=" + equipmentServiceHoursStats + "&equipmentGroupServers=" + equipmentGroupServers,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doBack();
+            }
+        });
+        return false;
+    }
+    function doDeleteEquipmentApply(ids) {
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","EquipmentApply")' + "?time=" + new Date().getMilliseconds().toString(),
+                data: "ids=" + ids,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    }
+                }
+            });
+        });
+        return false;
+    }
+</script>

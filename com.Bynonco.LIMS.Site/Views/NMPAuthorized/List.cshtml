@@ -1,0 +1,24 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name);
+    var equipmentAuthorizationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentAuthorizationPrivilige(User.Identity.Name);
+    var userAuthorizationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserAuthorizationPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbNMPEquipmentList")
+        .SetUrl(Url.Action("GetGridNMPEquipmentList", "NMPAuthorized"))
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetHeight(550)
+        .SetPageSize(10)
+        .SetShowPrintButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .SetShowRefreshButton(false);
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableEdit);
+
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(45).SetAlign(Align.center).SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器", "NameFormatStr").SetWidth(400).SetAlign(Align.left));    
+ }
+@(dataGrid.ToMvcString())

@@ -1,0 +1,14 @@
+﻿@model com.Bynonco.LIMS.Model.UserExamination
+<div class="layout-center-full">
+    <div class="edit-box" style="padding:15px;">
+    @if(Model != null)
+    {
+        if (Model.EndTime.HasValue)
+        {
+            ViewData["EndTime"] = Model.EndTime.Value.ToString("HH:mm:ss");
+            ViewData["TimeRest"] = (Model.EndTime.Value - DateTime.Now).TotalSeconds.ToString("F0");
+        }
+        @Html.Partial("../UserExamination/Testing", Model)
+    }
+    </div>
+</div>

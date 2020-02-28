@@ -1,0 +1,41 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var trainningMaterialPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetTrainningMaterialPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbTrainningMaterialList")
+       .SetHeight(550)
+       .SetSortName("Name")
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false);
+    if (trainningMaterialPrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+    }
+    dataGrid.SetShowAddButton(trainningMaterialPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(trainningMaterialPrivilige.IsEnableEdit);
+    if (trainningMaterialPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddTrainningMaterial('');");
+       dataGrid.SetEditScript("doEditTrainningMaterial('');");
+       dataGrid.SetOnDblClickRow("doEditTrainningMaterial(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(trainningMaterialPrivilige.IsEnableDelete);
+    if (trainningMaterialPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteTrainningMaterial('');");
+    }
+    if (trainningMaterialPrivilige.IsEnableView)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doViewMaterial();", IconCls = "icon-eye", Id = "btnViewMaterial", Text = "查看培训资料" });
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetSortable(false).SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("分类", "TrainningTypeName").SetSortable(false).SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("XPath", "XPath").SetSortable(false).SetWidth(120).SetHidden(true).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("助记符", "InputStr").SetSortable(false).SetWidth(60).SetHidden(true).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("内容", "ContentNoHTML").SetSortable(false).SetWidth(800).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

@@ -1,0 +1,110 @@
+﻿@model com.Bynonco.LIMS.Model.ArticleCategory
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{var customer = com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer();}
+<script type="text/javascript">
+    function doOnIsStopLoadSuccess() {
+        $("#tdArticleCategoryEdit #tdIsStop span input.combo-text.validatebox-text").val('@ViewData["IsStopNickName"]');
+    }
+    function doOnHomeLocationLoadSuccess() {
+        $("#tdArticleCategoryEdit #tdHomeLocation span input.combo-text.validatebox-text").val('@(Model!=null && Model.HomeLocation.HasValue ? Model.HomeLocationStr : "－")');
+    }
+    function doOnHomeLocationShowTypeLoadSuccess() {
+        $("#tdArticleCategoryEdit #tdHomeLocationShowType span input.combo-text.validatebox-text").val('@(Model!=null && Model.HomeLocationShowType.HasValue ? Model.HomeLocationShowTypeCName : "－")');
+    }
+    
+    function doOnOrganizationLoadSuccess() {
+        var orgIdValue = $("#OrgIdSelect").val();
+        var orgIdText = $("#OrgIdSelect option:selected").text();
+        $("#divArticleCategoryEdit #tdOrgId span input.combo-text.validatebox-text").val(orgIdText);
+        $("#OrgId").combotree("setValue", orgIdValue);
+    }
+    function doOnNameChanged() {
+        $("#InputStr").val("");
+    }
+    function doOnParentLoadSuccess(){
+        if ($("#Id").val().trim() == "") {
+            var selectedArticleCategory = $("#tbArticleCategoryList").treegrid("getSelected");
+            if (selectedArticleCategory && selectedArticleCategory.Id && !selectedArticleCategory.Id.trim() == "" && !selectedArticleCategory.Id.isDefaultGuid()) {
+                var parentId = selectedArticleCategory.Id;
+                var parentName = selectedArticleCategory.Name;
+                $("#ParentId").combotree("setValue", parentId);
+                $("#tdArticleCategoryEdit #tdParentId span input.combo-text.validatebox-text").val(parentName);
+            }
+        }
+        else $("#tdArticleCategoryEdit #tdParentId span input.combo-text.validatebox-text").val('@(Model != null && Model.GetParent() != null ? Model.GetParent().Name : "")');     
+    }
+</script>
+
+<div id="divArticleCategoryEdit">
+ <form id="frmArticleCategoryEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdArticleCategoryEdit" class="edit-table"  style="width:600px;">
+         <tr>
+            <th><span class="required">* </span>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+            </td>
+            <th>助记符</th>
+            <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(200).ToMvcString()</td>
+        </tr>
+         <tr>
+            <th>组织机构</th>
+            <td id="tdOrgId">
+                @(Html.JComboTree("OrgId")
+                .SetEditable(false)
+                .SetDisabled(true)
+                .SetCheckBox(false)
+                .SetMultiple(false)
+                .SetExpandAll(true)
+                .SetData(ViewData["OranizationJson"])
+                .SetOnLoadSuccess("setTimeout('doOnOrganizationLoadSuccess();', 500);")
+                .SetWidth(205).ToMvcString())
+            </td>
+            <th>父级分类</th>
+            <td id="tdParentId">
+                @(Html.JComboTree("ParentId")
+                .SetData(ViewData["ParentJson"])
+                .SetValue(Model == null || !Model.ParentId.HasValue ? "" : Model.ParentId.Value.ToString())
+                .SetOnLoadSuccess("setTimeout('doOnParentLoadSuccess();', 500);")
+                .SetMultiple(false)
+                .SetDisabled(Model != null)
+                .SetWidth(205).SetRequired(false).SetExpandAll(true).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>首页位置</th>
+            <td id="tdHomeLocation">
+                @(Html.JComboBox("HomeLocation")
+                .SetEditable(false)
+                .SetData(ViewData["HomeLocationJson"])
+                .SetValue(Model != null ? Model.HomeLocation.ToString() : "-1")
+                .SetOnLoadSuccess("setTimeout('doOnHomeLocationLoadSuccess();', 500);")
+                .SetWidth(205).ToMvcString()) 
+            </td>
+            <th>展示方式</th>
+            <td id="tdHomeLocationShowType">
+                @(Html.JComboBox("HomeLocationShowType")
+                .SetEditable(false)
+                .SetData(ViewData["HomeLocationShowTypeJson"])
+                .SetValue(Model != null ? Model.HomeLocationShowType.ToString() : "-1")
+                .SetOnLoadSuccess("setTimeout('doOnHomeLocationShowTypeLoadSuccess();', 500);")
+                .SetWidth(205).ToMvcString()) 
+            </td>
+        </tr>
+        <tr>
+            <th>是否停用</th>
+            <td id="tdIsStop" colspan='3'>
+                @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+        <tr style='display:@(customer.GetIsShowExaminationSystemSpecialRelativeInfo()?"":"none")'>
+            <th>只在考试系统显示</th>
+            <td>@Html.CheckBox("IsForExamination")</td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>@Html.TextArea("Remark",Model == null ? "" : Model.Remark, new {style="width:95%;height:80px"})</td>
+        </tr>
+    </table>
+  </form>
+</div> 

@@ -1,0 +1,30 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core;  
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Hidden("NMPId", Model == null ? "" : Model.Id.ToString())
+@Html.JTab("divAppointmentRuleContainer").SetBorder(false).ToMvcString() 
+<div id="divAppointmentRuleContainer">
+    <div title="不可预约时间" id="divUnAppointmentPeriodTime">
+        @Html.Partial("UnAppointmentPeriodTimeContainer")
+    </div>
+    <div title="用户预约优先权" id="divAppointmentPriority">
+        @Html.Partial("AppointmentPriorityContainer")
+    </div>
+    <div title="用户可预约时间段" id="divUserEquipmentTime">
+        @Html.Partial("UserNMPTimeContainer")
+    </div>
+    <div title="用户预约限制" id="divAppointmentTimeLimit">
+        @Html.Partial("AppointmentTimeLimitContainer")
+    </div>
+     <div title="课题组预约限制" id="divSubjectAppointmentTimeLimit">
+        @Html.Partial("SubjectAppointmentTimeLimitContainer")
+    </div>
+    <div title="用户类型可预约时间段" id="divTagEquipmentFun">
+        @Html.Partial("TagEquipmentFunContainer")
+    </div>
+    <div title="自定义预约规则" id="divSelfDefined">
+        @Html.Partial("AppointmentSpeciaRuleContainer")
+    </div>
+</div>

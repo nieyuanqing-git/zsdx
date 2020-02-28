@@ -1,0 +1,50 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var achievementPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAchievementPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbAcademicExchangesList")
+        .SetUrl(Url.Action("GetAcademicExchangesList", "Achievement", new { AcademicType = "AcademicTypeInvite" }))
+        .SetHeight(650)
+        .SetSortName("ExchangesTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("时间", "ExchangesTimeStr").SetWidth(80).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("地点", "ExchangesAddress").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("专家报告题目", "AcademicName").SetWidth(150).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("邀请人", "AcademicExchangesUserLocalNames").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("报告交流教授", "AcademicExchangesUserOutNames").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("来访人员单位", "AcademicExchangesDepOutNames").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(80).SetAlign(Align.center));
+    
+    dataGrid.SetShowAddButton(achievementPrivilige.IsEnableAcademicExchangesInviteAdd);
+    if (achievementPrivilige.IsEnableAcademicExchangesInviteAdd)
+    {
+        dataGrid.SetAddScript("doAddAcademicExchanges('','AcademicTypeInvite')");
+    }
+    dataGrid.SetShowEditButton(achievementPrivilige.IsEnableAcademicExchangesInviteEdit);
+    if (achievementPrivilige.IsEnableAcademicExchangesInviteEdit)
+    {
+        dataGrid.SetEditScript("doEditAcademicExchanges('','AcademicTypeInvite')");
+        dataGrid.SetOnDblClickRow("doEditAcademicExchanges(rowData.Id,'AcademicTypeInvite');");
+    }
+    dataGrid.SetShowDeleteButton(achievementPrivilige.IsEnableAcademicExchangesInviteDelete);
+    if (achievementPrivilige.IsEnableAcademicExchangesDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteAcademicExchanges('');");
+    }
+    dataGrid.SetShowExpertButton(achievementPrivilige.IsEnableAcademicExchangesInviteExpert);
+    if (achievementPrivilige.IsEnableAcademicExchangesInviteExpert)
+    {
+        dataGrid.SetExpertScript("doAcademicExchangesExportExcel('AcademicTypeInvite');");
+    }
+}
+@(dataGrid.ToMvcString())

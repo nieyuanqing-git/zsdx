@@ -1,0 +1,58 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimal
+@using com.Bynonco.JqueryEasyUI.Core;
+@{ var animalPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAnimalPrivilige(User.Identity.Name);}
+<div style="padding:0px;">
+    <div style="margin-left:210px;padding-bottom:10px;">
+        @Html.JLinkButton("btnSaveAnimal", "保存").SetIconCls("icon-save").SetOnclick("doSave();").SetVisible(animalPrivilige.IsEnableSave).ToMvcString()
+        @Html.JLinkButton("btnDeleteAnimal", "删除").SetIconCls("icon-delete").SetOnclick(string.Format("doDelete('{0}');", Model != null ? Model.Id.ToString() : "")).SetVisible(animalPrivilige.IsEnableDelete && Model != null).ToMvcString()
+        @Html.JLinkButton("btnBackAnimal", "返回").SetIconCls("icon-back").SetOnclick("doBack();").ToMvcString()
+    </div>
+</div>
+<script type="text/javascript">
+    function doBack() {
+        var url = '@Url.Action("Index", "Animal")' + "?id=''" + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doSave() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var gernationName = $("#GernationId").combobox("getText");
+        var hairColorName = $("#HairColorId").combobox("getText");
+        var identifyName = $("#IdentifyId").combobox("getText");
+        var sourceName = $("#SourceId").combobox("getText");
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: $("form").serialize() + "&SourceName=" + sourceName + "&GernationName=" + gernationName + "&HairColorName=" + hairColorName + "&IdentifyName=" + identifyName,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doBack();
+            }
+        });
+        return false;
+    }
+    function doDelete(ids) {
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","Animal")' + "?time=" + new Date().getMilliseconds().toString(),
+                data: "ids=" + ids,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doBack();
+                }
+            });
+        });
+        return false;
+    }
+</script>

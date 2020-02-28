@@ -1,0 +1,121 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@model com.Bynonco.LIMS.Model.Article
+
+@(Html.JDataGrid("tbUploadFileList")
+        .SetWidth(500)
+        .SetUrl(Url.Action("GetArticleUploadFileList", "Article", new { id = Model==null?"":Model.Id.ToString() }))
+        .SetHeight(150)
+        .SetPagination(false)
+        .SetShowDeleteButton(true)
+        .SetDeleteScript("doDeleteUploadFile();")
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false)
+        .AddCostomerAttribute("FixWidth", "true")
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件名", "FileName").SetWidth(250).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "FileExtension").SetWidth(50).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("大小", "FileSize").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("上传类型", "FileTypeName").SetWidth(60).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型值", "FileType").SetHidden(true))
+        .ToMvcString())
+
+<script type="text/javascript">
+    function doValidates(file,fileType) {
+        if (file == "") {
+            $.messager.alert('提示', "请选择要上传的文件", 'warning');
+            return false;
+        }
+        if (fileType == "") {
+            $.messager.alert('提示', "请选择上传类型", 'warning');
+            return false;
+        }
+        var fileName = file.getFileName().trim();
+        var rows = $("#tbUploadFileList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].FileName.trim() == fileName && rows[i].FileType.trim()==fileType) {
+                    $.messager.alert('提示', "文件名" + fileName + "已在列表中存在", 'warning');
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    function ajaxFileUpload() {
+        var file = $("#fileToUpload").val();
+        var fileType = $("#FileType").combobox("getValue");
+        if (!doValidates(file,fileType)) return false;
+        $("#fileToUpload").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadFile", "Article")' + '?fileType=' + fileType + '&time=' + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileToUpload',
+            dataType: 'json',
+            success: function (data) {
+                $.messager.progress('close');
+                if (data.fileExtension) {
+                    InsertAttachmentToList(file, data);
+                    $("#FileType").combobox("setValue", "");
+                }
+                else $.messager.alert('提示', data, 'warning');
+            }
+        })
+        return false;
+    }
+    function InsertAttachmentToList(file, data) {
+        $('#tbUploadFileList').datagrid('appendRow', {
+            FileName: file.getFileName().trim(),
+            FileExtension: data.fileExtension,
+            FileSize: data.fileSize,
+            FileTypeName: data.fileTypeName,
+            FileType: data.fileType,
+            selected:false,
+            id: "00000000-0000-0000-0000-000000000000",
+            text:""
+        });
+    }
+
+    function doDeleteUploadFile() {
+        var rows = $('#tbUploadFileList').datagrid("getSelections");
+        if (!rows || rows == "") {
+            $.messager.alert('提示', "请选择要删除的文件", 'warning');
+            return false;
+        }
+        var fileNameTypes = "";
+        for (var i = 0; i < rows.length; i++) {
+            fileNameTypes += i == 0 ? (rows[i].FileName + "|" + rows[i].FileType) : ("," + rows[i].FileName + "|" + rows[i].FileType);
+        }
+        $.messager.progress({ title: '提示', msg: '正在删除文件,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("DeleteUploadFile", "Article")',
+            cache:false,
+            data: { "fileNameTypes": fileNameTypes },
+            success: function (data) {
+                $.messager.progress('close');
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.alert('提示',data, 'warning');
+                    return false;
+                }
+                var selectedRows = $('#tbUploadFileList').datagrid('getSelections');
+                if (selectedRows) {
+                    for (var j = 0; j < selectedRows.length; j++) {
+                        var index = $('#tbUploadFileList').datagrid('getRowIndex', selectedRows[j]);
+                        $('#tbUploadFileList').datagrid('deleteRow', index);
+                    }
+                }
+            }
+        });
+    }
+
+    function generateFileNameTypes() {
+        var rows = $('#tbUploadFileList').datagrid("getRows");
+        if (!rows || rows == "") return "";
+        var files = new Array();
+        for (var i = 0; i < rows.length; i++) {
+            files.push(rows[i].FileName + "∽" + rows[i].FileType);
+        }
+        return files;
+    }
+</script>

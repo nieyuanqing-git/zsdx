@@ -1,0 +1,57 @@
+﻿@model com.Bynonco.LIMS.Model.ArticleCategory
+@using com.Bynonco.JqueryEasyUI.Core;        
+@{
+    Layout = "~/Views/Shared/_OneColumnLayout.cshtml";
+    var articleCategoryName = Model == null ? "" : Model.Name;
+    ViewBag.Title = articleCategoryName;
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeXPathValues = new {XPath = orgXPath };
+}
+@section ImportCssAndJs{
+    <script type="text/javascript">
+     var perPageSize = 20;
+     function doSelectPageTop(pageNumber, pageSize) {
+         var pageNumber = $('#PageArticleListTop').pagination("options").pageNumber;
+         var pageSize = $('#PageArticleListTop').pagination("options").pageSize;
+         doLoadArticleList(pageNumber, pageSize);
+         return false;
+     }
+     function doSelectPage(pageNumber, pageSize) {
+         var pageNumber = $('#PageArticleList').pagination("options").pageNumber;
+         var pageSize = $('#PageArticleList').pagination("options").pageSize;
+         doLoadArticleList(pageNumber, pageSize);
+         return false;
+     }
+     function doLoadArticleList(pageNumber, pageSize) {
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         var id = '@(Model == null ? "" : Model.Id.ToString())'
+         $.ajax({
+             type: "Post",
+             url: '@Url.Action("PaginationList", "Article",routeXPathValues)',
+             data: "ArticleCategoryId=" + id + "&page=" + pageNumber + "&rows=" + pageSize + "&date=" + new Date(),
+             success: function (data) {
+                 $.messager.progress('close');
+                 if (data && data.indexOf("出错,") == 0) {
+                     $.messager.show({ title: '提示', msg: "获取信息出错", showType: 'show' });
+                 }
+                 else {
+                     $("#ArticleList").html(data);
+                 }
+                 ajaxloadsuccess();
+                 return false;
+             }
+         });
+     }
+     $(function () {
+         doLoadArticleList(1, perPageSize);
+     });
+</script>
+}
+@section MainFull{
+    <h2 class="title clear-both">
+        <span>@articleCategoryName</span>
+    </h2>
+    <div class="content-box">
+        <div id="ArticleList"></div>
+    </div>
+}

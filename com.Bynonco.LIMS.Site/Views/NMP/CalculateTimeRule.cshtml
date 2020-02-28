@@ -1,0 +1,162 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@model com.Bynonco.LIMS.Model.View.ViewNMP
+@{var calcFeeTimeRule = Model == null ? null : Model.GetNMP().CalcFeeTimeRule;}
+<div>
+    <form id="frmCalculateTimeRuleEdit" action="#">
+    @Html.Hidden("NMPCalcFeeTimeRuleId", calcFeeTimeRule == null ? "" : calcFeeTimeRule.Id.ToString())
+    <p>时间规则设置</p>
+    <table id="tbCalculateTimeRule" class="edit-info">
+        <tr>
+            <th>取整因子</th>
+            <td colspan="2">
+                @(Html.JValidateBox("RoundFator").SetValue(calcFeeTimeRule == null ? "0" : calcFeeTimeRule.RoundFator.ToString()).SetWidth(280).SetValidateType(ValidateType.positiveIntNumber).ToMvcString())
+                <span>(分钟),值为0表示不进行取整</span>
+            </td>
+        </tr>
+        <tr>
+            <th>精度</th>
+            <td colspan="2">
+                @(Html.JValidateBox("RoundDigits").SetValue(calcFeeTimeRule == null ? "2" : calcFeeTimeRule.RoundDigits.ToString()).SetWidth(280).SetValidateType(ValidateType.positiveIntNumber).ToMvcString())
+                <span>小数位数</span>
+            </td>
+        </tr>
+        <tr>
+            <th>表达式</th>
+            <td>
+                @Html.TextArea("Expression", calcFeeTimeRule == null ? "return t2-t1;" : calcFeeTimeRule.Expression, new { style = "width:450px;height:100px;font-size:12px;font-weight-normal;" }) 
+            </td>
+            
+        </tr>
+        <tr>
+            <td colspan="2" align="right">
+                <span class="required">备注:</span>
+                <span class="required margin-l-10">t1-使用开始时间</span>
+                <span class="required margin-l-10">t2-使用结束时间</span>
+                <span class="required margin-l-10">t3-预约开始时间</span>
+                <span class="required margin-l-10">t4-预约结束时间</span>
+                <span class="required margin-l-10">两变量相减的结果为</span><span style="font-weight:bold;font-style:italic;">分钟</span>
+            </td>
+        </tr>
+        <tr>
+            <th>表达式说明</th>
+            <td>
+                @Html.TextArea("ReadableExpression", calcFeeTimeRule == null ? "" : calcFeeTimeRule.ReadableExpression, new { style = "width:450px;height:100px;font-size:12px;font-weight-normal;" })
+            </td>
+        </tr>
+    </table>
+    <p>表达式测试</p>
+    <table class="edit-info">
+        <tr>
+            <th>使用开始时间(t1)</th>
+            <td style="width:170px;">
+                @(Html.JValidateBox("TestUsedBeginTime").SetWidth(150).SetValidateType(ValidateType.dateTime).SetValue(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).ToMvcString())
+            </td>
+            <td style="text-align:left" rowspan="5">
+                @(Html.JLinkButton("btnTest", "计算").SetOnclick("doCalculateTimeRuleTest();return false;").SetPlain(true).SetIconCls("icon-ok").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>使用结束时间(t2)</th>
+            <td style="width:170px;">
+                @(Html.JValidateBox("TestUsedEndTime").SetWidth(150).SetValidateType(ValidateType.dateTime).SetValue(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>预约开始时间(t3)</th>
+            <td style="width:170px;">
+                @(Html.JValidateBox("TestAppointmentBeginTime").SetWidth(150).SetValidateType(ValidateType.dateTime).SetValue(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>预约结束时间(t4)</th>
+            <td style="width:170px;">
+                @(Html.JValidateBox("TestAppointmentEndTime").SetWidth(150).SetValidateType(ValidateType.dateTime).SetValue(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>是否分段计费</th>
+            <td>@Html.CheckBox("TestIsDurationPrice")</td>
+        </tr>
+        <tr>
+            <th></th>
+            <td colspan="2">
+                <span class="required">1. A = 结束时间-开始时间</span>
+            </td>
+        </tr>
+        <tr>
+            <th></th>
+            <td colspan="2">
+                <span class="required">2. 如果A<=取整因子,计费时长=取整因子/60</span>
+            </td>
+        </tr>
+        <tr>
+            <th></th>
+            <td colspan="2">
+                <span class="required">3. 如果A>取整因子,计费时长=((A\60)+((A*60) % 60)))/取整因子(其中:"\"取整运算,"%"模运算求余)</span>
+            </td>
+        </tr>
+        <tr>
+            <th></th>
+            <td colspan="2">
+                <span class="required"> 4. 计费时长=</span>
+                <span id="spanTestCalculateTimeRuleResult" style="font-weight:bold; font-style:italic"></span>
+                <span style="font-weight:bold;font-style:italic">小时</span>
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+<script type="text/javascript">
+    function doValidate() {
+        var luaExpression = $("#Expression").val().trim();
+        var roundFator = $("#RoundFator").val().trim();
+        var roundDigits = $("#RoundDigits").val().trim();      
+        if (roundFator == "") {
+            $.messager.show({ title: '提示', msg:"取整因子为空", showType: 'show' });
+            return false;
+        }
+        if (roundFator!="0" && !$("#RoundFator").validatebox("isValid")) {
+            $.messager.show({ title: '提示',msg: "取整因子格式错误", showType: 'show' });
+            return false;
+        }
+        if (roundDigits=="") {
+            $.messager.show({ title: '提示',msg: "精度为空", showType: 'show' });
+            return false;
+        }
+        
+        if (!$("#RoundDigits").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"精度格式错误", showType: 'show' });
+            return false;
+        }
+        if (luaExpression == "") {
+            $.messager.show({ title: '提示', msg: "lua表达式为空", showType: 'show' });
+            return false;
+        }
+        if (!$("#TestBeginTime").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg: "开始时间格式错误", showType: 'show' });
+            return false;
+        }
+        if (!$("#TestEndTime").validatebox("isValid")) {
+            $.messager.show({ ttle: '提示', msg: "结束时间格式错误", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    function doCalculateTimeRuleTest() {
+        if (!doValidate()) return false;
+        var nmpId = $("#NMPId").val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("TestCalculateTimeRule","NMP")',
+            data: $("#frmCalculateTimeRuleEdit").serialize() + "&nmpId=" + nmpId + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                $("#spanTestCalculateTimeRuleResult").html(msg);
+            }
+        });
+    }
+</script>

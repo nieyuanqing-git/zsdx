@@ -1,0 +1,51 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../MaterialOutput/StatSearch")
+    </div>
+</div>
+<div>
+    @Html.Partial("../MaterialOutput/MaterialOutputStatList")
+</div>
+<div id="divMaterialOutputStatDetailDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doMaterialOutputSearch() {
+        var queryExpression = generateMaterialOutputStatQueryExpress();
+        $("#tbMaterialOutputList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbMaterialOutputList").datagrid("load", { "queryExpression": encodeURIComponent(queryExpression.trim()) });
+        return false;
+    }
+    var materialOutputStatDetailDialog;
+    function doMaterialOutputStatDetail(tid) {
+        var url = '@Url.Action("MaterialOutputStatDetail", "MaterialOutput")';
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         if(materialOutputStatDetailDialog){
+             materialOutputStatDetailDialog.dialog("destroy");
+         }
+         var queryExpression = generateMaterialOutputStatQueryExpress();
+
+         queryExpression = queryExpression+"*outusernameId=\"" + tid + "\"";
+         $("#divMaterialOutputStatDetailDialog").load(url, {"queryExpression":queryExpression }, function () {
+             $.messager.progress('close');
+             materialOutputStatDetailDialog = @(Html.JDialog("divMaterialOutputStatDetail").SetTitle("出库详细列表").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("materialOutputStatDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("materialOutputStatDetailDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    function doExportMaterialOutputStatDetail(tid) {
+        var queryExpression = generateMaterialOutputStatQueryExpress();
+         queryExpression = queryExpression+"*outusernameId=\"" + tid + "\"";
+        var url = '@Url.Action("ExportMaterialOutputStatDetailList", "MaterialOutput")'
+                + "?queryExpression=" + encodeURIComponent(queryExpression )
+                + "&time=" + new Date().getMilliseconds(); 
+        window.open(url, '_blank');
+     }
+    function doExportMaterialOutputStat(tid) {
+        var queryExpression = generateMaterialOutputStatQueryExpress();
+        var url = '@Url.Action("ExportMaterialOutputStatList", "MaterialOutput")'
+                + "?queryExpression=" + encodeURIComponent(queryExpression )
+                + "&time=" + new Date().getMilliseconds(); 
+        window.open(url, '_blank');
+     }
+</script>

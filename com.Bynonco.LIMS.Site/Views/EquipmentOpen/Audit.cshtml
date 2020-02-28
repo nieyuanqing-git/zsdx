@@ -1,0 +1,48 @@
+﻿@model IList<com.Bynonco.LIMS.Model.View.ViewEquipmentUndergraduateOpen>
+<div id="divEquipmentUndergraduateOpenAudit">
+<form id="frmEquipmentUndergraduateOpenAudit" action="#">
+@Html.Hidden("Ids", ViewData["Ids"] == null ? "" : ViewData["Ids"].ToString())
+@if (Model != null && Model.Count() > 0)
+{
+    var auditRemark = Model.Count() == 1 ? Model[0].AuditRemark : "";
+    <table class="edit-table" style="width:600px;">
+        <tr>
+            <th style='width:150px;'>设备名称</th>
+            <th>所属学院</th>
+            <th>放置地点</th>
+            <th>设备运行成本费</th>
+            <th>开放方式</th>
+            <th style='width:70px;'>状态</th>
+        </tr>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td style='text-align:center;'>@(item.EquipmentName)</td>
+            <td style='text-align:center;'>@(item.EquipmentOrgName)</td>
+            <td style='text-align:center;'>@(item.EquipmentRoomName)</td>
+            <td style='text-align:center;'>@(item.StandardPriceStr)</td>
+            <td style='text-align:center;'>@(item.OpenTypeStr)</td>
+            <td style='text-align:center;'>@(item.StatusStr)</td>
+        </tr>
+        }
+        <tr>
+            <th colspan='6'>审核备注</th>
+        </tr>
+        <tr>
+            <td colspan='6'>
+                @Html.TextArea("AuditRemark", auditRemark, new { style = "font-size:12px;text-decoration:none;height:40px;width:99%;" })
+            </td>
+        </tr>
+    </table>
+}
+else
+{
+    <table class="edit-table" style="width:600px;">
+        <tr>
+            <th>找不到设备开放信息</th>
+        </tr>
+    </table>
+    
+}
+    </form>
+</div> 

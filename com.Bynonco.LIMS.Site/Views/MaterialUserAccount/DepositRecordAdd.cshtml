@@ -1,0 +1,42 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divMaterialDepositRecordEdit">
+ <form id="frmMaterialDepositRecordEdit" action="#">
+    @Html.Hidden("Id","")
+    <table id="tdMaterialDepositRecordEdit" class="edit-table"  style="width:385px;">
+         <tr>
+            <th><span class="required">* </span>账户名称</th>
+            <td>
+                <b style="padding:2px">@(ViewData["MaterialUserAccountName"] == null ? "" : ViewData["MaterialUserAccountName"].ToString())</b>
+                @Html.Hidden("MaterialUserAccountId", ViewData["MaterialUserAccountId"] == null ? "" : ViewData["MaterialUserAccountId"].ToString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>操作类型</th>
+            <td id="tdOperateType">
+                @(Html.JComboBox("OperateType")
+                .SetEditable(false)
+                .SetData(ViewData["OperateTypeJson"])
+                .SetWidth(205)
+                .SetDisabled(true)
+                .SetOnLoadSuccess("setTimeout('doOnOperateTypeLoadSuccess();', 500);")
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>金额</th>
+            <td>@Html.JValidateBox("DepositSum").SetValue("").SetWidth(200).SetRequired(true).SetValidateType(ValidateType.number).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", "", new { style = "font-size:12px;text-decoration:none;height:60px;width:295px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    function doOnOperateTypeLoadSuccess() {
+        $("#tdOperateType span input.combo-text.validatebox-text").val("@(ViewData["OperateTypeName"]==null ? "" : ViewData["OperateTypeName"].ToString())");
+    }
+</script>

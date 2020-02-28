@@ -1,0 +1,63 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    var selectSupplierDialog;
+    var curSupplierIdsElement;
+    function doSelectSupplierDialog(supplierIdsElement,parameter) {
+        curSupplierIdsElement = supplierIdsElement;
+        var queryExpression = generateSelectedSupplierQueryExpression(supplierIdsElement);
+        var url = '@Url.Action("SelectSupplierNoPaging","Supplier")';
+        if(selectSupplierDialog) {
+            selectSupplierDialog.dialog("destroy");
+        }
+        if(!parameter)parameter = {"queryExpression":queryExpression };
+        else parameter.queryExpression = queryExpression;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelectSupplier").load(url, parameter, function () {
+            $.messager.progress('close');
+            selectSupplierDialog = @(Html.JDialog("divSelectSupplierDialog").SetTitle("选择供应商").SetAutoDialog(false).SetOkScript("getSelectedSuppliers();").SetOnClose("selectSupplierDialog.dialog('destroy');return false;").SetCancelScript("selectSupplierDialog.dialog('close');").SetIconCls("icon-search").ToMvcString());
+        });
+        return false;
+    }
+    function generateSelectedSupplierQueryExpression(supplierIdsElement) {
+        var selectedSupplierIds = document.getElementById(supplierIdsElement).value;
+        if (selectedSupplierIds.trim() == "") return "";
+        var selectedSupplierIdsArray = selectedSupplierIds.split(",");
+        if (!selectedSupplierIdsArray || selectedSupplierIdsArray.length == 0) return "";
+        var queryExpression = "(";
+        for (var i = 0; i < selectedSupplierIdsArray.length; i++) {
+            queryExpression += queryExpression == "(" ? "Id=\"" + selectedSupplierIdsArray[i] + "\"" : "+" + "Id=\"" + selectedSupplierIdsArray[i] + "\"";
+        }
+        queryExpression += ")";
+        
+        return queryExpression;
+    }
+    function getSelectedSuppliers() {
+        var selectedSupplierJsonArray = new Array();
+         var selectedSupplierIds = "";
+         var selectedSupplierNames = "";
+         var isEnableSelectSampleSendTime = "false";
+         var selectedSuppliers = $("#tbSelectSupplierNoPagingList").datagrid("getSelections");
+         if (selectedSuppliers && selectedSuppliers!="" && selectedSuppliers.length > 0) {
+             for (var i = 0; i < selectedSuppliers.length; i++) {
+                 selectedSupplierIds += selectedSupplierIds == "" ? selectedSuppliers[i].Id.toString() : "," + selectedSuppliers[i].Id.toString();
+                 selectedSupplierNames += selectedSupplierNames == "" ? selectedSuppliers[i].Name.toString() : "," + selectedSuppliers[i].Name.toString();
+                 selectedSupplierJsonArray[i] = {Id:selectedSuppliers[i].Id, Name:selectedSuppliers[i].Name};
+             }
+         }
+         if(selectSupplierDialog)selectSupplierDialog.dialog("close");
+         if(typeof(getSelectedSuppliersCallBack) == 'function')getSelectedSuppliersCallBack(selectedSupplierNames,selectedSupplierIds,selectedSupplierJsonArray);
+    }
+   function doInitSelectedSuppliers() {
+        var selectedSupplierIds = document.getElementById(curSupplierIdsElement).value;
+        if (selectedSupplierIds.trim() == "") return;
+        var rows = $("#tbSelectSupplierNoPagingList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (selectedSupplierIds.indexOf(rows[i].Id) != -1)
+                    $("#tbSelectSupplierNoPagingList").datagrid("selectRow", i);
+            }
+        }
+    }
+</script>
+<div id="divSelectSupplier" style="display:none"></div>
+

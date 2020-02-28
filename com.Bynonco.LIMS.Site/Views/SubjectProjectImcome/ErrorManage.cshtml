@@ -1,0 +1,46 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../SubjectProjectImcome/ErrorSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../SubjectProjectImcome/ErrorList")
+</div>
+<div id="divSubjectProjectImcomeErrorDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateSubjectProjectImcomeErrorQueryExpress();
+        $("#tbSubjectProjectImcomeErrorList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSubjectProjectImcomeErrorList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var subjectProjectImcomeErrorDialog;
+    function doSubjectProjectImcomeErrorDialog() {
+        if (subjectProjectImcomeErrorDialog) {
+            subjectProjectImcomeErrorDialog.dialog("destroy");
+        }
+        subjectProjectImcomeErrorDialog =  @Html.JDialog("divSubjectProjectImcomeErrorView").SetTitle("科研项目对接失败数据").SetIconCls("icon-eyes").SetAutoDialog(false).SetCancelScript("subjectProjectImcomeErrorDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+
+    function doViewSubjectProjectImcomeError(id) {
+       if(!id || id.trim()==""){
+           var selectedSubjectProjectImcomeError = $("#tbSubjectProjectImcomeErrorList").datagrid("getSelected");
+           if(!selectedSubjectProjectImcomeError || selectedSubjectProjectImcomeError.Id=="" || selectedSubjectProjectImcomeError.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择查看项", showType: 'show' });
+              return false;
+           }
+           id = selectedSubjectProjectImcomeError.Id;
+       }
+       var url = '@Url.Action("ViewErrorLog","SubjectProjectImcome")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSubjectProjectImcomeErrorDialog").load(url,function(){
+            doSubjectProjectImcomeErrorDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+</script>

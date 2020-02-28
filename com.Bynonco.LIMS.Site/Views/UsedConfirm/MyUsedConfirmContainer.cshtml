@@ -1,0 +1,56 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Partial("../UsedConfirm/MyUsedConfirmHeader")
+<div class="search-grid hide usedConfirm-search">
+    <div class="search-inner-box">
+        @Html.Partial("../UsedConfirm/MyUsedConfirmSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    <ul class="tabs" style="border-bottom:0;padding-top:10px;">
+        <li class="tabs-selected" id="liAll"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">全部</span><span class="tabs-icon"></span></a></li>
+        <li id="liWaittingFeedBack"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">未反馈</span><span class="tabs-icon"></span></a></li>
+        <li id="liHavedFeedBack"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">已反馈</span><span class="tabs-icon"></span></a></li>
+    </ul>
+    <div id="divUsedConfirmRecordList"></div>
+</div>
+@Html.Partial("../UsedConfirm/ScriptContainer")
+@Html.Partial("../UsedConfirm/MyUsedConfirmScript")
+
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            doMyUsedConfirmSearch();
+        });
+    });
+
+    function doMyUsedConfirmSearch() {
+        var queryExpression = generateMyUsedConfirmQueryExpression();
+        if ($("#liWaittingFeedBack").hasClass("tabs-selected"))
+            queryExpression += (queryExpression == "" ? "" : "*") + "(IsFeedBack=-true*Status=-\"@((int)UsedConfirmStatus.UnComplete)\"";
+        if ($("#liHavedFeedBack").hasClass("tabs-selected"))
+            queryExpression += (queryExpression == "" ? "" : "*") + "IsFeedBack=true";
+        $("#tbUsedConfirmSearchList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUsedConfirmSearchList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        return false;
+    }
+    function doSaveUsedConfirmCallBack() {
+        doMyUsedConfirmSearch();
+        editUsedConfirmDialog.dialog("close");
+    }
+    function doChargeUsedConfirmCallBack() {
+        doMyUsedConfirmSearch();
+        editUsedConfirmDialog.dialog("close");
+    }
+    function doDeleteUsedConfirmCallBack() {
+        doMyUsedConfirmSearch();
+    }
+    function doSaveUsedConfirmFeedBackCallBack() {
+        doMyUsedConfirmSearch();
+    }
+</script>

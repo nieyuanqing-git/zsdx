@@ -1,0 +1,89 @@
+﻿@model com.Bynonco.LIMS.Model.DelinquencyRule
+@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+       #tbDescription th{width:80px}
+       #tbDescription td{width:500px}
+</style>
+<div id="divDelinquencyRuleEdit">
+<form id="frmDelinquencyRuleEdit" action="#">
+    @Html.Hidden("DelinquencyRuleId", Model == null ? "" : Model.Id.ToString())
+    @Html.JTab("divDelinquencyRuleTabs").SetBorder(false).ToMvcString()
+    <div id="divDelinquencyRuleTabs" style="width: 470px; overflow:hidden">
+        <div title="基本信息">
+            <table class="edit-table">
+                <tr>
+                    <th>名称</th>
+                    <td>
+                       @Html.JValidateBox("Name").SetReadOnly(true).SetValue(Model == null ? "" : Model.Name).SetWidth(280).ToMvcString()
+                       <span>必填</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>处罚类型</th>
+                    <td>
+                       @Html.JComboBox("Type").SetDisabled(true).SetData(ViewData["TypeJson"]).SetWidth(285).ToMvcString()
+                       <span>必填</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>严重程度累计</th>
+                    <td>
+                        @Html.JValidateBox("TotalSeverity").SetWidth(280).SetValue(Model == null ? "" : Model.TotalSeverity.ToString()).SetValidateType(ValidateType.number).ToMvcString()
+                        <span>必填</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>处罚持续天数</th>
+                    <td>
+                        @Html.JValidateBox("PersisDays").SetWidth(280).SetValue(Model == null || !Model.PersisDays.HasValue ? "" : Model.PersisDays.Value.ToString()).SetValidateType(ValidateType.number).ToMvcString()
+                    </td>
+                </tr>
+                <tr style="display:none">
+                    <th>是否停用</th>
+                    <td>@Html.CheckBox("IsStop")</td>
+                </tr>
+                <tr>
+                    <th>处罚消息模板 </th>
+                    <td>@(Html.TextArea("MessageTemplate", Model == null ? "" : Model.MessageTemplate, new { style = "font-size:12px;height:100px;font-weight:normal;width:365px" }))</td>
+                </tr>
+                <tr>
+                    <th>备注</th>
+                    <td>@(Html.TextArea("Remark", Model == null  ? "" : Model.Remark, new { style = "font-size:12px;height:100px;font-weight:normal;width:365px" }))</td>
+                </tr>
+        </table>
+        </div>
+        <div title="变量说明">
+            <table id="tbDescription" class="edit-table">
+                <tr>
+                    <th>{user}</th>
+                    <td>被处罚用户姓名</td>
+                </tr>
+                <tr>
+                    <th>{total} </th>
+                    <td>严重程度累计</td>
+                </tr>
+                <tr>
+                    <th>{detail}</th>
+                    <td>处罚明细（不良行为组成：时间、描述、不良行为种类、严重程度值）</td>
+                </tr>
+                <tr>
+                    <th>{rule}</th>
+                    <td>不良行为处罚规则 </td>
+                </tr>
+                <tr>
+                    <th>{value} </th>
+                    <td>当前被处罚用户已达到的严重程度累计 </td>
+                </tr>
+                <tr>
+                    <th>{begin} </th>
+                    <td>表示处罚开始时间(只对"不允许预约"和"不允许使用"有效)</td>
+                </tr>
+                <tr>
+                    <th>{days} </th>
+                    <td>处罚持续天数(只对"不允许预约"和"不允许使用"有效;如果管理员手动停止惩罚,则显示"未定期")</td>
+                </tr>
+            </table>
+        </div>
+      </div>
+ </form>
+</div>

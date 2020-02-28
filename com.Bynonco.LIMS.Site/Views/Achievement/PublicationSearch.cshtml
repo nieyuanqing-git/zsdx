@@ -1,0 +1,48 @@
+﻿ @using com.Bynonco.JqueryEasyUI.Core;
+ <script type="text/javascript">
+     function generateQueryExpress() {
+         var queryExpression = "";
+         var publicationName = $("#txtSearchPublicationName").val();
+         if (publicationName.trim() != "") {
+             queryExpression = "PublicationName∽\"" + publicationName.trim() + "\"";
+         }
+         var userName = $("#txtSearchUserName").val();
+         if (userName.trim() != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName.trim() + "\"";
+         }
+         var publishingHouse = $("#txtSearchPublishingHouse").val();
+         if (publishingHouse.trim() != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "PublishingHouse∽\"" + publishingHouse.trim() + "\"";
+         }
+         return queryExpression;
+     }
+     function doReset() {
+         $("#txtSearchPublicationName").val("");
+         $("#txtSearchUserName").val("");
+         $("#txtSearchPublishingHouse").val("");
+     }
+</script>
+<ul class="search">
+    <li>
+        <label>论著名称</label>
+        @Html.JValidateBox("txtSearchPublicationName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>用户名称</label>
+        @Html.JValidateBox("txtSearchUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>出版社</label>
+        @Html.JValidateBox("txtSearchPublishingHouse").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+
+

@@ -1,0 +1,14 @@
+﻿@model com.Bynonco.LIMS.Model.Message
+<div id="divViewMessage" style="width:600px;height:500px;">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("SenderId", Model == null || !Model.SenderId.HasValue ? "" : Model.SenderId.Value.ToString())
+    <div style="background-color:#F6F6F6;padding:10px;line-height:20px;">
+        <span style="font-size:14px;font-weight:bold;">@(Model == null ? "" : Model.Subject)  @(System.Web.Mvc.MvcHtmlString.Create(Model == null ? "" : Model.GradeStr))</span><br />
+        <span class="required">发件人：</span>@(Model == null || Model.Sender == null ? "" : Model.Sender.UserName)<br />
+        <span class="required">时&nbsp;&nbsp;间：</span>@(Model == null || !Model.SendAt.HasValue ? "" : Model.SendAt.Value.ToString("yyyy-MM-dd HH:mm:ss"))<br />
+        <span class="required">收件人：</span>@(Model == null ? "" : Model.ReceiveUserNames)<br />
+    </div>
+    <div style="padding:10px;">
+        @System.Web.Mvc.MvcHtmlString.Create(Model == null ? "" : Model.ContentHTML)
+    </div>
+</div>

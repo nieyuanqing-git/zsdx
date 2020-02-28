@@ -1,0 +1,58 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.LIMS.Model.Enum;
+@{bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];}         
+<div style="margin-left:185px;">
+    @{var equipmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, Model.Id);}
+    @Html.JLinkButton("btnLog", "日志").SetIconCls("icon-detail").SetPlain(true).SetOnclick("doShowLog();return false;").SetVisible(equipmentPrivilige.IsEnableStatusLogContainer).ToMvcString()
+    @Html.JLinkButton("btnSaveStatusSetting", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveStatusSetting();return false;").SetVisible(equipmentPrivilige.IsEnableSaveStatusSetting).ToMvcString()
+    @Html.JLinkButton("btnDelete", "删除").SetIconCls("icon-cancel").SetPlain(true).SetVisible(equipmentPrivilige.IsEnableDelete && Model != null).SetOnclick("doDelete();return false;").ToMvcString()
+    @Html.JLinkButton("btnBack", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doBack();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    var normalStatus = "@(((int)EquipmentStatus.Normal).ToString())";
+    var brokenStatus = "@(((int)EquipmentStatus.TemporarilyBroken).ToString())";
+    function doSaveStatusSetting() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveStatusSetting","Equipment")' + "?date=" + new Date().getMilliseconds(),
+            data: $("#frmStatusSettingEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                var previousStatus = $("#hidStatus").val().trim();
+                var currentStatus = $("#Status").combobox("getValue");
+                if(previousStatus != ""  && currentStatus.trim() != "" && previousStatus == brokenStatus && currentStatus == normalStatus){
+                    $.messager.confirm('提示',"是否同时进行维修记录填写", function (r) {
+                        if (!r) return;
+                        var equipmentId = $("#Id").val();
+                        var url = '@Url.Action("RepairIndex", "Equipment")' + "?id=" + "&EquipmentId=" + equipmentId + "&time=" + new Date().getMilliseconds();
+                        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+                        return false;
+                    });
+                }
+                $("#hidStatus").val(currentStatus);
+            }
+        });
+        return false;
+    }
+    var equipmentStatusLogDialog;
+    function doEquipmentStatusLogDialog() {
+        if (equipmentStatusLogDialog) {
+            equipmentStatusLogDialog.dialog("destroy");
+        }
+        equipmentStatusLogDialog =  @Html.JDialog("divEquipmentStatusLogContainer").SetTitle("设备状态日志信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentStatusLogDialog.dialog('close');return false;").SetModal(true).SetOkScript("equipmentStatusLogDialog.dialog('close');return false;").ToMvcString();
+    }
+    function doShowLog() {
+        var equipmentId = $("#Id").val();
+        var url = '@(Url.Action("StatusLogContainer","Equipment"))' + "?EquipmentId=" + equipmentId + "&time="+ new Date().getMilliseconds();
+        $("#divLogDialog").load(url, function () {
+            doEquipmentStatusLogDialog();
+        });
+    }
+</script>

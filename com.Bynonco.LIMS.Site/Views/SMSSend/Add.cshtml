@@ -1,0 +1,68 @@
+﻿@model com.Bynonco.LIMS.Model.SendShortMail
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divSMSSendAdd">
+ <form id="frmSMSSendAdd" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdSMSSendEdit" class="edit-table"  style="width:640px;">
+        <tr>
+            <th><span class="required">*</span>接收人</th>
+            <td>
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            <div style='max-height:200px;overflow-y:auto'>
+                            @(Html.TokenInput("UserIds")
+                                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                                .SetSingle(false)
+                                .SetWidth(400)
+                                .ToMvcString())
+                            </div>
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                            @Html.JLinkButton("btnSelectUser", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectSMSUser();return false;").ToMvcString()
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                            @Html.JLinkButton("btnCleanUser", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanUser();return false;").ToMvcString()
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>标题</th>
+            <td>
+                @Html.JValidateBox("Title").SetValue(Model == null ? "" : Model.Title).SetWidth(200).ToMvcString()
+                
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>短信内容</th>
+            <td>
+                @Html.TextArea("SMSBody", Model == null ? "" : Model.Body, new { style = "width:96%;height:80px" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<div style="display:none">@Html.Partial("../User/SelectUserNoPagingContainer")</div>
+<script type="text/javascript">
+    function doCleanUser() {
+        $("#frmSMSSendAdd").find("#UserIds").tokenInput("clear");
+    }
+    function getSelectedUserCallBack(selectedUserNames, selectedUserIds) {
+
+        $("#frmSMSSendAdd").find("#UserIds").tokenInput("clear");
+        if (selectedUserIds != "") {
+            var selectedUserIdsArray = selectedUserIds.split(",");
+            var selectedUserNamesArray = selectedUserNames.split(",");
+            if (!selectedUserIdsArray || selectedUserIdsArray.length == 0 || !selectedUserNamesArray || selectedUserNamesArray.length == 0) return;
+            for (var i = 0; i < selectedUserIdsArray.length && i < selectedUserNamesArray.length; i++) {
+                $("#frmSMSSendAdd").find("#UserIds").tokenInput("add", { id: selectedUserIdsArray[i], text: selectedUserNamesArray[i] });
+            }
+        }
+    }
+    function doSelectSMSUser() {
+        doSelectUserDialog('UserIds');
+        return false;
+    }
+</script>

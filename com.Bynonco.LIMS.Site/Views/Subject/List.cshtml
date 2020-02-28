@@ -1,0 +1,45 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function onSubjectDirectorTipped() {
+        var rows = $("#tbSubjectList").datagrid("getRows");
+        if (!rows || rows.length == 0) return;
+        for (var i = 0; i < rows.length; i++) {
+            var elements = $("tr.datagrid-row[datagrid-row-index=" + i.toString() + "] td[field=SubjectDirectorName] div.datagrid-cell");
+            Tipped.create(elements, '@Url.Action("Tip","User")' + "?time" + new Date().getMilliseconds(), { ajax: { data: { id: rows[i].SubjectDirectorId }, type: 'get' }, skin: 'light', hook: 'topleft' });
+        }
+    }
+</script>
+@{
+    var subjectPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSubjectList")
+    .SetUrl(Url.Action("GetGridViewSubjectList", "Subject"))
+    .SetHeight(550)
+    .SetPageSize(10)
+    .SetSortName("Name")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("课题负责人编码", "SubjectDirectorId").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(45).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "NameStr").SetWidth(300).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "CreateAtStr").SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "DoneAtStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("负责人", "SubjectDirectorName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("成员数", "ExperimenterCount").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("说明", "Remark").SetWidth(800).SetAlign(Align.left))
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+    dataGrid.SetOnLoadSuccess("onSubjectDirectorTipped();");
+    dataGrid.SetShowAddButton(subjectPrivilige.IsEnableAdd);
+    if (subjectPrivilige.IsEnableAdd)
+    {
+        dataGrid.SetAddScript(string.Format("doAddorEditSubject('','{0}');", ViewData["IsCooperative"].ToString().ToLower()));
+    }
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.SetShowExpertButton(subjectPrivilige.IsEnableExportExcel);
+    if (subjectPrivilige.IsEnableExportExcel)
+    {
+        dataGrid.SetExpertScript("doExportExcel();");
+    }
+}
+@(dataGrid.ToMvcString()) 

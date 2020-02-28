@@ -1,0 +1,107 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function getSearchOrganizationXPath(element) {
+        $("#SearchOrganizationXPath").val("");
+        var organizationId = element.value;
+        if (organizationId != "" && !organizationId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: organizationId }, function (data) {
+                if (data && data != "")
+                    $("#SearchOrganizationXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    function getSearchRoomXPath(element) {
+        $("#SearchRoomXPath").val("");
+        var organizationId = element.value;
+        if (organizationId != "" && !organizationId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: organizationId }, function (data) {
+                if (data && data != "")
+                    $("#SearchRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    function getSearchMaterialCategoryXPath() {
+        $("#SearchMaterialCategoryXPath").val("");
+        var materialCategoryId = $("#SearchMaterialCategoryId").combotree("getValue");
+        if (materialCategoryId != "" && !materialCategoryId.isDefaultGuid()) {
+            var urlGetMaterialCategoryById = '@Url.Action("GetMaterialCategoryById","MaterialCategory")';
+            $.post(urlGetMaterialCategoryById, { id: materialCategoryId }, function (data) {
+                if (data && data != "")
+                    $("#SearchMaterialCategoryXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    function generateMaterialInfoQueryExpress() {
+        var queryExpression = "";
+        var materialInfoName = $("#SearchMaterialInfoName").val().trim();
+        if (materialInfoName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(Name∽\"" + materialInfoName + "\"+Model∽\"" + materialInfoName + "\")";
+        }
+        var materialInfoLabel = $("#SearchMaterialInfoLabel").val().trim();
+        if (materialInfoLabel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Label∽\"" + materialInfoLabel + "\"";
+        }
+        var materialCategoryXPath = $("#SearchMaterialCategoryXPath").val().trim();
+        if (materialCategoryXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "MaterialCategoryXPath→\"" + materialCategoryXPath + "\"";
+        }
+        var organizationXPath = $("#SearchOrganizationXPath").val().trim();
+        if (organizationXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OrgXPath→" + organizationXPath;
+        }
+        var roomXPath = $("#SearchRoomXPath").val().trim();
+        if (roomXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RoomXPath→" + roomXPath;
+        }
+        return queryExpression;
+    }
+    function doMaterialInfoReset() {
+        $("#SearchMaterialInfoName").val("");
+        $("#SearchMaterialInfoLabel").val("");
+        $("#SearchMaterialCategoryId").combotree("clear");
+        $("#SearchMaterialCategoryXPath").val("");
+        $("#SearchOrganizationId").val('@Guid.Empty.ToString()');
+        $("#SearchOrganizationXPath").val("");
+        $("#SearchRoomId").val('@Guid.Empty.ToString()');
+        $("#SearchRoomXPath").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>名称</label>
+        @Html.JValidateBox("SearchMaterialInfoName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>编号</label>
+        @Html.JValidateBox("SearchMaterialInfoLabel").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>分类</label>
+         @(Html.JComboTree("SearchMaterialCategoryId")
+            .SetData(ViewData["SearchMaterialCategoryJson"])
+            .SetMultiple(false)
+            .SetWidth(155).SetRequired(false).SetExpandAll(true).ToMvcString())
+        @Html.Hidden("SearchMaterialCategoryXPath")
+    </li>
+    <li>
+        <label style="vertical-align:top;">组织机构</label>
+        @Html.DropDownList("SearchOrganizationId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:155px", onchange = "getSearchOrganizationXPath(this);" })
+        @Html.Hidden("SearchOrganizationXPath")
+    </li>
+    <li>
+        <label style="vertical-align:top;">放置地点</label>
+        @Html.DropDownList("SearchRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px",onchange = "getSearchRoomXPath(this);"})
+        @Html.Hidden("SearchRoomXPath")
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnMaterialInfoSearch", "查询").SetOnclick("doMaterialInfoSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialInfoReset", "清空").SetOnclick("doMaterialInfoReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialInfoClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

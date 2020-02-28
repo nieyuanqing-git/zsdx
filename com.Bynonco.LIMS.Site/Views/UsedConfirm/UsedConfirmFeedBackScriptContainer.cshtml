@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var usedConfirmPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUsedConfirmPrivilige(User.Identity.Name);}
+<div id="divAddFeedBackDialog" style="display:none"></div>
+<script type="text/javascript">
+    var addFeedBackDialog;
+    function doAddUsedConfirmFeedBack(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("EditUsedConfirmFeedBack","UsedConfirm")';
+        if(addFeedBackDialog){
+           addFeedBackDialog.dialog("destroy");
+        }
+        $("#divAddFeedBackDialog").load(url, { "usedConfirmId": id, "time": new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            addFeedBackDialog = @(Html.JDialog("divUsedConfirmFeedBack").SetTitle("使用反馈信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("addFeedBackDialog.dialog('close');return false;").SetModal(true).SetOkScript(usedConfirmPrivilige.IsEnableSaveFeedBack ? "doSaveUsedConfirmFeedBack();return false;" : "alert('无操作权限');").ToMvcString());
+        });
+    }
+    function doSaveUsedConfirmFeedBack(){
+        $.messager.progress({ title: '提示', msg: '正在提交数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUsedConfirmFeedBack","UsedConfirm")'+ "?time=" + new Date().getMilliseconds(),
+            data: $("#frmUsedConfirmFeedBackEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress("close");
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                addFeedBackDialog.dialog('close');
+                if(typeof(doSaveUsedConfirmFeedBackCallBack)=='function')doSaveUsedConfirmFeedBackCallBack();
+
+            }
+        });
+        return false;
+    }
+</script>

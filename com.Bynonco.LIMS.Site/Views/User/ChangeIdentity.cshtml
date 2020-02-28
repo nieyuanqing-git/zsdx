@@ -1,0 +1,132 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUser
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    <div class="edit-box">
+        <form id="frmUserChangeIdentity" action="#">
+            <p><span class="icon icon-usertype"></span>身份管理</p>
+            @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+            <table class="edit-info">
+                <tr>
+                    <th>旧身份</th>
+                    <td style="width:70px">@(Model == null ? "" : Model.UserTypeName)</td>
+                    <td rowspan="2">
+                        @(Html.JLinkButton("btnChange", "转换身份").SetOnclick("doShowChangeInfo();return false;").SetPlain(true).SetIconCls("icon-change").ToMvcString())
+                    </td>
+                </tr>
+                <tr>
+                    <th>所属类型</th>
+                    <td>@(ViewData["UserIdentity"] == null ? "" : ViewData["UserIdentity"].ToString())</td>
+                </tr>
+                <tr id="trChangeIdentity" class="hide">
+                    <th>新身份</th>
+                    <td id="tdUserType" colspan="2">
+                        @(Html.JComboTree("UserTypeId")
+                        .SetData(ViewData["UserTypeJson"])
+                        .SetValue(Model == null || !Model.UserTypeId.HasValue ? "" : Model.UserTypeId.Value.ToString())
+                        .SetOnLoadSuccess("setTimeout('doOnUserTypeLoadSuccess();', 500);")
+                        .SetOnChange("doOnUserTypeChange();")
+                        .SetMultiple(false)
+                        .SetWidth(255)
+                        .SetExpandAll(true)
+                        .ToMvcString())
+                        <span class="required">必填</span>
+                    </td>
+                </tr>
+                <tr id="trGrade" class="hide">
+                    <th>年级</th>
+                    <td colspan="2">
+                        @Html.JValidateBox("Grade").SetValue(Model == null ? "" : Model.Grade).SetWidth(250).ToMvcString()
+                    </td>
+                </tr>
+                <tr id="trTutor" class="hide">
+                    <th>导师</th>
+                    <td colspan="2">
+                        @(Html.TokenInput("TutorId")
+                        .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                        .SetSingle(true)
+                        .SetWidth(252)
+                        .SetPrePopulate(ViewData["TutorJson"] == null || string.IsNullOrWhiteSpace(ViewData["TutorJson"].ToString()) ? null : ViewData["TutorJson"].ToString())
+                        .ToMvcString())
+                    </td>
+                </tr>
+                <tr id="trJobtitle" class="hide">
+                    <th>职称</th>
+                    <td colspan="2">
+                        @Html.JValidateBox("Jobtitle").SetValue(Model == null ? "" : Model.Jobtitle).SetWidth(250).ToMvcString()
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <div class="edit-operate hide">
+            @Html.JLinkButton("btnChangeIdentity", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveChangeIdentity();return false;").ToMvcString()
+            @Html.JLinkButton("btnBack", "返回列表").SetIconCls("icon-back").SetOnclick("doBack();return false;").SetPlain(true).ToMvcString()
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function doOnUserTypeLoadSuccess() {
+        if ($("#UserTypeId").combotree("getValue") != "") 
+            $("#tdUserType span input.combo-text.validatebox-text").val('@(Model == null ? "" :Model.UserTypeName)');
+        else
+            $("#tdUserType span input.combo-text.validatebox-text").val('');
+    }
+    function doOnUserTypeChange() {
+        $("#trTutor").addClass("hide");
+        $("#trJobtitle").addClass("hide");
+        $("#trGrade").addClass("hide");
+        var treeobj = $('#UserTypeId').combotree('tree');
+        var node = treeobj.tree('getSelected');
+        if (node) {
+            var b = treeobj.tree('isLeaf', node.target);
+            if (!b) {
+                $.messager.show({ title: '提示', msg: '请选择' + node.text + '的具体身份', showType: 'show' });
+                $("#UserTypeId").combotree("setValue", "");
+                $('#UserTypeId').combotree('reload');
+                return;
+            }
+        }
+        var usertypeid = $("#UserTypeId").combotree("getValue");
+        if (usertypeid != "" && !usertypeid.isDefaultGuid()) {
+            var urlCheckIsStudentUserType = '@Url.Action("CheckIsStudentUserType","User")';
+            $.post(urlCheckIsStudentUserType, { usertypeid: usertypeid }, function (data) {
+                if (data == null) return;
+                else if (data == "True" || data == "true") {
+                    $("#trGrade").removeClass("hide");
+                    $("#trTutor").removeClass("hide");
+                }
+                else {
+                    $("#trJobtitle").removeClass("hide");
+                }
+            });
+        }
+    }
+    function doSaveChangeIdentity() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveChangeIdentity", "User")',
+            data: $("#frmUserChangeIdentity").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                var url = '@Url.Action("ChangeIdentity", "User",new { id = Model == null ? "" : Model.Id.ToString()})' + "?date=" + new Date().getMilliseconds();
+                ajaxActionLink(url, "Loading", "divMainContentBox", ajaxloadsuccess, dialogOpen);
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doShowChangeInfo() {
+        $("#trChangeIdentity").removeClass("hide");
+        $(".edit-operate").removeClass("hide");
+        doOnUserTypeChange();
+    }
+
+</script>
+

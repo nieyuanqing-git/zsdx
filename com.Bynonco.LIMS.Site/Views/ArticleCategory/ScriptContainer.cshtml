@@ -1,0 +1,193 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divArticleCategoryDialog" style="display:none"></div>
+<script type="text/javascript">
+     function doOrgChange(element) {
+        var orgId = "";
+        if(element) orgId =element.value
+        else element = orgId = $("#OrgIdSelect").val();
+        if (orgId == "" && orgId.isDefaultGuid()) return;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetTreeGridArticleCategoryList", "ArticleCategory")',
+            data: { "orgId": orgId },
+            success: function (data) {
+                $('#tbArticleCategoryList').treegrid('loadData', { total: 0, rows: [] });
+                $('#tbArticleCategoryList').treegrid('loadData', data);
+                try{$.messager.progress('close');}catch(e){}
+            }
+        });
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetGridViewArticleRelationList", "ArticleRelation")',
+            data: { "orgId": orgId },
+            success: function (data) {
+                $('#tbArticleRelationList').datagrid('loadData', { total: 0, rows: [] });
+                $('#tbArticleRelationList').datagrid('loadData', data);
+                 try{$.messager.progress('close');}catch(e){}
+            }
+        });
+    }
+
+    function adjustXpath(xPath, compareTarget,orgId) {
+        if (!xPath || xPath.trim() == "" || !compareTarget || compareTarget.trim() == "") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "ArticleCategory",new { date=DateTime.Now.Millisecond})',
+            data: { "xPath": xPath, "compareTarget": compareTarget,"orgId":orgId },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doOrgChange();
+            }
+        });
+        return false;
+    }
+    function doDeleteArticleCategory(id) {
+        if (!id || id.trim() == "") {
+            var selectedArticleCategory = $("#tbArticleCategoryList").treegrid("getSelected");
+            if (!selectedArticleCategory || selectedArticleCategory.Id.trim() == "" || selectedArticleCategory.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+                return false;
+            }
+            id = selectedArticleCategory.Id;
+        }
+        $.messager.confirm('提示', '确认删除?将删除所有相关子节点和文章数据', function (r) {
+            if (!r) return;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "ArticleCategory",new { date=DateTime.Now.Millisecond})',
+                data: { "id": id },
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doOrgChange();
+                }
+            });
+        });
+        return false;
+    }
+
+    var articleCategoryDialog;
+    function doArticleCategoryDialog() {
+        if (articleCategoryDialog) {
+            articleCategoryDialog.dialog("destroy");
+        }
+        articleCategoryDialog =  @Html.JDialog("divArticleCategoryEdit").SetTitle("文章分类信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("articleCategoryDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveArticleCategory();").ToMvcString();
+    }
+    function doAddOrEditArticleCategory(id){
+        var orgId = $("#OrgIdSelect").val();
+        var url = '@Url.Action("Edit","ArticleCategory")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divArticleCategoryDialog").load(url,{"id":id,"orgId":orgId,"date":new Date().getMilliseconds()},function(){
+            $.messager.progress('close');
+            doArticleCategoryDialog();
+        })
+        return false;
+    }
+    function doAddArticleCategory(id) {
+       doAddOrEditArticleCategory(id);
+    }
+    function doEditArticleCategory(id) {
+       if(!id || id.trim()==""){
+           var selectedArticleCategory = $("#tbArticleCategoryList").treegrid("getSelected");
+           if(!selectedArticleCategory || selectedArticleCategory.Id=="" || selectedArticleCategory.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedArticleCategory.Id;
+       }
+       doAddOrEditArticleCategory(id);
+    }
+    function doSaveArticleCategory(){
+        if($("#Name").val().trim() == ""){
+             $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+             return false;
+        }
+        if($("#divArticleCategoryEdit #tdOrgId span input.combo-text.validatebox-text").val().trim()==""){
+             $.messager.show({ title: '提示', msg: "组织机构为空", showType: 'show' });
+             return false;
+        }
+        
+        doSaveArticleCategoryData();
+       
+   }
+   function doSaveArticleCategoryData(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","ArticleCategory",new { date=DateTime.Now.Millisecond})',
+            data: $("#frmArticleCategoryEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                articleCategoryDialog.dialog('close');
+                doOrgChange();
+            }
+        });
+   }
+   function doViewArticle()
+   {
+       var selectedArticleCategory = $("#tbArticleCategoryList").treegrid("getSelected");
+       if (!selectedArticleCategory || selectedArticleCategory.Id.trim() == "" || selectedArticleCategory.Id.isDefaultGuid()){
+           $.messager.show({ title: '提示', msg: "请选择要查看的文章分类", showType: 'show' });
+           return false;
+       };
+       if (parseInt(selectedArticleCategory.ArticleCount) == 0){
+           $.messager.show({ title: '提示', msg: "该分类文章数为0", showType: 'show' });
+           return false;
+       }
+       var id = selectedArticleCategory.Id;
+       var articlCount=selectedArticleCategory.ArticleCount;
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+       $.ajax({
+            type: "POST",
+            url: '@Url.Action("Manage","Article",new { date=DateTime.Now.Millisecond})',
+            data: {"queryExpression":"ArticleCategoryId=\""+id+"\""},
+            success: function (data) {
+                $("#divMainContentBox").html(data);
+                $(".content-box-tabs li").each(function(index){
+                    if ($(this).attr("class")!= null && $(this).attr("class")=="current"){
+                        $(this).removeClass("current");
+                    }
+                    if ($(this).find("a").text().trim()=="文章发布"){
+                        $(this).addClass("current");
+                    }
+                });
+                $.messager.progress('close');
+            },
+           error: function () {
+                $.messager.show({ title: '提示', msg: "请求出错", showType: 'show' });
+           } 
+        });
+   }
+   function doSearchArticleRelation(id) {
+        if(!id || id.trim()==""){
+           var selectedArticleCategory = $("#tbArticleCategoryList").treegrid("getSelected");
+           if(!selectedArticleCategory || selectedArticleCategory.Id=="" || selectedArticleCategory.Id.isDefaultGuid()) {
+              id = "";
+           }
+           else id = selectedArticleCategory.Id;
+        }
+        var queryExpression = "";
+        if(id && id != "") queryExpression  += (queryExpression == "" ? "" : "*") + "(RelationCategoryId=\"" + id  + "\")";
+        $("#tbArticleRelationList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbArticleRelationList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    function doOnArticleCategorySelected(rowData){
+        doSearchArticleRelation(rowData.Id);
+    }
+
+</script>

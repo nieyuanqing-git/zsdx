@@ -1,0 +1,80 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Guid? euqipmentId = null;
+    if (ViewData["EquipmentId"] != null) { euqipmentId = new Guid(ViewData["EquipmentId"].ToString()); }
+}
+<script type="text/javascript">
+    function generateBrokenReportQueryExpress() {
+        var queryExpression = "";
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Name∽\"" + equipmentName + "\"";
+        }
+        var equipmentModel = $("#SearchEquipmentModel").val().trim();
+        if (equipmentModel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Model∽\"" + equipmentModel + "\"";
+        }
+        var equipmentLabel = $("#SearchEquipmentLabel").val().trim();
+        if (equipmentLabel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Label∽\"" + equipmentLabel + "\"";
+        }
+        var creatorName = $("#SearchCreatorName").val().trim();
+        if (creatorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreatorName∽\"" + creatorName + "\"";
+        }
+        var createBeginTime = $("#SearchCreateBeginTime").datebox("getValue").trim();
+        if (createBeginTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime>\"" + createBeginTime + " 00:00:00" + "\"";
+        }
+        var createEndTime = $("#SearchCreateEndTime").datebox("getValue").trim();
+        if (createEndTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime<\"" + createEndTime + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doResetBrokenReport() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchEquipmentModel").val("");
+        $("#SearchEquipmentLabel").val("");
+        $("#SearchCreatorName").val("");
+        $("#SearchCreateBeginTime").datebox("setValue", "");
+        $("#SearchCreateEndTime").datebox("setValue", "");
+        return false;
+    }
+    
+</script>
+<ul class="search">
+    <li class='@(euqipmentId.HasValue ? "hide" :"")'>
+        <label style="width:80px">设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class='@(euqipmentId.HasValue ? "hide" :"")'>
+        <label style="width:80px">设备型号</label>
+        @Html.JValidateBox("SearchEquipmentModel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class='@(euqipmentId.HasValue ? "hide" :"")'>
+        <label style="width:80px">资产编号</label>
+        @Html.JValidateBox("SearchEquipmentLabel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label style="width:80px">报告人</label>
+        @Html.JValidateBox("SearchCreatorName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label style="width:80px">报障时间</label>
+        @Html.JDateTimePicker("SearchCreateBeginTime").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:80px">结束时间</label>
+        @Html.JDateTimePicker("SearchCreateEndTime").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearchBrokenReport", "查询").SetOnclick("doEquipmentBrokenReportSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnResetBrokenReport", "清空").SetOnclick("doResetBrokenReport();").ToMvcString()
+        @Html.JLinkButton("btnCloseBrokenReport", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

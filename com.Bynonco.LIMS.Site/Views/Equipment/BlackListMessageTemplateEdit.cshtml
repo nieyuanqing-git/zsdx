@@ -1,0 +1,40 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentBlackListMessageTemplate
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+   .edit-table th{width:80px} 
+</style>
+<div id="divBlackListMessageTemplateEdit">
+<form id="frmBlackListMessageTemplateEdit" action="#">
+@Html.Hidden("EquipmentBlackListMessageTemplateId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style="width:600px">
+        <tr>
+            <th>消息标题</th>
+            <td>
+                @Html.JValidateBox("Title").SetWidth(360).SetValidateType(ValidateType.required).SetValue(Model == null ? "" : Model.Title).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th rowspan="3">消息内容</th>
+            <td>
+                @Html.TextArea("Content", Model == null ? "" : Model.Content, new { style="width:98%;height:80px;font-size:12px;font-weight:normal"})
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.CheckBox("IsEmailNotice")邮件通知
+                @Html.CheckBox("IsInnerMessageNotice")消息中心通知
+                @Html.CheckBox("IsMobilePhoneNotice")手机短信通知
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span style="font-weight:bold">请勿修改消息内容中的变量名</span>
+                <br />
+                <span>$user$:用户姓名</span>
+                <span style="padding-left:10px">$equipment$:仪器名称</span>
+                <span style="padding-left:10px">$reason$:用户被加入黑名单的原因</span>
+            </td>
+        </tr>
+    </table>
+</form>
+</div>

@@ -1,0 +1,27 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+}
+<ul class="search">
+    @if (statisticsPrivilige.IsEnableSJ1StatisticsAuditPass)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnSJ1StatisticsAuditPass", "审核通过").SetIconCls("icon-pass").SetOnclick("doSJ1StatisticsAuditPass('');").ToMvcString()
+        </li>
+    }
+    @if (statisticsPrivilige.IsEnableSJ1StatisticsAuditReject)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnSJ1StatisticsAuditReject", "审核不通过").SetIconCls("icon-no").SetOnclick("doSJ1StatisticsAuditReject('');").ToMvcString()
+        </li>
+    }
+    @if (statisticsPrivilige.IsEnableSJ1StatisticsAuditWaitting)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnSJ1StatisticsAuditWaitting", "置为待审").SetIconCls("icon-info").SetOnclick("doSJ1StatisticsAuditWaitting('');").ToMvcString()
+        </li>
+    }
+    <li style='float:none; height:25px;'>
+        @Html.JLinkButton("btnSJ1StatisticsAuditClose", "关闭").SetIconCls("icon-cancel").SetOnclick("doCloseSearch();").ToMvcString()
+    </li>
+</ul>

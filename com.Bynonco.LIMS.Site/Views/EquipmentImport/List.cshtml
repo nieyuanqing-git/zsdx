@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentImportPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentImportPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEquipmentImport")
+    .SetUrl(Url.Action("GetGridEquipmentImportList", "EquipmentImport"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("Name")
+    .SetShowPrintButton(false)
+    .SetShowRefreshButton(false)
+    .SetShowAddButton(equipmentImportPrivilige.IsEnableAdd);
+    if (equipmentImportPrivilige.IsEnableAdd)
+    {
+        dataGrid.SetAddScript("doAddOrEditEquipmentImport('');");
+    }
+    if (equipmentImportPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteEquipmentImport('');");
+    }
+    dataGrid.SetShowDeleteButton(true);
+    if (equipmentImportPrivilige.IsEnableEdit)
+    {
+        dataGrid.SetOnDblClickRow("doAddOrEditEquipmentImport(rowData.Id);");
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetWidth(50).SetAlign(Align.center));
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "Name").SetWidth(200).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("资产编号", "Label").SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(130).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("同步状态", "IsHandledStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所属单位", "OrgName").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("放置地点", "RoomName").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("规格", "Specifications").SetWidth(300).SetAlign(Align.left))
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDealEquipmentImportExcel();", IconCls = "icon-ok", Id = "btnDealEquipmentImportExcel", Text = "开始同步下列Excel数据至仪器设备" });
+  }
+  @(dataGrid.ToMvcString())

@@ -1,0 +1,243 @@
+﻿@model com.Bynonco.LIMS.Model.SJ6
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+.edit-table td {border: 0;}
+.edit-table td.tdInfo {width:30px;}
+.edit-table .icon {
+    height: 16px;
+    line-height: 16px;
+    margin-right: 5px;
+    padding-bottom: 2px;
+    padding-right: 16px;
+    width: 16px;
+}
+</style>
+<div id="divSJ6Edit">
+ <form id="frmSJ6Edit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("SJ6StatisticsId", Model == null ? "" : Model.SJ6StatisticsId.ToString())
+    <table id="tdSJ6Edit" class="edit-table"  style="width:585px;">
+        <tr>
+            <th>学校代码</th>
+            <td>
+                @Html.JValidateBox("SchoolCode").SetValue(Model == null ? (ViewData["SchoolCode"] == null ? "" : ViewData["SchoolCode"].ToString().Trim()) : Model.SchoolCode.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="学校代码: 数据格式为字符型，长度为5"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>实验室编号</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomNum").SetValue(Model == null ? "" : Model.ExperimentRoomNum.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="实验室编号：数据格式为字符型，长度为10。学校自编的实验室编号，校内具有唯一性。"></span>
+            </td>
+            <th>实验室名称</th>
+            <td colspan='2'>
+                @Html.JValidateBox("ExperimentRoomName").SetValue(Model == null ? "" : Model.ExperimentRoomName.Trim()).SetWidth(130).ToMvcString()
+                <span class="icon icon-info-blue" title="实验室名称：数据格式为字符型，长度为50。填写汉字名称。"></span>
+            </td>
+            <th>实验室类别</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomType").SetValue(Model == null ? "" : Model.ExperimentRoomType.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="实验室类别：数据格式为字符型，长度为1。按代码填写：1．国家级实验教学示范中心（经过教育部评审认定）； 2．省级实验教学示范中心（经过省级教育行政部门评审认定）；3．按平台建设的校、院（系）实验室；4．其它实验室。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>建立年份</th>
+            <td>
+                @Html.JValidateBox("RoomBuildTime").SetValue(Model == null ? "" : Model.RoomBuildTime.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="建立年份：数据格式为字符型，长度为4。实验室经学校正式批准建立的年份，格式如：1987。"></span>
+            </td>
+            <th>房屋使用面积</th>
+            <td>
+                @Html.JValidateBox("RoomArea").SetValue(Model == null ? "" : Model.RoomArea.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="房屋使用面积：数据格式为数值型，长度为6。以平方米为单位，取整数。"></span>
+            </td>
+            <th>实验室类型</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomCategory").SetValue(Model == null ? "" : Model.ExperimentRoomCategory.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="实验室类型：数据格式为字符型，长度为1。按代码填写：1．教学为主; 2．科研为主; 3．其它。"></span>
+            </td>
+            <th>所属学科</th>
+            <td>
+                @Html.JValidateBox("ExperimentSubject").SetValue(Model == null ? "" : Model.ExperimentSubject.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="所属学科：数据格式为字符型，长度为4。按照最新版的《中国普通高等学校本科专业设置大全》填写二级类代码(前四位)。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>教师获奖与成果</th>
+            <th>国家级</th>
+            <td>
+                @Html.JValidateBox("AwardsTutorCountry").SetValue(Model == null ? "" : Model.AwardsTutorCountry.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="教师获奖与成果（国家级）：数据格式为数值型，长度为2。本学年本实验室专任人员获得的国家级奖励与成果情况。"></span>
+            </td>
+            <th>省部级</th>
+            <td>
+                @Html.JValidateBox("AwardsTutorProvince").SetValue(Model == null ? "" : Model.AwardsTutorProvince.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="教师获奖与成果（省部级）：数据格式为数值型，长度为2。本学年本实验室专任人员获得的省部级奖励与成果情况。"></span>
+            </td>
+            <th>发明专利</th>
+            <td>
+                @Html.JValidateBox("PatentTutorCount").SetValue(Model == null ? "" : Model.PatentTutorCount.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="教师获奖与成果（发明专利）：数据格式为数值型，长度为2。本学年本实验室专任人员获得的奖励与成果情况。发明专利指已授权发明专利，不含实用新型和外观设计。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>学生获奖情况</th>
+            <td>
+                @Html.JValidateBox("AwardsStudent").SetValue(Model == null ? "" : Model.AwardsStudent.Trim()).SetWidth(50).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="学生获奖情况：数据格式为数值型，长度为2。本学年学生获奖项目数，仅统计省部级（含）以上竞赛。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th rowspan='3'>论文和教材情况</th>
+            <th colspan='2'>三大检索收录</th>
+            <th colspan='2'>核心刊物</th>
+            <th rowspan='2'>实验教材</th>
+        </tr>
+        <tr>
+            <th>教学</th>
+            <th>科研</th>
+            <th>教学</th>
+            <th>科研</th>
+        </tr>
+        <tr>
+            <td>
+                @Html.JValidateBox("ThesisThreeSearchEducation").SetValue(Model == null ? "" : Model.ThesisThreeSearchEducation.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="教学方面论文和教材情况（三大检索收录）：数据格式为数值型，长度为3。本学年发表的教学论文篇数以及正式出版的实验教材数。三大检索指：SCI、EI、ISTP。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("ThesisThreeSearchScientificResearch").SetValue(Model == null ? "" : Model.ThesisThreeSearchScientificResearch.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="科研方面论文和教材情况（三大检索收录）：数据格式为数值型，长度为3。本学年发表的科研论文篇数以及正式出版的实验教材数。三大检索指：SCI、EI、ISTP。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("ThesisPublicationEducation").SetValue(Model == null ? "" : Model.ThesisThreeSearchEducation.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="教学方面论文和教材情况（核心刊物）：数据格式为数值型，长度为3。本学年在核心期刊发表的教学论文篇数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("ThesisPublicationScientificResearch").SetValue(Model == null ? "" : Model.ThesisThreeSearchScientificResearch.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="科研方面论文和教材情况（核心刊物）：数据格式为数值型，长度为3。本学年在核心期刊发表的科研论文篇数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("ExperimentTextbook").SetValue(Model == null ? "" : Model.ExperimentTextbook.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="论文和教材情况（实验教材）：数据格式为数值型，长度为2。正式出版的实验教材数。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th rowspan='3'>科研及社会服务情况</th>
+            <th colspan='2'>科研项目数</th>
+            <th rowspan='2'>社会服务项目数</th>
+            <th colspan='2'>教研项目数</th>
+        </tr>
+        <tr>
+            <th>省部级以上</th>
+            <th>其它</th>
+            <th>省部级以上</th>
+            <th>其它</th>
+        </tr>
+        <tr>
+            <td>
+                @Html.JValidateBox("ScientificResearchCountProvince").SetValue(Model == null ? "" : Model.ScientificResearchCountProvince.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="科研及社会服务情况中科研项目数（省部级以上）：数据格式为数值型，长度为2。本学年列入学校科研计划，为校外承担的各种省部级（含）以上科研项目或合作项目数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("ScientificResearchCountOther").SetValue(Model == null ? "" : Model.ScientificResearchCountOther.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="科研及社会服务情况中科研项目数（其它）：数据格式为数值型，长度为3。本学年列入学校科研计划，为校外承担的其它各种科研项目或合作项目数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("SocialServicesCount").SetValue(Model == null ? "" : Model.SocialServicesCount.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="科研及社会服务情况中社会服务项目数：数据格式为数值型，长度为3。本学年未列入学校科研计划，为校外承担的社会服务项目数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("EducationCountProvince").SetValue(Model == null ? "" : Model.EducationCountProvince.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="科研及社会服务情况中教研项目数（省部级以上）：数据格式为数值型，长度为3。本学年本实验室专任人员承担的各种省部级（含）以上教研项目数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("EducationCountOther").SetValue(Model == null ? "" : Model.EducationCountOther.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="科研及社会服务情况中教研项目数（其它）：数据格式为数值型，长度为3。本学年本实验室专任人员承担的其它各种教研项目数。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>毕业设计和论文人数</th>
+            <th>专科生人数</th>
+            <td>
+                @Html.JValidateBox("ThesisUserCountSpecialized").SetValue(Model == null ? "" : Model.ThesisUserCountSpecialized.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="毕业设计和论文人数（专科生人数）：数据格式为数值型，长度为4。本学年在本实验室完成毕业设计和毕业论文的专科生学生人数。"></span>
+            </td>
+            <th>本科生人数</th>
+            <td>
+                @Html.JValidateBox("ThesisUserCountUndergraduate").SetValue(Model == null ? "" : Model.ThesisUserCountUndergraduate.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="毕业设计和论文人数（本科生人数）：数据格式为数值型，长度为4。本学年在本实验室完成毕业设计和毕业论文的本科生学生人数。"></span>
+            </td>
+            <th>研究生人数</th>
+            <td>
+                @Html.JValidateBox("ThesisUserCountGraduate").SetValue(Model == null ? "" : Model.ThesisUserCountGraduate.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="毕业设计和论文人数（研究生人数）：数据格式为数值型，长度为4。本学年在本实验室完成毕业设计和毕业论文的研究生学生人数"></span>
+            </td>
+        </tr>
+         <tr>
+            <th rowspan='3'>开放实验</th>
+            <th colspan='2'>实验个数</th>
+            <th colspan='2'>实验人数</th>
+            <th colspan='2'>实验时数</th>
+        </tr>
+        <tr>
+            <th>校内</th>
+            <th>校外</th>
+            <th>校内</th>
+            <th>校外</th>
+            <th>校内</th>
+            <th>校外</th>
+        </tr>
+        <tr>
+            <td>
+                @Html.JValidateBox("OpenExperimentCountInner").SetValue(Model == null ? "" : Model.OpenExperimentCountInner.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="开放实验个数（校内）：数据格式为数值型，长度为6。本学年对校内学生开放实验的个数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("OpenExperimentCountOuter").SetValue(Model == null ? "" : Model.OpenExperimentCountOuter.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="开放实验个数（校外）：数据格式为数值型，长度为6。本学年对校外学生开放实验的个数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("OpenExperimentUserCountInner").SetValue(Model == null ? "" : Model.OpenExperimentUserCountInner.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="开放实验人数（校内）：数据格式为数值型，长度为6。本学年参加开放实验的校内学生人数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("OpenExperimentUserCountOuter").SetValue(Model == null ? "" : Model.OpenExperimentUserCountOuter.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="开放实验人数（校外）：数据格式为数值型，长度为6。本学年参加开放实验的校外学生人数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("OpenExperimentHoursInner").SetValue(Model == null ? "" : Model.OpenExperimentHoursInner.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="开放实验人时数（校内）：数据格式为数值型，长度为8。本学年参加开放实验的校内学生人时数。"></span>
+            </td>
+            <td>
+                @Html.JValidateBox("OpenExperimentHoursOuter").SetValue(Model == null ? "" : Model.OpenExperimentHoursOuter.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="开放实验人时数（校外）：数据格式为数值型，长度为6。本学年参加开放实验的校外学生人时数。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>责任人员数</th>
+            <td>
+                @Html.JValidateBox("AdjunctUserCount").SetValue(Model == null ? "" : Model.AdjunctUserCount.Trim()).SetWidth(50).ToMvcString()
+            </td>
+            <td class='tdInfo'>
+                <span class="icon icon-info-blue" title="兼任人员数：数据格式为数值型，长度为3。是指除专任实验室人员以外的在实验室工作的人员。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>实验教学运行经费</th>
+            <th>小计</th>
+            <td colspan='2'>
+                @Html.JValidateBox("FundsTotal").SetValue(Model == null ? "" : Model.FundsTotal.Trim()).SetWidth(100).ToMvcString()
+                <span class="icon icon-info-blue" title="实验教学运行经费小计（万元,保留两位小数）：数据格式为数值型，长度为8。指材料消耗、调研、新实验开发、水电费等经费，不含仪器设备维护经费。"></span>
+            </td>
+            <th colspan='2'>其中教学实验年材料消耗费</th>
+            <td colspan='2'>
+                @Html.JValidateBox("FundsMaterial").SetValue(Model == null ? "" : Model.FundsMaterial.Trim()).SetWidth(100).ToMvcString()
+                <span class="icon icon-info-blue" title="实验教学运行经费（其中教学实验年材料消耗费）（万元,保留两位小数）：数据格式为数值型，长度为8。是指用于教学实验的材料消耗费。"></span>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

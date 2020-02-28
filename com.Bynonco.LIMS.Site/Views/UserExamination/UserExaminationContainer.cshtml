@@ -1,0 +1,50 @@
+﻿@model IList<com.Bynonco.LIMS.Model.Business.ExaminationBusiness>
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.View;
+@using com.Bynonco.JqueryEasyUI.Core;
+
+<style type="text/css">
+.layout-center .main-content .edit-box p {border-bottom: 0px dotted #A0A0A0;font-size: 12px;font-weight: normal;line-height: normal;}
+</style>
+<div class="layout-center-full">
+    <div class="edit-box" style="padding:15px;">
+    @if (Model != null && Model.Count() > 0)
+    {
+        <h3 style="margin:0;border-bottom: 1px dotted #A0A0A0;padding:10px 0 5px;">【@(Model[0].BusinessName)】在线培训、考试</h3>
+        <div id='divExaminationContent'>
+        <ul style='margin:10px;'>
+         @for (int i = 0; i < Model.Count(); i++ )
+         {
+             var item = Model[i];
+             var businessType = item.BusinessType;
+             var trainningTypeName = item.TrainningTypeName;
+             var isEnableTest = true;
+             if(item.MaxExaminationTime.HasValue && item.TestedCount.HasValue && item.TestedCount.Value >= item.MaxExaminationTime.Value) {isEnableTest= false;}
+             if(!isEnableTest && item.IsNeedReadMaterialBeforeExamination.HasValue && item.IsNeedReadMaterialBeforeExamination.Value)
+             {
+                 if(!item.MinReadMaterialDateTime.HasValue){ isEnableTest = false;}
+                 else if(!item.ReadedHours.HasValue) {isEnableTest = false;}
+                 else if(item.ReadedHours.Value <item.MinReadMaterialDateTime.Value) {isEnableTest = false;}
+             }
+             var isPass = item.IsPass.HasValue && item.IsPass.Value;
+             if (isPass) { isEnableTest = false; }
+             var name = !string.IsNullOrWhiteSpace(item.TrainningExaminationName) ? item.TrainningExaminationName : "(自动生成试卷)";
+             <li><p style='font-size:14px; font-weight:bold;'>[@trainningTypeName] @name<img src="/Content/Home/images/edit-ok.ico" style='margin:0 10px;' class='@(isPass ? "" : "hide")' /><span style='color:Green;' class='@(isPass ? "" : "hide")'>已通过</span></p>
+                <p>学习资料：@(item.TrainningMaterialCount)题，学时要求：@(item.IsNeedReadMaterialBeforeExamination.HasValue && item.IsNeedReadMaterialBeforeExamination.Value ? (item.MinReadMaterialDateTime.HasValue ? item.MinReadMaterialDateTime.Value.ToString() + " 小时": "[无效]") : "无"), 已学习 <span style='color:red;'>@(item.ReadedHours.HasValue ? Math.Round(item.ReadedHours.Value,2).ToString() : "-")</span> 小时</p>
+                <p>
+                    @((!item.TrainningQuestionTotalScore.HasValue || !item.TrainningQuestionTotalTimeSpend.HasValue ? string.Format("随机考题数: {0}条", item.TrainningQuestionCount) : string.Format("题目：{0} 题, 总分: {1}分, 考试试卷: {2}分钟", item.TrainningQuestionCount, item.TrainningQuestionTotalScore.Value, item.TrainningQuestionTotalTimeSpend.Value)) + string.Format(", 通过条件：{0}", item.PassStandardStr))
+                </p>
+                <p>最多考试次数：@(item.MaxExaminationTime.HasValue ? item.MaxExaminationTime.Value.ToString() : "-")次, 已考 <span style='color:Red;'>@(item.TestedCount.HasValue ? item.TestedCount.ToString() : "-")</span> 次</p>
+                <div class="edit-operate" style='padding-left:0;'>
+                    @Html.JLinkButton("btnStartReading" + i, "开始学习【" + trainningTypeName + "】").SetIconCls("icon-note").SetPlain(false).SetOnclick("doStartReading('" + businessType + "','" + item.BusinessId +"','" + (item.TrainningExaminationId.HasValue ? item.TrainningExaminationId.Value.ToString() : "") + "');return false;").ToMvcString()
+                    @Html.JLinkButton("btnStartTesting" + i, "开始考试" + (!string.IsNullOrWhiteSpace(item.TrainningExaminationName) ? "【" + item.TrainningExaminationName + "】" : "")).SetDisabled(!isEnableTest).SetIconCls("icon-examination").SetPlain(false).SetOnclick("doStartTesting('" + businessType + "','" + item.BusinessId + "','" + (item.TrainningExaminationId.HasValue ? item.TrainningExaminationId.Value.ToString() : "") + "');return false;").ToMvcString()
+                </div>
+                <hr />
+            </li>
+         }
+        </ul>
+        </div>
+    }
+    </div>
+</div>
+@Html.Partial("../UserExamination/UserExaminationScriptContainer")

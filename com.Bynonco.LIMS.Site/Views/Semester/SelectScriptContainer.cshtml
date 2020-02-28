@@ -1,0 +1,40 @@
+﻿<script type="text/javascript">
+    function doAddSelectSemester(id) {
+        doAddSemester(id);
+    }
+    function doEditSelectSemester(id) {
+        if (!id || id.trim() == "") {
+            var selectSemesterId = $("#SelectSemesterId").combobox("getValue");
+            if (!selectSemesterId || selectSemesterId == "" || selectSemesterId.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择学期", showType: 'show' });
+                return false;
+            }
+            id = selectSemesterId;
+        }
+        doAddOrEditSemester(id);
+    }
+    function doDeleteSelectSemester(id) {
+        if (!id || id.trim() == "") {
+            var selectSemesterId = $("#SelectSemesterId").combobox("getValue");
+            if (!selectSemesterId || selectSemesterId == "" || selectSemesterId.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择学期", showType: 'show' });
+                return false;
+            }
+            id = selectSemesterId;
+        }
+        doDeleteSemester(id);
+    }
+    function doSelectSemesterReload() {
+        $('#SelectSemesterId').combobox('clear');
+        $('#SelectSemesterId').combobox('reload');
+    }
+    function doSelectSemesterOnLoadSuccess() {
+        var allData = $('#SelectSemesterId').combobox('getData');
+        if (allData.length > 0) {
+            $('#SelectSemesterId').combobox('select', allData[0].Id);
+        }
+        else {
+            $('#SelectSemesterId').combobox('clear');
+        }
+    }
+</script>

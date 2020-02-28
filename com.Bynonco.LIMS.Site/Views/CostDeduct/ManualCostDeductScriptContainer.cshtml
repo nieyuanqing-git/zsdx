@@ -1,0 +1,68 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var costDeductPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCostDeductPrivilige(User.Identity.Name);}
+<div id="divManualCostDeductDialog" style=" display:none"></div>
+<div id="divManualCostDeductInfoDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doManualDeductSearch(isPosCurPage) {
+        var queryExpression = generateManualDeductQueryExpression();
+        if(isPosCurPage){
+            $("#tbViewManualCostDeductList").datagrid("reload", { "queryExpression": queryExpression.trim() });
+        }
+        else{
+            $("#tbViewManualCostDeductList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbViewManualCostDeductList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        } 
+    }
+    function doExportManualCostDeductList(payerId) {
+        var newQueryExpression = generateManualDeductQueryExpression();
+        var url = '@Url.Action("ExportManualCostDeductList", "CostDeduct")'+ "?userId=" + '@(ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "")'+ "&isManage=" + '@(ViewData["IsManage"]== null ? "": ViewData["IsManage"].ToString().ToLower())' + "&queryExpression=" + newQueryExpression.trim() + "&payerId=" + payerId +  "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    var manualCostDeductDialog;
+    function doAddOrEditManualCostDeduct(id) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if(manualCostDeductDialog){
+            manualCostDeductDialog.dialog("destroy");
+        }
+        var url = (id!=""?'@Url.Action("EditManualCostDeduct","CostDeduct")':'@Url.Action("AddManualCostDeduct","CostDeduct")');
+        $("#divManualCostDeductDialog").load(url, { "id": id, time: new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            manualCostDeductDialog = @Html.JDialog("divManualCostDeductEdit").SetTitle("编辑手工扣费信息").AddButton(new ToolBarButton() { Handler = "doSaveManualCostDeduct();return false;", Id = "btnManualCostDeduct", Text = "扣费", IconCls = "icon-yen",Disabled = !costDeductPrivilige.IsEnableSaveManualCostDeduct }).SetIconCls("icon-save").SetAutoDialog(false).SetShowOkButton(false).SetCancelScript("manualCostDeductDialog.dialog('destroy');return false;").SetModal(true).ToMvcString()
+        });
+    }
+    var manualCostDeductInfoDialog;
+    function doViewManualCostDeductInfo(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if(manualCostDeductInfoDialog){
+            manualCostDeductInfoDialog.dialog("destroy");
+        }
+        var url = '@Url.Action("ViewManualCostDeduct","CostDeduct")';
+        $("#divManualCostDeductInfoDialog").load(url, { "id": id, time: new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            manualCostDeductInfoDialog = @Html.JDialog("divManualCostDeductDetail").SetTitle("手工扣费信息").SetIconCls("icon-save").SetAutoDialog(false).SetOkScript("manualCostDeductInfoDialog.dialog('destroy');return false;").SetCancelScript("manualCostDeductInfoDialog.dialog('destroy');return false;").SetModal(true).ToMvcString()
+        });
+    }
+    function doDeleteManualCostDeduct(id){
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteManualCostDeduct", "CostDeduct")',
+                data: { "id": id },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doManualDeductSearch(true);
+                }
+            });
+        });
+    }
+    function doSaveManualCostDeductCallBack(){
+         manualCostDeductDialog.dialog("destroy")
+         doManualDeductSearch(true);
+    }
+</script>

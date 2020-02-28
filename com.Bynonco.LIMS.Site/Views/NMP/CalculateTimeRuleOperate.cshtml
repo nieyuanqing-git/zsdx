@@ -1,0 +1,29 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@model com.Bynonco.LIMS.Model.View.ViewNMP
+<div class="edit-operate">
+    @{
+        var nmpPrivilige = Model != null ?
+                com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+                com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.Id);}
+    @Html.JLinkButton("btnSaveCalcFeeTimeRuleSetting", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveCalcFeeTimeRuleSetting();return false;").SetVisible(nmpPrivilige.IsEnableSaveCalculateTimeRule).ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSaveCalcFeeTimeRuleSetting() {
+        var nmpId = $("#NMPId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveCalculateTimeRule","NMP")' + "?date=" + new Date().getMilliseconds() + "&NMPId=" + nmpId,
+            data: $("#frmCalculateTimeRuleEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+</script>

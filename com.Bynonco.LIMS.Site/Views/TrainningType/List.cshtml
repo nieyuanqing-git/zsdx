@@ -1,0 +1,45 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var trainningTypePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetTrainningTypePrivilige(User.Identity.Name);
+    var dataGrid = Html.JTreeGrid("tbTrainningTypeList")
+       .SetTreeGrid("Id", "Name", Url.Action("GetTreeGridTrainningTypeList", "TrainningType", new { orgId = ViewBag.SelectedOrgId }), "", false)
+       .SetHeight(550)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetPagination(false)
+       .SetOnSelect("doOnTrainningTypeSelected(rowData);")
+       .SetOnLoadSuccess("setTimeout('doTrainningTypeLoadSuccess();', 500);");
+    dataGrid.SetShowAddButton(trainningTypePrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(trainningTypePrivilige.IsEnableEdit);
+    if (trainningTypePrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddTrainningType('');");
+       dataGrid.SetEditScript("doEditTrainningType('');");
+       dataGrid.SetOnDblClickRow("doEditTrainningType(row.Id);");
+    }
+    dataGrid.SetShowDeleteButton(trainningTypePrivilige.IsEnableDelete);
+    if (trainningTypePrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteTrainningType('');");
+    }
+    if (trainningTypePrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否综合类型", "IsGeneralStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())
+<script type="text/javascript">
+    function doTrainningTypeLoadSuccess() {
+        var root = $('#tbTrainningTypeList').treegrid('getRoot');
+        if (root) {
+            $('#tbTrainningTypeList').treegrid('select', root.Id);
+        }
+    } 
+</script>

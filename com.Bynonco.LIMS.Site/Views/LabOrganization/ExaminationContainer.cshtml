@@ -1,0 +1,6 @@
+﻿@model com.Bynonco.LIMS.Model.LabOrganization
+@{
+    ViewData["LabOrganizationId"] = Model == null ? "" : Model.Id.ToString();       
+}
+@Html.Partial("../TrainningExamination/List")
+@Html.Partial("../TrainningExamination/ScriptContainer")

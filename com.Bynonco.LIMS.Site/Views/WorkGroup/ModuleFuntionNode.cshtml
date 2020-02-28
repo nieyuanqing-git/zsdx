@@ -1,0 +1,44 @@
+﻿@model IList<com.Bynonco.LIMS.Model.ModuleFunction>
+@if (Model != null && Model.Count() > 0)
+{
+    var parentId = Model[0].ParentId;
+    var currentNodeList = Model.Where(p => p.ParentId == parentId);
+    if (currentNodeList != null && currentNodeList.Count() > 0)
+    {
+        bool isTopNode = Model[0].XPathLength == 3;
+        <ul class='@(!isTopNode ? "hide" : "")'>
+        @foreach (var item in currentNodeList)
+        {
+            var left = item.XPathLength.HasValue ? (item.XPathLength.Value / 3) * 16 : 0;
+            var childrenList = Model.Where(p => p.XPath.StartsWith(item.XPath) && p.XPath != item.XPath).OrderBy(p => p.XPath);
+            bool hasChildren = childrenList != null && childrenList.Count() > 0;
+            bool isAllowRuleLimit = item.IsAllowRuleLimit;
+            bool isAllowEquipmentOrgLimit = item.IsAllowEquipmentOrgLimit;
+            bool isAllowUserOrgLimit = item.IsAllowUserOrgLimit;
+            bool isAllowNMPOrgLimit = item.IsAllowNMPOrgLimit;
+            <li>
+                <span class='tree-indent' style='width:@(left)px;'></span>
+                <span class='@(hasChildren ? "tree-hit tree-collapsed" : "tree-indent")'></span>
+                <span class='tree-icon tree-folder @(item.IconCss)'></span>
+                <span class="nodecheck tree-checkbox tree-checkbox0" id='chk@(item.Id)'></span>
+                <span class="tree-title">@item.Name</span>
+                    <span class=' @(!isAllowRuleLimit && !isAllowEquipmentOrgLimit && !isAllowUserOrgLimit ? "hide" : "")'>(</span>
+                    <span class='IsNoRuleLimit tree-checkbox  tree-checkbox0' style='@(!isAllowRuleLimit ? "display:none;" : "")'></span>
+                    <span class='tree-title' style='@(!isAllowRuleLimit ? "display:none;" : "")'>强权</span>
+                    <span class='IsUserOrgLimit tree-checkbox tree-checkbox0' style='@(!isAllowUserOrgLimit ? "display:none;" : "")'></span>
+                    <span class='tree-title' style='@(!isAllowUserOrgLimit ? "display:none;" : "")'>用户机构限制</span>
+                    <span class='IsEquipmentOrgLimit tree-checkbox tree-checkbox0' style='@(!isAllowEquipmentOrgLimit ? "display:none;" : "")'></span>
+                    <span class='tree-title' style='@(!isAllowEquipmentOrgLimit ? "display:none;" : "")'>设备机构限制</span>
+                    <span class='IsNMPOrgLimit tree-checkbox tree-checkbox0' style='@(!isAllowNMPOrgLimit ? "display:none;" : "")'></span>
+                    <span class='tree-title' style='@(!isAllowNMPOrgLimit ? "display:none;" : "")'>工位机构限制</span>
+                    <span class=' @(!isAllowRuleLimit && !isAllowEquipmentOrgLimit && !isAllowUserOrgLimit ? "hide" : "")'>)</span>
+                @if (childrenList != null && childrenList.Count() > 0)
+                {
+                    @Html.Partial("../WorkGroup/ModuleFuntionNode", childrenList.ToList())
+                }
+            </li>
+        }
+        </ul>
+    }
+}
+

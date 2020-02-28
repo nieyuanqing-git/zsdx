@@ -1,0 +1,12 @@
+﻿@model com.Bynonco.LIMS.Model.Equipment
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    <div class="edit-box">
+        @Html.Partial("../EquipmentExtend/Basic")
+        @Html.Partial("../EquipmentExtend/BasicOperate")
+    </div>
+</div>

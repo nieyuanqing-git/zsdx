@@ -1,0 +1,127 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimalAppointment
+@using com.Bynonco.JqueryEasyUI.Core;
+@{var curOp = (com.Bynonco.LIMS.Model.Enum.AnimalAppointmentStatus)ViewData["CurOp"];}
+ <script type="text/javascript">
+     var isDataLoading = true;
+</script>
+@Html.Partial("../AnimalAppointment/AppointmentScriptContainer")
+<div id="divAuditAnimalAppointment"  style="width:480px;">
+    <form id="frmAuditAnimalAppointment" style="width:100%;">
+        <table class="edit-table" style="width:100%;">
+            <tr id="trEthicsAmount" style="display:none">
+                <th colspan="3">
+                    <span id="spanEthicsAmount"></span>
+                </th>
+            </tr>
+            <tr>
+                <th>当前操作</th>
+                <td>@System.Web.Mvc.MvcHtmlString.Create(ViewData["CurOpStr"].ToString())</td>
+            </tr>
+            <tr style="display:none;">
+                <th>@ViewData["ProjectShowName"].ToString()</th>
+                <td>
+                    @Html.JComboBox("SubjectProjectId").SetDisabled(true).SetWidth(235).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>伦理号</th>
+                <td>@Html.JComboBox("EthicsNo").SetDisabled(true).SetData(ViewData["EthicsNoJson"]).SetWidth(235).ToMvcString()</td>
+            </tr>
+            <tr>
+                <th>动物品系</th>
+                <td>
+                    @Html.JComboBox("AnimalCategoryId").SetDisabled(true).SetData(ViewData["AnimalCategoryJson"]).SetOnChange(string.Format("doOnAnimalCategoryChanged(newValue,oldValue,'{0}','spanEthicsAmount','trEthicsAmount','EthicsNo','AnimalSourceId','spanAnimalSourceName','AnimalSpecifications','spanAnimalSpecifications');", Model != null ? Model.Id : Guid.Empty)).SetWidth(235).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>动物来源</th>
+                <td>
+                    @Html.JComboBox("AnimalSourceId").SetData(ViewData["AnimalSourceJson"]).SetDisabled(true).SetWidth(235).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>性别</th>
+                <td>
+                    @if (Model.BuyTypeEnum == com.Bynonco.LIMS.Model.Enum.AnimalBuyType.DelegateBuy)
+                    {
+                         @Html.JComboBox("Sex").SetData(ViewData["SexJson"]).SetOnLoadSuccess(string.Format("doOnSexLoadSuccess('MaleQuatity','{0}','FemaleQuatity','{1}');", Model.MaleQuatity, Model.FemaleQuatity)).SetOnChange("doOnSexChange(newValue,oldValue,'Quantity','MaleQuatity','FemaleQuatity');").SetWidth(235).ToMvcString()
+                    }
+                    else
+                    {
+                        @Html.JComboBox("Sex").SetData(ViewData["SexJson"]).SetDisabled(true).SetWidth(235).ToMvcString()
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th>体重/日龄</th>
+                <td>
+                    @Html.Hidden("AnimalSpecifications", Model != null ? Model.AnimalSpecifications : "")
+                    <span id="spanAnimalSpecifications">@(Model != null ? Model.AnimalSpecifications : "")</span>
+                </td>
+            </tr>
+            @if (Model.BuyTypeEnum == com.Bynonco.LIMS.Model.Enum.AnimalBuyType.DelegateBuy)
+            {
+                 <tr>
+                        <th colspan="3">
+                            当前申请数量:@Model.Quantity  &nbsp;&nbsp;♀数量:@Model.MaleQuatity &nbsp;&nbsp;♀数量:@Model.FemaleQuatity
+                        </th>
+                </tr>
+                <tr>
+                    <th><span class="required">*</span>数量</th>
+                    <td>
+                        @Html.JValidateBox("Quantity").SetValue(Model == null ? "" : Model.Quantity.ToString()).SetWidth(230).SetValidateType(ValidateType.none).SetOnChange("doCalAnimalAmount('Quantity','Quantity','MaleQuatity','FemaleQuatity');").ToMvcString()
+                    </td>
+                </tr>
+                <tr class="animalAmount">
+                    <th><span class="required">*</span>♂数量</th>
+                    <td>
+                        @Html.JValidateBox("MaleQuatity").SetValue(Model == null ? "" : Model.MaleQuatity.ToString()).SetWidth(230).SetValidateType(ValidateType.none).SetOnChange("doCalAnimalAmount('MaleQuatity','Quantity','MaleQuatity','FemaleQuatity');").ToMvcString()
+                    </td>
+                </tr>
+                <tr class="animalAmount">
+                    <th><span class="required">*</span>♀数量</th>
+                    <td>
+                        @Html.JValidateBox("FemaleQuatity").SetValue(Model == null ? "" : Model.FemaleQuatity.ToString()).SetWidth(230).SetValidateType(ValidateType.none).SetOnChange("doCalAnimalAmount('FemaleQuatity','Quantity','MaleQuatity','FemaleQuatity');").ToMvcString()
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                   <th><span class="required">*</span>数量</th>
+                   <td>
+                        @Html.Hidden("Quantity", Model.Quantity)
+                        @Model.Quantity
+                   </td>
+                </tr>
+                <tr class="animalAmount">
+                    <th><span class="required">*</span>♂数量</th>
+                    <td>
+                        @Html.Hidden("MaleQuatity", Model.MaleQuatity)
+                        @Model.MaleQuatity
+                    </td>
+                </tr>
+                <tr class="animalAmount">
+                    <th><span class="required">*</span>♀数量</th>
+                    <td>
+                        @Html.Hidden("FemaleQuatity", Model.FemaleQuatity)
+                        @Model.FemaleQuatity
+                    </td>
+                </tr>
+            }
+            @if (curOp == com.Bynonco.LIMS.Model.Enum.AnimalAppointmentStatus.AuditedPass)
+            {
+                <tr>
+                    <th>
+                        <span class="required">*</span>批次编号
+                    </th>
+                    <td>@Html.JValidateBox("AnimalCode").SetValue(Model.AnimalCode).SetWidth(230).ToMvcString()</td> 
+                </tr>
+            }
+            <tr>
+                <th>审核备注</th>
+                <td> @Html.TextArea("AuditRemark", Model != null ? Model.AuditRemark : "", new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:320px;margin-right:5px;overflow-y:auto" })</td>
+            </tr>
+        </table>
+    </form>
+</div>

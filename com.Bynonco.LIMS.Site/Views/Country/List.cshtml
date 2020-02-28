@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var countryPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCountryPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbCountryList")
+       .SetUrl(Url.Action("GetGridCountryList", "Country"))
+       .SetHeight(650)
+       .SetSortName("Name")
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.SetShowAddButton(countryPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(countryPrivilige.IsEnableEdit);
+    if (countryPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddCountry('');");
+       dataGrid.SetEditScript("doEditCountry('');");
+       dataGrid.SetOnDblClickRow("doEditCountry(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(countryPrivilige.IsEnableDelete);
+    if (countryPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteCountry('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("中文简称", "Name").SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("中文全称", "FullName").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("英文简称", "EngName").SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("英文全称", "FullEngName").SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("两字符代码", "Code2Char").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("三字符代码", "Code3Char").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("四字符代码", "CountryCode").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("数字代码", "CodeNum").SetWidth(80).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

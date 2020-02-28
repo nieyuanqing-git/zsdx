@@ -1,0 +1,127 @@
+﻿@{
+    Layout = "~/Views/Shared/_TwoColumnLayout.cshtml";
+    ViewBag.Title = "设备分类";
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+}
+@section ImportCssAndJs
+{
+    <script type="text/javascript">
+        function doClickOrg(obj, xpath) {
+            setRightTitle(obj);
+            $(".style1-list li").removeClass("current");
+            $("#liOrg").addClass("current");
+            var url = '@Url.Action("ListForHome","LabOrganization")' + "?date=" + new Date().getMilliseconds();
+            if (xpath && xpath != "")
+                url += "&OrgXPath=" + xpath;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divRightBox").load(url, function () {
+                $.messager.progress('close');
+                setUrlClass();
+                $("#divRightBox").find("a").click(function () {
+                    if ($(this).attr("isshowchild") == 'true') {
+                        var title = $(".title-right").html() + " >> " + $(this).attr("title");
+                        doClickOrg(title, $(this).attr("xpath"));
+                    }
+                    else {
+                        var url = '@Url.Action("ShowList", "Equipment")' + "?OrgXPath=" + $(this).attr("xpath");
+                        location.href = url;
+                    }
+                    return false;
+                });
+            });
+        }
+        function doClickEquipmentCategory(obj, xpath) {
+            setRightTitle(obj);
+            $(".style1-list li").removeClass("current");
+            $("#liEquipmentCategory").addClass("current");
+            var url = '@Url.Action("ListForHome","EquipmentCategory")' + "?date=" + new Date().getMilliseconds();
+            if (xpath && xpath != "")
+                url += "&EquipmentCategoryXPath=" + xpath;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divRightBox").load(url, function () {
+                $.messager.progress('close');
+                setUrlClass();
+                $("#divRightBox").find("a").click(function () {
+                    if ($(this).attr("isshowchild") == 'true') {
+                        var title = $(".title-right").html() + " >> " + $(this).attr("title");
+                        doClickEquipmentCategory(title, $(this).attr("xpath"));
+                    }
+                    else {
+                        var url = '@Url.Action("ShowList", "Equipment")' + "?EquipmentCategoryXPath=" + $(this).attr("xpath");
+                        location.href = url;
+                    }
+                    return false;
+                });
+            });
+        }
+        function doClickControllerType(obj) {
+            setRightTitle(obj);
+            $(".style1-list li").removeClass("current");
+            $("#liControllerType").addClass("current");
+            var url = '@Url.Action("ControllerTypeListForHome","Equipment")' + "?date=" + new Date().getMilliseconds();
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divRightBox").load(url, function () {
+                $.messager.progress('close');
+                setUrlClass();
+                $("#divRightBox").find("a").click(function () {
+                    var url = '@Url.Action("ShowList", "Equipment")' + "?ControllerTypeValue=" + $(this).attr("controllertypevalue");
+                    location.href = url;
+                    return false;
+                });
+            });
+        }
+        function doClickRoom(obj, xpath) {
+            setRightTitle(obj);
+            $(".style1-list li").removeClass("current");
+            $("#liRoom").addClass("current");
+            var url = '@Url.Action("RoomListForHome", "LabOrganization")' + "?date=" + new Date().getMilliseconds();
+            if (xpath && xpath != "")
+                url += "&RoomXPath=" + xpath;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divRightBox").load(url, function () {
+                $.messager.progress('close');
+                setUrlClass();
+                $("#divRightBox").find("a").click(function () {
+                    if ($(this).attr("isshowchild") == 'true') {
+                        var title = $(".title-right").html() + " >> " + $(this).attr("title");
+                        doClickRoom(title, $(this).attr("xpath"));
+                    }
+                    else {
+                        var url = '@Url.Action("ShowList", "Equipment")' + "?RoomXPath=" + $(this).attr("xpath");
+                        location.href = url;
+                    }
+                    return false;
+                });
+            });
+        }
+        function setRightTitle(title) {
+            $(".title-right").empty();
+            $(".title-right").append(title);
+        }
+        function setUrlClass(){
+            $("#divRightBox").find("ul.news-list").removeClass("list-xs").addClass("float-list").addClass("list-child");
+        }
+        $(function () {
+            doClickOrg('组织机构');
+            SetHomeHeight();
+        }); 
+    </script>
+}
+@section MainLeft
+{
+    <h2 class="title">选择分类</h2>
+    <div class="content-box" >
+        <ul class="news-list style1-list solid-list bold-list">
+            <li class='current' id='liOrg'><a href="javascript:;" onclick="doClickOrg('组织机构');return false;" id="lnkOrg">组织机构</a></li>
+            <li id='liEquipmentCategory'><a href="javascript:;" onclick="doClickEquipmentCategory('设备分类');return false;">设备分类</a></li>
+            <li id='liControllerType'><a href="javascript:;" onclick="doClickControllerType('控制方式');return false;">控制方式</a></li>
+            <li id='liRoom'><a href="javascript:;" onclick="doClickRoom('放置地点');return false;">放置地点</a></li>
+        </ul>
+    </div>
+}
+@section MainRight
+{
+    <h2 class="title">组织机构</h2>
+    <div class="content-box" id="divRightBox">
+    </div>
+}

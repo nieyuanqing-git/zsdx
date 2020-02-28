@@ -1,0 +1,291 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+    var userId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString();
+    var isManage = (bool)ViewData["IsManage"];
+    var costDeductPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCostDeductPrivilige(User.Identity.Name);
+    bool isExistSelected = false;
+}
+<div style="display:none">@Html.Partial("../UsedConfirm/ScriptContainer")</div>
+<div class="layout-center-full">
+    <div>
+        <ul class="tabs" style="border-bottom:0;">
+            @if(costDeductPrivilige.IsEnableUnDeductUsedConfirmListContainer)
+            {
+                if(!isExistSelected)
+                {
+                    <li class='tabs-selected' id="liUnDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">机时未扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else 
+                {
+                     <li  id="liUnDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">机时未扣费</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            @if (costDeductPrivilige.IsEnableCostDeductContainer)
+            {
+                if(!isExistSelected)
+                {
+                    <li class='tabs-selected' id="liDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">机时已扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li id="liDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">机时已扣费</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            @if (costDeductPrivilige.IsEnableAppointmentPredictCostDeductContainer)
+            {
+                if (!isExistSelected)
+                {
+                    <li class='tabs-selected' id="liAppointmentPredictDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">预约预扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li id="liAppointmentPredictDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">预约预扣费</span><span class="tabs-icon"></span></a></li>
+                }
+
+            }
+            @if (costDeductPrivilige.IsEnableSampleApplyCostDeductContainer)
+            {
+                if (!isExistSelected)
+                {
+                    <li class='tabs-selected' id="liSampleApplyDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">送样扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li id="liSampleApplyDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">送样扣费</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            @if (costDeductPrivilige.IsEnableManualCostDeductListContainer)
+            {
+                if (!isExistSelected)
+                {
+                    <li class='tabs-selected' id="liManualDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">手工扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li id="liManualDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">手工扣费</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            @if (costDeductPrivilige.IsEnableMaterialCostDeductListContainer)
+            {
+                if (!isExistSelected)
+                {
+                    <li class='tabs-selected' id="liMaterialDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">耗材扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li id="liMaterialDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">耗材扣费</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            @if (costDeductPrivilige.IsEnableAnimalCostDeductListContainer)
+            {
+                if (!isExistSelected)
+                {
+                    <li class='tabs-selected' id="liAnimalDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">动物扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li id="liAnimalDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">动物扣费</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            @if (costDeductPrivilige.IsEnableWaterControlCostDeductListContainer)
+            {
+                if (!isExistSelected)
+                {
+                    <li class='tabs-selected' id="liWaterControlDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">水控扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li id="liWaterControlDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">水控扣费</span><span class="tabs-icon"></span></a></li>
+                }
+
+            }
+            @if (costDeductPrivilige.IsEnableManualTimeCostDeductListContainer)
+            {
+                if (!isExistSelected)
+                {
+                    <li class='tabs-selected' id="liManualTimeDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">手工计时扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li id="liManualTimeDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">手工计时扣费</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            @if (costDeductPrivilige.IsEnableUnDeductNMPUsedConfirmListContainer)
+            {
+                if (!isExistSelected)
+                {
+                    <li class='tabs-selected'  id="liUnNMPDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">工位未扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li  id="liUnNMPDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">工位未扣费</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            @if (costDeductPrivilige.IsEnableNMPCostDeductListContainer)
+            {
+                if (!isExistSelected)
+                {
+                    <li class='tabs-selected'  id="liNMPDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">工位已扣费</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li  id="liNMPDeduct"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">工位已扣费</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            @if (costDeductPrivilige.IsEnableCostDeductSynListContainer)
+            {
+                if (!isExistSelected)
+                {
+                    <li class='tabs-selected'  id="liDeductSyn"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">扣费同步</span><span class="tabs-icon"></span></a></li>
+                    isExistSelected = true;
+                }
+                else
+                {
+                    <li  id="liDeductSyn"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">扣费同步</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+        </ul>
+        <div id="divDeductContainer"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            loadDeductList();
+        });
+        loadDeductList();
+    });
+    function doSearch(isPosCurPage) {
+        if ($(".tabs .tabs-selected")) {
+            var tabId = $(".tabs .tabs-selected").attr("id");
+            switch (tabId) {
+                case "liUnDeduct":
+                    doUnDeductUsedConfirmSearch(isPosCurPage);
+                    break;
+                case "liDeduct":
+                    doDeductSearch(isPosCurPage);
+                    break;
+                case "liAppointmentPredictDeduct":
+                    doAppointmentPredictDeductSearch(isPosCurPage);
+                    break;
+                case "liSampleApplyDeduct":
+                    doSampleApplyDeductSearch(isPosCurPage);
+                    break;
+                case "liManualDeduct":
+                    doManualCostDeductSearch(isPosCurPage);
+                    break;
+                case "liMaterialDeduct":
+                    doMaterialOutputSearch(isPosCurPage);
+                    break;
+                case "liAnimalDeduct":
+                    doAnimalDeductSearch(isPosCurPage);
+                    break;
+                case "liWaterControlDeduct":
+                    doliWaterControlDeductSearch(isPosCurPage);
+                    break;
+                case "liManualTimeDeduct":
+                    debugger;
+                    doManualTimeCostDeductSearch(isPosCurPage);
+                    break;
+                case "liUnNMPDeduct":
+                    doUnDeductNMPUsedConfirmSearch(isPosCurPage);
+                    break;
+                case "liNMPDeduct":
+                    doNMPDeductSearch(isPosCurPage);
+                    break;
+                case "liDeductSyn":
+                    doDeductSynSearch(isPosCurPage);
+                    break;
+
+            }
+        }
+    }
+    function loadDeductList() {
+        ajaxloadbegin();
+        if ($(".tabs .tabs-selected")) {
+            var url = "";
+            var tabId = $(".tabs .tabs-selected").attr("id");
+            switch (tabId) {
+                case "liUnDeduct":
+                    url = '@Url.Action("UnDeductUsedConfirmListContainer", "UsedConfirm", new { userId = userId })';
+                    break;
+                case "liDeduct":
+                    url = '@Url.Action("CostDeductContainer", "CostDeduct", new { userId = userId })';
+                    break;
+                case "liAppointmentPredictDeduct":
+                    url = '@Url.Action("AppointmentPredictCostDeductContainer", "CostDeduct", new { userId = userId })';
+                    break;
+                case "liSampleApplyDeduct":
+                    url = '@Url.Action("SampleApplyCostDeductContainer", "CostDeduct", new { userId = userId })';
+                    break;
+                case "liManualDeduct":
+                    url = '@Url.Action("ManualCostDeductListContainer", "CostDeduct", new { userId = userId })';
+                    break;
+                case "liMaterialDeduct":
+                    url = '@Url.Action("MaterialCostDeductListContainer", "CostDeduct", new { userId = userId })';
+                    break;
+                case "liAnimalDeduct":
+                    url = '@Url.Action("AnimalCostDeductListContainer", "CostDeduct", new { userId = userId })';
+                    break;
+                case "liWaterControlDeduct":
+                    url = '@Url.Action("WaterControlDeductListContainer", "CostDeduct", new { userId = userId })';
+                    break;
+                case "liManualTimeDeduct":
+                    url = '@Url.Action("ManualTimeCostDeductListContainer", "CostDeduct", new { userId = userId })';
+                    break;
+                case "liUnNMPDeduct":
+                    url = '@Url.Action("UnDeductNMPUsedConfirmListContainer", "NMPUsedConfirm", new { userId = userId })';
+                        break;
+                case "liNMPDeduct":
+                        url = '@Url.Action("NMPCostDeductContainer", "CostDeduct", new { userId = userId })';
+                    break;
+                case "liDeductSyn":
+                        url = '@Url.Action("CostDeductSynListContainer", "CostDeduct", new { userId = userId })';
+                    break;
+
+            }
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divDeductContainer").load(url, { "isManage": '@(isManage.ToString().ToLower())' }, function () {
+                $.messager.progress('close');
+                ajaxloadsuccess();
+            });
+        }
+    }
+    function refresh(isPosCurPage) {
+        doSearch(isPosCurPage);
+        editUsedConfirmDialog.dialog("close");
+    }
+    function doSaveUsedConfirmCallBack() {
+        refresh(true);
+    }
+    function doChargeUsedConfirmCallBack() {
+        refresh(true);
+    }
+    function doDeleteUsedConfirmCallBack() {
+        refresh(true);
+    }
+    function doSaveNMPUsedConfirmCallBack() {
+        refresh(true);
+    }
+    function doChargeNMPUsedConfirmCallBack() {
+        refresh(true);
+    }
+    function doDeleteNMPUsedConfirmCallBack() {
+        refresh(true);
+    }
+</script>

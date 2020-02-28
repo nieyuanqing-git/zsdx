@@ -1,0 +1,106 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    var chargeItemDialogEdit;
+    function doAddOrEditSampleApplyChargeItem(id) {
+        if(doSampleApplyChargeItemReset()){
+            if(id.trim()=="") {
+                if(chargeItemDialogEdit){
+                    chargeItemDialogEdit.dialog("open");
+                    return false;
+                }
+                chargeItemDialogEdit = @(Html.JDialog("divSampleApplyChargeItemEdit").SetTitle("收费项目信息").SetIconCls("icon-currency").SetAutoDialog(false).SetModal(true).SetOkScript("doOnSampleApplyChargeItemSave();").SetCancelScript("chargeItemDialogEdit.dialog('close');return false;").ToMvcString());
+            }
+            else {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetSampleApplyChargeItemById","SampleManage")' + "?time=" + new Date().getMilliseconds(),
+                    data: {"id":id},
+                    complete: function (data) {
+                        if (!data || data == null) return false;
+                        var jsonData = eval("(" + data.responseText + ")");
+                        if(doSetSampleApplyChargeItemValue(jsonData)) {
+                              if(chargeItemDialogEdit){
+                                    chargeItemDialogEdit.dialog("open");
+                                    return false;
+                             }
+                             chargeItemDialogEdit = @(Html.JDialog("divSampleApplyChargeItemEdit").SetTitle("收费项目信息").SetIconCls("icon-currency").SetAutoDialog(false).SetModal(true).SetOkScript("doOnSampleApplyChargeItemSave();").SetCancelScript("chargeItemDialogEdit.dialog('close');return false;").ToMvcString());
+                        }    
+                    }
+                });
+            }
+        }
+        return false;
+    }
+    function doOnSampleApplyChargeItemSave(){
+        var sampleChargeItemId = $("#hidSampleChargeItemId").val();
+        var other = $("#txtSampleChargeItemOther").val();
+        var quantity = $("#txtSampleChargeItemQuantity").val();
+        var remark = $("#txtSampleChargeItemRemark").val();
+        var price = $("#txtSampleChargeItemPrice").val();
+        var sampleApplyId = $("#hidSampleApplyId").val();
+        var id = $("#hidSampleApplyChargeItemId").val();
+        $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveSampleApplyChargeItem","SampleManage")'+ "?time=" + new Date().getMilliseconds(),
+                data: {"sampleChargeItemId":sampleChargeItemId,"other":other,"quantity":quantity,"remark":remark,"price":price,"sampleApplyId":sampleApplyId,"id":id,"sampleRoleStr":"SampleTransactor"},
+                success: function (msg) {
+                   if (msg && msg.indexOf("出错") != -1) {
+                         $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doChargeItemRefresh();
+                    chargeItemDialogEdit.dialog("close");
+                }
+        });
+        return false;
+    }
+    function doDeleteSampleApplyChargeItem(ids){
+        var delIds = ids == null || ids.trim() == "" ? generateChargeItemSelectedIds() : ids;
+        if(delIds=="") return false;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteSampleApplyChargeItem","SampleManage")'+ "?time=" + new Date().getMilliseconds(),
+                data: {"ids":delIds,"sampleRoleStr":"SampleTransactor"},
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                         $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doChargeItemRefresh();
+                }
+            });
+        });
+        return false;
+    }
+
+    function generateChargeItemSelectedIds() {
+        var ids = [];
+        var rows = $("#tbSampleApplyChargeItem").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if(rows[i].ChargeStatus.toString()=="1"){
+                    $.messager.show({ title: '提示', msg: "项目【" + rows[i].SampleChargeItemName + "】为已收费状态,不能删除", showType: 'show' });
+                    ids = [];
+                    break;
+                }
+                ids.push(rows[i].SampleApplyChargeItemId);
+            }
+        }
+        return ids.toString();
+    }
+
+    function doChargeItemRefresh() {
+        $('#tbSampleApplyChargeItem').datagrid("options").url += $('#tbSampleApplyChargeItem').datagrid("options").url.indexOf("?")==-1? "?time=" + new Date().getMilliseconds(): "&time=" + new Date().getMilliseconds();
+        $("#tbSampleApplyChargeItem").datagrid("reload");
+        return false;
+    }    
+</script>
+<div id="divChargeItem">
+    <div>@Html.Partial("../SampleChargeItem/SampleChargeItemList")</div>
+    <div style="display:none">
+        @Html.Partial("../SampleChargeItem/SampleChargeItemEdit")
+    </div>
+</div>
+

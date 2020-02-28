@@ -1,0 +1,21 @@
+﻿@{
+    Layout = ViewBag.Layout;
+    ViewBag.Title = "首页";
+}
+<link type="text/css" href="@Url.Content("~/Content/main3.0.2.4.css")" rel="stylesheet" />
+<style>
+    body{background: url(../../Content/Home/images/bg-home-touch.jpg) no-repeat scroll center top transparent;height:100%;width:100%;}
+    body div img {padding:0;margin:0 }
+    img{boder:none}
+    .touch-width{width:1240px;}
+    .touch-img-container{position:relative;padding:0;margin:0;}
+    div.touch-width a.touch-btn{margin-left:575px;text-align:center;display:block;color:White;height:35px;width:90px;line-height:35px;font-weight:bold;background: url(../../Content/Home/images/btn-home-touch.jpg) no-repeat scroll center top transparent;}
+</style>
+<div class="touch-width touch-img-container">
+    <img src="../../Content/Home/images/logo-home-touch.png" style=" position:absolute; top:25px; left:88px;" />
+    <img src="../../Content/Home/images/school-home-touch.png" style=" position:absolute; top:8px; right:-37px;" />
+    <img src="../../Content/Home/images/title-home-touch.png" style="margin-top:240px;margin-left:328px;"/>
+</div>
+<div class="touch-width" style="margin-top:80px;">
+   <a href='@Url.Action("Index","Home")' class="touch-btn">首页入口</a>
+</div>

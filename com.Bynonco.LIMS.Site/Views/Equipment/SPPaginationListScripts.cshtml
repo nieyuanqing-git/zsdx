@@ -1,0 +1,64 @@
+﻿ @{
+     var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+     var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+     
+ }  
+ <script type="text/javascript">
+     var perPageSize = 20;
+     function doSelectPageTop(pageNumber, pageSize) {
+         var pageNumber = $('#PageEquipmentListTop').pagination("options").pageNumber;
+         var pageSize = $('#PageEquipmentListTop').pagination("options").pageSize;
+         doLoadEquipmentList(pageNumber, pageSize);
+         return false;
+     }
+     function doSelectPage(pageNumber, pageSize) {
+         var pageNumber = $('#PageEquipmentList').pagination("options").pageNumber;
+         var pageSize = $('#PageEquipmentList').pagination("options").pageSize;
+         doLoadEquipmentList(pageNumber, pageSize);
+         return false;
+     }
+     function GetSort() {
+         if (!$("div.sort-item.current")) return "";
+         var sortname = $("div.sort-item.current").attr("sortname");
+         var sort = $("div.sort-item.current").hasClass("datagrid-sort-desc") ? "desc" : "asc";
+         return "&sort=" + sortname + "&order=" + sort;
+     }
+     function doLoadEquipmentList(pageNumber, pageSize) {
+         var queryExpression = generateQueryExpression();
+         $(".panel-header").removeClass('hide');
+         if ($("#EquipmentList").length > 0) {
+             $.messager.progress({ title: '提示', msg: '正在加载仪器信息,请稍候……' });
+             $.ajax({
+                 type: "Post",
+                 url: '@Url.Action("SPPaginationList", "Equipment")',
+                 data: $("#frmSearchCondition").serialize() + GetSort() + "&page=" + pageNumber + "&rows=" + pageSize + "&queryExpression=" + queryExpression + "&date=" + new Date(),
+                 success: function (data) {
+                     $.messager.progress('close');
+                     if (data && data.indexOf("出错") != -1) {
+                         $.messager.show({ title: '提示', msg: "获取设备信息出错", showType: 'show' });
+                     }
+                     else {
+                         $("#EquipmentList").html(data);
+                     }
+                     ajaxloadsuccess();
+                     return false;
+                 }
+             });
+         }
+     }
+     $(function () {
+         doLoadEquipmentList(1, perPageSize);
+         $(".sort-item").click(function () {
+             var sortclass = "datagrid-sort-desc";
+             if ($(this).hasClass("datagrid-sort-desc"))
+                 sortclass = "datagrid-sort-asc";
+             $(this).removeClass("datagrid-sort-asc");
+             $(this).removeClass("datagrid-sort-desc");
+             $(this).addClass(sortclass);
+             $(this).addClass("current");
+             $(this).siblings().removeClass("current");
+             doLoadEquipmentList(1, perPageSize);
+         });
+     });
+     
+</script>

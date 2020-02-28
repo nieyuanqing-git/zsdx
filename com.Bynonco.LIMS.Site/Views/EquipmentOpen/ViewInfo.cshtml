@@ -1,0 +1,85 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentUndergraduateOpen
+<div id="divEquipmentUndergraduateOpenView">
+    @if (Model != null)
+    {
+    <table class="edit-table"  style="width:385px;">
+         <tr>
+            <th>设备名称</th>
+            <td>@(Model.EquipmentName)</td>
+        </tr>
+        <tr>
+            <th>规格型号</th>
+            <td>@(Model.EquipmentModel)</td>
+        </tr>
+        <tr>
+            <th>所属学院</th>
+            <td>@(Model.EquipmentOrgName)</td>
+        </tr>
+        <tr>
+            <th>放置地点</th>
+            <td>@(Model.EquipmentRoomName)</td>
+        </tr>
+        <tr>
+            <th>设备运行成本费</th>
+            <td>@(Model.StandardPriceStr)</td>
+        </tr>
+        <tr>
+            <th>联系人</th>
+            <td>@(Model.LinkManNames)</td>
+        </tr>
+        <tr>
+            <th>联系电话</th>
+            <td>@(Model.LinkTelNo)</td>
+        </tr>
+        <tr>
+            <th>开放方式</th>
+            <td>@(Model.OpenTypeStr)</td>
+        </tr>
+        <tr>
+            <th>主要功能简介</th>
+            <td>
+                <div style='max-height:80px; overflow-y:auto;'>
+                    @(Model.ScopeOfApplication)
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>状态</th>
+            <td>@(Model.StatusStr)</td>
+        </tr>
+
+        <tr>
+            <th>创建人</th>
+            <td>@(Model.CreaterName)</td>
+        </tr>
+        <tr>
+            <th>创建时间</th>
+            <td>@(Model.CreateTimeStr)</td>
+        </tr>
+        <tr>
+            <th>审核人</th>
+            <td>@(Model.AuditUserName)</td>
+        </tr>
+        <tr>
+            <th>审核时间</th>
+            <td>@(Model.AuditTimeStr)</td>
+        </tr>
+        <tr>
+            <th>审核备注</th>
+            <td>
+                <div style='max-height:80px; overflow-y:auto;'>
+                    @(Model.AuditRemark)
+                </div>
+            </td>
+        </tr>
+    </table>
+    }
+    else
+    {
+    <table class="edit-table"  style="width:385px;">
+        <tr>
+            <th>找不到设备开放信息</th>
+        </tr>
+    </table>
+    }
+</div> 

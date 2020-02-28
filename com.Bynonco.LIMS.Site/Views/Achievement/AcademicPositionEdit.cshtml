@@ -1,0 +1,93 @@
+﻿@model com.Bynonco.LIMS.Model.AcademicPosition
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.MVC.Controllers
+@{
+    var view = ViewContext.RouteData.GetViewName();
+    if (view.StartsWith("~"))
+    {
+        Html.RenderPartial(view, Model);
+        return;
+    }
+    var enableUploadFileType = "可上传的文件类型:" + ViewData["EnableUploadFileType"] + ".   ";
+    var enableUploadFileSize = "最大可上传" + ViewData["enableUploadFileSize"] + "的文件.";
+    var uploadTip = enableUploadFileType + "" + enableUploadFileSize;
+}
+<div id="divAcademicPositionEdit">
+ <form id="frmAcademicPositionEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tdAcademicPositionEdit" class="edit-table"  style="width:640px;">
+        <tr>
+            <th><span class="required">* </span>学术组织名称</th>
+            <td colspan="3" >
+                @(Html.JValidateBox("AcademicName").SetWidth(530).SetValue(Model == null ? "" : Model.AcademicName).ToMvcString())
+            </td>
+        </tr>
+         <tr>
+            <th><span class="required">* </span>任职人员</th>
+            <td id='tdUserName'>
+                    @(Html.TokenInput("UserName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(true)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doUserNameChange();")
+                    .SetOnDelete("doUserNameChange();")
+                    .SetPrePopulate(ViewData["UserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserJson"].ToString()) ? null : ViewData["UserJson"].ToString())
+                    .ToMvcString())
+                    @Html.Hidden("UserId", Model == null || !Model.UserId.HasValue ? "" : Model.UserId.Value.ToString())
+            </td>
+            <th><span class="required">* </span>任职职位</th>
+            <td colspan="3" >
+                @(Html.JValidateBox("Position").SetWidth(210).SetValue(Model == null ? "" : Model.Position).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>国内外杂志名称</th>
+            <td colspan="3" >
+                @(Html.JValidateBox("MagazineName").SetWidth(530).SetValue(Model == null ? "" : Model.MagazineName).ToMvcString())
+            </td>
+        </tr>
+         <tr>
+            <th><span class="required">* </span>开始时间</th>
+            <td>
+                @(Html.JDateTimePicker("StartTime").SetWidth(215).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.StartTime.Value.ToString("yyyy-MM-dd")).ToMvcString())
+            </td>
+             <th><span class="required">* </span>结束时间</th>
+            <td>
+                @(Html.JDateTimePicker("EndTime").SetWidth(215).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.EndTime.Value.ToString("yyyy-MM-dd")).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th rowspan="2">
+                 附件信息
+            </th>
+            <td colspan="3">
+                <input id="fileToUpload" type="file" name="fileToUpload" style="width:230px" title="@(uploadTip)" />
+                @(Html.JLinkButton("btnUpLoad", "上传").SetIconCls("icon-upload").SetPlain(true).SetOnclick("ajaxFileUpload();return false;").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3"  id="tdAttachment">
+                @Html.Partial("AttachmentList", "Achievement")
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdUserName ul.token-input-list-facebook").css("width", "215px");
+    });
+    function doUserNameChange() {
+        $("#UserId").val("");
+        var userList = $("#UserName").tokenInput("get");
+        if (userList && userList.length > 0) {
+            var userIds = "";
+            for (var i = 0; i < userList.length; i++) {
+                if (userIds != "") userIds += ",";
+                userIds += userList[i].id;
+            }
+            $("#UserId").val(userIds);
+        }
+    }
+</script>

@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@{var equipmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, Model.Id);}
+<div class="edit-operate">
+    @Html.JLinkButton("btnSaveBasicChargeSetting", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveBasicChargeSetting();return false;").SetVisible(equipmentPrivilige.IsEnableSaveBasicChargeSetting).ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSaveBasicChargeSetting() {
+        var equipmentId = $("#EquipmentId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBasicChargeSetting","Equipment")' + "?date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId,
+            data: $("#frmBasicChargeSettingEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+</script>

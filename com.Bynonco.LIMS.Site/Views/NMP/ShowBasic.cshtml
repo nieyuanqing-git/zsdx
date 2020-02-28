@@ -1,0 +1,38 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{    
+      var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+      System.Text.StringBuilder sbOperate = new System.Text.StringBuilder();
+      if (!string.IsNullOrWhiteSpace(Model.AppointmentOperate)) { sbOperate.Append(Model.AppointmentOperate); }
+      if (!string.IsNullOrWhiteSpace(Model.AppointmentWithoutLoginOperate)) { sbOperate.Append(Model.AppointmentWithoutLoginOperate); }
+ }
+<style type="text/css">
+    ul.info-float li {
+        line-height:30px;height:30px;
+    }
+</style>
+<div class="info-gray-box">
+    <ul class="info-float clearfix">
+        <li><span class="title">名称</span><span class="info">@(Model == null ? "" : Model.Name)</span></li>
+        <li><span class="title">所属单位</span><span class="info">@(Model == null ? "" : Model.OrgName)</span></li>
+        <li><span class="title">所在房间</span><span class="info">@(Model == null ? "" : Model.RoomName)</span></li>
+        <li><span class="title">门禁名称</span><span class="info">@(Model == null ? "" : Model.DoorName)</span></li>
+        <li><span class="title">联系人</span><span class="info">@(Model == null ? "" : Model.ContactPersonName)</span></li>
+        <li><span class="title">联系电话</span><span class="info">@(Model == null ? "" : Model.ContactTelPhoneNo)</span></li>
+        <li><span class="title">联系邮箱</span><span class="info">@(Model == null ? "" : Model.ContactEmail)</span></li>
+@*        <li>@System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())</li>*@
+    </ul>
+</div>
+<div class="info-gray-box">
+    <h2 class="title">工位设备</h2>
+    @Html.Partial("ShowNMPEquipmentList")
+</div>
+
+@if (Model != null && !string.IsNullOrEmpty(Model.Remark))
+{
+    <div class="info-gray-box">
+        <h2 class="title">备注信息</h2>
+        @System.Web.Mvc.MvcHtmlString.Create((Model == null ? "" : Model.Remark.Replace("\r\n", "<br />")))
+    </div>
+}

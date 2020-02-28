@@ -1,0 +1,206 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var animalOutAppointmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAnimalOutAppointmentPrivilige(User.Identity.Name);
+}
+<div id="divAnimalOutAppointmentEditDialog" style="display:none;"></div>
+<div id="divAnimalOutAppointmentViewDialog" style="display:none;"></div>
+<div id="divAuditAnimalOutAppointmentDialog" style="display:none;"></div>
+<div id="divAnimalOutAppointmentFeedBackDialog" style="display:none;"></div>
+
+<script type="text/javascript">
+      
+      function doOnGetOutAnimalCategoryChanged(newValue, oldValue, id, ethicsAmountEelementId, trEthicsAmountElementId, ethicsNoElementId, hidAnimalSpecificationsElementId, animalSpecificationsElementId) {
+        var ethicsNo = $("#" + ethicsNoElementId).combobox("getValue").trim();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetEnableGetOutAnimalAmount","AnimalOutAppointment")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: { "id": id, "ethicsNo": ethicsNo, "animalCategoryId": newValue},
+            success: function (msg) {
+                $.messager.progress('close');
+                var data = eval("(" + msg + ")");
+                if($("#" + ethicsAmountEelementId).length > 0)$("#" + ethicsAmountEelementId).html("可申请总数量:" + data.TotalCount + "&nbsp;&nbsp;♂数量:" + data.MaleCount + "&nbsp;&nbsp;♀数量:" + data.FemaleCount + "&nbsp;&nbsp;&nbsp;&nbsp;剩余总数量:" + data.LeftTotalCount + "&nbsp;&nbsp;♂数量:" + data.LeftMaleCount + "&nbsp;&nbsp;♀数量:" + data.LeftFemaleCount);
+                if($("#" + trEthicsAmountElementId).length > 0)$("#" + trEthicsAmountElementId).css("display", "");
+                if($("#" + hidAnimalSpecificationsElementId).length > 0)$("#" + hidAnimalSpecificationsElementId).val(data.AnimalSpecifications);
+                if($("#" + animalSpecificationsElementId).length > 0)$("#" + animalSpecificationsElementId).html(data.AnimalSpecifications);
+                enableOutQueryExpression = data.QueryExpression;
+            }
+        });
+    }
+    var editDialog;
+    function doAddOrEdit(id) {
+        if(editDialog) editDialog.dialog('destroy');
+        var url = (id != "" ? '@Url.Action("Edit")' : '@Url.Action("Add")') + "?id=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAnimalOutAppointmentEditDialog").load(url, function () {
+            $.messager.progress('close');
+            editDialog = @(Html.JDialog("divAnimalOutAppointmentEdit").SetTitle("取材预约信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("editDialog.dialog('close');return false;").SetModal(true).SetOkScript(animalOutAppointmentPrivilige.IsEnableSave?"doSave();":"alert('无操作权限');").ToMvcString());
+        });
+    }
+    var viewDialog;
+    function doView(id){
+        if(viewDialog) viewDialog.dialog('destroy');
+        var url = '@Url.Action("View")'  + "?id=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAnimalOutAppointmentEditDialog").load(url, function () {
+            $.messager.progress('close');
+            viewDialog = @(Html.JDialog("divAnimalOutAppointmentView").SetTitle("取材预约详细信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("viewDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    function doCancel(id) {
+        $.messager.confirm('提示', '确认撤销?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Cancel")'+ "?time=" + new Date().getMilliseconds().toString(),
+                data: "ids=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    doAnimalOutAppointmentSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    function doSave() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var subjectProjectName = $("#SubjectProjectId").combobox("getText");
+        var animalIds = $("#AnimalIds").val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save")' + "?time=" + new Date().getMilliseconds().toString(),
+            data: $("#frmAnimalOutAppointmentEdit").serialize()+ "&SubjectProjectName=" + subjectProjectName  + "&animalIds=" + animalIds,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doAnimalOutAppointmentSearch();
+                editDialog.dialog('close'); 
+            }
+        });
+        return false;
+    }
+    var auditDialog;
+    function doAudit(id,auditStatus){
+       if (auditDialog) {
+            auditDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divAuditAnimalOutAppointmentDialog').load('@Url.Action("AuditInputContainer", "AnimalOutAppointment")',{ "id": id,"auditStatus":auditStatus,"time":new Date().getMilliseconds()},function(data){
+            $.messager.progress("close");
+            auditDialog = @(Html.JDialog("divAuditAnimalOutAppointment").SetAutoDialog(false).SetModal(true).SetOkScript("execAudit(id,auditStatus);").SetCancelScript("auditDialog.dialog('close');return false;").SetTitle("动物取材申请单审核").SetIconCls("icon-ok").ToMvcString());
+        });  
+        return false;
+    }
+    function execAudit(id,auditStatus){
+        var url = "";
+        switch(auditStatus.toString()){
+            case "@(((int)com.Bynonco.LIMS.Model.Enum.AuditStatus.Passed).ToString())":
+                url ='@Url.Action("Pass", "AnimalOutAppointment")';
+                break;
+            case  "@(((int)com.Bynonco.LIMS.Model.Enum.AuditStatus.NotPassed).ToString())":
+                url ='@Url.Action("Refuse", "AnimalOutAppointment")';
+                break;
+        }
+         $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: url,
+                data:$("#frmAuditAnimalOutAppointment").serialize()+"&auditStatus=" + auditStatus + "&id=" + id + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress("close");
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    auditDialog.dialog("close");
+                    doAnimalOutAppointmentSearch();
+                }
+            });
+     }
+    function doPrint(id){
+        var url = '@Url.Action("Print", "AnimalOutAppointment")';
+        url += "?time=" + new Date().getMilliseconds() + "&id=" + id;
+        window.open(url,"_blank");
+    }
+    var feedBackDialog;
+    function doFeedBack(id){
+       if (feedBackDialog) {
+            feedBackDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divAnimalOutAppointmentFeedBackDialog').load('@Url.Action("FeedBackContainer", "AnimalOutAppointment")',{ "id": id,"time":new Date().getMilliseconds()},function(data){
+            $.messager.progress("close");
+            feedBackDialog = @(Html.JDialog("divAnimalOutAppointmentFeedBackEdit").SetAutoDialog(false).SetModal(true).SetOkScript("execFeedBack(id);").SetCancelScript("feedBackDialog.dialog('close');return false;").SetTitle("动物取材反馈").SetIconCls("icon-ok").ToMvcString());
+        });  
+        return false;
+    }
+   function execFeedBack(id){
+        var corpseHanldedWayName = $("#CorpseHanldedWayId").combobox("getText").trim();
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("FeedBack")',
+                data:$("#frmAnimalOutAppointmentFeedBackEdit").serialize()+ "&id=" + id + "&corpseHanldedWayName=" + corpseHanldedWayName + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress("close");
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    feedBackDialog.dialog("close");
+                    doAnimalOutAppointmentSearch();
+                }
+            });
+   }
+</script>
+<script type="text/javascript">
+    function getSelectedAnimalCallBack(selectedAnimalNames, selectedAnimalIds,selectedAnimalSexes) {
+        $("#AnimalIds").tokenInput("clear");
+        $("#Sex").combobox("setValue", '@((int)AnimalAppointmentSex.MaleAndFemale)');
+        $("#spanQuantity").html("0");
+        $("#spanMaleQuatity").html("0");
+        $("#spanFemaleQuatity").html("0");
+        if (selectedAnimalNames && selectedAnimalNames != "") {
+            var animalNames = selectedAnimalNames.split(",");
+            var animalIds = selectedAnimalIds.split(",");
+            var length = animalNames.length;
+            for (var i = 0; i < length; i++) {
+                $("#AnimalIds").tokenInput("add", { id: animalIds[i], text: animalNames[i] });
+            }
+            var amount = 0;
+            var maleAmount = 0;
+            var femaleAmount = 0; 
+            var animalSexes = selectedAnimalSexes.split(",");
+            if (animalSexes.length > 0) {
+                for (var i = 0; i < animalSexes.length; i++) {
+
+                    if (animalSexes[i].toString() == "true") {
+                        maleAmount++;
+                    }
+                    else {
+                        femaleAmount++;
+                    }
+                }
+                $("#spanQuantity").html(maleAmount + femaleAmount);
+                $("#spanMaleQuatity").html(maleAmount);
+                $("#spanFemaleQuatity").html(femaleAmount);
+                if (maleAmount > 0 && femaleAmount == 0) {
+                    $("#Sex").combobox("setValue", '@((int)AnimalAppointmentSex.Male)');
+                }
+                if (femaleAmount > 0 && maleAmount == 0) {
+                    $("#Sex").combobox("setValue", '@((int)AnimalAppointmentSex.Female)');
+                }
+            }
+
+        }
+        
+    }
+</script>

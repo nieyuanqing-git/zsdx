@@ -1,0 +1,53 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var costDeductPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCostDeductPrivilige(User.Identity.Name);}
+<div id="divAnimalCostDeductDialog" style=" display:none"></div>
+<div id="divAnimalCostDeductInfoDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doAnimalDeductSearch(isPosCurPage) {
+        var queryExpression = generateAnimalDeductQueryExpression();
+        if(isPosCurPage){
+            $("#tbViewAnimalCostDeductList").datagrid("reload", { "queryExpression": queryExpression.trim() });
+        }
+        else{
+            $("#tbViewAnimalCostDeductList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbViewAnimalCostDeductList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        } 
+    }
+    function doExportAnimalCostDeductList(payerId) {
+        var newQueryExpression = generateAnimalDeductQueryExpression();
+        var url = '@Url.Action("ExportAnimalCostDeductList", "CostDeduct")'+ "?userId=" + '@(ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "")'+ "&isManage=" + '@(ViewData["IsManage"]== null ? "": ViewData["IsManage"].ToString().ToLower())' + "&queryExpression=" + newQueryExpression.trim() + "&payerId=" + payerId +  "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+   
+    var animalCostDeductInfoDialog;
+    function doViewAnimalCostDeductInfo(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if(animalCostDeductInfoDialog){
+            animalCostDeductInfoDialog.dialog("destroy");
+        }
+        var url = '@Url.Action("ViewAnimalCostDeduct","CostDeduct")';
+        $("#divAnimalCostDeductInfoDialog").load(url, { "id": id, time: new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            animalCostDeductInfoDialog = @Html.JDialog("divAnimaCostDeductDetail").SetTitle("实验动物扣费信息").SetIconCls("icon-save").SetAutoDialog(false).SetOkScript("animalCostDeductInfoDialog.dialog('close');return false;").SetCancelScript("animalCostDeductInfoDialog.dialog('close');return false;").SetModal(true).ToMvcString()
+        });
+    }
+    function doDeleteAnimalCostDeduct(id){
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteAnimalCostDeduct", "CostDeduct")',
+                data: { "id": id },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doAnimalDeductSearch(true);
+                }
+            });
+        });
+    }
+</script>

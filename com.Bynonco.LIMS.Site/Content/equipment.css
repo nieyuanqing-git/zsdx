@@ -1,0 +1,85 @@
+﻿#EquipmentList{border:1px solid #CCC;border-top:0;overflow-x: auto;}
+.pagination{background-color:#FFF;}
+
+/* -----------------  panel-header ------------------------ */ 
+.panel-header {line-height:normal;}
+.panel-header .menu-type{float:left;}
+.panel-header .menu-type .icon{background-position: left center;}
+.panel-header .menu-type .icon span{padding-left:20px;line-height:18px;height:18px;}
+.panel-header .sort-pannel{float: right;}
+.panel-header .sort-item{font-weight:normal;cursor:pointer; background: none repeat scroll 0 0 #FFFFFF;border: 1px solid #AAAAAA;padding: 0 3px;float:right;margin-right:5px;}
+.panel-header .sort-item.current{font-weight:bold;}
+/* ----------------- end panel-header ------------------------ */ 
+
+/*-------------------  panel-condition -------------------------*/
+.panel-condition{margin-bottom: 5px;}
+.panel-condition span.top-tit{float: left; vertical-align: middle; margin-right: 5px; height: 35px; line-height: 35px;}
+.panel-condition ul{padding-left:70px;}
+/*-------------------  panel-condition -------------------------*/
+
+li.border-b{border-bottom:1px solid #F0F0F0;}
+li.first-row{border-top: 1px solid #CCC;}
+li.alt-row{background-color:#F8F8F8}
+
+.detail-pannel{padding:10px;height: 135px;}
+.detail-pannel .list-left{float:left;width:150px;overflow:hidden;}
+.detail-pannel .list-left .img-box{width:146px;height:126px;padding:1px;border: 1px solid #CCC;}
+.detail-pannel .list-right{float:left;width:550px;overflow:hidden;padding:0 9px;}
+.main-box-full .detail-pannel .list-right{width:750px;}
+.detail-pannel .list-right p.title{margin:0 0 5px;}
+.detail-pannel .list-right p.title a{color: #272727;font-size: 16px;font-weight: bold;}
+.detail-pannel .list-right .inner-left{float:left;width:470px;}
+.main-box-full .detail-pannel .list-right .inner-left{width:670px;}
+.detail-pannel .list-right .inner-left li{line-height:18px;}
+.layout-center-full .detail-pannel .list-right .inner-left li{line-height:normal;}
+.detail-pannel .list-right .inner-left li span.title{display:inline-block;width:80px;}
+.detail-pannel .list-right .inner-left li.button-box{display:none;margin-top:5px;}
+.detail-pannel .list-right .inner-right{float:right;width:80px; }
+.detail-pannel .list-right .inner-right a.l-btn-color{border: 0 none;display: inline-block;font-size: 16px; height: 30px;line-height: 28px;margin-bottom: 5px;padding-left: 8px;width: 72px;}
+.detail-pannel .list-right .inner-right a.l-btn-color-blue{background:url('images/l-btn-blue-angle.png') no-repeat left top;color: #FFFFFF;}
+.detail-pannel .list-right .inner-right a.l-btn-color-yellow{background:url('images/l-btn-yellow-angle.png') no-repeat left top;color: #FFFFFF;}
+.detail-pannel .list-right .inner-right a.l-btn-color-green{background:url('images/l-btn-green-angle.png') no-repeat left top;color: #FFFFFF;}
+#divShowSameEquipment .detail-pannel .list-right{width:660px;}
+#divShowSameEquipment .detail-pannel .list-right .inner-left{width:580px;}
+
+.detail-pannel-list ul.float-l li{float:left;padding:3px;line-height:25px;}
+.detail-pannel-list ul.header-title li{font-weight:bold;height:25px;}
+.detail-pannel-list ul.float-l li img{border:1px solid #CCC;padding:1px;width:46px;height:46px;}
+.detail-pannel-list ul.float-l li.Equipment-Pic{width:55px;}
+.detail-pannel-list ul.float-l li.Equipment-Name{width:200px;}
+.main-box-full .detail-pannel-list ul.float-l li.Equipment-Name{width:450px;}
+.detail-pannel-list ul.float-l li.Equipment-CurrentStatus{width:40px;}
+.detail-pannel-list ul.float-l li.Equipment-CurUserName{width:50px;}
+.detail-pannel-list ul.float-l li.Equipment-LinkManNames{width:50px;}
+.detail-pannel-list ul.float-l li.Equipment-LinkTelNo{width:80px;}
+.detail-pannel-list ul.float-l li.Equipment-RoomName{width:140px;}
+.detail-pannel-list ul.float-l li.Equipment-OrgName{width:85px;}
+.detail-pannel-list ul.float-l li.Equipment-IsOpen{width:50px;}
+.detail-pannel-list ul.float-l li.Equipment-IsCMACNAS{width:80px;}
+.detail-pannel-list ul.float-l li.align-c{text-align:center;}
+
+.info-pannel .img-box{width:350px;float:left;}
+.info-pannel .smallimage{width:50px;height:50px;border:1px solid #CCC;padding:1px;}
+.info-pannel .topTitle{margin-bottom:10px;}
+.info-pannel .topTitle h2{width:500px;float:left;font-weight: normal;}
+.info-pannel .topTitle .TopOperate{float:right;}
+.info-pannel .topTitle .TopOperate a.l-btn-plain-show{background:none;border:0;text-decoration:underline;}
+.info-pannel .info-box{width:450px;float:left;}
+.info-pannel .info-box p{line-height:normal;margin-bottom:5px;padding-left:10px;}
+.info-pannel .info-box p span{width:80px;display:inline-block;text-align:right;margin-right:10px;color:#000;}
+.info-pannel .info-right-box{width:100px;float:right;background-color: #EFEFEF;float: right;margin-top: 30px;padding: 10px;width: 130px;border: 1px solid #FFF; border-radius: 5px 5px 5px 5px;}
+.info-pannel .info-right-box .price-box{ padding: 20px 0;}
+.info-pannel .info-right-box .price-box .price{color: #9E1404;font-size: 30px;}
+.info-pannel .info-right-box .operate-box{padding:0 20px;}
+.info-pannel .info-right-box .operate-box a.l-btn-color{border: 0 none;display: inline-block;font-size: 16px; height: 40px;line-height: 40px;margin-bottom: 5px;padding-left: 15px;width: 75px;}
+.info-pannel .info-right-box .operate-box a.l-btn-color-blue{background:url('images/l-btn-blue.png') no-repeat left top;color: #FFFFFF;margin-right:0px;}
+.info-pannel .info-right-box .operate-box a.l-btn-color-yellow{background:url('images/l-btn-yellow.png') no-repeat left top;color: #FFFFFF;margin-right:0;}
+.info-pannel .tabs{font-size:14px;background-color:#FFF;padding-top:10px;}
+.info-pannel .detail-info{border:1px solid #CCC;padding:10px 20px;}
+.info-pannel .detail-info .info-gray-box{background-color: #F4F4F4; border: 1px solid #CCCCCC; border-radius: 6px 6px 6px 6px; margin-bottom: 10px; padding: 10px;}
+.info-pannel .detail-info p{margin: 0.7em 0;}
+.info-pannel .detail-info h2.title{border-bottom: 1px dotted #A0A0A0;line-height:30px;margin: 0.7em 0;background:none;}
+.info-pannel .detail-info span.title{color:#000;margin-right:10px;width:60px;display:inline-block;}
+.info-pannel .detail-info span.info{width:200px;display:inline-block;}
+.info-pannel .detail-info em.title{color:#000;}
+.info-pannel .detail-info ul.info-float li{float:left;width:270px;margin-bottom:5px;}

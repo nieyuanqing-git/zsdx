@@ -1,0 +1,210 @@
+﻿@model com.Bynonco.LIMS.Model.SubjectAchievement
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.MVC.Controllers
+@{
+    var view = ViewContext.RouteData.GetViewName();
+    if (view.StartsWith("~"))
+    {
+        Html.RenderPartial(view, Model);
+        return;
+    }
+    var enableUploadFileType = "可上传的文件类型:" + ViewData["EnableUploadFileType"] + ".   ";
+    var enableUploadFileSize = "最大可上传" + ViewData["enableUploadFileSize"] + "的文件.";
+    var uploadTip = enableUploadFileType + "" + enableUploadFileSize;
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();   
+}
+<div id="divSubjectAchievementEdit">
+ <form id="frmSubjectAchievementEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdSubjectAchievementEdit" class="edit-table"  style="width:640px;">
+         <tr>
+            <th><span class="required">* </span>项目名称</th>
+            <td>
+                @(Html.JValidateBox("SubjectName").SetWidth(210).SetValue(Model == null ? "" : Model.SubjectName).ToMvcString())
+            </td>
+            <th><span class="required">* </span>项目负责人</th>
+            <td id='tdSubjectChief'>
+                 @(Html.TokenInput("SubjectChief")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(true)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doSubjectChiefChange();")
+                    .SetOnDelete("doSubjectChiefChange();")
+                    .SetPrePopulate(ViewData["SubjectChiefJson"] == null || string.IsNullOrWhiteSpace(ViewData["SubjectChiefJson"].ToString()) ? null : ViewData["SubjectChiefJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("SubjectChiefId", Model == null || !Model.SubjectChiefId.HasValue? "" : Model.SubjectChiefId.Value.ToString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>项目别类</th>
+            <td>@(Html.JComboBox("SubjectType")
+                .SetData(ViewData["SubjectTypeJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>项目来源</th>
+            <td>@(Html.JComboBox("SubjectCome")
+                .SetData(ViewData["SubjectComeJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>项目编号</th>
+            <td>
+                @(Html.JValidateBox("SubjectNum").SetWidth(210).SetValue(Model == null ? "" : Model.SubjectNum).ToMvcString())
+            </td>
+            <th><span class="required">* </span>经费(万)</th>
+            <td colspan="3">
+                @(Html.JValidateBox("SubjectFunds").SetWidth(210).SetValue(Model == null ? "" : Model.SubjectFunds.ToString()).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>开始时间</th>
+            <td>
+                @(Html.JDateTimePicker("StartTime").SetWidth(215).SetValue(Model == null || !Model.StartTime.HasValue ? "" : Model.StartTime.Value.ToString("yyyy-MM-dd")).ToMvcString())
+            </td>
+            <th>结束时间</th>
+            <td>
+                @(Html.JDateTimePicker("EndTime").SetWidth(215).SetValue(Model == null || !Model.EndTime.HasValue ? "" : Model.EndTime.Value.ToString("yyyy-MM-dd")).ToMvcString())
+            </td>
+        </tr>
+        <tr >
+            <th>项目组成员</th>
+            <td colspan="3" id="tdMemberName">
+                 @(Html.TokenInput("MemberName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(false)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doMemberNameChange();")
+                    .SetOnDelete("doMemberNameChange();")
+                    .SetPrePopulate(ViewData["MemberJson"] == null || string.IsNullOrWhiteSpace(ViewData["MemberJson"].ToString()) ? null : ViewData["MemberJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("MemberId", ViewData["MemberId"] == null ? "" : ViewData["MemberId"].ToString())
+            </td>
+        </tr>
+        <tr>
+            <th>单位</th>
+            <td colspan="3" id="tdDepartmentName">
+                @(Html.TokenInput("DepartmentName")
+                    .SetUrl(Url.Action("GetLabOrganizationWeakListByKeyWord", "LabOrganization"))
+                    .SetWidth(540)
+                    .SetSingle(false)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doDepartmentNameChange();")
+                    .SetOnDelete("doDepartmentNameChange();")
+                    .SetPrePopulate(ViewData["DepartmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["DepartmentJson"].ToString()) ? null : ViewData["DepartmentJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("DepartmentId", ViewData["DepartmentId"] == null ? "" : ViewData["DepartmentId"].ToString())
+            </td>
+        </tr>
+        <tr id="trEquipmentList">
+            <th>相关仪器</th>
+            <td colspan="3" style="padding:0;border:0;">
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            @(Html.TokenInput("EquipmentId")
+                                .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                                .SetSingle(false)
+                                .SetWidth(400)
+                                .SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString())
+                                .ToMvcString())
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectEquipmentDialog('EquipmentId');return false;").ToMvcString()
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnCleanEquipment", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanEquipment();return false;").ToMvcString()
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th rowspan="2">
+                 附件信息
+            </th>
+            <td colspan="3">
+                <input id="fileToUpload" type="file" name="fileToUpload" style="width:230px" title="@(uploadTip)" />
+                @(Html.JLinkButton("btnUpLoad", "上传").SetIconCls("icon-upload").SetPlain(true).SetOnclick("ajaxFileUpload();return false;").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3"  id="tdAttachment">
+                @Html.Partial("AttachmentList", "Achievement")
+            </td>
+        </tr>
+    </table>
+  </form>
+    <div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdSubjectChief ul.token-input-list-facebook").css("width", "215px");
+        $("#tdMemberName ul.token-input-list-facebook").css("width", "535px");
+        $("#tdDepartmentName ul.token-input-list-facebook").css("width", "535px");
+        if ('@(string.IsNullOrWhiteSpace(equipmentId).ToString().ToLower())' != "true") {
+            $("#trEquipmentList").css("display", "none");
+            $("#EquipmentId").val("@(equipmentId)");
+        }
+     });
+
+     function doCleanEquipment() {
+         $("#EquipmentId").tokenInput("clear");
+     }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+
+        $("#EquipmentId").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#EquipmentId").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+    function doSubjectChiefChange() {
+        $("#SubjectChiefId").val("");
+        var subjectChiefList = $("#SubjectChief").tokenInput("get");
+        if (subjectChiefList && subjectChiefList.length > 0) {
+            var subjectChiefIds = "";
+            for (var i = 0; i < subjectChiefList.length; i++) {
+                if (subjectChiefIds != "") subjectChiefIds += ",";
+                subjectChiefIds += subjectChiefList[i].id;
+            }
+            $("#SubjectChiefId").val(subjectChiefIds);
+        }
+    }
+    function doMemberNameChange() {
+        $("#MemberId").val("");
+        var memberList = $("#MemberName").tokenInput("get");
+        if (memberList && memberList.length > 0) {
+            var memberIds = "";
+            for (var i = 0; i < memberList.length; i++) {
+                if (memberIds != "") memberIds += ",";
+                memberIds += memberList[i].id;
+            }
+            $("#MemberId").val(memberIds);
+        }
+    }
+    function doDepartmentNameChange() {
+        $("#DepartmentId").val("");
+        var departmentList = $("#DepartmentName").tokenInput("get");
+        if (departmentList && departmentList.length > 0) {
+            var departmentIds = "";
+            for (var i = 0; i < departmentList.length; i++) {
+                if (departmentIds != "") departmentIds += ",";
+                departmentIds += departmentList[i].id;
+            }
+            $("#DepartmentId").val(departmentIds);
+        }
+    }
+</script>

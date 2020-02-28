@@ -1,0 +1,22 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divCostDeductInput" style="overflow:hidden;">
+    <form id="frmCostDeductInput" action="#">
+       <table class="edit-table" style="width:452px;">
+            <tr>
+                <th><span class="required">*</span>截止扣费时间</th>
+                <td>
+                    @Html.JDateTimePicker("EndCostDeductDate").SetValue(DateTime.Now.Date.AddSeconds(-1).ToString("yyyy-MM-dd")).SetWidth(252).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>扣费相关说明</th>
+                <td>
+                    费用=（截止扣费时间 - 动物上次计费时间距离）*动物计费标准
+                    <br />
+                    该时间对已死亡和已取材的动物无效
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>

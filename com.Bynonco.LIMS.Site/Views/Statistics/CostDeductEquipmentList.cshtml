@@ -1,0 +1,84 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{  
+    var customer = CustomerFactory.GetCustomer();
+    var isCalcDuration = customer == null ? true : customer.GetIsShowCostDeductCalcDurationStatistics();
+    var customerOrgName = customer == null ? "所属单位" : customer.GetLabOrganizationName();
+    var isManageList = ViewData["IsManageList"] == null ? true : bool.Parse(ViewData["IsManageList"].ToString());
+    
+    var isCostDeductOpenFund = ViewData["IsCostDeductOpenFund"] == null ? false : bool.Parse(ViewData["IsCostDeductOpenFund"].ToString());
+    var isSampleApply = ViewData["IsSampleApply"] == null ? false : bool.Parse(ViewData["IsSampleApply"].ToString());
+    <script type="text/javascript">
+    $(function () {
+        $('#tbCostDeductEquipmentStatistics').datagrid({
+            columns: [[
+            { title: '@customerOrgName', field: 'EquipmentOrgName', width: 100, rowspan: 3, align: 'left', sortable: true },
+            { title: '使用汇总 (人、次、小时 )', colspan: @(isCalcDuration ? 4 : 3), align: 'center'},
+            { title: '机时费用汇总 (元)', colspan: @(isCostDeductOpenFund ? 5 : 3), align: 'center' },
+            { title: '送样费用汇总 (元)', colspan: @(isCostDeductOpenFund ? 5 : 3), align: 'center', hidden: @((!isSampleApply).ToString().ToLower()) },
+            { title: '总费用汇总 (元)', colspan: @(isCostDeductOpenFund ? 5 : 3), align: 'center' }
+            ], [
+            { title: '付费人数', field: 'PayerCount', width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '使用次数', field: 'UsedCount', width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '实际用时', field: 'UsedHourStr', width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '计费时长', field: 'CalcDurationStr', hidden: @((!isCalcDuration).ToString().ToLower()), width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '普通扣费', colspan: 2, align: 'center'},
+            { title: '开放基金扣费', colspan: 2, align: 'center', hidden: @((!isCostDeductOpenFund).ToString().ToLower()) },
+            { title: '小  计', field: 'CostAppointmentCurrencyStr', width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '普通扣费', colspan: 2, align: 'center', hidden: @((!isSampleApply).ToString().ToLower())  },
+            { title: '开放基金扣费', colspan: 2, align: 'center', hidden: @((!isCostDeductOpenFund || !isSampleApply).ToString().ToLower())  },           
+            { title: '小  计', field: 'CostSampleApplyCurrencyStr', width: 80, rowspan: 2, align: 'center', sortable: true, hidden: @((!isSampleApply).ToString().ToLower()) },
+            { title: '普通扣费', colspan: 2, align: 'center' },
+            { title: '开放基金扣费', colspan: 2, align: 'center', hidden: @((!isCostDeductOpenFund).ToString().ToLower())  },           
+            { title: '合  计', field: 'CostTotalCurrencyStr', width: 80, rowspan: 2, align: 'center', sortable: true }
+            ],
+            [
+            { title: '真实币', field: 'CostAppointmentRealCurrencyStr', width: 70, align: 'center', sortable: true },
+            { title: '奖励币', field: 'CostAppointmentVirtualCurrencyStr', width: 70, align: 'center', sortable: true },
+            { title: '真实币', field: 'CostAppointmentOpenFundRealCurrencyStr', width: 70, align: 'center', sortable: true, hidden: @((!isCostDeductOpenFund).ToString().ToLower()) },
+            { title: '补贴币', field: 'CostAppointmentSubsidiesCurrencyStr', width: 70, align: 'center', sortable: true, hidden: @((!isCostDeductOpenFund).ToString().ToLower()) },
+            { title: '真实币', field: 'CostSampleApplyRealCurrencyStr', width: 70, align: 'center', sortable: true, hidden: @((!isSampleApply).ToString().ToLower()) },
+            { title: '奖励币', field: 'CostSampleApplyVirtualCurrencyStr', width: 70, align: 'center', sortable: true, hidden: @((!isSampleApply).ToString().ToLower()) },
+            { title: '真实币', field: 'CostSampleApplyOpenFundRealCurrencyStr', width: 70, align: 'center', sortable: true, hidden: @((!isCostDeductOpenFund || !isSampleApply).ToString().ToLower()) },
+            { title: '补贴币', field: 'CostSampleApplySubsidiesCurrencyStr', width: 70, align: 'center', sortable: true, hidden: @((!isCostDeductOpenFund || !isSampleApply).ToString().ToLower()) },
+            { title: '真实币', field: 'CostRealCurrencyStr', width: 70, align: 'center', sortable: true },
+            { title: '奖励币', field: 'CostVirtualCurrencyStr', width: 70, align: 'center', sortable: true },
+            { title: '真实币', field: 'CostOpenFundRealCurrencyStr', width: 70, align: 'center', sortable: true, hidden: @((!isCostDeductOpenFund).ToString().ToLower()) },
+            { title: '补贴币', field: 'CostSubsidiesCurrencyStr', width: 70, align: 'center', sortable: true, hidden: @((!isCostDeductOpenFund).ToString().ToLower()) }
+            ]],
+            frozenColumns: [[
+                { title: '编码', field: 'EquipmentId', hidden: true, rowspan: 3 },
+                { title: '图片', field: 'EquipmentIcon',width: 45, rowspan: 3, align: 'center', sortable: false },
+                { title: '设备名称/扣费名目', field: 'EquipmentNameStr',width:180, rowspan: 3, align: 'left', sortable: true }
+                ]],
+            url: '@Url.Action("GetGridCostDeductEquipmentStatistics", "Statistics")',
+            queryParams: {'queryExpression':'@(ViewData["queryExpression"] == null ? "" : ViewData["queryExpression"].ToString().Trim())','IsManageList':'@(isManageList.ToString().ToLower())'},
+            loadMsg: '数据加载中,请稍候……',
+            pageNumber: 1,
+            pageSize: 10,
+            pageList: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+            height: 550,
+            iconCls: 'icon-save',
+            collapsed: false,
+            collapsible: true,
+            remoteSort: true,
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            fitColumns: false,
+            striped: true,
+            nowrap: true,
+            method: 'post',
+            pagePosition: 'bottom', 
+            toolbar: [
+            @System.Web.Mvc.MvcHtmlString.Create("{id: 'btnShowViewCostDeductEquipmentChartColumn',text: '柱形图',disabled: false,iconCls: 'icon-chartbar',handler: function () { $('#btnShowViewCostDeductEquipmentChartColumn').linkbutton('enable'); doShowViewCostDeductEquipmentChartColumn();}}")
+            @System.Web.Mvc.MvcHtmlString.Create(",{id: 'btnShowViewCostDeductEquipmentChartPie',text: '饼形图',disabled: false,iconCls: 'icon-chartpie',handler: function () { $('#btnShowViewCostDeductEquipmentChartPie').linkbutton('enable'); doShowViewCostDeductEquipmentChartPie();}}")
+            @System.Web.Mvc.MvcHtmlString.Create(",{id: 'btnCostDeductEquipmentExportExcel',text: '导出',disabled: false,iconCls: 'icon-export',handler: function () { $('#btnCostDeductEquipmentExportExcel').linkbutton('enable'); doCostDeductEquipmentExportExcel();}}")
+            ],
+            showFooter: true
+        });
+    });
+</script>
+<table id="tbCostDeductEquipmentStatistics"></table>
+}

@@ -1,0 +1,12 @@
+﻿<div>
+    <h2 class="title clear-both">
+        <span style="float:left;">问答反馈</span>
+        <span style="float:right;">(共有问题数<span style="color: #b82e2e;float:none;" id='lbQACount'> 0 </span>个)</span>
+    </h2>
+</div>
+@Html.Partial("../QA/PaginationListSearch")
+<div class="content-box">
+    <div id="QAList"></div>
+    @Html.Partial("../QA/PaginationListScripts")
+</div>
+<div id="divQAAnswerDialog" style="display:none"></div>

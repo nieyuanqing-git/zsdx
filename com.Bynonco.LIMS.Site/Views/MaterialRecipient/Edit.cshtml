@@ -1,0 +1,175 @@
+﻿@model com.Bynonco.LIMS.Model.MaterialRecipient
+@using com.Bynonco.LIMS.Model.View; 
+@using com.Bynonco.LIMS.Model.Enum; 
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var materialRecipientItemList = ViewData["ViewMaterialRecipientItemList"] == null ? null : (List<ViewMaterialRecipientItem>)ViewData["ViewMaterialRecipientItemList"];
+    var selectSubjectProjectId = Model == null || !Model.SubjectProjectId.HasValue ? "" : Model.SubjectProjectId.Value.ToString();
+}
+ <script type="text/javascript">
+     function getSelectedSubjectProjectId() {
+         return '@selectSubjectProjectId';
+     }
+</script>
+
+@Html.Partial("../Subject/LoadSubjectProjectScript")
+<div id="divMaterialRecipientEdit">
+ <form id="frmMaterialRecipientEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdMaterialRecipientEdit" class="edit-table"  style="width:730px;height:auto">
+        <tr>
+            <th><span class="required">* </span>领用单号</th>
+            <td>
+                @Html.JValidateBox("RecipientNum").SetValue(Model == null ? DateTime.Now.ToString("yyyyMMddHHmmssfff") : Model.RecipientNum).SetWidth(150).ToMvcString()
+            </td>
+            <th><span class="required">* </span>领用人</th>
+            <td id="tdRecipientUser">
+                @(Html.TokenInput("RecipientUserId")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["RecipientUserJson"] == null || string.IsNullOrWhiteSpace(ViewData["RecipientUserJson"].ToString()) ? null : ViewData["RecipientUserJson"].ToString())
+                .SetSingle(true)
+                .SetWidth(125)
+                .SetOnChange("getMaterialRecipientRelativeData();")
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>领用时间</th>
+            <td>
+                @Html.JDateTimePicker("RecipientTime").SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.RecipientTime.ToString("yyyy-MM-dd")).SetWidth(105).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>课题组</th>
+            <td>
+                @Html.JComboBox("SubjectId").SetData(ViewData["SubjectJson"]).SetOnChange("doOnSubjectChanged(newValue, oldValue);").SetWidth(150).SetDisabled(Model != null).ToMvcString()
+            </td>
+            <th>
+                项目名称
+                </th>
+            <td>@Html.JComboBox("SubjectProjectId").SetWidth(125).ToMvcString()</td>
+            <th>状态</th>
+            <td>
+                @(Model == null ? MaterialRecipientStatus.WaittingAudit.ToCnName() : Model.StatusEnum.ToCnName())
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='5'>@Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:96%;height:80px" })</td>
+        </tr>
+        <tr>
+            <th rowspan="2"><span class="required">* </span>领用项目</th>
+            <td colspan='5'>
+                @Html.JLinkButton("btnSelectMaterialInfo", "新增").SetIconCls("icon-add").SetPlain(true).SetOnclick("doSelectMaterialRecipientMaterialInfo();return false;").ToMvcString()
+                @Html.Hidden("MaterialInfoIds", Model == null ? "" : Model.MaterialRecipientItemIds)
+            </td>
+        </tr>
+        <tr>
+            <td colspan='5'>
+                <table id="tbMaterialRecipientItemList" cellpadding="0" cellspacing="0" border="0" class="edit-table">
+                    <tr>
+                        <th style='width:30px;'></th>
+                        <th >名称</th>
+                        <th style='width:80px;'>库存量</th>
+                        <th style='width:80px;'>报警值</th>
+                        <th style='width:80px;'><span class="required">* </span>单价</th>
+                        <th style='width:80px;'><span class="required">* </span>领用量</th>
+                        <th style='width:80px;'><span class="required">* </span>总额</th>
+                    </tr>
+                    @if (materialRecipientItemList != null && materialRecipientItemList.Count() > 0)
+                    {
+                        foreach (var item in materialRecipientItemList)
+                        {
+                            @Html.Partial("../MaterialRecipient/ItemEdit", item)
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+
+
+<script type="text/javascript">
+    $(function() {
+        $("#tdRecipientUser ul.token-input-list-facebook").css("width", "125px");
+    });
+
+    function getMaterialRecipientRelativeData() {
+        var selectedUser = $("#RecipientUserId").tokenInput("get");
+        if (!selectedUser || selectedUser == "") return;
+        var userId = $("#RecipientUserId").val();
+        var subjectId = $("#SubjectId").val();
+        var url = '@Url.Action("GetUserRelativeSubjectData", "Subject")';
+        url += "?UserId=" + userId;
+        if (subjectId && subjectId != "") url += "&SubjectId=" + subjectId;
+        url += "&time=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            success: function(msg) {
+                $.messager.progress('close');
+                var data = eval("(" + msg + ")");
+                if (msg.ErrorMessage && (msg.ErrorMessage.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg.ErrorMessage, showType: 'show' });
+                }
+                $("#SubjectId").combobox("loadData", data.Subjects ? data.Subjects : null);
+            }
+        });
+    }
+
+    function getSelectedMaterialInfosCallBack(selectedMaterialInfoNames, selectedMaterialInfoIds, selectedMaterialInfoJsonArray) {
+        //$("#MaterialInfoIds").val('');
+        if (selectedMaterialInfoIds != "") {
+            var selectedMaterialInfoIdsArray = selectedMaterialInfoIds.split(",");
+            var selectedMaterialInfoNamesArray = selectedMaterialInfoNames.split(",");
+            if (!selectedMaterialInfoIdsArray || selectedMaterialInfoIdsArray.length == 0 || !selectedMaterialInfoNamesArray || selectedMaterialInfoNamesArray.length == 0) return;
+            for (var i = 0; i < selectedMaterialInfoIdsArray.length && i < selectedMaterialInfoNamesArray.length; i++) {
+                var materialInfoIds = $("#MaterialInfoIds").val();
+                if (materialInfoIds.indexOf(selectedMaterialInfoIdsArray[i]) < 0) {
+                    materialInfoIds += (materialInfoIds == "" ? "" : ",") + selectedMaterialInfoIdsArray[i];
+                    $("#MaterialInfoIds").val(materialInfoIds);
+                    doAddMaterialRecipientItem(selectedMaterialInfoIdsArray[i]);
+                }
+            }
+        }
+    }
+
+    function doSelectMaterialRecipientMaterialInfo() {
+        doSelectMaterialInfoDialog('MaterialInfoIds', { "SelectMaterialInfoMode": '@((int) com.Bynonco.LIMS.Model.Enum.SelectMaterialInfoMode.All)' });
+        return false;
+    }
+    function doAddMaterialRecipientItem(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        if ($("#Id_" + materialInfoId).length > 0) return;
+        var dataMaterialRecipient = "";
+        if($("#Id").val() != "") dataMaterialRecipient = "&materialRecipient=" + $("#Id").val();
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("GetViewMaterialRecipientItem","MaterialRecipient")',
+            data: { "materialInfoId": materialInfoId ,"materialRecipientId": $("#Id").val()},
+            success: function (data) {
+                $("#tbMaterialRecipientItemList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemoveMaterialRecipientItem(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        $("#tr_" + materialInfoId).remove();
+        var materialInfoIds = $("#MaterialInfoIds").val();
+        materialInfoIds = materialInfoIds.replace("," + materialInfoId, "").replace(materialInfoId + ",", "").replace(materialInfoId, ",")
+        $("#MaterialInfoIds").val(materialInfoIds);
+    }
+    function doChangeMaterialRecipientItemAmount(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        var unitPrice = $("#UnitPrice_" + materialInfoId);
+        var purchaseValue = $("#RecipientValue_" + materialInfoId);
+        var amount = $("#Amount_" + materialInfoId);
+        if (unitPrice.length == 0 || purchaseValue.length == 0 || amount.length == 0) return;
+        if (unitPrice.val().trim() == "" || purchaseValue.val().trim() == "") return;
+        var amountVal = parseFloat(unitPrice.val().trim()) * purchaseValue.val().trim();
+        amount.val(amountVal);
+    }
+</script>

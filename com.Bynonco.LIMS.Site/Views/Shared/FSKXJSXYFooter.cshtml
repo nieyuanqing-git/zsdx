@@ -1,0 +1,14 @@
+﻿@{
+    var version = ViewData["FileVersion"] == null ? "" : ViewData["FileVersion"].ToString().Trim();
+    var dateTime = DateTime.Now;
+    
+}
+<div class="foot-left-bg"></div>
+<div class="foot-right">
+<p class="foot-right-first"> Copyright © @(dateTime.Year) 佛山科学技术学院实验室与设备管理处版权所有</p>
+<p class="foot-right-second">技术支持: 广州佰能仪器有限公司</p>
+</div>
+@*<p id="p_cnzz" style='margin:0;'>
+<span style="margin-right:10px;">@(version)</span> Copyright © @(dateTime.Year) <a href='http://www.bynonco.com' target="_blank">广州佰能信息科技有限公司</a>.
+   
+</p>*@

@@ -1,0 +1,123 @@
+﻿@model IList<com.Bynonco.LIMS.Model.View.ViewEquipment>
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+<style type="text/css">
+ul.Icon-EquipmentList a.l-btn-color{display: inline-block;margin-bottom: 2px;}
+</style>
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerEquipmentIconListPage = customer == null ? "PaginationItemForIcon" : customer.GetEquipmentIconListPage();
+    var customerDirectorName = customer == null ? "负责人" : customer.GetEquipmentDirectorName();
+    var customerLinkMenName = customer == null ? "联系" : customer.GetEquipmentLinkMenName();
+    
+    var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+    DataGridSettings dataGridSettings = (DataGridSettings)ViewData["DataGridSettings"];
+    if (Model != null && Model.Count() > 0)
+    {
+        var paginationTop = Html.JPagination("PageEquipmentListTop")
+            .SetTotal(dataGridSettings.Total)
+            .SetPageSize(dataGridSettings.PageSize)
+            .SetPageNumber(dataGridSettings.PageIndex)
+            .SetOnSelectPage("doSelectPageTop(pageNumber, pageSize);");
+        @(paginationTop.ToMvcString()) 
+    var showType = ViewData["ShowType"] == null || ViewData["ShowType"] != "List" ? "Icon" : "List"; 
+        <ul class='Icon-EquipmentList @(showType == "Icon" ? "" : "hide")'>
+        @for (int i = 0; i < Model.Count(); i++)
+        {
+            var item = Model[i];
+            <li class='@(i % 2 == 0 ? "" : "alt-row") @(i == 0 ? "first-row" : "") border-b'>
+                @Html.Partial("../Equipment/" + customerEquipmentIconListPage, item)
+            </li>
+        }
+        </ul>
+        <ul class='List-EquipmentList @(showType == "List" ? "" : "hide")'>
+            <li>
+                <div class='detail-pannel-list'>
+                    <ul class="header-title float-l">
+                        <li class='Equipment-Pic align-c'>图片</li>
+                        <li class='Equipment-Name'>名称</li>
+                        <li class='Equipment-CurrentStatus align-c'>状态</li>
+                        <li class='Equipment-CurUserName align-c'>使用者</li>
+                        <li class='Equipment-LinkManNames align-c'>@customerLinkMenName</li>
+                        <li class='Equipment-LinkTelNo align-c'>联系电话</li>
+                        <li class='Equipment-RoomName'>所在地点</li>
+                        <li class='Equipment-OrgName'>所属机构</li>
+                        @if (!isHome)
+                        {
+                        <li class='Equipment-IsOpen'>开放</li>
+                        <li class='Equipment-IsCMACNAS'>CMA/CNAS</li>
+                        }
+                        <div class="clear-both"></div>
+                    </ul>
+                </div>
+            </li>
+                @for (int i = 0; i < Model.Count(); i++)
+                {
+                    var item = Model[i];
+                    <li class='@(i % 2 == 0 ? "" : "alt-row") @(i == 0 ? "first-row" : "") border-b'>
+                        @Html.Partial("../Equipment/PaginationItemForList", item)
+                    </li>
+                }
+        </ul>
+    
+                var pagination = Html.JPagination("PageEquipmentList")
+                    .SetTotal(dataGridSettings.Total)
+                    .SetPageSize(dataGridSettings.PageSize)
+                    .SetPageNumber(dataGridSettings.PageIndex)
+                    .SetOnSelectPage("doSelectPage(pageNumber, pageSize);");
+        @(pagination.ToMvcString()) 
+    foreach (var item in Model)
+    {         
+            <script type="text/javascript">
+                $(function(){
+                    GetEquipmentCurStatusInfo('@item.Id');
+                });
+            </script>
+    }
+    }
+    else
+    {
+        <p>没有相关设备信息</p>
+    }
+    
+}
+<script type="text/javascript">
+    $(function () {
+        $(".detail-pannel").mouseover(function () {
+            $(this).find(".list-right .button-box").css("display", "block");
+        });
+        $(".detail-pannel").mouseout(function () {
+            $(this).find(".list-right .button-box").css("display", "none");
+        });
+        $(".detail-pannel").find("#EquipmentName").each(function () {
+            var useType = $(this).attr("useType");
+            if (useType == '@((int)EquipmentUseType.NeedBook)') {
+                var id = $(this).next().val();
+                Tipped.create($(this), '@Url.Action("TipAppointmentTimes", "Equipment")' + "?TipType=icon&time" + new Date().getMilliseconds(), { ajax: { data: { id: id }, type: 'get' }, skin: 'light', hook: 'topleft' });
+            }
+        });
+
+        $(".detail-pannel-list").mouseover(function () {
+            $(this).find(".button-box").css("display", "block");
+        });
+        $(".detail-pannel-list").mouseout(function () {
+            $(this).find(".button-box").css("display", "none");
+        });
+        $(".detail-pannel-list").find("#EquipmentName").each(function () {
+            var useType = $(this).attr("useType");
+            if (useType == '@((int)EquipmentUseType.NeedBook)') {
+                var id = $(this).next().val();
+                Tipped.create($(this), '@Url.Action("TipAppointmentTimes","Equipment")' + "?TipType=list&time" + new Date().getMilliseconds(), { ajax: { data: { id: id }, type: 'get' }, skin: 'light', hook: 'topleft' });
+            }
+        });
+        try {
+            if (typeof (eval("setEquimentListFix")) == "function") {
+                setEquimentListFix();
+            }
+        } catch (e) {
+        }
+    });
+  
+</script>
+

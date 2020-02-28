@@ -1,0 +1,30 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateMaterialRecipientQueryExpress() {
+        var queryExpression = "";
+        var recipientNum = $("#SearchRecipientNum").val().trim();
+        if (recipientNum != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RecipientNum∽\"" + recipientNum + "\"";
+        }
+        return queryExpression;
+    }
+    function doMaterialRecipientReset() {
+        $("#SearchRecipientNum").val("");
+      
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>领用单号</label>
+        @Html.JValidateBox("SearchRecipientNum").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnMaterialRecipientSearch", "查询").SetOnclick("doMaterialRecipientSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialRecipientReset", "清空").SetOnclick("doMaterialRecipientReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialRecipientClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

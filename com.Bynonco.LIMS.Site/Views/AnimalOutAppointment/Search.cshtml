@@ -1,0 +1,102 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateAnimalOutAppointmentQueryExpress() {
+        var queryExpression = "";
+        var feedBackStatus = $("#cbxQueryFeedBackStatus").combobox("getValue");
+        if (feedBackStatus.trim() != "-1") {
+            var feedBackStatusStr = feedBackStatus == "0" ? "false" : "true";
+            queryExpression += (queryExpression == "" ? "IsFeedBack=" + feedBackStatusStr : "*IsFeedBack=" + feedBackStatusStr);
+        }
+        var ethicsNo = $("#txtQueryAnimalEthicsNo").val();
+        if (ethicsNo.trim() != "") {
+            queryExpression += (queryExpression == "" ? "EthicsNo∽\"" + ethicsNo.trim() + "\"" : "*EthicsNo∽\"" + ethicsNo.trim() + "\"");
+        }
+        var applicantName = $("#txtQueryApplicantName").val();
+        if (applicantName.trim() != "") {
+            queryExpression += (queryExpression == "" ? "ApplicantName∽\"" + applicantName.trim() + "\"" : "*ApplicantName∽\"" + applicantName.trim() + "\"");
+        }
+        var animalCategoryId = $("#cbxQueryAnimalCategoryId").val().trim();
+        if (animalCategoryId != "" && animalCategoryId != '@Guid.Empty.ToString()') {
+            queryExpression += (queryExpression == "" ? "AnimalCategoryId=\"" + animalCategoryId + "\"" : "*AnimalCategoryId=\"" + animalCategoryId + "\"");
+        }
+        var status = $("#cbxQueryStatus").combobox("getValue").trim();
+        if (status != "" && status != "-1") {
+            queryExpression += (queryExpression == "" ? "Status=\"" + status + "\"" : "*Status=\"" + status + "\"");
+        }
+        var selectedStudent = $("#cbxQuerySubjectMember").combobox("getValues");
+        var selectedStudentIds = selectedStudent.toString().split(",");
+        if (selectedStudentIds.length > 1 || (selectedStudentIds[0].trim() != "" && selectedStudentIds[0].trim() != "@(Guid.Empty.ToString())" && selectedStudentIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedStudentIds.length; i++) {
+                if (selectedStudentIds[i].trim() == "" || selectedStudentIds[i].trim() == "@(Guid.Empty.ToString())") { index++; continue; }
+                var queryExpressionTemp = "ApplicantId=\"" + selectedStudentIds[i] + "\"" + ")";
+                queryExpression += (i == index ? queryExpressionTemp : "*" + queryExpressionTemp);
+            }
+            queryExpression += ")";
+        }
+
+        var applyTimeStart = $("#SearchApplyTimeStart").datebox("getValue").trim();
+        if (applyTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime>\"" + applyTimeStart + "\"";
+        }
+        var applyTimeEnd = $("#SearchApplyTimeEnd").datebox("getValue").trim();
+        if (applyTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime<\"" + applyTimeEnd + " 23:59:59\"";
+        }
+        return queryExpression;
+    }
+
+    function doAnimalOutAppointmentReset() {
+        $("#txtQueryAnimalEthicsNo").val("");
+        $("#txtQueryApplicantName").val("");
+        $("#cbxQueryFeedBackStatus").combobox('setValue', '-1');
+        $("#cbxQueryAnimalCategoryId").val('@Guid.Empty.ToString()');
+        $("#cbxQueryStatus").combobox("setValue", "-1");
+        $("#cbxQuerySubjectMember").combobox("setValue", "@Guid.Empty.ToString()");
+        $("#SearchApplyTimeStart").datebox("setValue", "");
+        $("#SearchApplyTimeEnd").datebox("setValue", "");
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label style="width:60px">伦理编号</label>
+        @Html.JValidateBox("txtQueryAnimalEthicsNo").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">申请人</label>
+        @Html.JValidateBox("txtQueryApplicantName").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">课题组成员</label>
+        @Html.JComboBox("cbxQuerySubjectMember").SetWidth(152).SetData(ViewData["StudentJson"]).SetMutiSelect(true).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">品系名称</label>
+         @Html.DropDownList("cbxQueryAnimalCategoryId", (IEnumerable<SelectListItem>)ViewData["SearchAnimalCategorySelectListItem"], new { style = "width:155px" })
+    </li>
+    <li>
+        <label style="width:60px">当前状态</label>
+        @Html.JComboBox("cbxQueryStatus").SetWidth(155).SetData(ViewData["SearchStatusJson"]).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">反馈状态</label>
+        @Html.JComboBox("cbxQueryFeedBackStatus").SetEditable(false).SetWidth(155).SetData(ViewData["FeedBackStatusJson"]).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">申请时间</label>
+        @Html.JDateTimePicker("SearchApplyTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">结束时间</label>
+        @Html.JDateTimePicker("SearchApplyTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnAnimalOutAppointmentSearch", "查询").SetOnclick("doAnimalOutAppointmentSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnAnimalOutAppointmentReset", "清空").SetOnclick("doAnimalOutAppointmentReset();").ToMvcString()
+        @Html.JLinkButton("btnAnimalOutAppointmentClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

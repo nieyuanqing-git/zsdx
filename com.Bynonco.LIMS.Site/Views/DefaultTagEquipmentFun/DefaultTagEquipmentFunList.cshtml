@@ -1,0 +1,28 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var defaultTagEquipmentFunPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbDefaultTagEquipmentFunList")
+    .SetUrl(Url.Action("GetGridDefaultTagEquipmentFunList", "Equipment"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户类型", "TagName").SetSortable(false).SetWidth(300).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预约时间", "WorkHoursStr").SetSortable(false).SetWidth(1000).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddTagEquipmentFun);
+    if (defaultTagEquipmentFunPrivilige.IsEnableAddTagEquipmentFun)
+    {
+        dataGrid.SetAddScript("doAddOrEditDefaultTagEquipmentFun('');");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditTagEquipmentFun);
+    if (defaultTagEquipmentFunPrivilige.IsEnableEditTagEquipmentFun)
+    {
+        dataGrid.SetEditScript("doEditDefaultTagEquipmentFun();");
+        dataGrid.SetOnDblClickRow("doAddOrEditDefaultTagEquipmentFun(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteTagEquipmentFun);
+    if (defaultTagEquipmentFunPrivilige.IsEnableDeleteTagEquipmentFun)
+    {
+        dataGrid.SetDeleteScript("doDeleteDefaultTagEquipmentFun();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

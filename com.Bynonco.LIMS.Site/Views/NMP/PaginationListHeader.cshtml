@@ -1,0 +1,37 @@
+﻿@{
+    var nmpPrivilige = User.Identity.IsAuthenticated ? com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) : null;
+    var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+}
+<div class="panel-header" style='@(isHome ? "background:none;" : "")'>
+    <div class="menu-type">
+        @if (!isHome)
+        {
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnGridSearch" hidefocus="true" onclick="doShowSearch();;return false;">
+                <span class="l-btn-left"><span class="l-btn-text icon-search" style="padding-left: 20px;">搜索</span></span>
+            </a>
+        }
+        @if (nmpPrivilige != null && nmpPrivilige.IsEnableAdd && !isHome)
+        {
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnAdd" hidefocus="true" onclick="doAddOrEditNMP('');return false;">
+                <span class="l-btn-left"><span class="l-btn-text icon-add" style="padding-left: 20px;">新增</span></span>
+            </a>
+        }
+    </div>
+    <div class="sort-pannel">
+        <div class="sort-item current datagrid-sort-asc" sortname="Name">
+            <span >名称</span><span class="datagrid-sort-icon">&nbsp;</span>
+        </div>
+        <div class="sort-item datagrid-sort-asc" sortname="IP">
+            <span>IP</span><span class="datagrid-sort-icon">&nbsp;</span>
+        </div>
+        <div class="sort-item datagrid-sort-asc" sortname="DoorName">
+            <span>门禁</span><span class="datagrid-sort-icon">&nbsp;</span>
+        </div>
+        <div class="sort-item datagrid-sort-asc" sortname="RoomName">
+            <span>所在房间</span><span class="datagrid-sort-icon">&nbsp;</span>
+        </div>
+       
+        <div class="clear-both"></div>
+    </div>
+    <div class="clear-both"></div>
+</div>

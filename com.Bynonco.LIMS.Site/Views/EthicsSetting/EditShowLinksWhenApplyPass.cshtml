@@ -1,0 +1,17 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEditShowLinksWhenApplyPass">
+    <table class="edit-table">
+        <tr>
+            <th> <span class="required">*</span>链接名称</th>
+            <td>
+                @(Html.JValidateBox("LinkName").SetWidth(300).SetValue(ViewData["LinkName"].ToString()).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th> <span class="required">*</span>链接地址</th>
+            <td>
+                @(Html.JValidateBox("URL").SetWidth(300).SetValue(ViewData["URL"].ToString()).ToMvcString())
+            </td>
+        </tr>
+    </table>
+</div>

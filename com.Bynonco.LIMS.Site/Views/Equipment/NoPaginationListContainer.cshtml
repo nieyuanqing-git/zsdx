@@ -1,0 +1,9 @@
+﻿@{
+    var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+}
+@if (isHome)
+{
+    @Html.Partial("../Equipment/ShowListCondition")
+}
+<div id="EquipmentList" style='border:0'></div>
+@Html.Partial("../Equipment/NoPaginationListScripts")

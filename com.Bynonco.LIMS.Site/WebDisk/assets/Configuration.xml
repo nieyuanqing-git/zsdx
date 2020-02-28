@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+  <remoteUrl>/WebDiskServer/Gateway.aspx</remoteUrl>
+  <fileUpLoadServerUrl>/WebDiskServer/FileUpLoad.aspx</fileUpLoadServerUrl>
+  <fileDownLoadServerUrl>/WebDiskServer/FileDownLoad.aspx</fileDownLoadServerUrl>
+  <fileClearServerUrl>/WebDiskServer/FileClear.aspx</fileClearServerUrl>
+  <fileUpLoadFileMaxSize>100000000</fileUpLoadFileMaxSize>
+  <imageTypes>jpg,jpeg,gif,png,bmp</imageTypes>
+  <videoTypes>flv</videoTypes>
+  <documentTypes>rar,pdf,doc,xls,docx,xlsx,rtf,txt,zip,tiff</documentTypes>
+  <personalSubAreaCategoryId>8F4349A7-0032-4A7E-A804-6EF8DF591013</personalSubAreaCategoryId>
+  <publicSubAreaCategoryId>DD318AE1-F5A7-42DF-8724-CC74DC66DDF5</publicSubAreaCategoryId>
+  <subjectSubAreaCategoryId>3D654916-FC58-4F55-9426-B66A0F2368F7</subjectSubAreaCategoryId>
+</config>

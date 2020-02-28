@@ -1,0 +1,52 @@
+﻿@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    var isLogin = Request.IsAuthenticated && ViewData["LoginUser"] != null;
+}
+
+<div class='quick-link-box'>
+    <div class="content-box" style='padding:45px 5px 5px;'>
+       <ul class='quick-link'>
+            <li onclick='doQuickEquipment();'><a href='javascript:;'>仪器预约</a></li>
+            <li onclick='doQuickRegister();'><a href='javascript:;'>用户注册</a></li>
+            <li onclick='doQuickAppointment();'><a href='javascript:;'>预约记录</a></li>
+            <li onclick='doQuickUserHome();'><a href='javascript:;'>个人中心</a></li>
+        </ul>
+      
+    </div>
+</div>
+
+  <script type="text/javascript">
+      function doQuickRegister() {
+          var url = '@Url.Action("Register", "Account")';
+          location.href = url;
+      }
+      function doQuickAppointment() {
+          if ('@isLogin.ToString().ToLower()' == 'true') {
+
+              var url = '@Url.Action("HistoryIndex", "Appointment")' + "?date=" + new Date().getMilliseconds();
+              ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+          }
+          else {
+              $.messager.show({ title: '提示', msg: "请登录系统", showType: 'show' });
+          }
+          return false;
+      }
+      function doQuickUserHome() {
+          if ('@isLogin.ToString().ToLower()' == 'true') {
+
+              var url = '@Url.Action("Manage", "Account")' + "?date=" + new Date().getMilliseconds();
+              ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+          }
+          else {
+              $.messager.show({ title: '提示', msg: "请登录系统", showType: 'show' });
+          }
+          return false;
+      }
+      function doQuickEquipment() {
+          var url = '@Url.Action("ShowList", "Equipment", routeCurrentXPathValue)'
+          location.href = url;
+      }
+
+        </script>
+  

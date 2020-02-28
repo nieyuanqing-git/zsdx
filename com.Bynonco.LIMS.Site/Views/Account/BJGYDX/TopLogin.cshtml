@@ -1,0 +1,346 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var loginJumpTypeHref = ViewData["LoginJumpTypeHref"] == null ? "" : ViewData["LoginJumpTypeHref"].ToString().Trim();
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsShowRememberMe = customer == null ? true : customer.GetIsLoginShowRememberMe();
+ }
+<div id="divShowMessageDialog"></div>
+<div class='' style='position:relative;margin-right:5px;'>
+    <span class='Top-Login-Button' style='border-right: 1px solid #FFFFFF;display: block;float: left;line-height: 25px;padding: 0 8px;'>
+        <a id='lnkPopLogin' href="#" onclick='backToLogin();return false;' style='color:#fff;font-weight:bold;'>登&nbsp;录</a>
+    </span>
+    
+    <span class='Top-Login-Button' style='display: block;float: left;line-height: 25px;padding: 0 8px;'>
+        <a href="@Url.Action("Register", "Account")" style='color:#fff;font-weight:bold;'>注&nbsp;册</a>
+    </span>
+    <div class='clear-both'></div>
+    <div id="divTopLogin" class='pop-login-box hide'>
+        <form id="frmTopLogin" action="#">
+            <ul>
+                <li>
+                    @Html.JValidateBox("LoginName").SetWidth(225).SetHeight(30).AddClass("toptext").AddClass("top-loginname").ToMvcString()</li>
+                <li>
+                    @Html.JValidateBox("LoginPassword").SetWidth(225).SetHeight(30).AddClass("toptext").AddClass("top-loginpassword").SetPasswordMode(true).ToMvcString()</li>
+                <li class='@(customerIsShowRememberMe ? "" : "hide")'>
+                    @Html.CheckBox("IsRememberMe")<label for='IsRememberMe'>记住密码</label>
+                    &nbsp; &nbsp;<a href='@Url.Action("ForgetPassword", "Account")' style='float: right; padding-right: 15px; text-decoration: underline;'>忘记密码?</a>
+                </li>
+                <li style="margin:0px;padding:0px;width:252px;height:42px;line-height:42px;" class='top-button'>
+                    <a title="登录" onclick='doTopLoginBeforeSubmit();return false;' href="javascript:void(0)">&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;</a>
+                </li>
+                <li style="margin:5px 0 0;padding:0px;width:252px;height:42px;line-height:42px;" class='top-button'>
+                    <a  id="loginUrl" title="校内用户登录" style="background:#D95457"  href="#">校内用户登录</a>
+                </li>
+            </ul>
+            
+        </form>
+    </div>
+</div>
+<div style="display:none;">
+    <form id="bindDiv"  style="width: 400px;" data-options="title:' 尚未绑定仪器共享系统用户',modal:true" >
+        <table style="width:100%;">
+            <tr class="bindSelectOption">
+                <td>
+                    <button id="btnBind" style="width:370px;height:40px;font-size: 16px;font-weight: bold;margin-right: 0;background-color: #ACACAC;color: #FFF;text-align: center">绑定现有用户</button>
+                </td>
+            </tr>
+            <tr class="bindUserTr" style="display:none;">
+                <td>
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>统一用户</th><td>@Html.JValidateBox("flatLoginName").SetReadOnly(true).SetWidth(225).SetHeight(30).AddClass("toptext").AddClass("top-loginname").ToMvcString()</td>
+                        </tr>
+                        <tr>
+                            <th>用户名称</th><td>@Html.JValidateBox("bindLoginName").SetWidth(225).SetHeight(30).AddClass("toptext").AddClass("top-loginname").ToMvcString()</td>
+                        </tr>
+                        <tr>
+                            <th>用户密码</th><td>@Html.JValidateBox("bindLoginPwd").SetWidth(225).SetHeight(30).AddClass("toptext").AddClass("top-loginname").SetPasswordMode(true).ToMvcString()</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-align:center;"><button id="btnBindUser" style="width: 80px;height:30px;margin:0 5px;">绑定</button><button id="btnReturnSelection" style="width: 80px;height:30px;">返回</button></td>
+                        </tr>
+                    </table>
+                    
+                </td>
+            </tr>
+      @*      <tr class="bindSelectOption">
+                <td>
+                    <button id="btnCreateNew" style="width:370px;height:40px;font-size: 16px;font-weight: bold;margin-right: 0;background-color: #D95457;color: #FFF;text-align: center">新建系统用户</button>
+                </td>
+            </tr>*@
+        </table>    
+    </form>
+    <div id="divBJGYDXCasLogout" style="display:none">
+         <iframe id="ifrmBJGYDXCasLogout" name="ifrmCasLogout" src="" frameborder="no" scrolling="no"  width="200px"  height="200px"></iframe>
+    </div> 
+</div>
+<script type="text/javascript">
+    function showTopOuterLogin(isLocalOuterLogin) {
+        $("#isLocalOuterLogin").val(isLocalOuterLogin ? "true" : "false");
+        $("#divCasLogin").css("display", "none");
+        $("#divTopLogin").css("display", "");
+        $("#liTip").css("display", "");
+        $("#spanTip").html("<b>本地/校外用户登录</b>-请用本地用户名密码登录");
+        backToLogin();
+    }
+</script>
+<script type="text/javascript">
+
+    function isVirtualKeyboardInputMode() {
+        return keyBoard && keyBoard.oPopUp && keyBoard.oPopUp.layer && keyBoard.oPopUp.layer.style.display == "block";
+    }
+
+    $(function() {
+        doIniTopLoginForm();
+        $("#frmTopLogin").find("#LoginName").attr("placeholder", "登录账号");
+        $("#frmTopLogin").find("#LoginPassword").attr("placeholder", "登录密码");
+        $("#liLoginType span.combo").height(30);
+        $("#liLoginType span.combo input.combo-text").height(30);
+        $("#lnkPopLogin").mouseover(function() {
+            $(".pop-login-box").removeClass("hide");
+        });
+
+        $('a[onclick="doLogOffSubmit()"],a[onclick="doTopLogOffSubmit();return false;"]').on('click', function () {
+            var url = '@Url.Action("BJGYDXLogoutUrl","Account")';
+            $.post(url, function(gotoUrl) {
+                if (gotoUrl != "") {
+                    $("#ifrmBJGYDXCasLogout").attr("src", gotoUrl);
+                }
+            });
+            return false;
+        });
+
+        $(document).click(function(e) {
+            var drag = $(".pop-login-box"),
+                dragel = $(".pop-login-box")[0],
+                comdrap = $(".combo-p"),
+                comdrapel = $(".combo-p")[0],
+                target = e.target;
+            if (dragel !== target && !$.contains(dragel, target) && comdrapel !== target && !$.contains(comdrapel, target) && !isVirtualKeyboardInputMode()) {
+                $(".pop-login-box").addClass("hide");
+            }
+            try {
+                var dragAccount = $(".pop-account-box"),
+                    dragelAccount = $(".pop-account-box")[0],
+                    targetAccount = e.target;
+                if (dragelAccount !== targetAccount && !$.contains(dragelAccount, target)) {
+                    $(".pop-account-box").addClass("hide");
+                }
+            } catch (e) {
+            }
+        });
+
+        $('#btnBind').on('click', function() {
+            //$('#flatLoginName').val($('#LoginName').val());
+            //$('#flatLoginPwd').val($('#LoginPassword').val());
+            $('.bindSelectOption').hide();
+            $('.bindUserTr').show();
+            $('#bindDiv').dialog('setTitle', '绑定现有用户');
+            $('#bindDiv').dialog('resize');
+            return false;
+        });
+
+        $('#btnReturnSelection').on('click', function() {
+            $('.bindUserTr').hide();
+            $('.bindSelectOption').show();
+            $('#bindDiv').dialog('setTitle', '尚未绑定仪器共享系统用户');
+            $('#bindDiv').dialog('resize');
+            return false;
+        });
+
+        $('#btnBindUser').on('click', function() {
+            $.post('@Url.Action("BJGYDXBindUser","Account")', $("#bindDiv").serialize(), function(msg) {
+                if (msg.indexOf('绑定成功') != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    var topReturnUrl = $("#TopReturnUrl");
+                    if (topReturnUrl.length > 0) {
+                        var fName = topReturnUrl.attr("fName");
+                        var equipmentid = topReturnUrl.attr("equipmentid");
+                        var equipmentname = topReturnUrl.attr("equipmentname");
+                        if (fName && equipmentid && equipmentname) {
+                            if (fName == "doAppointment") {
+                                doAppointment(equipmentid, equipmentname);
+                                return false;
+                            } else if (fName == "doSampleApply") {
+                                doSampleApply(equipmentid, equipmentname);
+                                return false;
+                            }
+                        }
+                    }
+                    if ('@loginJumpTypeHref' == "") {
+                        location.reload();
+                    } else {
+                        window.location.href = '@loginJumpTypeHref';
+                    }
+                } else {
+                    alert(msg);
+                }
+                return false;
+            });
+            return false;
+        });
+
+
+        $('#btnCreateNew').on('click', function() {
+            $.post('@Url.Action("BJGYDXAutoCreateNewUser","Account")', $("#bindDiv").serialize(), function(msg) {
+                if (msg.indexOf('新建成功') != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    var topReturnUrl = $("#TopReturnUrl");
+                    if (topReturnUrl.length > 0) {
+                        var fName = topReturnUrl.attr("fName");
+                        var equipmentid = topReturnUrl.attr("equipmentid");
+                        var equipmentname = topReturnUrl.attr("equipmentname");
+                        if (fName && equipmentid && equipmentname) {
+                            if (fName == "doAppointment") {
+                                doAppointment(equipmentid, equipmentname);
+                                return false;
+                            } else if (fName == "doSampleApply") {
+                                doSampleApply(equipmentid, equipmentname);
+                                return false;
+                            }
+                        }
+                    }
+                    if ('@loginJumpTypeHref' == "") {
+                        location.reload();
+                    } else {
+                        window.location.href = '@loginJumpTypeHref';
+                    }
+                } else {
+                    alert(msg);
+                }
+                return false;
+            });
+            return false;
+        });
+    });
+
+    function doIniTopLoginForm() {
+        $("#frmTopLogin").find("#LoginPassword").keypress(function(e) {
+            if (e.keyCode == 13) {
+                doTopLoginBeforeSubmit();
+            }
+        });
+        var url = '@Url.Action("BJGYDXLoginUrl","Account")';
+        $.post(url, function (gotoUrl) {
+            $('#loginUrl').attr('href', gotoUrl);
+        });
+        var loginUrl = '@Url.Action("BJGYDXLogin","Account")';
+        $.post(loginUrl, function (json) {
+            if (json.message.indexOf('已经登陆') != -1) {
+                return false;
+            }
+            if (json.message.indexOf('登录成功') != -1) {
+                var topReturnUrl = $("#TopReturnUrl");
+                if (topReturnUrl.length > 0) {
+                    var fName = topReturnUrl.attr("fName");
+                    var equipmentid = topReturnUrl.attr("equipmentid");
+                    var equipmentname = topReturnUrl.attr("equipmentname");
+                    if (fName && equipmentid && equipmentname) {
+                        if (fName == "doAppointment") {
+                            doAppointment(equipmentid, equipmentname);
+                            return false;
+                        } else if (fName == "doSampleApply") {
+                            doSampleApply(equipmentid, equipmentname);
+                            return false;
+                        }
+                    }
+                }
+                if ('@loginJumpTypeHref' == "") {
+                    location.reload();
+                } else {
+                    window.location.href = '@loginJumpTypeHref';
+                }
+                return false;
+
+            } else {
+                if (json.message.indexOf('未绑定') != -1) {
+                    $('#flatLoginName').val(json.userName);
+                    $(".pop-login-box").addClass("hide");
+                    $('#bindDiv').dialog();
+                    return false;
+                }
+            }
+            return false;
+        });
+    }
+
+    function doTopLoginSubmit(url) {
+        var isLocalOuterLogin = $("#isLocalOuterLogin").length > 0 ? $("#isLocalOuterLogin").val() : "";
+        if (isLocalOuterLogin == undefined) isLocalOuterLogin = "false";
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmTopLogin").serialize() + "&date=" + new Date() + "&isLocalOuterLogin=" + isLocalOuterLogin,
+            success: function(data) {
+                $("#frmTopLogin").find("#imgLoading").addClass("hide");
+                try {
+                    if (data && data.indexOf("未绑定") != -1) {
+                        $(".pop-login-box").addClass("hide");
+                        $('#bindDiv').dialog();
+                        return false;
+                    } else if (data && data.indexOf("成功") == -1) {
+                        $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                        return false;
+                    }
+                } catch (e) {
+                }
+                var topReturnUrl = $("#TopReturnUrl");
+                if (topReturnUrl.length > 0) {
+                    var fName = topReturnUrl.attr("fName");
+                    var equipmentid = topReturnUrl.attr("equipmentid");
+                    var equipmentname = topReturnUrl.attr("equipmentname");
+                    if (fName && equipmentid && equipmentname) {
+                        if (fName == "doAppointment") {
+                            doAppointment(equipmentid, equipmentname);
+                            return false;
+                        } else if (fName == "doSampleApply") {
+                            doSampleApply(equipmentid, equipmentname);
+                            return false;
+                        }
+                    }
+                }
+                if ('@loginJumpTypeHref' == "") {
+                    location.reload();
+                } else {
+                    window.location.href = '@loginJumpTypeHref';
+                }
+                return false;
+            }
+        });
+    }
+
+    function doTopLoginBeforeSubmit() {
+        var isOk = true;
+        var errorMsg = "";
+        @*     if (isCasLoginMode) {
+            $("#LoginType").combobox("setValue", '@((int)LoginType.Outer)');
+        }*@
+        //var loginType = $("#LoginType").combobox("getValue");
+        //if (isSchoolInnerOrOuterLoginMode) {
+        //    if (!loginType || loginType.trim() == "") {
+        //        errorMsg = "请选择登录类型";
+        //        isOk = false;
+        //    }
+        //}
+        if (isOk && $("#frmTopLogin").find("#LoginName").val().trim() == "") {
+            errorMsg = "请输入用户名";
+            isOk = false;
+        }
+        if (isOk && $("#frmTopLogin").find("#LoginPassword").val().trim() == "") {
+            errorMsg = "请输入密码";
+            isOk = false;
+        }
+        if (!isOk) {
+            $.messager.show({ title: '提示', msg: errorMsg, showType: 'show' });
+            return false;
+        } else {
+            $("#frmTopLogin").find("#imgLoading").removeClass("hide");
+            doTopLoginSubmit('@Url.Action("LoginSubmit", "Account")'); 
+            return false;
+        }
+    }  
+    $(function () {
+        $("#liLoginType input.combo-text").css("width", "232px");
+    });
+</script>

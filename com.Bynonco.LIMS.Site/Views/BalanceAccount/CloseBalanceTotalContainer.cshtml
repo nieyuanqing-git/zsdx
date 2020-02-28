@@ -1,0 +1,140 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../BalanceAccount/BalanceAccountSearch")</div>
+</div>
+<div>@Html.Partial("../BalanceAccount/BalanceAccountList")</div>
+<div style="display:none">@Html.Partial("../CostDeduct/ManualCostDeductScriptContainer")</div>
+<div style="display:none">@Html.Partial("../UsedConfirm/ScriptContainer")</div>
+<div style="display:none">@Html.Partial("../Appointment/ViewAppointmentInfoScript")</div>
+<div id="divBalanceAccountDetailDialog" style="display:none"></div>
+<script type="text/javascript">
+    var viewBalanceAccountDetailDialog;
+    function doViewBalanceAccountDetail(id) {
+        var url = '@Url.Action("ViewBalanceAccountDetail", "BalanceAccount")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if(viewBalanceAccountDetailDialog){
+            viewBalanceAccountDetailDialog.dialog("destroy");
+        }
+        $("#divBalanceAccountDetailDialog").load(url, {"id": id}, function (data) {
+            $.messager.progress('close');
+            viewBalanceAccountDetailDialog = @(Html.JDialog("divBalanceAccountDetail").SetTitle("结算明细").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("viewBalanceAccountDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewBalanceAccountDetailDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    function  doBalanceAccountSearch(){
+     var queryExpression = generateBalanceAccountQueryExpression();
+        $("#tbBalanceAccountList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbBalanceAccountList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doExportBalanceAccountTotalDoc(){
+        var ids = [];
+        var exportedTitles = [];
+        var rows = $("#tbBalanceAccountList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+                if (rows[i].HasSummaryExported) {
+                    exportedTitles.push(rows[i].BalanceAccountTitle);
+                } if (rows[i].HasConfirm) {
+                    msg ='结算单： '+rows[i].BalanceAccountTitle+' 已经进行确认，不能进行生成汇总表操作！';
+                    $.messager.alert('提示',msg);
+                    return false;
+                }
+            }
+            var msg = '';
+            if (exportedTitles.length > 0) {
+                msg ='下列结算单： '+exportedTitles.join(',')+' 已经在其它汇总表中导出过';
+            }
+            $.messager.confirm('提示',msg+(msg!=''?',':'')+ '是否确认生成结算汇总表?', function (r) {
+                if (!r) return;
+                
+                var url = '@Url.Action("ExportBalanceAccountTotalDoc", "BalanceAccount")'
+                  + "?ids=" + ids.toString()
+                  + "&time=" + new Date().getMilliseconds();
+                window.open(url, '_blank');
+            });
+        }
+        else
+        {
+            $.messager.show({ title: '提示', msg: "请选择要生成结算汇总表的项", showType: 'show' });
+            return false;
+        }
+    }
+    function doUnSettle(){
+        var ids = [];
+        var exportedTitles = [];
+        var rows = $("#tbBalanceAccountList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+                if (rows[i].HasConfirm) {
+                    exportedTitles.push(rows[i].BalanceAccountTitle);
+                }
+            }
+            var msg = '';
+            if (exportedTitles.length > 0) {
+                msg ='下列结算单： '+exportedTitles.join(',')+' 已经进行确认，不能进行删除操作！';
+                $.messager.alert('提示',msg);
+                return false;
+            }
+            $.messager.confirm('提示','是否确认删除结算单?', function (r) {
+                if (!r) return;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                var url = '@Url.Action("UnSettle", "BalanceAccount")'
+                  + "?ids=" + ids.toString()
+                  + "&time=" + new Date().getMilliseconds();
+                $.post(url, function(data) {
+                    $.messager.progress('close');
+                    alert(data);
+                    doBalanceAccountSearch();
+                });
+            });
+        }
+        else
+        {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+    }
+    function doSettleConfirm(){
+        var ids = [];
+        var rows = $("#tbBalanceAccountList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+            $.messager.confirm('提示','是否确认结算单已经进行验证?', function (r) {
+                if (!r) return;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                var url = '@Url.Action("SettleConfirm", "BalanceAccount")'
+                  + "?ids=" + ids.toString()
+                  + "&time=" + new Date().getMilliseconds();
+                $.post(url, function(data) {
+                    $.messager.progress('close');
+                    alert(data);
+                    doBalanceAccountSearch();
+                });
+            });
+        }
+        else
+        {
+            $.messager.show({ title: '提示', msg: "请选择要确认的项", showType: 'show' });
+            return false;
+        }
+    }
+    function doExportBalanceAccountDetailDoc(id,hasExported){
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要导出明细的项", showType: 'show' });
+                return false;
+        }
+        $.messager.confirm('提示',(hasExported?'该明细项已经导出过，':'')+ '是否确认导出结算明细?', function (r) {
+            if (!r) return;
+            var url = '@Url.Action("ExportBalanceAccountDetailDoc", "BalanceAccount")'
+                + "?balanceAccountId=" + id
+                + "&time=" + new Date().getMilliseconds();
+            doBalanceAccountSearch();
+            window.open(url, '_blank');
+        });
+    }
+</script>

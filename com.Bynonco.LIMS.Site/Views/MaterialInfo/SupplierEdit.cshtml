@@ -1,0 +1,33 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewMaterialSupplier
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+@if (Model != null)
+{
+    var infoId = Model.SupplierId;
+    <tr id='tr_@(infoId)'>
+        <td>
+            @Html.Hidden("Id_" + infoId, Model == null ? "" : Model.Id.ToString())
+            @Html.JLinkButton("btnRemoveMaterialSupplier_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveMaterialSupplier('" + infoId + "');return false;").ToMvcString()
+        </td>
+        <td style='text-align:center;'>@(Model.SupplierName)</td>
+        <td style='text-align:center;'>@(Model.Linkman)</td>
+        <td style='text-align:center;'>@(Model.Telephone)</td>
+        <td style='text-align:right;'>
+            @Html.JValidateBox("UnitPrice_" + infoId).SetValue(Model == null ? "" : Model.UnitPrice.ToString()).SetWidth(100).ToMvcString()
+        </td>
+        <td style='text-align:center;' class='SupplierDefault'>
+            @Html.CheckBox("IsDefault_" + infoId, Model == null ? false : Model.IsDefault)
+        </td>
+    </tr>
+}
+<script type="text/javascript">
+    $(function () {
+        $(".SupplierDefault").find("input[type='checkbox']").change(function () {
+            if ($(this).attr('checked') != undefined)
+            {
+                $(".SupplierDefault").find("input[type='checkbox']").removeAttr("checked");
+                $(this).attr('checked','checked')
+            }
+        });
+    });
+</script>

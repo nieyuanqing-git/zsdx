@@ -1,0 +1,53 @@
+﻿@model com.Bynonco.LIMS.Model.Appointment
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.View;
+<style>
+    .table-appointmenSucess{border:1px solid #A0A0A0; border-collapse:collapse; padding-left:5px;width:100%}
+    .table-appointmenSucess tr th{border:1px solid #A0A0A0;line-height:20px; text-align:center;font-weight:bold;color:#555555}
+    .table-appointmenSucess tr td{border:1px solid #A0A0A0;line-height:20px; padding:5px; text-align:center}
+</style>
+@{var appointmentTimes = (IList<DateTimeScope>)ViewData["AppointmentTimes"];}
+<div style="text-align:center">
+   <img src="../../Content/images/book-smilingface.png" />
+</div>
+<div class="a_center f_bold">您的预约已提交,请在预约时间前24小时登录确认!您当前的预约时间如下:</div>
+@if (Model.IsNeedTutorAudit && Model.TutorAuditStatusEnum== com.Bynonco.LIMS.Model.Enum.TutorAuditStatus.WaitingAudit)
+{
+    <div class="a_center f_bold">您的预约需要导师审核,请注意查收导师的审核结果通知!</div>
+}
+@if (Model.IsNeedAudit.HasValue && Model.IsNeedAudit.Value && Model.AuditStatusEnum == com.Bynonco.LIMS.Model.Enum.AppointmentAuditStatus.UnAudit)
+{
+    <div class="a_center f_bold">您的预约需要管理员审核,请注意查收管理员的审核结果通知!</div>
+}
+<div>
+    <table class="table-appointmenSucess">
+        <tr>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>时长</th>
+        </tr>
+        @foreach (var appointmentTime in appointmentTimes)
+        {
+            <tr>
+                <td>@appointmentTime.BeginTime.ToString("yyyy年MM月dd HH时mm分")</td>
+                <td>@appointmentTime.EndTime.ToString("yyyy年MM月dd HH时mm分")</td>
+                <td>@((appointmentTime.EndTime - appointmentTime.BeginTime).TotalHours.ToString())</td>
+            </tr>
+        }
+        <tr>
+            <td></td>
+            <td></td>
+            <td>共:@appointmentTimes.Sum(p => (p.EndTime - p.BeginTime).TotalHours).ToString()</td>
+    </tr>
+    </table>
+</div>
+<div class="a_center" style="margin-top:5px">@Html.JLinkButton("btnBack", "返回").SetOnclick("doGoBack();return false;").SetIconCls("icon-back").ToMvcString()</div>
+<script type="text/javascript">
+    function doGoBack() {
+        var url = '@Url.Action("Index", "Equipment")' + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>

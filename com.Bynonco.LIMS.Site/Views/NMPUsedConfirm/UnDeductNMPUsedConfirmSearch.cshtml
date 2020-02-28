@@ -1,0 +1,116 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateUnDeductNMPUsedConfirmQueryExpression() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+        var selectedStudent = $("#cbxQueryStudent").combobox("getValues");
+        var selectedStudentIds = selectedStudent.toString().split(",");
+        if (selectedStudentIds.length > 1 || (selectedStudentIds[0].trim() != "" && selectedStudentIds[0].trim() != "@(Guid.Empty.ToString())" && selectedStudentIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedStudentIds.length; i++) {
+                if (selectedStudentIds[i].trim() == "" || selectedStudentIds[i].trim() == "@(Guid.Empty.ToString())") { index++; continue; }
+                var queryExpressionTemp = "UserId=\"" + selectedStudentIds[i].trim() + "\"";
+                queryExpression += (i == index ? queryExpressionTemp : "+" + queryExpressionTemp);
+            }
+            queryExpression += ")";
+        }
+        var nmpEquipmentName = $("#SearchNMPEquipmentName").val().trim();
+        if (nmpEquipmentName != "") {
+            queryExpression = "NMPEquipmentName∽\"" + nmpEquipmentName + "\"";
+        }
+        var nmpName = $("#SearchNMPName").val().trim();
+        if (nmpName != "") {
+            queryExpression = "NMPName∽\"" + nmpName + "\"";
+        }
+        var labRoomXPath = $("#SearchLabRoomXPath").val().trim();
+        if (labRoomXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "LabRoomXPath→\"" + labRoomXPath + "\"";
+        }
+
+        var subjectDirectorName = $("#SearchSubjectDirectorName").val().trim();
+        if (subjectDirectorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "TutorName∽\"" + subjectDirectorName + "\"";
+        }
+        var beginAtStart = $("#SearchBeginAtStart").datebox("getValue").trim();
+        if (beginAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt>\"" + beginAtStart + " 00:00:00" + "\"";
+        }
+        var beginAtEnd = $("#SearchBeginAtEnd").datebox("getValue").trim();
+        if (beginAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt<\"" + beginAtEnd + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doUnDeductNMPUsedConfirmReset() {
+        $("#SearchNMPEquipmentName").val("");
+        $("#SearchNMPName").val("");
+        $("#SearchUserName").val("");
+        $("#SearchSubjectDirectorName").val("");
+        $("#SearchLabRoomXPath").val("");
+        $("#cbxQueryStudent").combobox("setValue", "@Guid.Empty.ToString()");
+        $("#SearchLabRoomId").val('@Guid.Empty.ToString()');
+        $("#SearchBeginAtStart").datebox("setValue", "");
+        $("#SearchBeginAtEnd").datebox("setValue", "");
+        return false;
+    }
+
+    function getUnDeductNMPUsedConfirmSearchLabRoomXPath(element) {
+        $("#SearchLabRoomXPath").val("");
+        var labRoomId = element.value;
+        if (labRoomId != "" && !labRoomId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labRoomId }, function (data) {
+                if (data && data != "")
+                    $("#SearchLabRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="width:60px">使用者</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">课题组成员</label>
+        @Html.JComboBox("cbxQueryStudent").SetWidth(155).SetData(ViewData["StudentJson"]).SetMutiSelect(true).ToMvcString()
+    </li>
+     <li>
+        <label style="width:60px">工位名称</label>
+        @Html.JValidateBox("SearchNMPName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">设备名称</label>
+        @Html.JValidateBox("SearchNMPEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">放置地点</label>
+        @Html.DropDownList("SearchLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px;", onchange = "getUnDeductNMPUsedConfirmSearchLabRoomXPath(this);" })
+        @Html.Hidden("SearchLabRoomXPath")
+    </li>
+    <li>
+        <label style="width:60px">课题负责人</label>
+        @Html.JValidateBox("SearchSubjectDirectorName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">开始时间</label>
+        @Html.JDateTimePicker("SearchBeginAtStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">结束时间</label>
+        @Html.JDateTimePicker("SearchBeginAtEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnUnDeductNMPUsedConfirmSearch", "查询").SetOnclick("doUnDeductNMPUsedConfirmSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnUnDeductNMPUsedConfirmReset", "清空").SetOnclick("doUnDeductNMPUsedConfirmReset();").ToMvcString()
+        @Html.JLinkButton("btnUnDeductNMPUsedConfirmClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,74 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript" src="../../JqueryPlugin/JqueryRaty/jquery.raty.js"></script>
+<script type="text/javascript">
+    function doEditNMP() {
+        var selectedRow = $("#tbNMPList").datagrid("getSelected");
+        if (!selectedRow) {
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if (selectedRow) doAddOrEdiNMP(selectedRow.Id);
+        return false;
+    }
+    function doAddOrEditNMP(id) {
+        var url = '@Url.Action("Edit", "NMP")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    
+    function doNMPBack() {
+        var url = '@Url.Action("Index", "NMP")' + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doNMPReload(id) {
+        var url = '@Url.Action("Edit", "NMP")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doDeleteNMP(id) {
+        $.messager.confirm('提示', '确认删除该工位信息?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "NMP")' + "?id=" + id + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    doNMPBack();
+                }
+            });
+        });
+        return false;
+    }
+  
+    function redirectToAppointment(nmpId, nmpEquipmentId, isShowMessageContent, showMessageContent, isAppointment, nmpEquipmentIdEelementId) {
+        if (nmpEquipmentId == "") {
+            $.messager.show({ title: '提示', msg: "该工位无可预约的设备", showType: 'show' });
+            return;
+        }
+        if (isAppointment == "true") {
+            $("span.nmpEquipmentSelected").css("display", "none");
+            $("#span_" + nmpEquipmentId).css("display", "");
+            if (nmpEquipmentIdEelementId != null) $("#" + nmpEquipmentIdEelementId).val(nmpEquipmentId);
+            loadNMPAppointmentTimes();
+        }
+        else {
+            var url = '@Url.Action("AppointmentBoxIndex", "NMP")' + "?nmpId=" + nmpId + "&nmpEquipmentId=" + nmpEquipmentId + "&time=" + new Date().getMilliseconds();
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+    }
+    function doAppointmentNMP(nmpId, nmpEquipmentId, isShowMessageContent, showMessageContent, isAppointment) {
+        if(isShowMessageContent.toString().toLowerCase()=="true" && showMessageContent.trim()!= ""){
+            $.messager.confirm('注意',showMessageContent.trim(),function(r){
+                if (r) redirectToAppointment(nmpId, nmpEquipmentId);
+            });
+        }
+        else { redirectToAppointment(nmpId, nmpEquipmentId); }
+    }
+</script>

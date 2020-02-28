@@ -1,0 +1,111 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    @Html.Partial("../UserTag/List")
+</div>
+<div id="divTagDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        $("#tbTagList").datagrid("reload");
+        return false;
+    }
+    var tagDialog;
+    function doTagDialog() {
+        if (tagDialog) {
+            tagDialog.dialog("destroy");
+        }
+        tagDialog =  @Html.JDialog("divTagEdit").SetTitle("用户类型信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("tagDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveTag();").ToMvcString();
+    }
+    function doAddTag(id) {
+       doAddOrEditTag(id);
+    }
+    function doEditTag(id) {
+       if(!id || id.trim()==""){
+           var selectedTag = $("#tbTagList").datagrid("getSelected");
+           if(!selectedTag || selectedTag.Id=="" || selectedTag.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择用户类型", showType: 'show' });
+              return false;
+           }
+           id = selectedTag.Id;
+       }
+       doAddOrEditTag(id);
+    }
+    function doAddOrEditTag(id){
+        var url = '@Url.Action("Edit","UserTag")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divTagDialog").load(url,function(){
+            doTagDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveTag(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","UserTag")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmTagEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                tagDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteTag(id){
+        if(!id || id.trim() == ""){
+              var selectedTag = $("#tbTagList").datagrid("getSelected");
+                if(!selectedTag || selectedTag.Id.trim() == "" || selectedTag.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedTag.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "UserTag")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpath(xPath,compareTarget){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "UserTag")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false;
+   }
+</script>

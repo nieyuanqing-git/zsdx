@@ -1,0 +1,65 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateSubjectProjectImcomeErrorQueryExpress() {
+        var queryExpression = "";
+        var projectImcomeId = $("#SearchProjectImcomeId").val().trim();
+        if (projectImcomeId != "") {
+            queryExpression = "(ProjectImcomeId=\"" + projectImcomeId.trim() + "\")";
+        }
+        var projectAdminUserNum = $("#SearchProjectAdminUserNum").val().trim();
+        if (projectAdminUserNum != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(ProjectAdminUserNum=\"" + projectAdminUserNum.trim() + "\")";
+        }
+        var projectAdminUserName = $("#SearchProjectAdminUserName").val().trim();
+        if (projectAdminUserName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ProjectAdminUserName∽\"" + projectAdminUserName.trim() + "\"";
+        }
+        var projectNum = $("#SearchProjectNum").val().trim();
+        if (projectNum != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ProjectNum=\"" + projectNum.trim() + "\"";
+        }
+        var projecName = $("#SearchProjecName").val().trim();
+        if (projecName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ProjecName∽\"" + projecName.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doReset() {
+        $("#SearchProjectImcomeId").val("");
+        $("#SearchProjectAdminUserNum").val("");
+        $("#SearchProjectAdminUserName").val("");
+        $("#SearchProjectNum").val("");
+        $("#SearchProjecName").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>流水号</label>
+        @Html.JValidateBox("SearchProjectImcomeId").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>职工号</label>
+        @Html.JValidateBox("SearchProjectAdminUserNum").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>用户名称</label>
+        @Html.JValidateBox("SearchProjectAdminUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>项目编号</label>
+        @Html.JValidateBox("SearchProjectNum").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>项目名称</label>
+        @Html.JValidateBox("SearchProjecName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSubjectProjectImcomeErrorSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnSubjectProjectImcomeErrorReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnSubjectProjectImcomeErrorClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

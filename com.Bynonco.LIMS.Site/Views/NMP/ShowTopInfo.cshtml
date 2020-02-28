@@ -1,0 +1,99 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using System.Text;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+<style type="text/css">
+a.l-btn-color{display: inline-block;margin-bottom: 5px;}
+.info-pannel .info-box p span.icon-span span{width:auto;margin-right:5px;}
+.info-pannel .info-box p span.icon-span span.tree-folder{width:16px;}
+</style>
+@{
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+    var standardPrice = (ViewData["StandardPrice"] == null ? "--" : ((double)ViewData["StandardPrice"]).ToString("F0")) + "元";
+    var nmpChargeType = ViewData["ChargeType"] == null ? com.Bynonco.LIMS.Model.Enum.ChargeType.None : (com.Bynonco.LIMS.Model.Enum.ChargeType)ViewData["ChargeType"];
+    var name = Model == null ? "" : Model.Name;
+    var cutName = ShortcutStringUtility.GetSubString(name, 55, "..");
+    var nmpOrgName = Model == null || string.IsNullOrWhiteSpace(Model.OrgName) ? "" : Model.OrgName;
+    var roomName = Model == null ? "" : Model.RoomName;
+    if (!string.IsNullOrWhiteSpace(nmpOrgName) && !string.IsNullOrWhiteSpace(roomName) && (!string.IsNullOrWhiteSpace(orgName) && orgName != nmpOrgName))
+    {
+        roomName = nmpOrgName + " > " + roomName;
+    }
+    else if (string.IsNullOrWhiteSpace(roomName))
+    {
+        roomName = nmpOrgName + roomName;
+    }
+    <div class="topTitle clearfix">
+        <h2 title="@name">@cutName</h2>
+        <div class="TopOperate" style='margin:1.1em 0 0.5em;'>
+        @if (isHome)
+        {
+            <a href='@Url.Action("ShowList", "NMP")' class='l-btn-color l-btn-color-grey' style='margin-right: 10px; line-height: 30px; padding: 0px 10px; font-weight: bold;'>返 回 列 表</a>
+        }
+        </div>
+    </div>
+    
+    var relativePic = Model == null || string.IsNullOrWhiteSpace(Model.PicPath) ? "" : Model.PicPath.Replace("；", ";");
+    string[] relativePicList = relativePic.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+    var firstImg = "../../UploadFiles/EquipmentIcons/noIcon.png";
+    if (relativePicList.Count() > 0)
+    {
+        var pic = relativePicList[0].ToLower().Trim();
+        firstImg = (pic.StartsWith("http://") || pic.StartsWith("https://") ? "" : "../..") + pic;
+    }
+    <div class="img-box">
+        <div class="clearfix">
+            <a href="@firstImg" class="jqzoom" rel='gal1'  title="" >
+                <img src="@firstImg"  title=""  style="border: 1px solid #CCC;padding:1px;width:346px;height:246px;">
+            </a>
+        </div>
+        <div class="clearfix" >
+	        <ul class="clearfix" >
+		        <li style='width: 60px;float:left;'><a class="zoomThumbActive" href='javascript:void(0);' rel="{gallery: 'gal1', smallimage: '@firstImg',largeimage: '@firstImg'}"><img src='@firstImg' class="smallimage"></a></li>
+                @for (int i = 1; i < relativePicList.Count(); i++)
+                {
+                    var pic = relativePicList[i].ToLower().Trim();
+                    var imgPath = (pic.StartsWith("http://") || pic.StartsWith("https://") ? "" : "../..") + pic;
+		            <li style='width: 60px;float:left;'><a href='javascript:void(0);' rel="{gallery: 'gal1', smallimage: '@imgPath',largeimage: '@imgPath'}"><img src='@imgPath' class="smallimage"></a></li>
+                }
+                <div class='clear-both'></div>
+	        </ul>
+	    </div>
+    </div>
+    if (isHome)
+    {
+        <div class="info-right-box">
+            <div class="price-box">
+                <p style="text-align:center">
+                @{
+                        if (nmpChargeType != com.Bynonco.LIMS.Model.Enum.ChargeType.SelfDefined)
+                        {
+                            <span class="price">
+                                @(nmpChargeType == com.Bynonco.LIMS.Model.Enum.ChargeType.None?"免费":@standardPrice)
+                            </span>
+                            @(nmpChargeType != com.Bynonco.LIMS.Model.Enum.ChargeType.None?"":" / " + (nmpChargeType == com.Bynonco.LIMS.Model.Enum.ChargeType.ByHour ? "小时" : nmpChargeType == com.Bynonco.LIMS.Model.Enum.ChargeType.ByTimes ? "次":""))
+                        }
+                }
+                </p>
+            </div>
+        </div>
+    }
+    <div class="clear-both"></div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('.jqzoom').jqzoom({
+            zoomType: 'standard',
+            zoomWidth: 330,
+            zoomHeight: 250,
+            preloadText: '加载图片中...',
+            lens: true,
+            preloadImages: false,
+            alwaysOn: false,
+            title: false
+        });
+        $("p span.tree-folder").css("width", "16px");
+    });
+</script>

@@ -1,0 +1,182 @@
+﻿<script type="text/javascript">
+    function doSJ4StatisticsSearch() {
+        doCloseSearch();
+        $("#tbSJ4StatisticsList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSJ4StatisticsList").datagrid("load");
+        doSJ4Search();
+    }
+    function doAddSJ4Statistics() {
+        $.messager.confirm('提示', '确认新增教学实验项目表统计(SJ4)?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ4StatisticsAdd", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ4StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doDeleteSJ4Statistics(id) {
+        id = doGetSJ4StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认删除选中记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ4StatisticsDelete", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ4StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSJ4StatisticsAuditPass(id) {
+        id = doGetSJ4StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要审核通过的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认审核通过选中记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ4StatisticsAuditPass", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ4StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSJ4StatisticsAuditReject(id) {
+        id = doGetSJ4StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要审核不通过的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认审核不通过选中记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ4StatisticsAuditReject", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ4StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSJ4StatisticsAuditWaitting(id) {
+        id = doGetSJ4StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要置为待审的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认置为待审选中记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ4StatisticsAuditWaitting", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ4StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSJ4StatisticsExportDoc(id) {
+        id = doGetSJ4StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要导出Doc的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认选中记录导出Doc?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ4StatisticsExportDoc", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ4StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSJ4StatisticsExportTxt(id) {
+        id = doGetSJ4StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要导出Txt的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认选中记录导出Txt?', function (r) {
+            if (!r) return;
+            var queryData = "id=" + id;
+            var url = '@Url.Action("SJ4StatisticsExportTxt","Statistics")' + '?' + queryData
+            window.open(url, '_blank');
+        });
+        return false;
+    }
+    function doGetSJ4StatisticsSelected(id) {
+        if (!id || id.trim() == "") {
+            var selectedSJ4Statistics = $("#tbSJ4StatisticsList").datagrid("getSelected");
+            if (!selectedSJ4Statistics || selectedSJ4Statistics.Id.trim() == "" || selectedSJ4Statistics.Id.isDefaultGuid()) {
+                return "";
+            }
+            id = selectedSJ4Statistics.Id;
+        }
+        return id;
+    }
+    function doOnSJ4StatisticsSelected(rowData) {
+        var queryExpression = generateSJ4QueryExpress();
+        queryExpression += (queryExpression == "" ? "" : "*") + "SJ4StatisticsId=\"" + rowData.Id + "\"";
+        $("#tbSJ4List").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSJ4List").datagrid("load", { "queryExpression": queryExpression });
+    }
+</script>

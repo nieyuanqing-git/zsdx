@@ -1,0 +1,50 @@
+﻿@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerTopLogin = customer == null ? "TopLogin" : customer.GetHomeTopLogin();
+    var customerIsHomeHideTopLogin = customer == null ? false : customer.GetIsHomeHideTopLogin();
+    var controller = ViewContext.RouteData.Values["controller"].ToString().ToLower();
+    var action = ViewContext.RouteData.Values["action"].ToString().ToLower();
+    bool isHomeHideTopLogin = customerIsHomeHideTopLogin;
+}
+<div class='top-box'>
+    <div class='top-left'>
+        <span>
+            <a href='#' id='sethomepage'>设为主页</a>
+        </span>
+        <span>
+            <a href='#' id='setfavorite'>收藏本页</a>
+        </span>
+        <span class='last'>
+            <a href='#' id='setdesktop'>发送快捷方式到桌面</a>
+        </span>
+    </div>
+    <div class='top-skin'>
+        @Html.Partial("../Home/Skins")
+    </div>
+    @if (!isHomeHideTopLogin)
+    {
+    <div class='top-right'>
+        <div class='top-login-box'>
+            @{
+                if (Request.IsAuthenticated && ViewData["LoginUser"] != null)
+                {
+                    var loginUser = (com.Bynonco.LIMS.Model.User)ViewData["LoginUser"];
+                    @Html.Partial("../Account/TopLoginInfo", loginUser)
+                }
+                <div style='float:right' class='@(Request.IsAuthenticated && ViewData["LoginUser"] != null ? "hide" : "")'>
+                    @if (ViewData["TopLoginUrl"] != null && !string.IsNullOrEmpty(ViewData["TopLoginUrl"].ToString()))
+                    {
+                        Html.RenderPartial(ViewData["TopLoginUrl"].ToString());
+                    }
+                    else
+                    {
+                        Html.RenderPartial("../Account/" + customerTopLogin);
+                    } 
+                </div>
+            }
+            <div class="clear-both"></div>
+        </div>
+    </div>
+    }
+</div>

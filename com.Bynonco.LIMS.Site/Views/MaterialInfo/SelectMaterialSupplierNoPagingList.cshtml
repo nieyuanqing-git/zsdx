@@ -1,0 +1,35 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+    var dataGrid = Html.JDataGrid("tbSelectMaterialSupplierNoPagingList")
+        .SetUrl(Url.Action("GetViewMaterialSupplierList", "MaterialInfo"))
+        .AddQueryParam("queryExpression", queryExpression == null ? "" : queryExpression.ToString().Trim())
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false)
+        .SetWidth(800)
+        .SetHeight(450)
+        .SetPagination(false)
+        .SetSortName("IsDefault")
+        .SetShowSearchButton(false)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetOnDblClickRow("getSelectedMaterialSuppliers(rowData.Id);");
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("供应商", "SupplierName").SetWidth(200).SetAlign(Align.left));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("推荐单价", "UnitPrice").SetWidth(80).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系人", "Linkman").SetWidth(60).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("手机", "MobilePhone").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("固话", "Telephone").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("传真", "Fax").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("邮箱", "Email").SetWidth(150).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("地址", "Address").SetWidth(300).SetAlign(Align.left));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("邮编", "Postcode").SetWidth(50).SetAlign(Align.center));
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchYPanel();", IconCls = "icon-search", Id = "btnGridSearchYPanel", Text = "搜索" });
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doMaterialSupplierSearch();", IconCls = "icon-reload", Id = "btnReload", Text = "刷新" });
+ }
+ @(dataGrid.ToMvcString())

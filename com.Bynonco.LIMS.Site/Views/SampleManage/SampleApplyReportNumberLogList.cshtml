@@ -1,0 +1,21 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@{
+    
+    var dataGrid = Html.JDataGrid("tbSampleApplyReportNumberLogList")
+          .SetTitle("日志信息")
+          .SetIconCls("")
+          .SetCollapsible(false)
+          .SetUrl(Url.Action("GetSampleApplyReportNumberLogList") + "?queryExpression=" +  string.Format("SampleApplyId=\"{0}\"", ViewData["SampleApplyId"].ToString()))
+          .SetHeight(200)
+          .SetPagination(false)
+          .SetShowPrintButton(false)
+          .SetSortName("ReportNo")
+          .SetSortOrder(SortOrder.asc);
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("报告单号", "ReportNo").SetWidth(200).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作人", "OperatorName").SetWidth(100).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作时间", "OperatoTimeStr").SetWidth(130).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("日志信息", "LogContent").SetWidth(800).SetAlign(Align.left));
+ }
+ @(dataGrid.ToMvcString())

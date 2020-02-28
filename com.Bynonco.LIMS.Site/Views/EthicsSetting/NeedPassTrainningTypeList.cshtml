@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+    div.datagrid div.panel-header div.panel-title{color:Black;}
+</style>
+
+@{
+    var ethicsSettingPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEthicsSettingPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbNeedPassTrainningTypeList")
+    .AddCostomerAttribute("FixWidth", "true")
+    .SetUrl(Url.Action("GetNeedPassTrainningTypeList", "EthicsSetting"))
+    .SetPagination(false)
+    .SetCollapsible(false)
+    .SetHeight(230)
+    .SetWidth(600)
+    .SetTitle("需要考试通过的类型")
+    .SetIconCls("")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetSortable(false).SetWidth(580).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(ethicsSettingPrivilige.IsEnableAddNeedPassTrainningType);
+    if (ethicsSettingPrivilige.IsEnableAddNeedPassTrainningType)
+    {
+        dataGrid.SetAddScript("doAddOrEditNeedPassTrainningType('');");
+    }
+    dataGrid.SetShowEditButton(ethicsSettingPrivilige.IsEnableEditNeedPassTrainningType);
+    if (ethicsSettingPrivilige.IsEnableEditNeedPassTrainningType)
+    {
+        dataGrid.SetEditScript("doEditNeedPassTrainningType();");
+        dataGrid.SetOnDblClickRow("doAddOrEditNeedPassTrainningType(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(ethicsSettingPrivilige.IsEnableDeleteNeedPassTrainningType);
+    if (ethicsSettingPrivilige.IsEnableDeleteNeedPassTrainningType)
+    {
+        dataGrid.SetDeleteScript("doDeleteNeedPassTrainningType();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

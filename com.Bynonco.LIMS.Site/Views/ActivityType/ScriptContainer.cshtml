@@ -1,0 +1,108 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divActivityTypeDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearchActivityType() {
+        var queryExpression = "";
+        $("#tbActivityTypeList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbActivityTypeList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var activityTypeDialog;
+    function doActivityTypeDialog() {
+        if (activityTypeDialog) {
+            activityTypeDialog.dialog("destroy");
+        }
+        activityTypeDialog =  @Html.JDialog("divActivityTypeEdit").SetTitle("费用类型信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("activityTypeDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveActivityType();").ToMvcString();
+    }
+    function doAddActivityType(id) {
+       doAddOrEditActivityType(id);
+    }
+    function doEditActivityType(id) {
+       if(!id || id.trim()==""){
+           var selectedActivityType = $("#tbActivityTypeList").datagrid("getSelected");
+           if(!selectedActivityType || selectedActivityType.Id=="" || selectedActivityType.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择费用类型", showType: 'show' });
+              return false;
+           }
+           id = selectedActivityType.Id;
+       }
+       doAddOrEditActivityType(id);
+    }
+    function doAddOrEditActivityType(id){
+        var url = '@Url.Action("Edit","ActivityType")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divActivityTypeDialog").load(url,function(){
+            doActivityTypeDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveActivityType(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","ActivityType")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmActivityTypeEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                activityTypeDialog.dialog('destroy');
+                doSearchActivityType();
+            }
+        });
+   }
+   function doDeleteActivityType(id){
+        if(!id || id.trim() == ""){
+              var selectedActivityType = $("#tbActivityTypeList").datagrid("getSelected");
+                if(!selectedActivityType || selectedActivityType.Id.trim() == "" || selectedActivityType.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedActivityType.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "ActivityType")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchActivityType();
+                }
+            });
+        });
+        return false;
+   }
+   
+   function adjustXpath(xPath,compareTarget){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "ActivityType")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearchActivityType();
+            }
+        });
+        return false;
+   }
+</script>

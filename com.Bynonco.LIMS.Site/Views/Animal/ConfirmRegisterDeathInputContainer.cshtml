@@ -1,0 +1,18 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimal
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divCondfirmRegisterDeath"> 
+<form id="frmConfirmRegisterDeath" action="#">
+    <table id="tbSampleStatusEdit" class="edit-table">
+        <tr style="display:none;">
+            <th>状态</th>
+            <td>@Html.JComboBox("ConfirmDeathStatus").SetData(ViewData["ConfirmDeathStatusJson"]).SetWidth(205).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("ConfirmDeathRemark", Model == null ? "" : Model.ConfirmDeathRemark, 3, 50, null)
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>

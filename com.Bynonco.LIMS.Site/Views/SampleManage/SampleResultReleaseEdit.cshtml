@@ -1,0 +1,109 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.View;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var sampleRoleStr = ViewData["SampleRoleStr"];
+    var viewSampleApply = (ViewSampleApply)ViewData["ViewSampleApplyInfo"];
+    var userEquipmentPrivilige =(UserEquipmentPrivilige) ViewData["UserPriviliges"];
+    var loginUserId = (Guid)ViewData["LoginUserId"];
+    var applicantName = !userEquipmentPrivilige.IsEnableLookSecretInfo && viewSampleApply .ApplicantId!=loginUserId? "***" : viewSampleApply.ApplicantName;
+    var organizationName = !userEquipmentPrivilige.IsEnableLookSecretInfo && viewSampleApply.ApplicantId != loginUserId ? "***" : viewSampleApply.OrganizationName;
+    var telNo = !userEquipmentPrivilige.IsEnableLookSecretInfo && viewSampleApply.ApplicantId != loginUserId ? "***" : viewSampleApply.TelephoneNo;
+    var reportObtainerId = viewSampleApply.ReleaserId.HasValue ? viewSampleApply.ReportObtainerId.Value.ToString() : viewSampleApply.ReportObtainerId.HasValue ? viewSampleApply.ReportObtainerId.ToString() : viewSampleApply.ApplicantId.ToString();
+    var reportObtainerName = viewSampleApply.ReleaserId.HasValue ? viewSampleApply.ReportObtainerName : !string.IsNullOrWhiteSpace(viewSampleApply.ReportObtainerName) ? viewSampleApply.ReportObtainerName : viewSampleApply.ApplicantName;
+}
+@if (viewSampleApply != null)
+{
+       <div id="divReleaseEdit">
+           <table id="tbSampleReleaseEdit" class="edit-table">
+            <tr>
+                <th>委托编号</th>
+                <td>
+                    <span>@viewSampleApply.SampleNo</span>
+                </td>
+            </tr>
+            <tr>
+                <th>委托人</th>
+                <td>
+                   <span>@applicantName</span>
+                </td>
+            </tr>
+            <tr>
+                <th>委托单位</th>
+                <td>
+                    <span>@organizationName</span>
+                </td>
+            </tr>
+            <tr>
+                <th>样品数</th>
+                <td>
+                    <span>@viewSampleApply.Quatity</span>
+                </td>
+            </tr>
+            <tr>
+                <th>分析项目</th>
+                <td>
+                   <span>@viewSampleApply.SampleItemName</span>
+                </td>           
+            </tr>
+            <tr>
+                <th>收费状态</th>
+                <td>
+                    <span>@viewSampleApply.ChargeStatusName</span>
+                </td>
+            </tr>
+             <tr>
+                <th>报告领取人</th>
+                <td id="tbReportObtainerId">
+                     @(Html.TokenInput("ReportObtainerId")
+                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                    .SetPrePopulate(ViewData["ReportObtainerJson"] == null || string.IsNullOrWhiteSpace(ViewData["ReportObtainerJson"].ToString()) ? null : ViewData["ReportObtainerJson"].ToString())
+                    .SetSingle(true).ToMvcString())
+                </td>
+            </tr>
+            <tr>
+                <th style="height:60px">备注</th>
+                <td style="height:60px;width:350px">
+                    @Html.TextArea("ReportObtainRemark", viewSampleApply.ReleaseRemark, new { style="font-size:12px;font-weight:normal;width:330px;height:55px" })
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        var sampleRoleStr = "@sampleRoleStr ";
+        var sampleApplyId = "@viewSampleApply.Id";
+        $(function () {
+            $("#tbReportObtainerId ul.token-input-list-facebook").css("width", "332px");
+        });
+        function doSave() {
+            var remark = $("#ReportObtainRemark").val();
+            var reportObtainerId = $("#ReportObtainerId").val();
+            if (reportObtainerId == "") {
+                $.messager.show({ title: '提示', msg: "请选择报告领取人", showType: 'show' });
+                return false;
+            }
+            $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SampleResultReleaseSave","SampleManage")' + "?time=" + new Date().getMilliseconds(),
+                data: { "sampleRoleStr": sampleRoleStr, "sampleApplyid": sampleApplyId, "reportObtainerId": reportObtainerId, "remark": remark },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg.indexOf("出错") >= 0) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $('#divReleaseEdit').dialog('close');
+                    doSearch();
+                    if (sendMailMode.toString() == "@((int)SendMailMode.Manual)" && msg.indexOf(",") == -1) {
+                        doSendMessage(msg);
+                    }
+                }
+            });
+            return false;
+        }
+    </script>  
+}
+
+

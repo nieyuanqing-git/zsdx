@@ -1,0 +1,144 @@
+﻿@model com.Bynonco.LIMS.Model.SampleParameter
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var sampleItemIds = "";
+    var sampleItemNames = "";
+    if(Model != null && Model.SampleParameterItems != null && Model.SampleParameterItems.Count > 0)
+    {
+        sampleItemIds = string.Join(",", Model.SampleParameterItems.Select(p => p.SampleItemId).Distinct());
+        sampleItemNames = string.Join(",", Model.SampleParameterItems.Select(p => p.SampleItem.text).Distinct());
+    }
+    var equipmentIds = "";
+    if (Model != null && Model.SampleParameterEquipments != null && Model.SampleParameterEquipments.Count > 0)
+    {
+        equipmentIds = string.Join(",", Model.SampleParameterEquipments.Select(p => p.EquipmentId).Distinct());
+    }
+    var sampleStatusIds = "";
+    if (Model != null && Model.SampleParameterStatuses != null && Model.SampleParameterStatuses.Count > 0)
+    {
+        sampleStatusIds = string.Join(",", Model.SampleParameterStatuses.Select(p => p.SampleStatusId).Distinct());
+    }
+ }
+<script type="text/javascript">
+    var curSampleItemIds = "@sampleItemIds";
+    var curdEquipmentIds = "@equipmentIds";
+    var curSampleStatusIds = "@sampleStatusIds";
+    function doOnSampleStatusLoadSuccess() {
+        $("#SampleStatusIds").combobox("enable");
+        if (curSampleStatusIds.trim() != "")
+            $("#SampleStatusIds").combobox("setValues", curSampleStatusIds.toString().split(','));
+    }
+    function reloadSampleStatuses() {
+        $('#SampleStatusIds').combobox("setText", "");
+        $('#SampleStatusIds').combobox("setValue", "");
+        if (curSampleItemIds == "") {
+            $('#SampleStatusIds').combobox("loadData", {});
+            return; 
+        }
+        var queryExpression = "";
+        var sampleItemIds = curSampleItemIds.toString().split(',');
+        var url = '@Url.Action("GetSampleStatusByItemIds", "SampleStatus")' + "?sampleItemIds=" + sampleItemIds + "&time=" + new Date().getMilliseconds();
+        $("#SampleStatusIds").combobox("reload", url);
+        $("#SampleStatusIds").combobox("disable");
+    }
+    function doOnSampleItemLoadSuccess() {
+        $("#SampleItemIds").combobox("enable");
+        if (curSampleItemIds.trim() != "") {
+            $("#SampleItemIds").combobox("setValues", curSampleItemIds.toString().split(','));
+        }
+    }
+    function doOnSampleItemChanged(record) {
+        var selectdSampleItemIds = $("#SampleItemIds").combobox("getValues");
+        curSampleItemIds = selectdSampleItemIds;
+        curSampleStatusIds = "";
+        reloadSampleStatuses();
+    }
+    function doEquipmentSelectedChanged() {
+        var equipments = $("#EquipmentIds").tokenInput("get");
+        var equipmentIds = "";
+        if (equipments && equipments.length > 0) {
+            for (var i = 0; i < equipments.length; i++) {
+                equipmentIds += equipmentIds == "" ? equipments[i].id : "," + equipments[i].id;
+            }
+        }
+        curSampleItemIds = "";
+        curSampleStatusIds = "";
+        curdEquipmentIds = equipmentIds;
+        reloadSampleItems();
+    }
+    function reloadSampleItems() {
+        $('#SampleItemIds').combobox("setText", "")
+        if (curdEquipmentIds == "") {
+            $('#SampleItemIds').combobox("loadData", {});
+            reloadSampleStatuses();
+            return; 
+        }
+        var queryExpression = "";
+        var equipmentIds = curdEquipmentIds.toString().split(",");
+        for (var i = 0; i < equipmentIds.length; i++) {
+            queryExpression += queryExpression == "" ? "EquipmentId=\"" + equipmentIds[i] + "\"" : "+EquipmentId=\"" + equipmentIds[i] + "\"";
+        }
+        var url = '@Url.Action("GetSampleItemList", "SampleItem")' + "?queryExpression=" + queryExpression + "&time=" + new Date().getMilliseconds();
+        $("#SampleItemIds").combobox("reload", url);
+        $("#SampleItemIds").combobox("disable");
+    }
+    function resetSampleItem() {
+        curSampleItemId = "";
+        $('#SampleItemIds').combobox("clear");
+    }
+    function resetSampleStatus() {
+        curSampleStatusIds = "";
+        $('#SampleStatusIds').combobox("clear");
+    }
+</script>
+<div id="divSampleParameterEdit" style="width:368px">
+    <form id="frmSampleParameterEdit" action="#">
+        @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+        <table class="edit-table" style="width:100%">
+             <tr>
+                <th >所属设备</th>
+                <td id="tdEquipments" style="padding-left:3px">
+                     @(Html.TokenInput("EquipmentIds")
+                    .SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment", new { time = DateTime.Now.Millisecond.ToString() }))
+                    .SetPrePopulate(ViewData["EquipmentsJson"] == null ? null : ViewData["EquipmentsJson"].ToString())
+                    .SetSingle(false).SetOnAdd("doEquipmentSelectedChanged();").SetOnDelete("doEquipmentSelectedChanged();").ToMvcString())
+                </td>  
+            </tr>
+            <tr>
+                <th>项目名称</th>
+                <td colspan="3">
+                    @(Html.JComboBox("SampleItemIds")
+                    .SetWidth(155).SetTextField("text")
+                    .SetValueField("Id")
+                    .SetOnSelect("doOnSampleItemChanged(record);")
+                    .SetOnUnselect("doOnSampleItemChanged(record);")
+                    .SetMutiSelect(true)
+                    .SetOnLoadSuccess("doOnSampleItemLoadSuccess();").ToMvcString())
+                    <a href="javascript:void(0)" onclick="resetSampleItem();return false;">清空</a>
+                 </td>
+            </tr>
+            <tr style="display:none;">
+                <th><span class="required">*</span>样品形态</th>
+                <td id="tdSampleStatuses">
+                    @(Html.JComboBox("SampleStatusIds")
+                    .SetWidth(155).SetTextField("Name")
+                    .SetValueField("Id")
+                    .SetMutiSelect(true)
+                    .SetData((Model != null && Model.SampleParameterStatuses != null && Model.SampleParameterStatuses.Count>0?
+                                      Newtonsoft.Json.JavaScriptConvert.SerializeObject(Model.SampleParameterStatuses.Select(p => p.SampleStatus).Distinct()) : null))
+                    .SetOnLoadSuccess("doOnSampleStatusLoadSuccess();").ToMvcString())
+                    <a href="javascript:void(0)" onclick="resetSampleStatus();return false;">清空</a>
+                </td>
+            </tr>
+            
+            @Html.Partial("DataDictTemplateEdit")
+        </table>
+    </form>
+</div> 
+ <script type="text/javascript">
+     $(function () {
+         $("#tdEquipments ul.token-input-list-facebook").css("width", "153px");
+         if (curdEquipmentIds != "") doEquipmentSelectedChanged();
+     });
+ </script>

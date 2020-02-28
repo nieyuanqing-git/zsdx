@@ -1,0 +1,42 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+     #tbSelfDefinedChargeStandardTest th{ width:60px; text-align:center; min-width:60px}
+</style>
+<table id="tbSelfDefinedChargeStandardTest" style="width:300px">
+    <tr>
+        <th>开始时间</th>
+        <td>
+            @(Html.JValidateBox("TestBeginTime").SetWidth(150).SetValidateType(ValidateType.dateTime).SetValue(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).ToMvcString())
+        </td>
+        <td rowspan="2">
+            @(Html.JLinkButton("btnSelfDefinedChargeStandardTest", "计算").SetOnclick("doSelfDefinedChargeStandardTest();return false;").SetPlain(true).SetIconCls("icon-ok").ToMvcString())
+        </td>
+    </tr>
+    <tr>
+        <th>结束时间</th>
+        <td>
+            @(Html.JValidateBox("TestEndTime").SetWidth(150).SetValidateType(ValidateType.dateTime).SetValue(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).ToMvcString())
+        </td>
+    </tr>
+    <tr>
+        <th>计算结果</th>
+        <td colspan="2">
+            <span id="spanTestResult" style="font-weight:bold; font-style:italic; width:60px; display:inline-block"></span>(元)
+        </td>
+    </tr>
+</table>
+<script type="text/javascript">
+    function doSelfDefinedChargeStandardTest() {
+        var nmpId = $("#NMPId").val();
+        var beginTime = $("#TestBeginTime").val();
+        var endTime = $("#TestEndTime").val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("TestSeflDefinedChargeStandard", "Equipment")' + "?date=" + new Date().getMilliseconds(),
+            data: { "EquipmentId": equipmentId, "TestBeginTime": beginTime, "TestEndTime": endTime },
+            success: function (msg) {
+                $("#spanTestResult").html(msg);
+            }
+        });
+    }
+</script>

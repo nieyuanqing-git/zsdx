@@ -1,0 +1,41 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var messagePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetMessagePrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbMessageList")
+       .SetUrl(Url.Action("GetGridViewMessageSendList", "Message"))
+       .SetHeight(650)
+       .SetSortName("SendAt")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(20)
+       .SetMutiSelect(true)
+       .SetSingleSelect(false)
+       .SetShowAddButton(false)
+       .SetShowEditButton(false)
+       .SetShowDeleteButton(false)
+       .SetShowRefreshButton(false)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(false);
+
+    if (messagePrivilige.IsEnableView)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doViewSendMessage();", IconCls = "icon-view", Id = "btnViewMessage", Text = "查看" });
+        dataGrid.SetOnDblClickRow("doViewSendMessage(rowData.Id);");
+    }
+    if (messagePrivilige.IsEnableAdd)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAddMessage();", IconCls = "icon-add", Id = "btnAddMessage", Text = "写信" });
+    }
+    if (messagePrivilige.IsEnableDeleteReceive)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDeleteSendMessage();", IconCls = "icon-delete", Id = "btnDelMessage", Text = "删除" });
+        dataGrid.SetDeleteScript("doDeleteSendMessage('');");
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearch();", IconCls = "icon-reload", Id = "btnReload", Text = "刷新" });
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("", "GradeStr").SetWidth(25).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("收件人", "ReceiveUserNames").SetWidth(100).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("主题", "Subject").SetWidth(250).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("时间", "SendAtStr").SetWidth(85).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("内容", "ContentNoHTMLStr").SetWidth(635).SetAlign(Align.left).SetSortable(false));
+}
+@(dataGrid.ToMvcString())

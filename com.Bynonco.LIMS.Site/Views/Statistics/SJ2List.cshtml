@@ -1,0 +1,78 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tbSJ2List').datagrid({
+            columns: [[
+            { title: '上学年末实有数', colspan: 4, align: 'center' },
+            { title: '本学年增加数', colspan: 2, align: 'center' },
+            { title: '本学年减少数', colspan: 2, align: 'center' },
+            { title: '本学年末实有数', colspan: 4, align: 'center' }
+            ],[
+            { title: '台件', field: 'LastYearEquipmentCount', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '金额', field: 'LastYearEquipmentMoney', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '其中10万元(含)以上', colspan: 2, align: 'center' },
+            { title: '台件', field: 'EquipmentNewCount', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '金额', field: 'EquipmentNewMoney', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '台件', field: 'EquipmentReduceCount', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '金额', field: 'EquipmentReduceMoney', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '台件', field: 'EquipmentTotalCount', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '金额', field: 'EquipmentTotalMoney', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '其中10万元(含)以上', colspan: 2, align: 'center' }
+            ],[
+            { title: '台件', field: 'LastYearEquipmentCount10', width: 100, sortable: true, align: 'center' },
+            { title: '金额', field: 'LastYearEquipmentMoney10', width: 60, sortable: true, align: 'center' },
+            { title: '台件', field: 'EquipmentTotalCount10', width: 100, sortable: true, align: 'center' },
+            { title: '金额', field: 'EquipmentTotalMoney10', width: 60, sortable: true, align: 'center' }
+            ]],
+            frozenColumns: [[
+                { field: 'ck', checkbox: true, rowspan: 3 },
+                { title: '状态', field: 'AuditStatusNickName', rowspan: 3, sortable: true, align: 'center' },
+                { title: '学校代码', field: 'SchoolCode', rowspan: 3, sortable: true, align: 'center' }
+                ]],
+            url: '/Statistics/GetGridViewSJ2List',
+            loadMsg: '数据加载中,请稍候……',
+            pageNumber: 1,
+            pageSize: 20,
+            pageList: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+            height: 650,
+            iconCls: 'icon-save',
+            collapsed: false,
+            collapsible: true,
+            remoteSort: true,
+            sortOrder: 'asc',
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            fitColumns: false,
+            striped: true,
+            nowrap: true,
+            method: 'post',
+            pagePosition: 'bottom',
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ2Edit ? "onDblClickRow: function(rowIndex, rowData){ doEditSJ2(rowData.Id); },":"")
+            toolbar: [
+            {
+                id: 'btnGridSearch',
+                text: '搜索',
+                disabled: false,
+                iconCls: 'icon-search',
+                handler: function () {
+                    $('#btnGridSearch').linkbutton('enable');
+                    doShowSearch();
+                }
+            }
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ2Add ? ",{id: 'btnSJ2Add',text: '新增',disabled: false,iconCls: 'icon-add',handler: function () { $('#btnSJ2Add').linkbutton('enable'); doAddSJ2();}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ2Edit ? ",{id: 'btnSJ2Edit',text: '编辑',disabled: false,iconCls: 'icon-edit',handler: function () { $('#btnSJ2Edit').linkbutton('enable'); doEditSJ2('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ2Delete && false ? ",{id: 'btnSJ2Delete',text: '删除',disabled: false,iconCls: 'icon-cancel',handler: function () { $('#btnSJ2Delete').linkbutton('enable'); doDeleteSJ2('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ2AuditPass ? ",{id: 'btnSJ2AuditPass',text: '审核通过',disabled: false,iconCls: 'icon-pass',handler: function () { $('#btnSJ2AuditPass').linkbutton('enable'); doAuditPassSJ2('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ2AuditReject ? ",{id: 'btnSJ2AuditReject',text: '审核不通过',disabled: false,iconCls: 'icon-no',handler: function () { $('#btnSJ2AuditReject').linkbutton('enable'); doAuditRejectSJ2('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ2AuditWaitting ? ",{id: 'btnSJ2AuditWaitting',text: '置为待审',disabled: false,iconCls: 'icon-info',handler: function () { $('#btnSJ2AuditWaitting').linkbutton('enable'); doAuditWaittingSJ2('');}}":"")
+            ,{id: 'btnSJ2Reload',text: '刷新',disabled: false,iconCls: 'icon-reload',handler: function () { $('#btnSJ2Reload').linkbutton('enable'); doSJ2Search('');}}
+            ],
+            showFooter: false
+        });
+    });
+</script>
+<table id="tbSJ2List"></table>

@@ -1,0 +1,17 @@
+﻿@model IList<com.Bynonco.LIMS.Model.Article>
+    @if (Model != null && Model.Count() > 0)
+    {
+        var article = Model[0];
+        if (ViewData["IsNeedLoginHomeActiceView"] != null && Convert.ToBoolean(ViewData["IsNeedLoginHomeActiceView"]))
+        {
+            <p style="line-height:180px;text-align:center;height:100%;background: none;">
+                请登录后查看
+            </p>
+        }
+        else
+        {
+            <p class='article-content'>
+                @System.Web.Mvc.MvcHtmlString.Create(article.ContentNoHTML.Replace("\r\n", "<br />"))
+            </p>
+        }
+    }

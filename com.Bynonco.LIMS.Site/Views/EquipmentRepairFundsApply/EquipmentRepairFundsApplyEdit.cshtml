@@ -1,0 +1,189 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentRepairFundsApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.JTab("divEquipmentRepairFundsApplyEdit").SetBorder(false).SetWidth(625).ToMvcString()
+<div id="divEquipmentRepairFundsApplyEdit" style="overflow:hidden;">
+  <div title="基本信息">
+    <form id="frmEquipmentRepairFundsApply" action="#">
+    @Html.Hidden("Id", Model != null ? Model.Id.ToString() : "")
+        <table class="edit-table" style="width:600px;">
+             <tr>
+                <th><span class="required">*</span>所属单位</th>
+                <td id="tdOrgId">
+                    @Html.DropDownList("OrganiztionId", (IEnumerable<SelectListItem>)ViewData["OrganizationSelectListItem"], new { style = "width:208px", onchange = "doOnOranizationChanged(this);" })
+                </td>
+                <th><span class="required">*</span>所属实验室</th>
+                <td id="tdOrganiztionId" colspan="3">
+                    @Html.DropDownList("RoomId", ViewData["LabRoomSelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["LabRoomSelectListItem"], new { style = "width:208px"})
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>设备名称</th>
+                <td id="tdEquipmentId" style="padding-left:3px">
+                    @(Html.TokenInput("EquipmentId")
+                    .SetSingle(true)
+                    .SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment", new { time = DateTime.Now.Millisecond.ToString() }))
+                    .SetPrePopulate(ViewData["EquipmentJson"] == null ? null : ViewData["EquipmentJson"].ToString())
+                    .SetOnAdd("doEquipmentSelectedChanged();").SetOnDelete("doEquipmentSelectedChanged();").ToMvcString())
+                </td>  
+                <th><span class="required">*</span>设备编号</th>
+                <td>
+                    @Html.JValidateBox("EquipmetLabel").SetWidth(200).SetValue(Model != null ? Model.EquipmetLabel : "").ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>设备负责人</th>
+                <td>
+                    @Html.JValidateBox("DirectorName").SetWidth(200).SetValue(Model != null ? Model.DirectorName : "").ToMvcString()
+                </td>
+                <th><span class="required">*</span>联系电话</th>
+                <td>
+                    @Html.JValidateBox("LinkTelPhoneNo").SetWidth(200).SetValue(Model != null ? Model.LinkTelPhoneNo : "").ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>使用范围</th>
+                <td colspan="3"> @Html.JComboBox("ApplyTypeId").SetData(ViewData["ApplyTypeJson"]).SetWidth(505).ToMvcString()</td>
+            </tr>
+            <tr style="display:none;">
+                <th>
+                    申请资助经费（元）<span class="required">*</span>
+                </th>
+                <td>
+                    @Html.JValidateBox("ApplyFee").SetWidth(200).SetValue(Model != null ? Model.ApplyFee.ToString("0.00") : "0").ToMvcString()
+                </td>
+                <th>
+                    自筹经费（元）<span class="required">*</span>
+                </th>
+                <td>
+                    @Html.JValidateBox("SelfFee").SetWidth(200).SetValue(Model != null ? Model.SelfFee.ToString("0.00") : "0").ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th colspan="4"><b>情况说明</b></th>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>设备原值</th>
+                <td>
+                    @Html.JValidateBox("EquipmentPrice").SetWidth(200).SetValue(Model != null && Model.EquipmentPrice.HasValue ? Model.EquipmentPrice.Value.ToString("0.00") : "").ToMvcString()
+                </td>
+                <th><span class="required">*</span>使用情况</th>
+                <td>
+                    @Html.JValidateBox("UseCondition").SetWidth(200).SetValue(Model != null ? Model.UseCondition : "").ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>年服务机时</th>
+                <td>
+                    @Html.JValidateBox("YearServiceHours").SetWidth(200).SetValue(Model != null && Model.YearServiceHours.HasValue ? Model.YearServiceHours.Value.ToString("0.00") : "").ToMvcString()
+                </td>
+                <th><span class="required">*</span>年服务收入</th>
+                <td>
+                    @Html.JValidateBox("YearServiceIncome").SetWidth(200).SetValue(Model != null && Model.YearServiceIncome.HasValue ? Model.YearServiceIncome.Value.ToString("0.00") : "").ToMvcString()
+                </td>
+            </tr>
+             <tr>
+                <th><span class="required">*</span>维修原因</th>
+                <td colspan="3">
+                    @Html.TextArea("ApplyReason", Model == null ? "" : Model.ApplyReason, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:80px;width:502px;" })
+                </td>
+            </tr>
+            <tr>
+                <th colspan="4"><b>费用说明</b></th>
+            </tr>
+            <tr>
+                <th>
+                    <span class="required">*</span>经费总额
+                </th>
+                <td colspan="3">
+                    @Html.JValidateBox("RepairTotalFee").SetWidth(500).SetValue(Model != null ? Model.RepairTotalFee.ToString("0.00") : "").ToMvcString()
+                </td>
+            </tr>
+             <tr>
+                <th><span class="required">*</span>支出明细</th>
+                <td colspan="3">
+                    @Html.TextArea("RepairTotalFeeDetail", Model == null ? "" : Model.RepairTotalFeeDetail, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:80px;width:502px;" })
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>维修公司名称</th>
+                <td colspan="3">@Html.JValidateBox("RepairCompanyName").SetWidth(500).SetValue(Model == null ? "" : Model.RepairCompanyName).ToMvcString()</td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>联系人</th>
+                <td>
+                    @Html.JValidateBox("RepairCompanyContactPerson").SetWidth(200).SetValue(Model == null ? "" : Model.RepairCompanyContactPerson).ToMvcString()
+                </td>
+                <th><span class="required">*</span>联系方式</th>
+                <td>
+                    @Html.JValidateBox("RepairCompanyContactWay").SetWidth(200).SetValue(Model == null ? "" : Model.RepairCompanyContactWay).ToMvcString()
+                </td>
+            </tr>
+        </table>
+    </form>
+   </div>
+  <div title="附件信息">@Html.Partial("EquipmentRepairFundsApplyAttachmentEdit")</div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdEquipmentId ul.token-input-list-facebook").css("width", "203px");
+        $("#tdOrganiztionId ul.token-input-list-facebook").css("width", "509px");
+        var isIE6 = jQuery.browser.msie && (jQuery.browser.version == "6.0") && !jQuery.support.style;
+        if (isIE6) {
+            $("#tdRepairTime span.date span.datebox").css("width", "93px");
+            $("#tdRepairTime span.date span.datebox INPUT").css("width", "93px");
+            $("#tdRepairTime span.date INPUT.easyui-datebox").css("width", "93px");
+            $("#tdRepairTime span.time INPUT.combo-text").css("width", "93px");
+        }
+    });
+    function doInitEquipmentRelativeInfo(equipment) {
+        $("#EquipmetLabel").val(equipment != null ? equipment.Label : "");
+        $("#EquipmentModel").val(equipment != null ? equipment.Model : "");
+        $("#EquipmentPrice").val(equipment != null ? equipment.Price : "");
+        $("#DirectorName").val(equipment != null ? equipment.DirectorNames : "");
+        $("#DirectorId").val("");
+        $("#LinkTelPhoneNo").val(equipment != null ? equipment.LinkTelNo : "");
+        $("#LinkEmail").val(equipment != null ? equipment.LinkEmail : "");
+    }
+    function doEquipmentSelectedChanged() {
+        var equipmentId = $("#EquipmentId").val().trim();
+        doInitEquipmentRelativeInfo(null);
+        if (equipmentId == "") return;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetEquipmentById", "Equipment")',
+            data: { "id": equipmentId, "time": new Date().getMilliseconds() },
+            success: function (msg) {
+                if (msg && msg != "") {
+                    $.messager.progress("close");
+                    var equipment = eval("(" + msg + ")");
+                    doInitEquipmentRelativeInfo(equipment);
+                }
+            }
+        });
+    }
+    function doOnOranizationChanged(element) {
+        var orgId = element.value;
+        var roomElement = document.getElementById("RoomId");
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetLabRoomListByOrgId", "LabOrganization")',
+            data: { "orgId": orgId,"isShowAllNode":true,"isShowOtherNode":false, "time": new Date().getMilliseconds() },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg != "") {
+                    var rooms = eval(msg);
+                    if (rooms.length == 0) return;
+                    for (var i = 0; i < rooms.length; i++) {
+                        var option = document.createElement("OPTION");
+                        roomElement.options.add(option);
+                        option.text = rooms[i].Text;
+                        option.value = rooms[i].Value;
+                    }
+                }
+            }
+        });
+        return false;
+    }
+</script>

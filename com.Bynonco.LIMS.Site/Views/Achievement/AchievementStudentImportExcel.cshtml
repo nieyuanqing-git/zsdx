@@ -1,0 +1,22 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divAchievementStudentImportExcel" style="width:760px;">
+ <form id="frmAchievementStudentImportExcel" action="#">
+    <table class="edit-table" style="width:720px;">
+        <tr>
+            <th>导入Excel</th>
+            <td>
+                <input id="fileAchievementStudentExcel" type="file" name="fileAchievementStudentExcel" class="addfile" onchange="ajaxFileUploadAchievementStudentExcel();return false;"/>
+            </td>
+            <th>模板下载</th>
+            <td>
+                <a href='@Url.Content("~/ImportAchievementStudent.xls")' target="_blank">Excel模板下载</a>
+            </td>
+        </tr>
+    </table>
+    <div id='divAchievementStudentImportExcelResult'>
+        <p>帮助：</p>
+        <p>1. 用户导入采用Excel模板导入，下载：<a href='@Url.Content("~/ImportAchievementStudent.xls")' target="_blank" style='text-decoration:underline;'>Excel模板下载</a></p>
+        <p>2. 导入前请先核查Excel数据，Excel模板中含有字段说明，请严格按照模板说明进行填写，否则将无法导入.</p>
+    </div>
+  </form>
+</div> 

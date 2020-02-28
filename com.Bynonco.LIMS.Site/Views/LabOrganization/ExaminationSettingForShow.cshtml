@@ -1,0 +1,73 @@
+﻿@model com.Bynonco.LIMS.Model.LabOrganization
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.JqueryEasyUI.Core;
+<div class="layout-center-full">
+    <div class="edit-box">
+         <p><span class="icon icon-setting"></span>@(Model.Name + "-考试默认设置")</p>
+         <table class="edit-info">
+                <tr>
+                    <th>是否需要在线考试</th>
+                    <td class="clear-both">
+                        @(Model.IsNeedExaminationBeforeAppointment.HasValue &&　Model.IsNeedExaminationBeforeAppointment.Value ? "是" : "否")
+                    </td>
+                </tr>
+                <tr>
+                    <th>试卷类型</th>
+                    <td class="clear-both">
+                         @(Model.TrainningType!=null?Model.TrainningType.Name:"无")
+                         &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果机构未创建试卷，将根据试卷类型自动生成"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>试卷考题数</th>
+                    <td class="clear-both">
+                         @Model.TrainningQuestionCount
+                         &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果机构未创建试卷，将根据试卷考题数自动生成"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>最大在线考试次数</th>
+                    <td class="clear-both">
+                          @Model.MaxExaminationTime
+                          &nbsp;&nbsp;<span class="icon icon-info-blue" title="最大在线考试次数"></span>
+                     </td>
+                </tr>
+                <tr>
+                    <th>考试通过类型</th>
+                    <td class="clear-both">
+                         @(Model.ExaminationPassType.HasValue?((com.Bynonco.LIMS.Model.Enum.ExaminationPassType)Model.ExaminationPassType.Value).ToCnName():"无")
+                         &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果机构未创建试卷，将根据考试通过类型自动判断用户是否通过考试"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>考试通过线</th>
+                    <td class="clear-both">
+                　        @Model.PassStandardStr
+                         &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果机构未创建试卷，将根据考试通过线自动判断用户是否通过考试"></span>
+                    </td>
+                </tr>
+               <tr>
+                    <th>是否需要阅读资料</th>
+                    <td class="clear-both">
+                         @(Model.IsNeedReadMaterialBeforeExamination.HasValue &&　Model.IsNeedReadMaterialBeforeExamination.Value ? "是" : "否")
+                         &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果未阅读资料则不能进行考试"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>最少阅读资料学时</th>
+                    <td class="clear-both">
+                         @Model.MinReadMaterialDateTime
+                         &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果未阅读资料满足学时要求时，则不能进行考试"></span>
+                    </td>
+                </tr>
+             <tr>
+                 <td colspan="3">
+                     <div style="padding-left:100px;">
+                         @Html.JLinkButton("AutherExaminationDefaultSettingContainer" + "_" + Model.XPath, "设置").SetIconCls("icon-save").SetPlain(true).SetOnclick(string.Format("doExaminationSettingForOrgAdmin('{0}','{1}');return false;",Model.Id,Url.Action("AutherExaminationDefaultSettingIndex","LabOrganization"))).ToMvcString()
+                     </div>
+                     
+                 </td>
+             </tr>
+            </table>
+    </div>
+</div>

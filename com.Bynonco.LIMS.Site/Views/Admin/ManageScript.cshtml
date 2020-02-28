@@ -1,0 +1,296 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+    .admin-statistics th{text-align:center;width:100px; padding: 2px 2px 2px 0;color:#555555;background-color:#ECEDF1;border: 1px solid #D3D8DE;}
+    .admin-statistics td{text-align:left;width:50px; padding: 2px 2px 2px 5px;color:Black;border: 1px solid #D3D8DE;border-left:0;border-right:0;}
+    .admin-statistics tr.nofirst th,.admin-statistics tr.nofirst td{border-top:0px solid #D3D8DE;}
+    .admin-statistics td.col-first{border-left:1px solid #D3D8DE;width:20px;}
+    .admin-statistics td.col-last{border-right:1px solid #D3D8DE;}
+</style>
+<div id="divBindTutorDialog" style="display:none"></div>
+<script type="text/javascript">
+    $(".admin-statistics").each(function () {
+        $(this).attr("border", "0");
+        $(this).attr("cellpadding", "0");
+        $(this).attr("cellspacing", "0");
+        $(this).attr("style", "padding: 2px 0 2px 20px;");
+    });
+    //-------------绑定导师---------------------
+    
+    var bindTutorDialog;
+    function doShowBindTutorContainer(studentId) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if (bindTutorDialog) {
+            bindTutorDialog.dialog("destroy");
+        }
+        $("#divBindTutorDialog").load('@Url.Action("BindTutorContainer","User")', {"studentId":studentId,"time":new Date().getMilliseconds()},function(){
+            $.messager.progress('close');
+            bindTutorDialog = @Html.JDialog("divBindTutor").SetTitle("绑定导师").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("bindTutorDialog.dialog('close');return false;").SetModal(true).SetOkScript("doBindTutor(studentId);return false;").ToMvcString();
+        });
+    }
+    function doTutorAudit(opStr,studentName,studentId,tutorId){
+        var opName = "";
+        var url = "";
+        switch(opStr){
+            case "agree":
+                opName="同意";
+                url = '@Url.Action("TutorAuditPass","User")';
+                break;
+            case "reject":
+                opName="拒绝";
+                url = '@Url.Action("TutorAuditNotPass","User")';
+                break;
+        }
+        $.messager.confirm('提示', '确认' + opName +studentName+'加入您的课题组?', function (r) {
+           if (!r) return;
+           $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+           $.ajax({
+                type: "POST",
+                url: url + "?time=" + new Date().getMilliseconds(),
+                data: {"studentId":studentId,"tutorId":tutorId,"isFromLocal":true},
+                success: function (msg) {
+                    $.messager.progress("close");
+                    if (msg.indexOf("出错") >= 0) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    $("#btnTutorAuditNotPass_" + studentId).hide();
+                    $("#btnTutorAuditPass_" + studentId).hide();
+                    setTimeout(function(){window.location.reload()},3000);
+                }
+            });
+        });
+    }
+    function doBindTutor(studentId){
+        if($("#TutorId").val().trim()==""){
+             $.messager.show({ title: '提示', msg: "请选择导师", showType: 'show' });
+             return;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("BindTutor","User")' + "?time=" + new Date().getMilliseconds(),
+            data: $("#frmBindTutor").serialize(),
+            success: function (msg) {
+                $.messager.progress("close");
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                bindTutorDialog.dialog("close");
+                window.location.reload(); 
+            }
+        });
+    }
+    //------------绑定导师 End------------------
+    //------------- 用户 -----------------------
+    function doLoadAuditWaittingUser() {
+        var url = '@Url.Action("Index", "User")' + "?UserShowType=AuditWaitting&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadAuditRejectUser() {
+        var url = '@Url.Action("Index", "User")' + "?UserShowType=AuditReject&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    //------------- 用户 End -------------------
+    //------------- 课题组 ---------------------
+    function doLoadAuditWaittingExperimenterSubject() 
+    {
+        var url = '@Url.Action("UserRelevantSubjectsManage", "Subject")' + "?isCooperative=true&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadAuditRejectExperimenterSubject() {
+        var url = '@Url.Action("UserRelevantSubjectsManage", "Subject")' + "?isCooperative=true&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    //------------- 课题组 End------------------
+    //------------- 预约 -----------------------
+    function doLoadAppointmentToday() {
+        var url = '@Url.Action("TodayIndex", "Appointment")' + "?ListType=Equipment&IsForStatistics=true&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadDoingAppointmentToday() {
+        var appointmentTotalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoingTotal)';
+        var url = '@Url.Action("TodayIndex", "Appointment")' + "?ListType=Equipment&IsForStatisticsForStatistics=true&TotalType=" + appointmentTotalType + "&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadMayMissAppointmentToday() {
+        var appointmentTotalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoneTotal)';
+        var url = '@Url.Action("TodayIndex", "Appointment")' + "?ListType=Equipment&IsForStatistics=true&TotalType=" + appointmentTotalType + "&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadPersonalAppointmentToday() {
+        var url = '@Url.Action("TodayIndex", "Appointment")' + "?ListType=User&IsForStatistics=true&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;  
+    }
+    function doLoadPersonalDoingAppointmentToday() {
+        var appointmentTotalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoingTotal)';
+        var url = '@Url.Action("TodayIndex", "Appointment")' + "?ListType=User&IsForStatistics=true&TotalType=" + appointmentTotalType + "&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadPersonalMayMissAppointmentToday() {
+        document.cookie = "IsAppointmentForStatistics=1";
+        var appointmentTotalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoneTotal)';
+        var url = '@Url.Action("TodayIndex", "Appointment")' + "?ListType=User&IsForStatistics=true&TotalType=" + appointmentTotalType + "&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadExperimenterSubjectAppointmentToday() {
+        document.cookie = "IsAppointmentForStatistics=1";
+        var url = '@Url.Action("TodayIndex", "Appointment")' + "?ListType=Subject&IsForStatistics=true&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadExperimenterSubjectDoingAppointmentToday() {
+        document.cookie = "IsAppointmentForStatistics=1";
+        var appointmentTotalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoingTotal)';
+        var url = '@Url.Action("TodayIndex", "Appointment")' + "?ListType=Subject&IsForStatistics=true&TotalType=" + appointmentTotalType + "&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadExperimenterSubjectMayMissAppointmentToday() {
+        document.cookie = "IsAppointmentForStatistics=1";
+        var appointmentTotalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoneTotal)';
+        var url = '@Url.Action("TodayIndex", "Appointment")' + "?ListType=Subject&IsForStatistics=true&TotalType=" + appointmentTotalType + "&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    //------------- 预约 End--------------------
+    //------------- 使用记录 -------------------
+    function doLoadUsingRecord() {
+        var url = '@Url.Action("CurrentUsingEquipmentListIndex", "UsedConfirm")' + "?date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadTodayUsedRecord() {
+        var url = '@Url.Action("TodayUsedConfirmListIndex", "UsedConfirm")' + "?date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadPersonalUsingRecord() {
+        document.cookie = "IsForTodayUsedConfirmStatistics=1";
+        var url = '@Url.Action("Home", "Admin")' + "?TagAction=MyUsedConfirmContainer&TagController=UsedConfirm&date=" + new Date().getMilliseconds() + "&IsForStatistics=true";
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadPersonalTodayUsedRecord() {
+        document.cookie = "IsForTodayUsedConfirmStatistics=1";
+        var url = '@Url.Action("Home", "Admin")' + "?TagAction=MyUsedConfirmContainer&TagController=UsedConfirm&date=" + new Date().getMilliseconds() + "&IsForStatistics=true";
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadExperimenterSubjectUsingRecord() {
+        document.cookie = "IsForTodayUsedConfirmStatistics=1";
+        var url = '@Url.Action("Home", "Admin")' + "?TagAction=MyUsedConfirmContainer&TagController=UsedConfirm&ListType=Subject&date=" + new Date().getMilliseconds() + "&IsForStatistics=true";
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadExperimenterSubjectTodayUsedRecord() {
+        document.cookie = "IsForTodayUsedConfirmStatistics=1";
+        var url = '@Url.Action("Home", "Admin")' + "?TagAction=MyUsedConfirmContainer&TagController=UsedConfirm&ListType=Subject&date=" + new Date().getMilliseconds() + "&IsForStatistics=true";
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    //------------- 使用记录 End----------------
+    //------------- 存款 -----------------------
+    function doLoadAuditWaittingDepositRecord() {
+        var url = '@Url.Action("Index", "DepositRecord")' + "?TagAction=Manage&TagController=DepositRecord&HasChecked=false&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadPersonalAuditWaittingDepositRecord() {
+        var url = '@Url.Action("Index", "DepositRecord")' + "?TagAction=MyManage&TagController=DepositRecord&HasChecked=false&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    //------------- 存款 End -------------------
+    //------------- 设备 -----------------------
+    function doLoadAuditWaittingUserEquipment() {
+        var url = '@Url.Action("Index", "Equipment")' + "?TagAction=Manage&TagController=UserEquipment&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadPersonalAuditWaittingUserEquipment() {
+        var url = '@Url.Action("Manage", "Account")' + "?TagAction=MyUserEquipment&TagController=UserEquipment&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadUnAppointmentEquipment() {
+        var url = '@Url.Action("Index", "Equipment")' + "?TagAction=UnAppointmentEquipment&TagController=Equipment&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadAppliedEquipmentTrainning() {
+        var url = '@Url.Action("Home", "Admin")' + "?TagAction=MyEquipmentTrainningContainer&TagController=EquipmentTrainning&ListType=Equipment&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    
+    //------------- 设备 End--------------------
+    //------------- 信息 -----------------------
+    function doLoadUnReadMessage() {
+        var url = '@Url.Action("Index", "Message")' + "?date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    function doLoadUnReplyIssue() {
+        var url = '@Url.Action("Index", "Issue")' + "?date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    //------------- 信息 End--------------------
+    //------------- 耗材 -----------------------
+    function doLoadMaterialInfoList()
+    {
+        var url = '@Url.Action("Index", "MaterialInfo")' + "?date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+    }
+    function doLoadMaterialPurchaseList()
+    {
+        var url = '@Url.Action("Index", "MaterialPurchase")' + "?date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+    }
+    function doLoadMaterialRecipientList()
+    {
+        var url = '@Url.Action("Index", "MaterialRecipient")' + "?date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+    }
+    function doLoadMaterialOutputList()
+    {
+        var url = '@Url.Action("Index", "MaterialOutput")' + "?date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+    }
+    //------------- 耗材 End--------------------
+    function LoadStatisticsInfo(url) {
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+
+    //------------- 长时间开机警告--------------------
+    function doLoadAlarmEquipment() {
+        var url = '@Url.Action("Index", "Equipment")' + "?TagAction=AlarmManage&TagController=Equipment&date=" + new Date().getMilliseconds();
+        document.cookie = "IsAlarmManageForStatistics=1";
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    //------------- 报障设备--------------------
+    function doLoadBrokenEquipment() {
+        var url = '@Url.Action("BrokenReportManage", "Equipment")' + "?TagAction=BrokenReportManage&TagController=Equipment&date=" + new Date().getMilliseconds();
+        LoadStatisticsInfo(url);
+        return false;
+    }
+    //------------- 送样申请--------------------
+    function doLoadUnAuditSampleApply(){
+        var url = '@Url.Action("SampleApplyAuditIndex", "SampleManage")' + "?TagAction=SampleApplyAuditIndex&TagController=SampleManage&date=" + new Date().getMilliseconds() + "&querySampleApplyStatus="+ '@((int)com.Bynonco.LIMS.Model.Enum.SampleApplyStatus.UnAudit)';
+        LoadStatisticsInfo(url);
+        return false;
+    }
+</script>

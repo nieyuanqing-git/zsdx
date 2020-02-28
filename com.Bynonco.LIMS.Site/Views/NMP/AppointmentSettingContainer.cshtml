@@ -1,0 +1,11 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    <div class="edit-box">
+        @Html.Partial("../NMP/AppointmentSetting")
+        @Html.Partial("../NMP/AppointmentSettingOperate")
+    </div>
+</div>

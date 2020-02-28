@@ -1,0 +1,75 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = "~/Views/Shared/LZDXHomeLayout/000015.cshtml";
+    ViewBag.Title = "首页";
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+}
+@section ImportCssAndJs
+{
+    <script type="text/javascript">
+        $(function () {
+            $(".tag-title").mouseover(function () {
+                $(this).siblings().removeClass("current");
+                $(this).siblings(".more").addClass("hide");
+                $(this).parent().next().find(".tag-box").addClass("hide");
+                var id = $(this).attr("id");
+                var moreId = id.replace("tag", "more");
+                var boxId = id.replace("tag", "box");
+                $(this).addClass("current");
+                $("#" + moreId).removeClass("hide");
+                $("#" + boxId).removeClass("hide");
+                return false;
+            });
+        });
+    </script>
+}
+@section FirstLineLeft
+{
+    <div class="home-login-box">
+        @Html.Partial("../Account/HomeLoginContainer")
+    </div>
+}
+@section FirstLineCenter
+{
+    @Html.Partial("../Home/Gallery")
+}
+@section FirstLineRight
+{
+    @Html.Partial("../Home/Article", ArticleCategoryHomeLocation.FirstLineRight)
+}
+
+@section SecondLineLeft
+{
+    <div class="email-box">
+        <h2 class="title"><span>联系信箱</span></h2>
+        <div class="content-box content-box-186">
+            <div style="height:135px;">
+                <ul>
+                    <li><a title="shmyyb@lzu.edu.cn" href="mailto:shmyyb@lzu.edu.cn" id="e1">院长信箱</a></li>
+                    <li><a title="shmydb@lzu.edu.cn" href="mailto:shmydb@lzu.edu.cn" id="e2">书记信箱</a></li>
+                    <li><a target="_blank" href="http://mail.lzu.edu.cn/" id="e3">教工邮箱</a></li>
+                    <li><a target="_blank" href="http://mail.lzu.edu.cn/" id="e4">学生邮箱</a></li>
+                </ul>
+            </div>
+            <p><span>投稿信箱: </span><a href="mailto:shmnews@lzu.edu.cn">shmnews@lzu.edu.cn</a></p>
+        </div>
+    </div>
+}
+@section SecondLineCenter
+{
+    @Html.Partial("../Home/Article", ArticleCategoryHomeLocation.SecondLineCenter)
+}
+@section SecondLineRight
+{
+    @Html.Partial("../Home/HotEquipment")
+}
+
+@section ThirdLineLeft
+{
+    @Html.Partial("../Home/FriendLink")
+}
+@section ThirdLineCenter
+{
+    @Html.Partial("../Home/CurrentUsingEquipment")
+}

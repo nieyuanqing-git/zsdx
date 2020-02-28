@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>@ViewBag.Title</title>
+    @Html.Partial("AdminJsCSS")
+    @Html.Partial("GetIsAjax")
+    @RenderSection("ImportCssAndJs", false)
+</head>
+<body>
+    <div class="layout-top">
+        <div class="box-middle">
+            <div class="box-left">
+                <div class="box-right">
+                    <div class="logo">&nbsp;</div>
+                    @Html.Partial("../Admin/TopMenu")
+                    <div id="themesbox" class="themes-box"></div>
+                    <div class="clear-both"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layout-body">
+        <div class="body-inner">
+            <div id="layoutbox" class="body-inner-inner">
+                <div id="layoutLeftBox" class="layout-left">
+                    <div class="welcome">
+                        @Html.Partial("../Account/AccountLoginInfo")
+                    </div>
+                    @Html.Partial("../Admin/UserCurrentWorkGroup")
+                </div>
+                <div id="layoutCenterBox" class="layout-center">
+                    @RenderBody()
+			        <div id="dialog" title="系统信息"></div>
+                </div>
+                <div class="layout-foot">
+                    @Html.Partial("Footer")
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="Loading" style="display:none;">
+        <div><p><img src="@Url.Content("~/Content/images/loading.gif")" alt="Loading"/></p></div>
+    </div>
+</body>
+</html>

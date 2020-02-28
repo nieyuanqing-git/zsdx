@@ -1,0 +1,58 @@
+﻿@model com.Bynonco.LIMS.Model.Business.AutoDeductSetting
+@using com.Bynonco.JqueryEasyUI.Core;
+<div class="layout-center-full">
+    <div class="edit-box">
+       <form id="frmAutoDeductSetting">
+            <table id="tdMessageNoticeSetting" class="edit-info" width="">
+                <tr>
+                    <th colspan="2" style="text-align:left; padding-left:80px;font-size:14px;font-weight:bold;color:Red;">修改需重启IIS生效</th>
+                </tr>
+                <tr>
+                    <td colspan="2">下次自动扣费启动时间间隔 @Html.JValidateBox("TimeDiff").SetValue(Model.TimeDiff.ToString()).SetWidth(80).ToMvcString() 以秒为单位</td>
+                </tr>
+                <tr>
+                    <td colspan="2">自动搜索多少 @Html.JValidateBox("Days").SetValue(Model.Days.ToString()).SetWidth(80).ToMvcString() 天以前未扣费的预约记录,以天为单位,0为当天</td>
+                </tr>
+                <tr>
+                   <td>扣费设备</td>
+                   <td>
+                        <div style="float:left;"> 
+                            @(Html.TokenInput("EquipmentIds")
+                            .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment", new { time = DateTime.Now.Millisecond.ToString() }))
+                            .SetPrePopulate(ViewData["EquipmentsJson"] == null ? null : ViewData["EquipmentsJson"].ToString())
+                            .SetSingle(false).SetWidth(600).ToMvcString())
+                            </div>
+                        <div style="float:left;">@Html.JLinkButton("btnClearEquipmentIds", "").SetIconCls("icon-remove").SetPlain(true).SetOnclick("$('#EquipmentIds').tokenInput('clear');").ToMvcString()</div>
+                        <div style="clear:both;"></div>
+                  </td> 
+                </tr>
+                <tr>
+                    <td>是否开启服务</td>
+                    <td>@Html.CheckBox("IsValidate")</td>
+                </tr>
+            </table>
+        </form>
+        <div class="edit-operate">
+            @Html.JLinkButton("btnSave", "保存").SetPlain(true).SetOnclick("doSave();").SetIconCls("icon-save").ToMvcString()
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function doSave() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveAutoDeductSetting", "AutoDeductSetting")' + "?time=" + new Date().getMilliseconds(),
+            data: $("#frmAutoDeductSetting").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+    }
+</script>

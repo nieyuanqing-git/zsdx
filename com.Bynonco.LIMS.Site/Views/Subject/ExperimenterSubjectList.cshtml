@@ -1,0 +1,49 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isCooperative = Convert.ToBoolean(ViewData["IsCooperative"]);    
+ }
+<script type="text/javascript">
+    function onExperimenterTipped() {
+        var rows = $("#tbExperimenterSubjectList").datagrid("getRows");
+        if (!rows || rows.length == 0) return;
+        for (var i = 0; i < rows.length; i++) {
+            var elements = $("tr.datagrid-row[datagrid-row-index=" + i.toString() + "] td[field=ExperimenterName] div.datagrid-cell");
+            Tipped.create(elements, '@Url.Action("Tip","User")' + "?time" + new Date().getMilliseconds(), { ajax: { data: { id: rows[i].ExperimenterId }, type: 'get' }, skin: 'light', hook: 'topleft' });
+        }
+    }
+</script>
+@{
+    
+    var subjectPrivilige = ViewData["SubjectId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name, new Guid(ViewData["SubjectId"].ToString()), Convert.ToBoolean(ViewData["IsCooperative"]));
+    var dataGrid = Html.JDataGrid("tbExperimenterSubjectList")
+    .SetUrl((!isCooperative ? Url.Action("GetExperimenterSubjectList") : Url.Action("GetCooperativeExperimenterSubjectList")) + "?subjectId=" + ViewData["SubjectId"].ToString())
+    .SetPageSize(10)
+    .SetHeight(550)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(40).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("成员编码", "ExperimenterId").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("姓名", "ExperimenterName").SetSortable(false).SetWidth(120).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总额度", "TotalSum").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("剩余额度", "OddSum").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预警值", "PreAlert").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("不可预约值", "Unappointment").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("不可使用值", "UnUseable").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否可管理", "IsAdminStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("付费方式", "UseMoneyTypeStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("加入时间", "JoinAtStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("停止时间", "StopAtStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.SetOnLoadSuccess("onExperimenterTipped();");
+    if(ViewData["SubjectId"] != null)
+    {
+        dataGrid.AddQueryParam("queryExpression", string.Format("SubjectId=\"{0}\"", ViewData["SubjectId"].ToString()));
+    }
+    dataGrid.SetShowAddButton(subjectPrivilige.IsEnableAddExperimenterSubject);
+    if(subjectPrivilige.IsEnableAddExperimenterSubject)
+    {
+        dataGrid.SetAddScript(string.Format("doAddOrEditExperimenterSubject('','{0}');return false;", ViewData["IsCooperative"].ToString().ToLower()));
+    }
+}
+@(dataGrid.ToMvcString()) 

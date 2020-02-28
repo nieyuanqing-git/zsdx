@@ -1,0 +1,39 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divAddSubjectProjectDialog" style="display:none"></div>
+<script type="text/javascript">
+    var addSubjectProjectDialog;
+    function doAddSubjectProjectDialog() {
+        if (addSubjectProjectDialog) {
+            addSubjectProjectDialog.dialog("destroy");
+        }
+        addSubjectProjectDialog =  @Html.JDialog("divProjectManage").SetTitle("课题项目编辑").SetIconCls("icon-subject").SetAutoDialog(false).SetCancelScript("addSubjectProjectDialog.dialog('close');return false;").SetOkScript("doSaveProject();return false;").SetModal(true).ToMvcString();
+    }
+    function doShowAddSubjectProjectDialogByTutorId(tutorId){
+        if(!tutorId || tutorId == "") 
+        {
+            $.messager.show({ title: '提示', msg:"请选择项目所属导师", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ProjectManageByTutor","Subject")'+ "/" + tutorId + "?date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAddSubjectProjectDialog").load(url,function(){
+            doAddSubjectProjectDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doShowAddSubjectProjectDialogBySubjectId(subjectId)
+    {
+        if(!subjectId || subjectId == "") 
+        {
+            $.messager.show({ title: '提示', msg:"请选择项目所属课题", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ProjectManage", "Subject")'+ "/" + subjectId + "?date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAddSubjectProjectDialog").load(url,function(){
+            doAddSubjectProjectDialog();
+            $.messager.progress('close');
+        })
+    }
+</script>

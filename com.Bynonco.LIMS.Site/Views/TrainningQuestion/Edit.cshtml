@@ -1,0 +1,62 @@
+﻿@model com.Bynonco.LIMS.Model.TrainningQuestion
+@using com.Bynonco.JqueryEasyUI.Core; 
+<script type="text/javascript">
+    function doOnNameChanged() {
+        $("#InputStr").val("");
+    }
+    </script>
+<div id="divTrainningQuestionEdit">
+ <form id="frmTrainningQuestionEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdTrainningQuestionEdit" class="edit-table" style="width:740px;">
+        <tr>
+            <th><span class="required">* </span>题目</th>
+            <td>
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(200).SetRequired(true).ToMvcString()
+                @Html.JValidateBox("XPath").SetValue(Model == null ? "" : Model.XPath).SetWidth(200).SetDisabled(true).AddClass("hide").ToMvcString()
+                @Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).AddClass("hide").SetWidth(200).ToMvcString()
+            </td>
+            <th><span class="required">* </span>类型</th>
+            <td>
+                @(Html.JComboTree("TrainningTypeId")
+                .SetData(ViewData["TrainningTypeJson"])
+                .SetValue(Model == null ? (ViewData["TrainningTypeId"] == null ? "" : ViewData["TrainningTypeId"].ToString()) : Model.TrainningTypeId.ToString())
+                .SetMultiple(false)
+                .SetDisabled(Model != null)
+                .SetWidth(205).SetRequired(false).SetExpandAll(true).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>题目类型</th>
+            <td id="tdQuestionType">
+                @(Html.JComboBox("QuestionType")
+                .SetData(ViewData["QuestionTypeJson"])
+                .SetValue(Model == null ? "" : Model.QuestionType.ToString())
+                .SetWidth(205)
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>答题时间(分钟)</th>
+            <td>
+                @Html.JValidateBox("TimeSpend").SetValue(Model == null ? "" : Model.TimeSpend.ToString()).SetValidateType(ValidateType.intNumber).SetRequired(true).SetWidth(200).ToMvcString()
+            </td>
+        </tr>
+         <tr>
+            <th><span class="required">* </span>分数</th>
+            <td>
+                @Html.JValidateBox("Score").SetValue(Model == null ? "" : Model.Score.ToString()).SetValidateType(ValidateType.intNumber).SetRequired(true).SetWidth(200).ToMvcString()
+            </td>
+            <th>是否停用</th>
+            <td>
+                @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+        <tr>
+            <th>题目描述</th>
+            <td colspan="3" style="height:405px;">
+                @Html.EditorFor(m => m.ContentHTML)
+                @Html.Hidden("ContentNotHTML")
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

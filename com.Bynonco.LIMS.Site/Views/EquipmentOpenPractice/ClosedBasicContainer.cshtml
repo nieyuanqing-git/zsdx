@@ -1,0 +1,15 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPractice
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    <div class="edit-box">
+        @if (Model != null)
+        {
+        <form id="frmEquipmentOpenPracticeEdit" action="#">
+            @Html.Partial("../EquipmentOpenPractice/ClosedBasic")
+            @Html.Partial("../EquipmentOpenPractice/ClosedBasicOperate")
+        </form>
+        }
+    </div>
+</div>

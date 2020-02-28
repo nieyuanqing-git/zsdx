@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.View;
+@using com.Bynonco.LIMS.Model.Enum;
+@{ 
+    var attachmentJson = ViewData["AttachmentJson"] == "" ? "null" : ViewData["AttachmentJson"];
+    var viewEquipmentRepairFundsApply = (ViewEquipmentRepairFundsApply)ViewData["ViewEquipmentRepairFundsApply"];
+   var uploadTip = "可上传文件类型:" + ViewData["EnableFileType"] + "." + "最大可上传" + ViewData["EnableFileSize"];
+ }
+<style type="text/css">
+    #divEquipmentRepairFundsApplyUploadEdit table{width:600px;}
+    #divEquipmentRepairFundsApplyUploadEdit div{margin-top:0px;}
+    #divEquipmentRepairFundsApplyUploadEdit div p{font-weight:bold;font-size:14px; text-align:center;}
+</style>
+<div id="divEquipmentRepairFundsApplyUploadEdit" style="height:270px;">
+    <div style="width:580px;margin-top:1px;">
+        <table class="edit-table" style="width:600px;">
+            <tr>
+                <th style="width:120px;">附件文件</th>
+                <td style="padding-left:5px">
+                    <input id="fileToUpload" type="file" name="fileToUpload"/>
+                    @Html.JLinkButton("btnUpLoadAttachment", "上传").SetIconCls("icon-upload").SetPlain(true).SetOnclick("ajaxFileUpload();return false;").ToMvcString()
+                    <br />
+                    <span style="font-weight:bold">@uploadTip</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="width:600px;margin-top:1px;">@Html.Partial("EquipmentRepairFundsApplyAttachmentList")</div>     
+</div>
+

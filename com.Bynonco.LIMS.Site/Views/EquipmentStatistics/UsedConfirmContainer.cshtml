@@ -1,0 +1,11 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+
+<div class="layout-center-full" id="divViewUsedConfirmStatistics" style='width:800px;overflow-x:auto;'>
+    <div class="y-panel-grid hide appointment-search">
+        <div class="search-inner-box">
+            @Html.Partial("../UsedConfirm/Search")
+        </div>
+    </div>
+    <div>@Html.Partial("../UsedConfirm/List")</div>
+</div>
+<div style="display:none">@Html.Partial("../UsedConfirm/ScriptContainer")</div>

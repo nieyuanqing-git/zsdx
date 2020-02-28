@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var nmpPrivilige = ViewData["NMPId"] == null ?
+         com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+         com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, new Guid(ViewData["NMPId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbAppointmentPriorityList")
+    .SetUrl(Url.Action("GetGridAppointmentPriorityList", "NMP"))
+    .AddQueryParam("queryExpression", string.Format("NMPId=\"{0}\"", ViewData["NMPId"] == null ? default(Guid).ToString() : ViewData["NMPId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("StartAt")
+    .SetSortOrder(SortOrder.desc)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "StartAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预留时间段", "PriorityHoursStr").SetWidth(252).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户", "UserNames").SetWidth(200).SetSortable(false).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("每周工作日", "WorkDaysStr").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("提前取消时间", "PriorityDays").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(nmpPrivilige.IsEnableAddAppointmentPriority);
+    if (nmpPrivilige.IsEnableAddAppointmentPriority)
+    {
+        dataGrid.SetAddScript("doAddOrEditAppointmentPriority('');");
+    }
+    dataGrid.SetShowEditButton(nmpPrivilige.IsEnableEditAppointmentPriority);
+    if (nmpPrivilige.IsEnableEditAppointmentPriority)
+    {
+        dataGrid.SetEditScript("doEditAppointmentPriority();");
+        dataGrid.SetOnDblClickRow("doAddOrEditAppointmentPriority(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(nmpPrivilige.IsEnableDeleteAppointmentPriority);
+    if (nmpPrivilige.IsEnableDeleteAppointmentPriority)
+    {
+        dataGrid.SetDeleteScript("doDeleteAppointmentPriority();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

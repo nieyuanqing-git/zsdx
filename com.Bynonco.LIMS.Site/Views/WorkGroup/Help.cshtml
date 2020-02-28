@@ -1,0 +1,90 @@
+﻿<style type="text/css">
+    .edit-table td{text-align:center;}
+</style>
+
+<div id="divWorkGroupHelp"> 
+    <table class="edit-table" style="width:685px;">
+        <tr>
+            <th style='width:20px;'></th>
+            <th style='width:90px;'>强权</th>
+            <th style='width:90px;'>用户机构限制</th>
+            <th style='width:90px;'>设备机构限制</th>
+            <th style='width:auto;'>权限</th>
+        </tr>
+        <tr>
+            <td>1. </td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td>空权限</td>
+        </tr>
+        <tr>
+            <td>2. </td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td>所有权限</td>
+        </tr>
+        <tr>
+            <td>3. </td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td rowspan='2'>用户机构授权权限</td>
+        </tr>
+        <tr>
+            <td>4. </td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+        </tr>
+        <tr>
+            <td>5. </td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+            <td rowspan='2'>设备机构授权权限</td>
+        </tr>
+        <tr>
+            <td>6. </td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+        </tr>
+        <tr>
+            <td>7. </td>
+            <td><input type="checkbox" disabled="disabled" /></td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+            <td rowspan='2'>用户机构授权权限 + 设备机构授权权限</td>
+        </tr>
+        <tr>
+            <td>8. </td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+            <td><span style="margin-right:3px;" class="tree-folder icon-pass"></span></td>
+        </tr>
+    </table>
+    <table class="edit-table" style="width:685px;">
+        <tr>
+            <td colspan='2' style='text-align:left;font-weight:bold;'>备注:</td>
+        </tr>
+        <tr>
+            <th style='width:150px;'>用户机构授权权限</th>
+            <td style='text-align:left;'>"个人中心 -> 权限管理 -> 用户机构授权" 配置</td>
+        </tr>
+        <tr>
+            <th style='width:150px;'>设备机构授权权限</th>
+            <td style='text-align:left;'>"个人中心 -> 权限管理 -> 设备机构授权" 配置</td>
+        </tr>
+        <tr>
+            <th style='width:150px;color:Red;'>设备负责人</th>
+            <td style='text-align:left;'>
+            "个人中心 -> 仪器设备 -> 编辑[负责人]字段" （负责人权限不受以上限制）<br />
+            例如: <br />
+            少数设备管理权限 = 相关设备增加负责人 + 空权限 (行1)<br />
+            少数设备管理权限 + 机构用户管理权限 = 相关设备增加负责人 + 用户机构授权权限 (行3、4)
+            </td>
+        </tr>
+    </table>
+</div>

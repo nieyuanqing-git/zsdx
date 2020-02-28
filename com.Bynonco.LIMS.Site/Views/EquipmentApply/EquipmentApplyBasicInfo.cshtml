@@ -1,0 +1,183 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+      #tbEquipmentApplyBasicInfo tr th{text-align:center; width:80px}
+</style>
+ <p><span class="icon icon-equipmentinfo"></span>基本信息</p>
+<table id="tbEquipmentApplyBasicInfo" style="width:851px" class="edit-info">
+    <tr>
+        <th>
+            <span class="required">*</span>单位名称
+        </th>
+        <td>
+            @Html.JValidateBox("LabRoomName").SetValue(Model == null ? "" : Model.LabRoomName).SetWidth(150).SetValidateType(ValidateType.required).SetInvalidMessage("请输入设备名称").ToMvcString()
+        </td>
+        <th>校仪器编号</th>
+         <td>
+            @Html.JValidateBox("EquipmentNo").SetValue(Model == null ? "" : Model.EquipmentNo).SetWidth(150).SetValidateType(ValidateType.required).SetInvalidMessage("请输入设备名称").ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <span class="required">*</span>仪器中文名称
+        </th>
+        <td>
+            @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(150).ToMvcString()
+        </td>
+        <th>
+            仪器英文名称
+        </th>
+        <td>
+            @Html.JValidateBox("EnName").SetValue(Model == null ? "" : Model.EnName).SetWidth(150).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            仪器别名
+        </th>
+        <td>
+            @Html.JValidateBox("NickName").SetValue(Model == null ? "" : Model.NickName).SetWidth(150).ToMvcString()
+        </td>
+        <th>
+            <span class="required">*</span>型号规格
+        </th>
+        <td>
+            @Html.JValidateBox("Model").SetValue(Model == null ? "" : Model.Model).SetWidth(150).ToMvcString()
+        </td>
+    </tr>    
+    <tr>
+        <th>
+            生产厂商
+        </th>
+        <td>
+            @Html.JValidateBox("Manufacturer").SetValue(Model == null ? "" : Model.Manufacturer).SetWidth(150).ToMvcString()
+        </td>
+        <th>
+            国别
+        </th>
+        <td>
+            @Html.JValidateBox("Country").SetValue(Model == null ? "" : Model.Country).SetWidth(150).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+         <th>
+            仪器分类号
+        </th>
+        <td>
+            @Html.JValidateBox("CategoryCode").SetValue(Model == null ? "" : Model.CategoryCode).SetWidth(150).ToMvcString()
+        </td>
+        <th>
+            原值
+        </th>
+        <td>
+            @Html.JValidateBox("Worth").SetValue(Model == null || !Model.Worth.HasValue? "" : Model.Worth.Value.ToString("0.00")).SetWidth(150).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+         <th>
+            建帐日期
+        </th>
+        <td id="tdCountry">
+            @Html.JDateTimePicker("CreateAccountDate").SetWidth(155).SetValue(Model == null || !Model.CreateAccountDate.HasValue ? "" : Model.CreateAccountDate.Value.ToString("yyyy-MM-dd")).ToMvcString()
+        </td>
+        <th>
+            启用日期
+        </th>
+        <td>
+            @Html.JDateTimePicker("StartDate").SetWidth(155).SetValue(Model == null || !Model.StartDate.HasValue ? "" : Model.StartDate.Value.ToString("yyyy-MM-dd")).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            仪器检定情况
+        </th>
+        <td>
+            @Html.JValidateBox("TestCondition").SetValue(Model == null ? "" : Model.TestCondition).SetWidth(150).ToMvcString()
+        </td>
+        <th>
+            收费标准
+        </th>
+        <td>
+            @Html.JValidateBox("ChargeStandard").SetValue(Model == null ? "" : Model.ChargeStandard).SetWidth(150).ToMvcString()
+           （按元/样、元/小时、元/天填写,多个中间,分隔）
+        </td>
+    </tr>
+    <tr>
+        <th>
+            仪器所在实验室
+        </th>
+        <td>
+            @Html.JValidateBox("LocatedLabRoom").SetValue(Model == null ? "" : Model.LocatedLabRoom).SetWidth(150).ToMvcString()
+        </td>
+        <th>
+            仪器安放地址
+        </th>
+        <td>
+            @Html.JValidateBox("Location").SetValue(Model == null ? "" : Model.Location).SetWidth(150).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            仪器本地网址
+        </th>
+        <td colspan="3">
+            @Html.JValidateBox("WebSite").SetValue(Model == null ? "" : Model.WebSite).SetWidth(432).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>仪器管理人</th>
+        <td>
+            @Html.JValidateBox("EquipmentAdminName").SetValue(Model == null ? "" : Model.EquipmentAdminName).SetWidth(150).ToMvcString()
+        </td>
+        <th>联系电话</th>
+        <td>
+            @Html.JValidateBox("EquipmentAdminLinkTelNo").SetValue(Model == null ? "" : Model.EquipmentAdminLinkTelNo).SetWidth(150).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>申请年份</th>
+        <td colspan="3">
+           @Html.JComboBox("ApplyYear").SetData(ViewData["ApplyYearJson"]).SetWidth(469).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            备注
+        </th>
+        <td colspan="3">
+             @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:464px;height:60px;" })
+        </td>
+    </tr>
+    <tr>
+        <th>仪器在本校、本地区<br />分布及需求状况</th>
+        <td colspan="3">
+            @Html.JComboBox("DistributionAndRequirement").SetData(ViewData["DistributionAndRequirementJson"]).SetWidth(469).ToMvcString()
+        </td>
+    </tr>
+    <tr>
+        <th>仪器开放服务情况</th>
+        <td colspan="3">
+            @Html.JComboBox("OpenCondition").SetData(ViewData["OpenConditionJson"]).SetWidth(469).ToMvcString()
+        </td>
+    </tr> 
+</table>
+<p><span class="icon icon-detail"></span>仪器的主要功能、技术指标、学术特色和应用范围</p>
+<div style="margin-left:50px;">
+    @Html.TextArea("Introduce", Model == null ? "" : Model.Introduce, new { style = "width:562px;height:60px;background-color:transparent;border:gray solid 1px;" })
+</div>
+<p><span class="icon icon-detail"></span>仪器目前运行维护经费的主要来源</p>
+<div style="margin-left:50px;">
+    @Html.TextArea("FundsSource", Model == null ? "" : Model.FundsSource, new { style = "width:562px;height:60px;background-color:transparent;border:gray solid 1px;" })
+</div>
+<p><span class="icon icon-detail"></span>仪器如加入共享，开展对校内外的开放服务，还存在哪些困难</p>
+<div style="margin-left:50px;">
+    @Html.TextArea("Trouble", Model == null ? "" : Model.Trouble, new { style = "width:562px;height:60px;background-color:transparent;border:gray solid 1px;" })
+</div>
+<p><span class="icon icon-detail"></span>仪器如能获得加入共享并获得补贴，拟开展以下方面的建设</p>
+<div style="margin-left:50px;">
+    @Html.TextArea("Construct", Model == null ? "" : Model.Construct, new { style = "width:562px;height:60px;background-color:transparent;border:gray solid 1px;" })
+</div>
+<p><span class="icon icon-detail"></span>预期的建设成果及效益</p>
+<div style="margin-left:50px;">
+    @Html.TextArea("PredictEffectiveness", Model == null ? "" : Model.PredictEffectiveness, new { style = "width:562px;height:60px;background-color:transparent;border:gray solid 1px;" })
+</div>

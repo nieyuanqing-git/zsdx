@@ -1,0 +1,29 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+@(Html.JTab("divChargeSetting").SetBorder(false).ToMvcString())   
+<div id="divChargeSetting" >
+    <div title="基本设置" id="divChargeBasicSetting">
+        <div class="edit-box" style="border-top:0;">
+            @Html.Partial("BasicChargeSetting")
+            @Html.Partial("BasicChargeSettingOperate")
+        </div>  
+    </div>  
+    <div title="时间规则设置" id="divCalculateTimeRule">
+        <div class="edit-box" style="border-top:0;">
+            @Html.Partial("CalculateTimeRule")
+            @Html.Partial("CalculateTimeRuleOperate")
+        </div>  
+    </div>
+    <div title="分段计费设置" id ="divPeriodChargeSetting">
+        <div>
+            @Html.Partial("DurationChargeStandardContainer")
+        </div>  
+    </div>
+        <div title="附加收费项目" id ="divAdditionChargeItemManager">
+        @Html.Partial("AdditionChargeItemContainer")
+    </div>
+</div>

@@ -1,0 +1,50 @@
+﻿@model IList<com.Bynonco.LIMS.Model.View.ViewEquipmentOpenTrainingCarryOutSignUp>
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEquipmentOpenTrainingCarryOutSignUpResult">
+@if (Model != null && Model.Count() > 0)
+{
+    string ids = "";
+    var auditRemark = "";
+    if (Model.Count() == 1)
+    {
+        auditRemark = Model[0].ResultRemark;
+    }
+    <form id="frmEquipmentOpenTrainingCarryOutSignUpResult" action="#">
+    <table class="edit-table"  style="width:545px;">
+        <tr>
+            <th>用户</th>
+            <th>培训实施名称</th>
+            <th>设备名称</th>
+            <th>报名时间</th>
+            <th>状态</th>
+            <th>是否通过</th>
+        </tr>
+    @foreach (var item in Model)
+    {
+        ids += (ids == "" ? "" : ",") + item.Id.ToString();
+        <tr>
+            <td>@item.UserName</td>
+            <td>@item.EquipmentOpenTrainingCarryOutName</td>
+            <td>@item.EquipmentName</td>
+            <td style='text-align:center;'>@item.CreateTime.ToString("yyyy-MM-dd HH:mm")</td>
+            <td style='text-align:center;'>@item.StatusStr</td>
+            <td style='text-align:center;'>
+                @Html.CheckBox("IsPass_" + item.Id, !item.IsPass.HasValue ? false : item.IsPass.Value)
+            </td>
+        </tr>
+    }
+        <tr>
+            <th>结果备注</th>
+            <td colspan='5'>
+                <input id="Ids" type="hidden" value="@(ids)" name="Ids" />
+                @Html.TextArea("ResultRemark", auditRemark, new { style = "width:96%;height:50px;" })
+            </td>
+        </tr>
+    </table>
+    </form>
+}
+else
+{
+    <p>没有找到相关设备应用知识培训信息</p>
+}
+</div>

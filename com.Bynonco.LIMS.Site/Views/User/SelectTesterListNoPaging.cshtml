@@ -1,0 +1,25 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+    var dataGrid = Html.JDataGrid("tbSelectTesterList")
+        .SetWidth(800)
+        .SetHeight(450)
+        .SetPageSize(15)
+        .SetPagination(false)
+        .SetSortName("UserName")
+        .SetUrl(Url.Action("GetTesterList", "User"))
+        .AddQueryParam("sampleItemIds", ViewData["SampleItemIds"] != null ? ViewData["SampleItemIds"].ToString() : "")
+        .SetOnLoadSuccess("doInitSelectedTesters();")
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户编码", "UserId").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户名", "UserName").SetWidth(150).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("登录名", "LoginName").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerOrgName, "OrganizationName").SetWidth(200).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("性别", "SexName").SetWidth(50).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "TagName").SetWidth(50).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "PhoneNumber").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("Email", "Email").SetWidth(150).SetAlign(Align.center));
+ }
+ @(dataGrid.ToMvcString())

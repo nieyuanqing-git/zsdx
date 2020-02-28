@@ -1,0 +1,40 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentRelationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentRelationPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEquipmentRelationList")
+    .SetUrl(Url.Action("GetGridViewEquipmentRelationList", "EquipmentRelation", new { orgId = ViewBag.SelectedOrgId }))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetShowPrintButton(false)
+    .SetSortName("EquipmentName")
+    .SetShowAddButton(false)
+    .SetShowEditButton(false)
+    .SetShowDeleteButton(false)
+    .SetShowRefreshButton(false)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusNickName").SetWidth(70).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "EquipmentName").SetWidth(150).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "EquipmentModel").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("资产编号", "EquipmentLabel").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所属机构", "OriginalOrgName").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("关联机构", "RelationOrgName").SetWidth(150).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "AuditUserName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核时间", "AuditTimeStr").SetWidth(150).SetAlign(Align.center));
+    if(equipmentRelationPrivilige.IsEnableAuditPass)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doAuditEquipmentRelationPass();", IconCls = "icon-pass", Id = "btnAuditEquipmentRelationPass", Text = "审核通过" });
+    }
+    if(equipmentRelationPrivilige.IsEnableAuditReject)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doAuditEquipmentRelationReject();", IconCls = "icon-no", Id = "btnAuditEquipmentRelationReject", Text = "审核不通过" });
+    }
+    if(equipmentRelationPrivilige.IsEnableDelete)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doDeleteEquipmentRelation();", IconCls = "icon-cancel", Id = "btnDeleteEquipmentRelation", Text = "删除" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doSearchEquipmentRelation();", IconCls = "icon-reload", Id = "btnSearchEquipmentRelation", Text = "刷新" });
+    dataGrid.AddToolBarButton(new ToolBarButton { Disabled = false, Handler = "doViewEquipmentRelationHelp();", IconCls = "icon-help", Id = "btnShowHelp", Text = "帮助说明" });
+}
+@(dataGrid.ToMvcString())

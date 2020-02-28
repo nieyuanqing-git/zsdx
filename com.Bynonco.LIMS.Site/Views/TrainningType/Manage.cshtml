@@ -1,0 +1,18 @@
+﻿@{
+    Layout = ViewBag.Layout;
+}
+<style type="text/css">
+    #divSelectOrg{ padding:15px 20px; vertical-align:middle;}
+    #divSelectOrg span.span-title{ font-size:14px; padding-right:3px;vertical-align:middle;}
+</style>
+<div>
+    @*<div id="divSelectOrg" style="border:1px solid #D3D3D3;border-bottom:0;"> 
+        @Html.Partial("../LabOrganization/SelectOrg")
+    </div>*@
+    @Html.Partial("../TrainningType/List")
+</div>
+@Html.Partial("../TrainningType/ScriptContainer")
+<script type="text/javascript">
+    function doOnTrainningTypeSelected(rowData) {
+    }
+</script>

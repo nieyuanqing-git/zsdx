@@ -1,0 +1,56 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+    var achievementPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAchievementPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbAwardsList")
+        .SetUrl(Url.Action("GetAwardsList", "Achievement"))
+        .AddQueryParam("EquipmentId", equipmentId)
+        .AddQueryParam("QueryExpression", queryExpression)
+        .SetHeight(isPopDialog ? 350 : 650)
+        .SetSortName("AwardsTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(isPopDialog ? 10 : 20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("获奖成果名称", "AchievementName").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("获奖人员", "AwardsAuthorNames").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("获奖励名称", "AwardsName").SetWidth(150).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("奖励等级", "AwardsRankName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("奖励级别", "AwardsLevelName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学科门类", "SubjectTypeName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("获奖时间", "AwardsTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(80).SetAlign(Align.center));
+    
+    dataGrid.SetShowAddButton(achievementPrivilige.IsEnableAwardsAdd);
+    if (achievementPrivilige.IsEnableAwardsAdd)
+    {
+        dataGrid.SetAddScript("doAddAwards()");
+    }
+    dataGrid.SetShowEditButton(achievementPrivilige.IsEnableAwardsEdit);
+    if (achievementPrivilige.IsEnableAwardsEdit)
+    {
+        dataGrid.SetEditScript("doEditAwards('')");
+        dataGrid.SetOnDblClickRow("doEditAwards(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(achievementPrivilige.IsEnableAwardsDelete);
+    if (achievementPrivilige.IsEnableAwardsDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteAwards('');");
+    }
+    dataGrid.SetShowExpertButton(achievementPrivilige.IsEnableAwardsExpert);
+    if (achievementPrivilige.IsEnableAwardsExpert)
+    {
+        dataGrid.SetExpertScript("doAwardsExportExcel();");
+    }
+}
+@(dataGrid.ToMvcString())

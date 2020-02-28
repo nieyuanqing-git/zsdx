@@ -1,0 +1,90 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+<div> @Html.Partial("../Equipment/AttachmentList")</div>
+<div id="divEquipmentAttachmentDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditEquipmentAttachment(){
+        var selectedRow = $("#tbEquipmentAttachmentList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditEquipmentAttachment(selectedRow.Id);
+    }
+    function doAddOrEditEquipmentAttachment(id) {
+        var url = '@Url.Action("EditAttachment","Equipment")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divEquipmentAttachmentDialog").load(url, function (data) {
+            doEquipmentAttachmentlDialog();
+        });
+        return false;
+    }
+    var equipmentAttachmentDialog;
+    function doEquipmentAttachmentlDialog() {
+        if (equipmentAttachmentDialog) {
+            equipmentAttachmentDialog.dialog("destroy");
+        }
+        equipmentAttachmentDialog =  @Html.JDialog("divEquipmentAttachmentlEdit").SetTitle("设备附件信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentAttachmentDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEuipmentAttachment();return false;").ToMvcString();
+    }
+    function doSaveEuipmentAttachment() {
+        var equipmentId = $("#EquipmentId").val();
+        var id = $("#EquipmentAttachmentId").val();
+        var file = $("#fileToUpload").val().trim();
+        if(id == "" && file == ""){
+            $.messager.show({ title: '提示', msg: "请选择上传文件", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajaxFileUpload({
+            url: '@Url.Action("SaveAttachment","Equipment")' + "?" + $("#frmEquipmentAttachmentEdit").serialize() + "&time=" + new Date().getMilliseconds()  + "&EquipmentId=" + equipmentId,
+            secureuri: false,
+            type: "POST",
+            dataType: "text",
+            fileElementId: 'fileToUpload',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+                equipmentAttachmentDialog.dialog("close");
+            }
+        });
+        return false;
+    }
+    function doDeleteEuipmentAttachment(){
+        var selectedRows = $('#tbEquipmentAttachmentList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteAttachment","Equipment")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.alert('提示', msg, 'warning');
+                            return false;
+                        }
+                        doSearch();
+                    }
+                });
+            });
+        }
+    }
+    function doSearch() {
+        $("#tbEquipmentAttachmentList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentAttachmentList").datagrid("reload");
+        return false;
+    }
+</script>

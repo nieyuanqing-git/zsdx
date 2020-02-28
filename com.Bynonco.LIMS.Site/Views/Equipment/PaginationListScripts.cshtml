@@ -1,0 +1,150 @@
+﻿ @{
+     var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+     var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+     
+ }  
+ <script type="text/javascript">
+     function doShowIcon() {
+         $(".panel-header .icon-icon-menu").addClass("icon-icon-menu-current");
+         $(".panel-header .icon-list-menu").removeClass("icon-list-menu-current");
+
+         $(".Icon-EquipmentList").removeClass("hide");
+         $(".List-EquipmentList").addClass("hide");
+     }
+     function doShowList() {
+         $(".panel-header .icon-icon-menu").removeClass("icon-icon-menu-current");
+         $(".panel-header .icon-list-menu").addClass("icon-list-menu-current");
+         $(".Icon-EquipmentList").addClass("hide");
+         $(".List-EquipmentList").removeClass("hide");
+     }
+     var perPageSize = 10;
+     function doSelectPageTop(pageNumber, pageSize) {
+         var pageNumber = $('#PageEquipmentListTop').pagination("options").pageNumber;
+         var pageSize = $('#PageEquipmentListTop').pagination("options").pageSize;
+         doLoadEquipmentList(pageNumber, pageSize);
+         return false;
+     }
+     function doSelectPage(pageNumber, pageSize) {
+         var pageNumber = $('#PageEquipmentList').pagination("options").pageNumber;
+         var pageSize = $('#PageEquipmentList').pagination("options").pageSize;
+         doLoadEquipmentList(pageNumber, pageSize);
+         return false;
+     }
+     function GetIsHome(){
+        if ('@(isHome.ToString().ToLower())' == 'true') {
+            return "&isHome=true";
+        }
+        return "";
+    }
+    function GetIsOpen() {
+        if ('@(isHome.ToString().ToLower())' == 'true') {
+            return "&isOpen=true"
+        }
+        else {
+            var obj_checked = $("#btnIsOpen").find(".icon-checked");
+            isOpen = obj_checked.length > 0;
+            return "&isOpen=" + isOpen;
+        }
+    }
+    function GetIsManage() {
+        var isManage = $("#btnIsManage").find(".show-admin-eq").length > 0;
+        return "&isManage=" + isManage;
+     }
+     function GetSort() {
+         if (!$("div.sort-item.current")) return "";
+         var sortname = $("div.sort-item.current").attr("sortname");
+         var sort = $("div.sort-item.current").hasClass("datagrid-sort-desc") ? "desc" : "asc";
+         return "&sort=" + sortname + "&order=" + sort;
+     }
+     function GetShowType() {
+         if ($(".panel-header .icon-list-menu-current").length > 0)
+             return "&ShowType=List";
+         return "&ShowType=Icon";
+     }
+     function doLoadEquipmentList(pageNumber, pageSize) {
+         $(".panel-header").removeClass('hide');
+         if ($("#EquipmentList").length > 0) {
+             $.messager.progress({ title: '提示', msg: '正在加载仪器信息,请稍候……' });
+             $.ajax({
+                 type: "Post",
+                 url: '@Url.Action("PaginationList", "Equipment")',
+                 data: $("#frmSearchCondition").serialize() + GetSort() + GetShowType() + GetIsHome() + GetIsManage() + GetIsOpen() + "&page=" + pageNumber + "&rows=" + pageSize + "&date=" + new Date(),
+                 success: function (data) {
+                     $.messager.progress('close');
+                     if (data && data.indexOf("出错") != -1) {
+                         $.messager.show({ title: '提示', msg: "获取设备信息出错", showType: 'show' });
+                     }
+                     else {
+                         $("#EquipmentList").html(data);
+                     }
+                     ajaxloadsuccess();
+                     return false;
+                 }
+             });
+         }
+     }
+     function doExportExcel() {
+         var url = '@Url.Action("ExportExcel","Equipment")';
+         url += "?" + $("#frmSearchCondition").serialize() + GetSort() + GetIsManage();
+         window.open(url, '_blank');
+     }
+     $(function () {
+         doLoadEquipmentList(1, perPageSize);
+         $(".sort-item").click(function () {
+             var sortclass = "datagrid-sort-desc";
+             if ($(this).hasClass("datagrid-sort-desc"))
+                 sortclass = "datagrid-sort-asc";
+             $(this).removeClass("datagrid-sort-asc");
+             $(this).removeClass("datagrid-sort-desc");
+             $(this).addClass(sortclass);
+             $(this).addClass("current");
+             $(this).siblings().removeClass("current");
+             doLoadEquipmentList(1, perPageSize);
+         });
+     });
+     function doShowDetailInfo(equipmentId) {
+        if ('@(isHome.ToString().ToLower())' == 'true')
+            location.href= '@Url.Action("Show", "Equipment")' + '?Id=' + equipmentId;
+        else
+        { 
+            var url = '@Url.Action("Detail", "Equipment")' + "?id=" + equipmentId + "&time=" + new Date().getMilliseconds();
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+         return false;
+     }
+     function doShowIsManage() {
+         var obj_show_admin_eq = $("#btnIsManage").find(".show-admin-eq");
+         var obj_show_all = $("#btnIsManage").find(".show-all");
+         if (obj_show_all.length > 0) {
+             obj_show_admin_eq.removeClass("show-all");
+             obj_show_all.addClass("show-admin-eq");
+             obj_show_all.addClass("icon-checked");
+             obj_show_all.empty();
+             obj_show_all.append("我管理的设备");
+         }
+         if (obj_show_admin_eq.length > 0) {
+             obj_show_admin_eq.removeClass("show-admin-eq");
+             obj_show_admin_eq.addClass("show-all");
+             obj_show_admin_eq.empty();
+             obj_show_admin_eq.append("显示全部");
+         }
+         doLoadEquipmentList(1, perPageSize);
+     }
+     function doShowIsOpen() {
+         var obj_unchecked = $("#btnIsOpen").find(".icon-unchecked");
+         var obj_checked = $("#btnIsOpen").find(".icon-checked");
+         if (obj_unchecked.length > 0) {
+             obj_unchecked.addClass("icon-checked")
+             obj_unchecked.removeClass("icon-unchecked")
+             obj_unchecked.empty();
+             obj_unchecked.append("已开放");
+         }
+         else if (obj_checked.length > 0) {
+             obj_checked.addClass("icon-unchecked")
+             obj_checked.removeClass("icon-checked")
+             obj_checked.empty();
+             obj_checked.append("非开放");
+         }
+         doLoadEquipmentList(1, perPageSize);
+     }
+</script>

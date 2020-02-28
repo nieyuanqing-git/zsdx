@@ -1,0 +1,106 @@
+﻿@model com.Bynonco.LIMS.Model.MessageNoticeSetting
+@using com.Bynonco.JqueryEasyUI.Core;
+<form id="frmMessageNoticeSettins">
+    <p><span class="icon icon-setting"></span>消息设置</p>
+    <table id="tdMessageNoticeSetting" class="edit-info">
+        <tr>
+            <th colspan="2" style="text-align:left; padding-left:100px;font-size:14px;font-weight:bold;color:Red;">修改需重启IIS生效</th>
+        </tr>
+        <tr>
+            <th>系统消息发送方式</th>
+            <td>
+                @Html.CheckBox("IsInnerMessageNotice")<span>系统短信</span>
+                @Html.CheckBox("IsEmailNotice")<span>Email</span>
+                @Html.CheckBox("IsMobilePhoneNotice")<span>手机短信</span>
+            </td>
+        </tr>
+        <tr>
+            <th>发送邮件服务器(SMTP)</th>
+            <td>
+                @Html.TextBox("SMTP", Model == null ? "" : Model.SMTP, new { style="width:230px"})
+            </td>
+        </tr>
+        <tr>
+            <th>SMTP服务器端口</th>
+            <td>
+                @Html.TextBox("SMTPPort", Model == null ? "" : Model.SMTPPort.ToString(), new { style = "width:230px" })
+            </td>
+        </tr>
+        <tr>
+            <th>要求安全连接(SSL)</th>
+            <td>
+                @Html.CheckBox("IsUseSSL")
+            </td>
+        </tr>
+        <tr>
+            <th>系统邮箱账号</th>
+            <td>
+                @Html.TextBox("LoginUserName", Model == null ? "" : Model.LoginUserName, new { style = "width:230px" })
+            </td>
+        </tr>
+        <tr>
+            <th>系统邮箱密码</th>
+            <td>
+                @Html.Password("LoginPassword", Model == null ? "" : Model.LoginPassword, new { style = "width:230px" })
+            </td>
+        </tr>
+        <tr>
+            <th>邮件签名</th>
+            <td>
+                @Html.TextBox("Autograph", Model == null ? "" : Model.Autograph, new { style = "width:230px" })
+            </td>
+        </tr>
+        <tr>
+            <th>测试接收邮箱地址</th>
+            <td>
+                @Html.TextBox("TestReceiveEmailAddress", "", new { style = "width:230px" })
+            </td>
+        </tr>
+        <tr>
+            <th>开启邮件发送服务</th>
+            <td>@Html.CheckBox("IsStartAutoSendingEmail")</td>
+        </tr>
+        <tr>
+            <th>开启手机短信发送服务</th>
+            <td>@Html.CheckBox("IsStartAutoSendingShortMessage")</td>
+        </tr>
+    </table>
+</form>
+<div class="edit-operate">
+    @Html.JLinkButton("btnTest", "测试").SetPlain(true).SetOnclick("doTest();").SetIconCls("icon-sendemail").ToMvcString()
+    @Html.JLinkButton("btnSave", "保存").SetPlain(true).SetOnclick("doSave();").SetIconCls("icon-save").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doTest() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Test", "MessageNoticeSetting")' + "?time=" + new Date().getMilliseconds(),
+            data: $("#frmMessageNoticeSettins").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+    }
+    function doSave() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save", "MessageNoticeSetting")' + "?time=" + new Date().getMilliseconds(),
+            data:$("#frmMessageNoticeSettins").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+    }
+</script>

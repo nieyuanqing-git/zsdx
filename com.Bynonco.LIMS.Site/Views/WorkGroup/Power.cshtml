@@ -1,0 +1,213 @@
+﻿@model IList<com.Bynonco.LIMS.Model.ModuleFunction>
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divPower" style="width:600px;height:450px;"> 
+    @Html.Hidden("WorkGroupId",ViewData["WorkGroupId"] != null ? ViewData["WorkGroupId"].ToString(): "")
+    <ul id="ulPowerList">
+        <li>
+            <span class="tree-hit tree-expanded"></span>
+            <span class="tree-icon tree-folder tree-folder-open"></span>
+            <span class="nodecheck tree-checkbox tree-checkbox0" id="chk00000000-0000-0000-0000-000000000000"></span>
+            <span class="tree-title">全部</span>
+            @Html.Partial("../WorkGroup/ModuleFuntionNode", Model)
+        </li>
+    </ul>
+</div>
+<script type="text/javascript">
+    $(".tree-hit").click(function () {
+        if ($(this).hasClass("tree-collapsed")) {
+            $(this).siblings("ul").removeClass("hide");
+            $(this).removeClass("tree-collapsed");
+            $(this).addClass("tree-expanded");
+        }
+        else if ($(this).hasClass("tree-expanded")) {
+            $(this).siblings("ul").addClass("hide");
+            $(this).removeClass("tree-expanded");
+            $(this).addClass("tree-collapsed");
+        }
+    });
+
+    $(".IsNoRuleLimit").click(function () {
+        if ($(this).hasClass("tree-checkbox0")) {
+            $(this).removeClass("tree-checkbox0");
+            $(this).addClass("tree-checkbox1");
+        }
+        else if ($(this).hasClass("tree-checkbox1")) {
+            $(this).removeClass("tree-checkbox1");
+            $(this).addClass("tree-checkbox0");
+        }
+    });
+    $(".IsUserOrgLimit").click(function () {
+        if ($(this).hasClass("tree-checkbox0")) {
+            $(this).removeClass("tree-checkbox0");
+            $(this).addClass("tree-checkbox1");
+        }
+        else if ($(this).hasClass("tree-checkbox1")) {
+            $(this).removeClass("tree-checkbox1");
+            $(this).addClass("tree-checkbox0");
+        }
+    });
+    $(".IsEquipmentOrgLimit").click(function () {
+        if ($(this).hasClass("tree-checkbox0")) {
+            $(this).removeClass("tree-checkbox0");
+            $(this).addClass("tree-checkbox1");
+        }
+        else if ($(this).hasClass("tree-checkbox1")) {
+            $(this).removeClass("tree-checkbox1");
+            $(this).addClass("tree-checkbox0");
+        }
+    });
+    $(".IsNMPOrgLimit").click(function () {
+        if ($(this).hasClass("tree-checkbox0")) {
+            $(this).removeClass("tree-checkbox0");
+            $(this).addClass("tree-checkbox1");
+        }
+        else if ($(this).hasClass("tree-checkbox1")) {
+            $(this).removeClass("tree-checkbox1");
+            $(this).addClass("tree-checkbox0");
+        }
+    });
+    function setNodeRealCheck(obj) {
+        $(obj).removeClass("tree-checkbox0");
+        $(obj).removeClass("tree-checkbox2");
+        $(obj).addClass("tree-checkbox1");
+    }
+    function setNodeUnCheck(obj) {
+        $(obj).removeClass("tree-checkbox1");
+        $(obj).removeClass("tree-checkbox2");
+        $(obj).addClass("tree-checkbox0");
+    }
+    function setNodeSomeCheck(obj) {
+        $(obj).removeClass("tree-checkbox0");
+        $(obj).removeClass("tree-checkbox1");
+        $(obj).addClass("tree-checkbox2");
+    }
+    $(".nodecheck").click(function () {
+        if ($(this).hasClass("tree-checkbox2") || $(this).hasClass("tree-checkbox0")) {
+            //子节点全选
+            $(this).siblings("ul").find(".nodecheck").removeClass("tree-checkbox0");
+            $(this).siblings("ul").find(".nodecheck").removeClass("tree-checkbox2");
+            $(this).siblings("ul").find(".nodecheck").addClass("tree-checkbox1");
+            setNodeRealCheck($(this));
+        }
+        else if ($(this).hasClass("tree-checkbox1")) {
+            //子节点全不选
+            $(this).siblings("ul").find(".nodecheck").removeClass("tree-checkbox1");
+            $(this).siblings("ul").find(".nodecheck").removeClass("tree-checkbox2");
+            $(this).siblings("ul").find(".nodecheck").addClass("tree-checkbox0");
+            setNodeUnCheck($(this))
+        }
+        fitParentNode($(this));
+    });
+    function fitParentNode(obj) {
+        var liobj = $(obj).parent().parent().parent();
+        if (liobj.children(".nodecheck").length > 0 && liobj.children("ul").length > 0) {
+            var parentchkobj = $(liobj.children(".nodecheck")[0]);
+            var parentulobj = $(liobj.children("ul")[0]);
+            var hasUnCheck = parentulobj.find(".nodecheck.tree-checkbox0").length > 0;
+            var hasAllCheck = parentulobj.find(".nodecheck.tree-checkbox1").length > 0;
+            var hasSomeCheck = parentulobj.find(".nodecheck.tree-checkbox2").length > 0;
+            if (hasUnCheck) {
+                if (hasSomeCheck || hasAllCheck) setNodeSomeCheck(parentchkobj);
+                else setNodeUnCheck(parentchkobj);
+            }
+            else if (hasSomeCheck) setNodeSomeCheck(parentchkobj);
+            else setNodeRealCheck(parentchkobj);
+            fitParentNode(parentchkobj);
+        }
+    }
+    function fitAllNodeSome2Real() {
+        $(".nodecheck.tree-checkbox2").each(function () {
+            var liobj = $(this).parent();
+            if (liobj.children(".nodecheck").length > 0 && liobj.children("ul").length > 0) {
+                var parentchkobj = $(liobj.children(".nodecheck")[0]);
+                var parentulobj = $(liobj.children("ul")[0]);
+                var hasUnCheck = parentulobj.find(".nodecheck.tree-checkbox0").length > 0;
+                if (!hasUnCheck) {
+                    setNodeRealCheck($(this));
+                }
+            }
+            else
+                setNodeRealCheck($(this));
+
+        });
+    }
+    function IniPowerList() {
+        $.ajax({
+            url: '@Url.Action("GetWorkGroupPowerByGroupId","WorkGroup")',
+            data: "id=" + $("#WorkGroupId").val(),
+            cache: false,
+            success: function (data) {
+                var array = data.split(',');
+                if (array.length > 0) {
+                    setNodeSomeCheck("#chk00000000-0000-0000-0000-000000000000");
+                    for (var i = 0; i < array.length; i++) {
+                        setNodeSomeCheck($("#chk" + array[i]));
+                    }
+                    fitAllNodeSome2Real();
+                }
+            }
+        });
+    }
+    function IniPowerNoRuleLimitList() {
+        $.ajax({
+            url: '@Url.Action("GetWorkGroupPowerNoRuleLimitByGroupId","WorkGroup")',
+            data: "id=" + $("#WorkGroupId").val(),
+            cache: false,
+            success: function (data) {
+                var array = data.split(',');
+                if (array.length > 0) {
+                    for (var i = 0; i < array.length; i++) {
+                        setNodeRealCheck($("#chk" + array[i]).parent().children(".IsNoRuleLimit"));
+                    }
+                }
+            }
+        });
+    }
+    function IniPowerOrganizationLimitList() {
+        $.ajax({
+            url: '@Url.Action("GetWorkGroupPowerOrganizationLimitByGroupId","WorkGroup")',
+            data: "id=" + $("#WorkGroupId").val() + "&AuthorizedType=" + '@((int)LabOrganizationAuthorizedType.User)',
+            cache: false,
+            success: function (data) {
+                var array = data.split(',');
+                if (array.length > 0) {
+                    for (var i = 0; i < array.length; i++) {
+                        setNodeRealCheck($("#chk" + array[i]).parent().children(".IsUserOrgLimit"));
+                    }
+                }
+            }
+        });
+        $.ajax({
+            url: '@Url.Action("GetWorkGroupPowerOrganizationLimitByGroupId","WorkGroup")',
+            data: "id=" + $("#WorkGroupId").val() + "&AuthorizedType=" + '@((int)LabOrganizationAuthorizedType.Equipment)',
+            cache: false,
+            success: function (data) {
+                var array = data.split(',');
+                if (array.length > 0) {
+                    for (var i = 0; i < array.length; i++) {
+                        setNodeRealCheck($("#chk" + array[i]).parent().children(".IsEquipmentOrgLimit"));
+                    }
+                }
+            }
+        });
+        $.ajax({
+            url: '@Url.Action("GetWorkGroupPowerOrganizationLimitByGroupId","WorkGroup")',
+            data: "id=" + $("#WorkGroupId").val() + "&AuthorizedType=" + '@((int)LabOrganizationAuthorizedType.NMP)',
+            cache: false,
+            success: function (data) {
+                var array = data.split(',');
+                if (array.length > 0) {
+                    for (var i = 0; i < array.length; i++) {
+                        setNodeRealCheck($("#chk" + array[i]).parent().children(".IsNMPOrgLimit"));
+                    }
+                }
+            }
+        });
+    }
+
+    $(function () {
+        IniPowerList();
+        IniPowerNoRuleLimitList();
+        IniPowerOrganizationLimitList();
+    });
+</script>

@@ -1,0 +1,13 @@
+﻿@model com.Bynonco.LIMS.Model.LabOrganization
+@if (Model != null && Model.TrainningType != null)
+{
+<ul>
+        <li>[@(Model.TrainningType.Name)] (自动生成试卷)
+        <p>学时要求：@(Model.MinReadMaterialDateTime.HasValue ? Model.MinReadMaterialDateTime.Value.ToString() : "-")小时</p>
+        <p>
+           随机考题数: @(Model.TrainningQuestionCount.HasValue ? Model.TrainningQuestionCount.Value.ToString() : "-") 条, 通过条件： @(Model.PassStandardStr)
+        </p>
+        <p>最多考试次数：@(Model.MaxExaminationTime.HasValue ? Model.MaxExaminationTime.Value.ToString() : "-")次</p>
+    </li>
+</ul>
+}

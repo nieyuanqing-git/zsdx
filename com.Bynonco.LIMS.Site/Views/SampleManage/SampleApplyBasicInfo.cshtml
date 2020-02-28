@@ -1,0 +1,65 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.View;
+@using com.Bynonco.LIMS.Model.Enum;
+<style type="text/css">
+    #tbViewSampleApplyInfoView th{text-align:center; width:80px; line-height:20px; font-weight:normal; border:1px solid #F0F0F0;vertical-align:middle;padding:2px 5px 2px 0;color:Gray;}
+    #tbViewSampleApplyInfoView td{text-align:left;width:150px;line-height:20px; border:1px solid #F0F0F0; vertical-align:middle;padding:2px 0 2px 1px;}
+</style>
+@{
+    var viewSampleApply = (ViewSampleApply)ViewData["ViewSampleApplyInfo"];
+    var userEquipmentPrivilige =(UserEquipmentPrivilige) ViewData["UserPriviliges"];
+    var loginUserId = (Guid)ViewData["LoginUserId"];
+    var applicantName = viewSampleApply.IsSecret && !userEquipmentPrivilige.IsEnableLookSecretInfo && viewSampleApply.ApplicantId != loginUserId ? "***" : viewSampleApply.ApplicantName;
+    var organizationName = viewSampleApply.IsSecret && !userEquipmentPrivilige.IsEnableLookSecretInfo && viewSampleApply.ApplicantId != loginUserId ? "***" : viewSampleApply.OrganizationName;
+    var telNo = viewSampleApply.IsSecret && !userEquipmentPrivilige.IsEnableLookSecretInfo && viewSampleApply.ApplicantId != loginUserId ? "***" : viewSampleApply.TelephoneNo;
+}
+@if (viewSampleApply != null)
+{
+       <table id="tbViewSampleApplyInfoView" class="edit-table" style="width:773px;">
+        <tr>
+            <th>编号</th>
+            <td>
+                <span>@viewSampleApply.SampleNo</span>
+            </td>
+            <th>申请人</th>
+            <td>
+               <span>@applicantName</span>
+            </td>
+            <th>单位</th>
+            <td>
+                <span>@organizationName</span>
+            </td>
+        </tr>
+        <tr>
+            <th>样品数</th>
+            <td>
+                <span>@viewSampleApply.Quatity</span>
+            </td>
+            <th>分析仪器</th>
+            <td>
+               <span>@viewSampleApply.EquipmentName</span>
+            </td>
+            <th>电话</th>
+            <td>
+                <span>@telNo</span>
+            </td>
+        </tr>
+        <tr>
+            <th>检测人</th>
+            <td>
+                <span>@viewSampleApply.JoinedTesterNames</span>
+            </td>
+            <th>分析项目</th>
+            <td>
+               <span>@viewSampleApply.SampleItemName</span>
+            </td>
+            <th>收费状态</th>
+            <td>
+                <span>@viewSampleApply.ChargeStatusName</span>
+            </td>
+        </tr>
+    </table>
+}
+
+

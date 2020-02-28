@@ -1,0 +1,59 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSJ1List")
+    .SetUrl(Url.Action("GetGridViewSJ1List", "Statistics"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("Label")
+    .SetSortOrder(SortOrder.asc)
+    .SetSingleSelect(true)
+    .SetMutiSelect(false)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学校编码", "SchoolCode").SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器编号", "Label").SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("分类号", "CategoryCode").SetWidth(80).SetAlign(Align.center).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器名称", "Name").SetWidth(150).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("规格", "Specifications").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器来源", "ComeFrom").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("国别码", "CountryCode").SetWidth(60).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("单价", "UnitPrice").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("购置日期", "BuyDate").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("现状码", "Status").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用方向", "UseDirection").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("单位编码", "OrgCode").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("单位名称", "OrgName").SetWidth(100).SetAlign(Align.center))
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .SetShowPrintButton(false)
+    .SetShowRefreshButton(false);
+    dataGrid.SetShowAddButton(statisticsPrivilige.IsEnableSJ1Add);
+    if(statisticsPrivilige.IsEnableSJ1Add)
+    {
+        dataGrid.SetAddScript("doAddSJ1();");
+    }
+    dataGrid.SetShowEditButton(statisticsPrivilige.IsEnableSJ1Edit);
+    if (statisticsPrivilige.IsEnableSJ1Edit)
+    {
+        dataGrid.SetEditScript("doEditSJ1();");
+        dataGrid.SetOnDblClickRow("doEditSJ1(rowData.Id);");
+    }
+    if (statisticsPrivilige.IsEnableSJ1Delete)
+    {
+        dataGrid.SetDeleteScript("doDeleteSJ3();");
+    }
+    if(statisticsPrivilige.IsEnableSJ1AuditPass)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAuditPassSJ1();", IconCls = "icon-pass", Id = "btnSJ1AuditPass", Text = "审核通过" });
+    }
+    if (statisticsPrivilige.IsEnableSJ1AuditReject)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAuditRejectSJ1();", IconCls = "icon-no", Id = "btnSJ1AuditReject", Text = "审核不通过" });
+    }
+    if (statisticsPrivilige.IsEnableSJ3AuditWaitting)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAuditWaittingSJ1();", IconCls = "icon-info", Id = "btnSJ1AuditWaitting", Text = "置为待审" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSJ1Search();", IconCls = "icon-reload", Id = "btnSJ1Reload", Text = "刷新" });
+}
+@(dataGrid.ToMvcString()) 

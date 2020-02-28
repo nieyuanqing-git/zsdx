@@ -1,0 +1,41 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleApply
+@using com.Bynonco.JqueryEasyUI.Core;
+<div style="margin-left:235px;padding:10px 0px">
+    @Html.JLinkButton("btnSubmit","提交").SetOnclick("doSubmit();").SetDisabled(Model == null || Model.Status == 0 ? false : true).SetIconCls("icon-ok").ToMvcString()
+    @Html.JLinkButton("btnPrint","打印").SetOnclick("doPrint();").SetDisabled(Model==null || Model.Id==default(Guid) ? true : false).SetIconCls("icon-print").ToMvcString()
+    @Html.JLinkButton("btnBack", "返回").SetOnclick("doGoBack();").SetIconCls("icon-back").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSubmit() {
+        var sampleStatusName = $("#SampleStatus").combobox("getText");
+        if (sampleStatusName != "其他") $("#SampleStatusRemark").val(""); //清空
+        var attchments = "";
+        var rows = $("#tbAttchmentList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var attachment = rows[i].Id.toString() + "#" + rows[i].FileName.toString() + "." + rows[i].FlleExtension.toString() + "#" + rows[i].FileSizeStr.toString();
+                attchments += attchments == "" ? attachment : "," + attachment;
+            }
+        }
+        var manualSampleNos = getManaualSampleNos();
+
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍后……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveSampleApplyInner","SampleManage")' + "?time=" + new Date().getMilliseconds(),
+            data: $("#fromSampleApplyEdit").serialize() + "&attchments=" + attchments + "&ManualSampleNos=" + manualSampleNos,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0)
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                else
+                    ajaxActionLink('@Url.Action("SampleApplyPersonalListIndex","SampleManage")' + "?time=" + new Date().getMilliseconds(), "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+            }
+        });
+        return false;
+    }
+    function doGoBack() {
+        ajaxActionLink('@Url.Action("SampleApplyPersonalListIndex","SampleManage")' + "?time=" + new Date().getMilliseconds(), "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>

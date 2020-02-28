@@ -1,0 +1,34 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../UsedConfirm/TodayUsedConfirmSearch")
+    </div>
+</div>
+<div>
+    @Html.Partial("../UsedConfirm/TodayUsedConfirmList")
+</div>
+<div style="display:none"> 
+    @Html.Partial("../UsedConfirm/ScriptContainer")
+</div>
+<script type="text/javascript">
+    function doTodayUsedConfirmSearch() {
+        var queryExpression = generateTodayUsedConfirmQueryExpression();
+        $("#tbToadayViewUsedConfirmList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbToadayViewUsedConfirmList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        return false;
+    }
+    function doSaveUsedConfirmCallBack() {
+        doTodayUsedConfirmSearch();
+        editUsedConfirmDialog.dialog("close");
+    }
+    function doChargeUsedConfirmCallBack() {
+        doTodayUsedConfirmSearch();
+        editUsedConfirmDialog.dialog("close");
+    }
+    function doDeleteUsedConfirmCallBack() {
+        doTodayUsedConfirmSearch();
+    }
+</script>

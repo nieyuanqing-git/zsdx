@@ -1,0 +1,64 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var businessType = -1;
+    Guid? businessId = null;
+    if (ViewData["EquipmentId"] != null && !string.IsNullOrWhiteSpace(ViewData["EquipmentId"].ToString()))
+    {
+        businessType = (int)TrainningExaminationBusinessType.Equipment;
+        businessId = new Guid(ViewData["EquipmentId"].ToString());
+    }
+    else if (ViewData["LabOrganizationId"] != null && !string.IsNullOrWhiteSpace(ViewData["LabOrganizationId"].ToString()))
+    {
+        businessType = (int)TrainningExaminationBusinessType.LabOrganization;
+        businessId = new Guid(ViewData["LabOrganizationId"].ToString());
+    }
+
+    Guid? EquipmentAdminId = null;
+    if (ViewData["EquipmentAdminId"] != null)
+    {
+        EquipmentAdminId = new Guid(ViewData["EquipmentAdminId"].ToString());
+    }
+    Guid? SubjectId = null;
+    if (ViewData["SubjectId"] != null)
+    {
+        SubjectId = new Guid(ViewData["SubjectId"].ToString());
+    }
+    Guid? UserId = null;
+    if (ViewData["UserId"] != null)
+    {
+        UserId = new Guid(ViewData["UserId"].ToString());
+    }
+    var dataGrid = Html.JDataGrid("tbUserExaminationList")
+        .SetUrl(Url.Action("GetGridViewUserEquipmentExaminationList", "UserExamination", new { BusinessId = businessId, UserId = UserId, SubjectId = SubjectId, EquipmentAdminId = EquipmentAdminId }))
+        .SetHeight(540)
+        .SetSortName("StartTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(10)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowPrintButton(false)
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(52).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户", "UserNameStr").SetWidth(180).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备", "EquipmentNameStr").SetWidth(180).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否必考", "IsRequiredStr").SetWidth(60).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("通过", "IsPassStr").SetWidth(50).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("停用", "IsStopStr").SetWidth(50).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("试卷名称", "Name").SetWidth(200).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("试题数", "QuestionCount").SetWidth(60).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("考试时间", "TotalTime").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总分", "TotalScore").SetWidth(60).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("通过条件", "PassStandardNote").SetSortable(false).SetWidth(120).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户得分", "UserScore").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("正确率", "AccuracyStr").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(60).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开考时间", "StartTimeStr").SetWidth(120).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndTimeStr").SetWidth(120).SetAlign(Align.center));
+    }
+@(dataGrid.ToMvcString())

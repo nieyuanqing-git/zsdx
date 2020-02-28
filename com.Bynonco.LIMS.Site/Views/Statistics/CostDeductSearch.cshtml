@@ -1,0 +1,111 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsUserWorkTeam = customer == null ? false : customer.GetIsUserWorkTeam();
+    var customerOrgName = customer == null ? "所属单位" : customer.GetLabOrganizationName();
+}
+<form id="frmCostDeductSearch" action="#">
+<ul>
+    <li style="float:left; width:580px;*width:610px;">
+        <ul style="height:28px;">
+            <li style="float:left;vertical-align:middle;">
+                <label style="margin-right:5px;display: inline-block; width: 60px;padding-top:5px;">付费人</label>
+            </li>
+            <li style="float:left;" id='liSearchTutorId'>
+                @(Html.TokenInput("SearchPayerId")
+                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                    .SetSingle(true)
+                    .SetWidth(152)
+                    .ToMvcString())
+            </li>
+            <li style="float:left;">
+                @Html.JLinkButton("btnClearSearchPayerId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#SearchPayerId').tokenInput('clear');;return false;").ToMvcString()
+            </li>
+            <li style="float:left;padding-left:10px;">
+                <label style='display: inline-block; width: 60px;'>付费人单位</label>
+                @Html.DropDownList("SearchOrganizationId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:120px;height:25px;" })
+            </li>
+            <li style="float:left;padding-left:10px;">
+                <label style="display: inline-block; ">项目名称</label>
+                @Html.JValidateBox("SearchSubjectProjectName").SetWidth(100).ToMvcString()
+            </li>
+            <div class="clear-both"></div>
+        </ul>
+        <ul style='padding-top:5px;height:28px;'>
+            <li style="float:left;vertical-align:middle;">
+                <label style='display: inline-block; width: 60px;'>使用时间</label>
+                @Html.JDateTimePicker("SearchUsedStartTime").SetWidth(90).ToMvcString()
+                ～
+                @Html.JDateTimePicker("SearchUsedEndTime").SetWidth(90).ToMvcString()
+            </li>
+            <li style="float:left;padding-left:35px;">
+                <label>扣费时间</label>
+                @Html.JDateTimePicker("SearchCostDeductStartTime").SetWidth(90).ToMvcString()
+                ～
+                @Html.JDateTimePicker("SearchCostDeductEndTime").SetWidth(90).ToMvcString()
+            </li>
+            <div class="clear-both"></div>
+        </ul>
+        <ul style='padding-top:5px;height:28px;'>
+            <li style="float:left;vertical-align:middle;">
+                <label style='display: inline-block; width: 60px;'>@customerOrgName</label>
+                @Html.DropDownList("SearchCostDeductEquipmentOrgId", (IEnumerable<SelectListItem>)ViewData["SearchEquipmentOrganizationSelectListItem"], new { style = "width:" + (customerIsUserWorkTeam ? "200" : "487") + "px;height:25px;" })
+            </li>
+            @if (customerIsUserWorkTeam)
+            {
+            <li style="float:left;padding-left:35px;">
+                <label>所属团队</label>
+                @(Html.JComboBox("SearchUserWorkTeam")
+                    .SetData(ViewData["UserWorkTeamJson"])
+                    .SetDisabled(false)
+                    .SetRequired(false)
+                    .SetEditable(false)
+                    .SetWidth(200)
+                    .ToMvcString())
+            </li>
+            }
+        </ul>
+        <ul style='padding-top:5px;'>
+            <li style="float:left;vertical-align:middle;">
+                <label style="margin-right:5px;display: inline-block; width: 60px;padding-top:5px;">统计设备</label>
+            </li>
+            <li id='liSearchEquipmentId' style="float:left;">
+                @(Html.TokenInput("SearchEquipmentId")
+                    .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                    .SetSingle(false)
+                    .SetWidth(552)
+                    .ToMvcString())
+            </li>
+            <li style="float:left;padding-left:5px;">
+                @Html.JLinkButton("btnSelectEquipment", "").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectEquipmentDialog('SearchEquipmentId');return false;").ToMvcString()
+                @Html.JLinkButton("btnClearEquipment", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#SearchEquipmentId').tokenInput('clear');return false;").ToMvcString()
+            </li>
+            <div class="clear-both"></div>
+        </ul>
+        
+    </li>
+    <li style="float:left; width:80px;">
+        <a href='#' onclick='doSearch();return false;'><span style='display: block; height: 120px; text-align: center; vertical-align: middle; line-height: 120px; border: 1px solid rgb(204, 204, 204); font-size: 20px; background: none repeat scroll 0px 0px rgb(239, 239, 239); width: 60px;'>统计</span></a>
+    </li>
+</ul>
+<div class="clear-both"></div>
+</form>
+<div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>
+<script type="text/javascript">
+    $(function () {
+        $("#liSearchTutorId ul.token-input-list-facebook").css("width", "95px");
+        $("#liSearchEquipmentId ul.token-input-list-facebook").css("width", "440px");
+    });
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+        $("#SearchEquipmentId").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#SearchEquipmentId").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+</script>

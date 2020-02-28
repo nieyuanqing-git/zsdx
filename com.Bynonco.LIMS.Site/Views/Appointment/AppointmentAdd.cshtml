@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divAddAppointment" style="width:412px;overflow:auto">
+    <table class="edit-table" id="tbAddAppointment">
+        <tr>
+            <th>设备</th>
+            <td id="tdAppointmentEquipmentId">
+                @(Html.TokenInput("AppointmentEquipmentId")
+                .SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment"))
+                .SetSingle(true)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>用户</th>
+            <td id="tbAppointmentUserId">
+                @(Html.TokenInput("AppointmentUserId")
+                .SetUrl(Url.Action("GetManageUserListByKeyWord", "User"))
+                .SetSingle(true)
+                .ToMvcString())
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdAppointmentEquipmentId ul.token-input-list-facebook").css("width", "302px");
+        $("#tbAppointmentUserId ul.token-input-list-facebook").css("width", "302px");
+    });
+    function doRedirectToAppointment() {
+        var equipmentId = $("#AppointmentEquipmentId").val().trim();
+        if (equipmentId == "") {
+            $.messager.show({ title: '提示', msg: '请选择的设备', showType: 'show' });
+            return false;
+        }
+        var userId = $("#AppointmentUserId").val().trim();
+        if (userId == "") {
+            $.messager.show({ title: '提示', msg: '请选择用户', showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("AppointmentBoxIndex", "Equipment")' + "?id=" + equipmentId + "&AppointmentUserId=" + userId + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+</script>

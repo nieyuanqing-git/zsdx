@@ -1,0 +1,99 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSubject
+@using com.Bynonco.JqueryEasyUI.Core; 
+<form id="frmSubjectEdit" action="#">
+    <p><span class="icon icon-subject"></span>基本信息</p>
+    @Html.Hidden("SujectId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-info">
+        <tr>
+            <th>课题组名</th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(300).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>助记符</th>
+            <td>
+                @Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(300).ToMvcString()
+            </td>
+        </tr>
+         <tr>
+            <th>负责人</th>
+            <td id="tdSubjectDirectorId">
+                @(Html.TokenInput("SubjectDirectorId")
+                .SetUrl(Url.Action("GetManageTutorListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["DirectorJson"] == null || string.IsNullOrWhiteSpace(ViewData["DirectorJson"].ToString()) ? null : ViewData["DirectorJson"].ToString())
+                .SetSingle(true)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>当前状态</th>
+            <td>
+                @Html.JComboBox("Status").SetData(ViewData["SubjectStatusJson"]).SetWidth(305).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>创建时间</th>
+            <td>
+                @Html.JDateTimePicker("CreateAt").SetWidth(305).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.CreateAtStr).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+         <tr>
+            <th>结束时间</th>
+            <td>
+                @Html.JDateTimePicker("DoneAt").SetWidth(305).SetValue(Model == null ? "" : Model.DoneAtStr).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>联系方式</th>
+            <td>
+                @Html.JValidateBox("ContactType").SetWidth(300).SetValue(Model == null ? "" : Model.ContactType).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>编号</th>
+            <td>
+                @Html.JValidateBox("IdentityNo").SetValue(Model == null ? "" : Model.IdentityNo).SetWidth(300).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>类型</th>
+            <td>
+                @Html.JValidateBox("SubjectType").SetValue(Model == null ? "" : Model.SubjectType).SetWidth(300).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>所属学科</th>
+            <td>
+                @Html.JValidateBox("BelongSubject").SetValue(Model == null ? "" : Model.BelongSubject).SetWidth(300).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>所在地</th>
+            <td>
+                @Html.JValidateBox("Location").SetValue(Model == null ? "" : Model.Location).SetWidth(300).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>用地面积</th>
+            <td>
+                @Html.JValidateBox("UsableArea").SetValue(Model == null || !Model.UsableArea .HasValue? "" : Model.UsableArea.Value.ToString()).SetValidateType(ValidateType.number).SetWidth(300).ToMvcString()
+                <span>(m²)</span>
+            </td>
+        </tr>
+        <tr>
+            <th>说明</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:300px;height:100px;font-size:12px;font-weight:normal" })
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#tdSubjectDirectorId ul.token-input-list-facebook").css("width", "302px");
+    });
+</script>

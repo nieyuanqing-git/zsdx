@@ -1,0 +1,289 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL;
+<div id="divEquipmentRepairFundsApplyEditDialog" style="display:none"></div>
+<div id="divViewEquipmentRepairFundsApplyDialog" style="display:none"></div>
+<div id="divEquipmentRepairFundsApplyAuditRemarkInputDialog" style="display:none"></div>
+<div id="divEquipmentRepairFundsApplyBatchAuditDialog" style="display:none"></div>
+<div id="divFinishRepairRegisterContainerDialog" style="display:none"></div>
+<div id="divFundsProvideContainerDialog" style="display:none"></div>
+<div style="display:none;">
+    <div id="divEquipmentRepairFundsApplyAuditResultContainer" style="width:450px"></div>
+</div>
+<script type="text/javascript">
+ var fundsProvideDialog;
+    function doFundsProvide(id){
+        var url = '@Url.Action("FundsProvideContainer", "EquipmentRepairFundsApply")';
+        if(fundsProvideDialog){
+            fundsProvideDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divFundsProvideContainerDialog").load(url, { "id":id,"date": new Date().getMilliseconds() }, function () {
+            fundsProvideDialog = @(Html.JDialog("divFundsProvideContainer").SetTitle("已发放基金登记").SetAutoDialog(false).SetOkScript("execFundsProvide(id);").SetCancelScript("fundsProvideDialog.dialog('close');").SetIconCls("icon-save").ToMvcString());
+            $.messager.progress('close');
+        });
+    }
+    function execFundsProvide(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("FundsProvide", "EquipmentRepairFundsApply")',
+            data: $("#frmFundsProvide").serialize()+ "&id=" + id + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                fundsProvideDialog.dialog("close");
+                doSearch();
+            }
+        });
+    }
+    var finishRepairRegisterDialog;
+    function doFinishRepairRegister(id){
+        var url = '@Url.Action("FinishRepairRegisterContainer", "EquipmentRepairFundsApply")';
+        if(finishRepairRegisterDialog){
+            finishRepairRegisterDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divFinishRepairRegisterContainerDialog").load(url, { "id":id,"date": new Date().getMilliseconds() }, function () {
+            finishRepairRegisterDialog = @(Html.JDialog("divFinishRepairRegisterContainer").SetTitle("完成维修登记").SetAutoDialog(false).SetOkScript("execFinishRepairRegister(id);").SetCancelScript("finishRepairRegisterDialog.dialog('close');").SetIconCls("icon-save").ToMvcString());
+            $.messager.progress('close');
+        });
+    }
+    function execFinishRepairRegister(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("FinishRepairRegister", "EquipmentRepairFundsApply")',
+            data: $("#frmFinishRepairRegisterContainer").serialize()+ "&id=" + id + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                finishRepairRegisterDialog.dialog("close");
+                doSearch();
+            }
+        });
+    }
+    var equipmentRepairFundsApplyBatchAuditResultDialog;
+    function showEquipmentRepairFundsApplyBatchAuditResult(result){
+        $("#divEquipmentRepairFundsApplyAuditResultContainer").html(result);
+        equipmentRepairFundsApplyBatchAuditResultDialog = @(Html.JDialog("divEquipmentRepairFundsApplyAuditResultContainer").SetTitle("维修基金申请审核结果").SetAutoDialog(false).SetOkScript("equipmentRepairFundsApplyBatchAuditResultDialog.dialog('close');").SetCancelScript("equipmentRepairFundsApplyBatchAuditResultDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+    }
+    function execEquipmentRepairFundsApplyBatchAudit(equipmentRepairFundsApplyRole) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("BatchAudit", "EquipmentRepairFundsApply")',
+            data: $("#frmEquipmentRepairFundsApplyAudit").serialize()+"&equipmentRepairFundsApplyRole=" + equipmentRepairFundsApplyRole + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentRepairFundsApplyBatchAuditDialog.dialog("close");
+                doSearch();
+                showEquipmentRepairFundsApplyBatchAuditResult(msg);
+            }
+        });
+    }
+    var equipmentRepairFundsApplyBatchAuditDialog;
+    function doEquipmentRepairFundsApplyApplyBatchAudit(equipmentRepairFundsApplyRole){
+        var selectedEquipmentRepairFundsApplyIds = generateSelectedEquipmentRepairFundsApplyIds();
+        if(selectedEquipmentRepairFundsApplyIds==""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的申请单", showType: 'show' });
+            return false;
+        }
+        var url = "";
+        switch(equipmentRepairFundsApplyRole.toString()){
+            case "@((int)EquipmentRepairFundsApplyRole.LabRoomAuditor)":
+                url = '@Url.Action("LabRoomAuditContainer", "EquipmentRepairFundsApply")';
+                break;
+            case "@((int)EquipmentRepairFundsApplyRole.CollegeAuditor)":
+                url = '@Url.Action("CollegeAuditContainer", "EquipmentRepairFundsApply")';
+                break;
+            case "@((int)EquipmentRepairFundsApplyRole.EquipmentDeptAuditor)":
+                url = '@Url.Action("EquipmentDeptAuditContainer", "EquipmentRepairFundsApply")';
+                break;
+            case "@((int)EquipmentRepairFundsApplyRole.ShareEAuditor)":
+                url = '@Url.Action("ShareEAuditContainer", "EquipmentRepairFundsApply")';
+                break;
+            case "@((int)EquipmentRepairFundsApplyRole.SchoolMaster)":
+                url = '@Url.Action("SchoolAuditContainer", "EquipmentRepairFundsApply")';
+                break;
+        }
+        if(equipmentRepairFundsApplyBatchAuditDialog) {
+            equipmentRepairFundsApplyBatchAuditDialog.dialog("destroy");
+        }
+        
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentRepairFundsApplyBatchAuditDialog").load(url, { "equipmentRepairFundsApplyIds":selectedEquipmentRepairFundsApplyIds,"date": new Date().getMilliseconds() }, function () {
+            equipmentRepairFundsApplyBatchAuditDialog = @(Html.JDialog("divEquipmentRepairFundsApplyBatchAuditContainer").SetTitle("设备维修基金审核").SetAutoDialog(false).SetOkScript("execEquipmentRepairFundsApplyBatchAudit(equipmentRepairFundsApplyRole);").SetCancelScript("equipmentRepairFundsApplyBatchAuditDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+            $.messager.progress('close');
+        });
+    }
+    var equipmentRepairFundsApplyEditDialog;
+    function doAddOrEditEquipmentRepairFundsApply(id) {
+        var url = (id != "" ? '@Url.Action("Edit", "EquipmentRepairFundsApply")':'@Url.Action("Apply", "EquipmentRepairFundsApply")');
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if(equipmentRepairFundsApplyEditDialog){
+            equipmentRepairFundsApplyEditDialog.dialog("destroy");
+        }
+        $("#divEquipmentRepairFundsApplyEditDialog").load(url,{"id":id,"time":new Date().getMilliseconds()},function(){
+            equipmentRepairFundsApplyEditDialog =  @Html.JDialog("divEquipmentRepairFundsApplyEdit").SetTitle("设备维修基金申请单信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentRepairFundsApplyEditDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEquipmentRepairFundsApply();return false;").ToMvcString();
+            $.messager.progress('close');
+        });
+        return false;
+    }
+    function doSaveEquipmentRepairFundsApply(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var attamentFiles = encodeURI(generateAttachmentFiles());
+        $.ajax({
+            type: "POST",
+            url:  '@Url.Action("Save", "EquipmentRepairFundsApply")',
+            data: $("#frmEquipmentRepairFundsApply").serialize()+ "&attamentFiles=" + attamentFiles +"&time="+ new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                doSearch();
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentRepairFundsApplyEditDialog.dialog("close");
+            }
+        });
+    }
+    function doCancelEquipmentRepairFundsApply(id) {
+        $.messager.confirm('提示', '确认取消?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Cancel", "EquipmentRepairFundsApply")',
+                data: { "id": id,"time":new Date().getMilliseconds() },
+                success: function (msg) {
+                    $.messager.progress("close");
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    var viewEquipmentRepairFundsApplyDialog;
+    function doViewEquipmentRepairFundsApply(id) {
+        if (viewEquipmentRepairFundsApplyDialog) {
+            viewEquipmentRepairFundsApplyDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divViewEquipmentRepairFundsApplyDialog').load('@Url.Action("View", "EquipmentRepairFundsApply")',{ "id": id,"time":new Date().getMilliseconds()},function(){
+            $.messager.progress("close");
+            viewEquipmentRepairFundsApplyDialog = @(Html.JDialog("divEquipmentRepairFundsApplyDetail").SetAutoDialog(false).SetModal(true).SetOkScript("viewEquipmentRepairFundsApplyDialog.dialog('close');return false;").SetCancelScript("viewEquipmentRepairFundsApplyDialog.dialog('close');return false;").SetTitle("设备维修基金申请单信息").SetIconCls("icon-save").ToMvcString());
+        });  
+        return false;
+    }
+    var equipmentRepairFundsApplyAuditDialog;
+    function doShowEquipmentRepairFundsApplyAuditInput(id,status) {
+        var url = "";
+        switch(status.toString())
+        {
+            case '@((int)EquipmentRepairFundsApplyStatus.Applied)':
+            case '@((int)EquipmentRepairFundsApplyStatus.LabRoomAuditPassed)':
+            case '@((int)EquipmentRepairFundsApplyStatus.LabRoomAuditNoPassed)':
+                url ='@Url.Action("LabRoomAuditRemarkInput","EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.CollegeAuditPassed)':
+            case '@((int)EquipmentRepairFundsApplyStatus.CollegeAuditNoPassed)':
+                url ='@Url.Action("CollegeAuditRemarkInput","EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.EquipmentDeptAuditPassed)':
+            case '@((int)EquipmentRepairFundsApplyStatus.EquipmentDeptAuditNoPassed)':
+                 url ='@Url.Action("EquipmentDeptAuditRemarkInput", "EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.SharEAuditPassed)':
+            case '@((int)EquipmentRepairFundsApplyStatus.SharEAuditNoPassed)':
+                url ='@Url.Action("ShareEAuditRemarkInput", "EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.SchoolAuditPassed)':
+            case '@((int)EquipmentRepairFundsApplyStatus.SchoolAuditNoPassed)':
+                url ='@Url.Action("SchoolAuditRemarkInput", "EquipmentRepairFundsApply")';
+                break;
+        }
+        if (equipmentRepairFundsApplyAuditDialog) {
+            equipmentRepairFundsApplyAuditDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divEquipmentRepairFundsApplyAuditRemarkInputDialog').load(url,{ "id": id,"time":new Date().getMilliseconds()},function(){
+            $.messager.progress("close");
+            equipmentRepairFundsApplyAuditDialog = @(Html.JDialog("divEquipmentRepairFundsApplyAuditRemarkInput").SetAutoDialog(false).SetModal(true).SetOkScript("execEquipmentRepairFundsApplyAudit(id,status)").SetCancelScript("equipmentRepairFundsApplyAuditDialog.dialog('close');return false;").SetTitle("  ").SetIconCls("icon-tip").ToMvcString());
+        });  
+        return false;
+    }
+   
+    function execEquipmentRepairFundsApplyAudit(id,status){
+        var url = "";
+        switch(status.toString())
+        {
+            case '@((int)EquipmentRepairFundsApplyStatus.LabRoomAuditPassed)':
+                url ='@Url.Action("LabRoomAuditPass", "EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.LabRoomAuditNoPassed)':
+                url ='@Url.Action("LabRoomAuditNoPass","EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.CollegeAuditPassed)':
+                url ='@Url.Action("CollegeAuditPass","EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.CollegeAuditNoPassed)':
+                url ='@Url.Action("CollegeAuditNoPass","EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.EquipmentDeptAuditPassed)':
+                url ='@Url.Action("EquipmentDeptAuditPass","EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.EquipmentDeptAuditNoPassed)':
+                url ='@Url.Action("EquipmentDeptAuditNoPass","EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.SharEAuditPassed)':
+                url ='@Url.Action("ShareEAuditPass","EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.SharEAuditNoPassed)':
+                url ='@Url.Action("ShareEAuditNoPass","EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.SchoolAuditPassed)':
+                url ='@Url.Action("SchoolAuditPass","EquipmentRepairFundsApply")';
+                break;
+            case '@((int)EquipmentRepairFundsApplyStatus.SchoolAuditNoPassed)':
+                url ='@Url.Action("SchoolAuditNoPass","EquipmentRepairFundsApply")';
+                break;
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmEquipmentAuditRemarkInput").serialize()+"&time="+ new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress("close");
+                doSearch();
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentRepairFundsApplyAuditDialog.dialog("close");
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+        return false;
+        
+    }
+    function doExpertEquipmentRepairFundsApply(id){
+        var url = '@Url.Action("Print", "EquipmentRepairFundsApply")' + "?id=" + id + "&time=" + new Date().getMilliseconds();
+        window.open(url,"_blank");
+    }
+</script>

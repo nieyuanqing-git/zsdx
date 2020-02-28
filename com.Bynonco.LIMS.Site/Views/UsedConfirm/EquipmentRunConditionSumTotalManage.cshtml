@@ -1,0 +1,23 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class='layout-center-full'> 
+    <div style="border:1px solid #D3D3D3;padding:10px 20px;_padding:10px 20px 0;"> 
+        @Html.Partial("../UsedConfirm/EquipmentRunConditionSumTotalSearch")
+    </div>
+    <div style="height:10px;background-color:#ECEDF1;"></div>
+    <div>
+         <ul style="border-bottom:0;background-color:#ECEDF1;" class="tabs">
+            <li class="tabs-selected"><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divEquipmentRunSum');"><span class="tabs-title">按设备汇总</span><span class="tabs-icon"></span></a></li>
+            <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divEquipmentSubjectRunSum')"><span class="tabs-title">按课题组汇总<span id='spSelectUserCount'></span></span><span class="tabs-icon"></span></a></li>
+        </ul>
+        <div id='divEquipmentRunSum' class='RunTag'>
+            @Html.Partial("../UsedConfirm/EquipmentRunConditionSumTotal")
+        </div>
+        <div id='divEquipmentSubjectRunSum' class='RunTag hide'>
+            @Html.Partial("../UsedConfirm/EquipmentSubjectRunConditionSumTotal")
+        </div>
+    </div>
+</div>
+@Html.Partial("../UsedConfirm/EquipmentRunConditionSumTotalScriptContainer")

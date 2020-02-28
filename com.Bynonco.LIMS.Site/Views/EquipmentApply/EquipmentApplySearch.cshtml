@@ -1,0 +1,85 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpression() {
+        var queryExpression = "";
+        var equipmentName = $("#SearchEqName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += "Name∽\"" + equipmentName + "\"";
+        }
+        var model = $("#SearchModel").val().trim();
+        if (model.trim() != "") {
+            queryExpression += (queryExpression == "" ? "Model∽\"" + model + "\"" : "*Model∽\"" + model + "\"");
+        }
+        var applicantName = $("#SearchApplicantName").val().trim();
+        if (applicantName != "") {
+            queryExpression += (queryExpression == "" ? "ApplicantName∽\"" + applicantName + "\"" : "*ApplicantName∽\"" + applicantName + "\"");
+        }
+        var applyTimeStart = $("#SearchApplyTimeStart").datebox("getValue").trim();
+        if (applyTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime>\"" + applyTimeStart + "\"";
+        }
+        var applyTimeEnd = $("#SearchApplyTimeEnd").datebox("getValue").trim();
+        if (applyTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime<\"" + applyTimeEnd + " 23:59:59\"";
+        }
+        var labRoomName = $("#SearchLabRoomName").val().trim();
+        if (labRoomName != "") {
+            queryExpression += (queryExpression == "" ? "LabRoomName∽\"" + labRoomName + "\"" : "*LabRoomName∽\"" + labRoomName + "\"");
+        }
+
+        var location = $("#SearchLocation").val().trim();
+        if (location != "") {
+            queryExpression += (queryExpression == "" ? "Location∽\"" + location + "\"" : "*Location∽\"" + location + "\"");
+        }
+        return queryExpression;
+    }
+
+    function doQueryReset() {
+        $("#SearchApplicantName").val("");
+        $("#SearchEqName").val("");
+        $("#SearchModel").val("");
+        $("#SearchLabRoomName").val("");
+        $("#SearchLocation").val("");
+        $("#SearchApplyTimeStart").datebox("setValue", "");
+        $("#SearchApplyTimeEnd").datebox("setValue", "");
+        return false;
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label style="width:100px">申请人</label>
+        @Html.JValidateBox("SearchApplicantName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:100px">设备名称</label>
+        @Html.JValidateBox("SearchEqName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:100px">设备型号</label>
+        @Html.JValidateBox("SearchModel").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:100px">单位名称</label>
+        @Html.JValidateBox("SearchLabRoomName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:100px">仪器安放地址</label>
+        @Html.JValidateBox("SearchLocation").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label style="width:100px">申请开始时间</label>
+        @Html.JDateTimePicker("SearchApplyTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:100px">申请结束时间</label>
+        @Html.JDateTimePicker("SearchApplyTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentSearch", "查询").SetOnclick("doSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnEquipmentReset", "清空").SetOnclick("doQueryReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnEquipmentClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

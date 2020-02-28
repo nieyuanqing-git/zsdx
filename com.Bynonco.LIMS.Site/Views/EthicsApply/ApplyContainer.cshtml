@@ -1,0 +1,17 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEthicsApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<style type="text/css">div.tabs-containe{background-color:transparent;}</style>
+<div id="divMainContentBox" class="main-content">
+    <div class="layout-center-full">
+        <div class="edit-box">
+           <form id="frmEthicsApplyEdit">     
+                @Html.Partial("ApplyInfo")
+                @Html.Partial("Operate")
+           </form>
+        </div>
+        <div style="display:none">@Html.Partial("ScriptContainer")</div>
+    </div>
+</div>

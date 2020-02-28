@@ -1,0 +1,27 @@
+﻿@model IList<com.Bynonco.LIMS.Model.DictCode>
+@using com.Bynonco.LIMS.Utility;
+@{
+    Layout = "~/Views/Shared/_TwoColumnLayout.cshtml";
+    ViewBag.Title = "友情链接";
+}
+@section MainLeft
+{
+    @Html.Partial("../ArticleCategory/HomeShowList")
+}
+@section MainRight
+{
+    <h2 class="title clear-both">
+        <span>友情链接</span>
+    </h2>
+    <div class="content-box">
+        <ul class="news-list style2-list dotted-list width-650">
+        @if (Model != null && Model.Count() > 0)
+        {
+            foreach (var item in Model)
+            {
+                <li><a href='@item.Value' title='@item.Name' target="_blank">@(ShortcutStringUtility.GetSubString(item.Name, 30, ".."))</a></li>
+            }
+        }
+        </ul>
+    </div>
+}

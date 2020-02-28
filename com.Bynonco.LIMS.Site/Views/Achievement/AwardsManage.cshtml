@@ -1,0 +1,132 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+}
+<div id='divAwardsList' style='@(isPopDialog ? "width:800px;" : "")'>
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Achievement/AwardsSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../Achievement/AwardsList")
+</div>
+<div id="divAwardsDialog"></div>
+    <script type="text/javascript">
+        function doSearch() {
+            var queryExpression = generateQueryExpress();
+            if('@(queryExpression)' != "")
+                    queryExpression += (queryExpression == "" ? "" : "*") + '@(queryExpression)';
+            $("#tbAwardsList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbAwardsList").datagrid("load", { "queryExpression": queryExpression.trim(), "equipmentId": '@equipmentId' });
+        }
+        var awardsDialog;
+        function doAwardsDialog() {
+            if (awardsDialog) {
+                awardsDialog.dialog("destroy");
+            }
+            awardsDialog =  @Html.JDialog("divAwardsEdit").SetTitle("获奖成果信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("awardsDialog.dialog('destroy');return false;").SetOnClose("awardsDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveAwards();").ToMvcString();
+        }
+        function doAddOrEditAwards(id){
+            var url = '@Url.Action("AwardsEdit","Achievement")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divAwardsDialog").load(url,function(){
+                $.messager.progress('close');
+                doAwardsDialog();
+            })
+            return false;
+        }
+        function doAddAwards(id) {
+           doAddOrEditAwards(id);
+        }
+        function doEditAwards(id) {
+           if(!id || id.trim()==""){
+               var selectedSubject = $("#tbAwardsList").datagrid("getSelected");
+               if(!selectedSubject || selectedSubject.Id=="" || selectedSubject.Id.isDefaultGuid()) {
+                  $.messager.show({ title: '提示', msg:"请选择获奖成果", showType: 'show' });
+                  return false;
+               }
+               id = selectedSubject.Id;
+           }
+           doAddOrEditAwards(id);
+        }
+        function doSaveAwards(){
+            if ($("#AchievementName").val().trim() == "") {
+                $.messager.show({ title: '提示', msg:"请输入获奖成果名称",showType: 'show' });
+                return false;
+            }
+            if ($("#AwardsName").val().trim() == "") {
+                $.messager.show({ title: '提示', msg:"请输入获奖励名称",showType: 'show' });
+                return false;
+            }
+            if ($("#AwardsRank").combobox("getValue").trim() == "") {
+                $.messager.show({ title: '提示', msg:"请输入奖励等级",showType: 'show' });
+                return false;
+            }
+            if ($("#AwardsLevel").combobox("getValue").trim() == "") {
+                $.messager.show({ title: '提示', msg:"请输入奖励级别",showType: 'show' });
+                return false;
+            }
+            if ($("#AwardsTime").val().trim() == "") {
+                $.messager.show({ title: '提示', msg:"请输入专利日期",showType: 'show' });
+                return false;
+            }
+            if ($("#SubjectType").combobox("getValue").trim() == "") {
+                $.messager.show({ title: '提示', msg:"请输入学科门类",showType: 'show' });
+                return false;
+            }
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AwardsSave","Achievement")' ,
+                data: $("#frmAwardsEdit").serialize() + "&attamentFiles=" + generateAttachmentFiles() + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    awardsDialog.dialog('destroy');
+                    doSearch();
+                }
+            });
+       }
+       function doDeleteAwards(id){
+            if(!id || id.trim() == ""){
+                  var selectedSubject = $("#tbAwardsList").datagrid("getSelected");
+                    if(!selectedSubject || selectedSubject.Id.trim() == "" || selectedSubject.Id.isDefaultGuid()){
+                        $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                        return false;
+                    }
+                    id = selectedSubject.Id;
+             }
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AwardsDelete", "Achievement")'+ "?date=" + new Date().getMilliseconds(),
+                    data: "id=" + id ,
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                            return false;
+                        }
+                        doSearch();
+                    }
+                });
+            });
+            return false;
+       }
+       function doAwardsExportExcel()
+        {
+            var url='@Url.Action("AwardsExportExcel","Achievement")';
+            window.open(url,'_blank');
+        }
+    </script>
+</div>
+ 

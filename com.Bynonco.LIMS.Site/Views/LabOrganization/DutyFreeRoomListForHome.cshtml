@@ -1,0 +1,38 @@
+﻿@model List<com.Bynonco.LIMS.Model.LabOrganization>
+@using com.Bynonco.LIMS.Utility;
+@{
+    bool isShowZero = ViewData["IsShowZero"] == null || ViewData["IsShowZero"].ToString().Trim() == "1" ? true : false;
+    if (Model != null && Model.Count() > 0)
+    {
+        var parentId = Model[0].ParentId;
+        var topLabOrganization = Model.Where(p => p.ParentId == parentId);
+        if(topLabOrganization != null && topLabOrganization.Count() > 0)
+        {
+            foreach(var item in topLabOrganization)
+            {
+                if (!isShowZero && item.RoomEquipmentDutyFreeCount == 0) { continue; }
+                var cutName = ShortcutStringUtility.GetSubString(item.Name, 23, "..");
+                <p class="parent-item"><a href="#" xpath='@item.XPath' title='@item.Name' roomid='@item.Id'><strong>@(cutName + (item.RoomEquipmentDutyFreeCount > 0 ? " (" + item.RoomEquipmentDutyFreeCount + "台)" : ""))</strong></a></p>
+                var childLabOrganization = Model.Where(p => p.ParentId == item.Id);
+                if (childLabOrganization != null && childLabOrganization.Count() > 0)
+                {
+                    <ul class="news-list list-xs" style="padding-left:30px;">
+                    @foreach (var childItem in childLabOrganization)
+                    {
+                        if (!isShowZero && childItem.RoomEquipmentDutyFreeCount == 0) { continue; }
+                        var cutchildName = ShortcutStringUtility.GetSubString(childItem.Name, 18, "..");
+                        bool isShowChild = childItem.RoomEquipmentChildCount > 0;
+                        <li><a href="#" title='@childItem.Name' xpath='@childItem.XPath' roomid='@childItem.Id' isshowchild='@(isShowChild ? "true" : "false")'>@(cutchildName + (childItem.RoomEquipmentDutyFreeCount > 0 ? " (" + childItem.RoomEquipmentDutyFreeCount + "台)" : ""))</a></li>
+                    }
+                    <div class="clear-both"></div>
+                    </ul>
+                }
+            }
+            <div class="clear-both"></div>
+        }
+    }
+    else
+    {
+        <p>没有放置地点信息</p>
+    }
+}

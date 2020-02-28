@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var materialInfoPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetMaterialOutputPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbMaterialOutputList")
+       .SetUrl(Url.Action("MaterialOutputStatList", "MaterialOutput"))
+       .SetHeight(650)
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(10)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    if (materialInfoPrivilige.IsEnableDetailStatList)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(" ", "Operate").SetSortable(false).SetHidden(false));
+    }
+    if (materialInfoPrivilige.IsEnableExportDetailStatList)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(" ", "ExpOperate").SetSortable(false).SetHidden(false));
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "Name").SetWidth(45).SetAlign(Align.center).SetSortable(false));
+    foreach (var name in (List<string>)ViewData["TableColumns"])
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(name, name).SetWidth(100).SetAlign(Align.center).SetSortable(false));
+    }
+    if (materialInfoPrivilige.IsEnableExportStatList)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton { Text = "导出出库情况", Id = "btnExportXls", IconCls = "icon-excel", Handler = "doExportMaterialOutputStat()" });
+    }
+ }
+@(dataGrid.ToMvcString())

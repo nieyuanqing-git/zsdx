@@ -1,0 +1,249 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEquipmentUndergraduateOpenDialog" style="display:none"></div>
+<div id="divViewEquipmentUndergraduateOpenDialog" style="display:none"></div>
+<div id="divAuditEquipmentUndergraduateOpenDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSemesterOnSelect(record) {
+        doSearchEquipmentUndergraduateOpen(record.Id);
+    }
+    function doGetSelectSemesterId() {
+        var selectSemesterId = $("#SelectSemesterId").combobox("getValue");
+        if (!selectSemesterId || selectSemesterId == "" || selectSemesterId.isDefaultGuid()) {
+            return "";
+        }
+        return selectSemesterId;
+    }
+    function doSearchEquipmentUndergraduateOpen(semesterId) {
+        if (!semesterId || semesterId.trim() == "") {
+            semesterId = doGetSelectSemesterId();
+        }
+
+        var queryExpression = generateEquipmentUndergraduateOpenQueryExpress();
+        $('#tbEquipmentUndergraduateOpenList').datagrid('options').queryParams = { "semesterId": semesterId, "queryExpression": queryExpression };
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetGridManageViewEquipmentUndergraduateOpenList", "EquipmentOpen")',
+            data: { "semesterId": semesterId ,"queryExpression":queryExpression},
+            success: function (data) {
+                $('#tbEquipmentUndergraduateOpenList').datagrid('loadData', { total: 0, rows: [] });
+                $('#tbEquipmentUndergraduateOpenList').datagrid('loadData', data);
+                try { $.messager.progress('close'); } catch (e) { }
+            }
+        });
+    }
+    //function initPageParams(seleter,data) {
+    //    var pageNumber = $(seleter).datagrid("options").pageNumber;
+    //    var pageSize = $(seleter).datagrid("options").pageSize;  
+    //    var sortName = $(seleter).datagrid("options").sortName;
+    //    var sortOrder = $(seleter).datagrid("options").sortOrder;
+    //    data.pageIndex = pageNumber;
+    //}
+
+    var equipmentUndergraduateOpenDialog;
+    function doEquipmentUndergraduateOpenDialog() {
+        if (equipmentUndergraduateOpenDialog) {
+            equipmentUndergraduateOpenDialog.dialog("destroy");
+        }
+        equipmentUndergraduateOpenDialog =  @Html.JDialog("divEquipmentUndergraduateOpenEdit").SetTitle("设备开放信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentUndergraduateOpenDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveEquipmentUndergraduateOpen();").ToMvcString();
+    }
+    function doAddEquipmentUndergraduateOpen(id) {
+       var semesterId = doGetSelectSemesterId();
+       if (!semesterId || semesterId.trim() == "") {
+          $.messager.show({ title: '提示', msg: "学期不能为空", showType: 'show' });
+       }
+       doAddOrEditEquipmentUndergraduateOpen(id,semesterId);
+    }
+    function doEditEquipmentUndergraduateOpen(id,semesterId) {
+       if(!id || id.trim()=="" || !semesterId || semesterId.trim() == ""){
+           var selectedEquipmentUndergraduateOpen = $("#tbEquipmentUndergraduateOpenList").datagrid("getSelected");
+           if(!selectedEquipmentUndergraduateOpen || selectedEquipmentUndergraduateOpen.Id=="" || selectedEquipmentUndergraduateOpen.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择开放设备", showType: 'show' });
+              return false;
+           }
+           id = selectedEquipmentUndergraduateOpen.Id;
+           semesterId = selectedEquipmentUndergraduateOpen.SemesterId;
+       }
+       doAddOrEditEquipmentUndergraduateOpen(id,semesterId);
+    }
+    function doAddOrEditEquipmentUndergraduateOpen(id,semesterId){
+        var url = '@Url.Action("Edit","EquipmentOpen")'+ "?id=" + id + "&semesterId=" + semesterId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentUndergraduateOpenDialog").load(url,function(){
+            doEquipmentUndergraduateOpenDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveEquipmentUndergraduateOpen(){
+        if($("#SemesterId").val().trim() == ""){
+              $.messager.show({ title: '提示', msg: "学期为空", showType: 'show' });
+              return false;
+        }
+        if($("#EquipmentId").val().trim() == ""){
+              $.messager.show({ title: '提示', msg: "设备为空", showType: 'show' });
+              return false;
+        }
+        if($("#OpenType").combobox("getValue").trim() == ""){
+              $.messager.show({ title: '提示', msg: "开放方式为空", showType: 'show' });
+              return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","EquipmentOpen")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmEquipmentUndergraduateOpenEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                equipmentUndergraduateOpenDialog.dialog('close');
+                doSearchEquipmentUndergraduateOpen();
+            }
+        });
+   }
+   function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentUndergraduateOpenList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+   function doDeleteEquipmentUndergraduateOpen(ids){
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedIds().toString(): ids;
+        if (delIds == null || delIds=="") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "EquipmentOpen")'+ "?date=" + new Date().getMilliseconds(),
+                data: { "ids": delIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchEquipmentUndergraduateOpen();
+                }
+            });
+        });
+        return false;
+    }
+    var viewEquipmentUndergraduateOpenDialog;
+    function doViewEquipmentUndergraduateOpenDialog() {
+        if (viewEquipmentUndergraduateOpenDialog) {
+            viewEquipmentUndergraduateOpenDialog.dialog("destroy");
+        }
+        viewEquipmentUndergraduateOpenDialog =  @Html.JDialog("divEquipmentUndergraduateOpenView").SetTitle("设备开放信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewEquipmentUndergraduateOpenDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doViewEquipmentUndergraduateOpenInfo(id)
+    {
+        if(!id || id.trim()==""){
+            var selectedEquipmentUndergraduateOpen = $("#tbEquipmentUndergraduateOpenList").datagrid("getSelected");
+            if(!selectedEquipmentUndergraduateOpen || selectedEquipmentUndergraduateOpen.Id=="" || selectedEquipmentUndergraduateOpen.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg:"请选择设备开放记录", showType: 'show' });
+                return false;
+            }
+            id = selectedEquipmentUndergraduateOpen.Id;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewInfo","EquipmentOpen")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewEquipmentUndergraduateOpenDialog").load(url,function(){
+            doViewEquipmentUndergraduateOpenDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    var auditEquipmentUndergraduateOpenDialog;
+    function doAuditEquipmentUndergraduateOpenDialog() {
+        if (auditEquipmentUndergraduateOpenDialog) {
+            auditEquipmentUndergraduateOpenDialog.dialog("destroy");
+        }
+        auditEquipmentUndergraduateOpenDialog =  @(Html.JDialog("divEquipmentUndergraduateOpenAudit")
+        .SetTitle("设备开放审核")
+        .SetIconCls("icon-pass")
+        .SetAutoDialog(false)
+        .SetCancelScript("auditEquipmentUndergraduateOpenDialog.dialog('destroy');return false;")
+        .AddButton(new ToolBarButton() { Handler = "doEquipmentUndergraduateOpenWaitingAudit();return false;", Id = "btnEquipmentUndergraduateOpenWaitingAudit", Text = "置为待审", IconCls = "icon-info" })
+        .AddButton(new ToolBarButton() { Handler = "doEquipmentUndergraduateOpenAuditPass();return false;", Id = "btnEquipmentUndergraduateOpenAuditPass", Text = "审核通过", IconCls = "icon-ok"})
+        .AddButton(new ToolBarButton() { Handler = "doEquipmentUndergraduateOpenAuditReject();return false;", Id = "btnEquipmentUndergraduateOpenAuditReject", Text = "审核不通过", IconCls = "icon-no"})
+        .SetModal(true)
+        .SetShowOkButton(false)
+        .ToMvcString());
+    }
+    function doAuditEquipmentUndergraduateOpen(ids)
+    {
+        var auditIds = ids == null || ids.trim() == "" ? generateSelectedIds().toString(): ids;
+        if (auditIds == null || auditIds=="") {
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Audit","EquipmentOpen")'+ "?ids=" + auditIds + "&date=" + new Date().getMilliseconds();
+        $("#divAuditEquipmentUndergraduateOpenDialog").load(url,function(){
+            doAuditEquipmentUndergraduateOpenDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+     function doEquipmentUndergraduateOpenWaitingAudit(){
+        var url = '@Url.Action("WaitingAudit","EquipmentOpen")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+    function doEquipmentUndergraduateOpenAuditPass(){
+        var url = '@Url.Action("AuditPass","EquipmentOpen")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+    function doEquipmentUndergraduateOpenAuditReject(){
+        var url = '@Url.Action("AuditReject","EquipmentOpen")';
+        return doSaveOrAuditMaterialPurchase(url);
+    }
+    function doSaveOrAuditMaterialPurchase(url)
+    {
+        var ids = $("#frmEquipmentUndergraduateOpenAudit").find("#Ids").val().trim();
+        var auditRemark = $("#frmEquipmentUndergraduateOpenAudit").find("#AuditRemark").val();
+        if(ids == ""){
+              $.messager.show({ title: '提示', msg:"审核项为空", showType: 'show' });;
+              return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { "ids": ids ,"auditRemark": auditRemark },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearchEquipmentUndergraduateOpen();
+                auditEquipmentUndergraduateOpenDialog.dialog('destroy');
+            }
+        });
+    }
+    function doExportExcelEquipmentUndergraduateOpen() 
+    {
+        var semesterId = doGetSelectSemesterId();
+        if(semesterId == ""){
+              $.messager.show({ title: '提示', msg:"学期为空", showType: 'show' });;
+              return false;
+        }
+        var queryExpression = generateEquipmentUndergraduateOpenQueryExpress();
+        queryExpression = (queryExpression == "" ? "" : "*") + "SemesterId=\"" + semesterId + "\"";
+        var url = '@Url.Action("ExportExcel","EquipmentOpen")' + "?queryExpression=" + queryExpression;
+        window.open(url, '_blank');
+    }
+</script>

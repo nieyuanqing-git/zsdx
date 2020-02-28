@@ -1,0 +1,84 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Hidden("SampleApplyId", ViewData["SampleApplyId"].ToString())
+<script type="text/javascript">
+    var chargeItemDialogEdit;
+    function doAddOrEditSampleApplyChargeItem(id) {
+        var url = '@Url.Action("SampleApplyChargeItemEdit","SampleManage")';
+            $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+            $("#divChargeItemEdit").load(url, { "id": id, "time": new Date().getMilliseconds() }, function () {
+                if(chargeItemDialogEdit){
+                chargeItemDialogEdit.dialog("destroy");
+            }
+            chargeItemDialogEdit = @Html.JDialog("divSampleApplyChargeItemEdit").SetTitle("收费项目信息").SetIconCls("icon-currency").SetAutoDialog(false).SetModal(true).SetOkScript("doOnSampleApplyChargeItemSave();").SetCancelScript("chargeItemDialogEdit.dialog('close');return false;").ToMvcString();
+            $.messager.progress('close');
+        });
+        return false;
+    }
+    function doOnSampleApplyChargeItemSave(){
+        var sampleApplyId= $("#SampleApplyId").val();
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveSampleApplyChargeItem","SampleManage")'+ "?time=" + new Date().getMilliseconds(),
+                data: $("#frmSampleApplyCharge").serialize()+ "&sampleApplyId=" + sampleApplyId + "&sampleRoleStr=SampleTransactor" + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                   $.messager.progress('close');
+                   if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doChargeItemRefresh();
+                    chargeItemDialogEdit.dialog("close");
+                }
+        });
+        return false;
+    }
+    function doDeleteSampleApplyChargeItem(ids){
+        var delIds = ids == null || ids.trim() == "" ? generateChargeItemSelectedIds() : ids;
+        if(delIds=="") return false;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteSampleApplyChargeItem","SampleManage")'+ "?time=" + new Date().getMilliseconds(),
+                data: {"ids":delIds,"sampleRoleStr":"SampleTransactor"},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doChargeItemRefresh();
+                }
+            });
+        });
+        return false;
+    }
+
+    function generateChargeItemSelectedIds() {
+        var ids = [];
+        var rows = $("#tbSampleApplyChargeItem").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if(rows[i].ChargeStatus.toString()=="1"){
+                    $.messager.show({ title: '提示', msg: "项目【" + rows[i].SampleChargeItemName + "】为已收费状态,不能删除", showType: 'show' });
+                    ids = [];
+                    break;
+                }
+                ids.push(rows[i].SampleApplyChargeItemId);
+            }
+        }
+        return ids.toString();
+    }
+
+    function doChargeItemRefresh() {
+        $("#tbSampleApplyChargeItem").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleApplyChargeItem").datagrid("reload",{"time":new Date()});
+        return false;
+    }    
+</script>
+<div id="divChargeItem">
+    <div>@Html.Partial("SampleApplyChargeItemList")</div>
+</div>
+<div id="divChargeItemEdit" style="display:none"></div>

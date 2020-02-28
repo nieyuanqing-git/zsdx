@@ -1,0 +1,117 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>LIMS 用户登录</title>
+
+    <!-- CSS -->
+	<link rel="stylesheet" href="@Url.Content("~/Content/main.css")" type="text/css" media="screen" />
+	<link rel="stylesheet" href="@Url.Content("~/Content/login.css")" type="text/css" media="screen" />
+
+     <!-- Javascripts -->
+	<script src="@Url.Content("~/Scripts/jquery-1.7.2.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/MicrosoftAjax.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/MicrosoftMvcAjax.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/MicrosoftMvcAjax.debug.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.unobtrusive-ajax.js")" type="text/javascript"></script>
+
+    <!-- JqueryEasyUI -->
+	<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/icon.css")" type="text/css" media="screen" />
+	<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/validatebox.css")" type="text/css" media="screen" />
+	<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/panel.css")" type="text/css" media="screen" />
+	<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/window.css")" type="text/css" media="screen" />
+	<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/combo.css")" type="text/css" media="screen" />
+	<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/combobox.css")" type="text/css" media="screen" />
+	<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/linkbutton.css")" type="text/css" media="screen" />
+	<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/dialog.css")" type="text/css" media="screen" />
+	<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/progressbar.css")" type="text/css" media="screen" />
+	<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/messager.css")" type="text/css" media="screen" />
+
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.validatebox.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.draggable.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.panel.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.window.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.combo.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.combobox.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.linkbutton.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.resizable.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.messager.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.progressbar.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/locale/easyui-lang-zh_CN.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/commond.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.validateboxEx.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/plugins/jquery.dialog.js")" type="text/javascript" ></script>
+
+    <!--[if lte IE 6]>
+        <script src="@Url.Content("~/Scripts/DD_belatedPNG_0.0.8a.js")" type="text/javascript" ></script>
+        <script type="text/javascript">
+               DD_belatedPNG.fix('div, ul, img, li, input , a, .png_bg');
+        </script>
+    <![endif]-->
+<script type="text/javascript">
+    $(function () {
+        $('#LoginPassword').keydown(function(e){
+            if(e.keyCode==13){
+               doLoginSubmit(); 
+            }
+       });
+       $('#LoginPassword').keypress(function (e) {
+           if (e.keyCode == 13) {
+               doLoginSubmit();
+           }
+       });
+
+       $("#LoginPassword").val("");
+       $("#LoginName").val("");
+    });
+
+   function doLoginSubmit() {
+        var isOk = true;
+        if ($("#LoginName").val().trim() == "") {
+            isOk = false;
+        }
+        if ($("#LoginPassword").val().trim() == "") {
+            isOk = false;
+        }
+        if (!isOk) {
+            $.messager.show({ title: '提示', msg: "请输入用户名和密码", showType: 'show' });
+            return false;
+        }
+        else {
+            $("#imgLoading").removeClass("hide");
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("LoginSubmit","Account")',
+                data: $("#frmLogin").serialize() + "&date=" + new Date(),
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: "用户名和密码不正确", showType: 'show' });
+                        return false;
+                    }
+                    location.href ='@(ViewData["ReturnUrl"]==null||ViewData["ReturnUrl"]=="" ? Url.Action("Index","Admin") : ViewData["ReturnUrl"])';
+                    return false;
+                }
+            });
+            return false;
+        }
+    }
+</script>
+
+</head>
+
+<body>
+    <div class="login-box">
+        <div class="left-box">
+            <img src="@Url.Content("~/Content/images/logo-login-top.png")" />
+            <a href="@Url.Action("Index","Home")" class="logo-left">
+                <img src="@Url.Content("~/Content/images/logo-login.png")" />
+            </a>
+        </div>
+        <div class="right-box">
+            @Html.Partial("AccountLogin")
+        </div>
+    </div>
+</body>
+</html>

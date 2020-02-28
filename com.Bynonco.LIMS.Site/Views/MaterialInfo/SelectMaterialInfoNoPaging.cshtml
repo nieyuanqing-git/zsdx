@@ -1,0 +1,82 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core
+@{
+    var limitMaterialInfoIdList = ViewData["LimitMaterialInfoIdList"];
+}
+<div id="divSelectMaterialInfoDialog">
+     <div class="z-panel-grid hide">
+        <div class="search-inner-box">
+            @*            @Html.Partial("../MaterialInfo/Search")*@
+            <ul class="search">
+                <li>
+                    <label>名称</label>
+                    @Html.JValidateBox("SearchMaterialInfoName").SetWidth(150).ToMvcString()
+                </li> 
+                <li>
+                    <label>编号</label>
+                    @Html.JValidateBox("SearchMaterialInfoLabel").SetWidth(150).ToMvcString()
+                </li>
+                <li class="button centered">
+                    @Html.JLinkButton("btnMaterialInfoSearch", "查询").SetOnclick("doPageSearch();doCloseSearch();return false;").ToMvcString()
+                    @Html.JLinkButton("btnMaterialInfoReset", "清空").SetOnclick("doMaterialSearchInfoReset();return false;").ToMvcString()
+                    @Html.JLinkButton("btnMaterialInfoClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+                    <div class="clear-both"></div>
+                </li>
+                <div class="clear-both"></div>
+            </ul>
+<div class="clear-both"></div>
+
+        </div>
+    </div>
+    <div>@Html.Partial("../MaterialInfo/SelectMaterialInfoNoPagingList")</div>
+</div>
+<script type="text/javascript">
+
+    function doMaterialSearchInfoReset() {
+        $("#SearchMaterialInfoName").val("");
+        $("#SearchMaterialInfoLabel").val("");
+        return false;
+    }
+
+    function doMaterialInfoSearch() {
+        var queryExpression = ''; //generateMaterialInfoQueryExpress();
+        var rows = $('#tbSelectMaterialInfoNoPagingList').datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = rows.length - 1; i >= 0; i--) {
+                $('#tbSelectMaterialInfoNoPagingList').datagrid("deleteRow", i);
+            }
+        }
+        $("#tbSelectMaterialInfoNoPagingList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSelectMaterialInfoNoPagingList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+
+    function doPageSearch() {
+        var searchName = $('#SearchMaterialInfoName').val().trim();
+        var searchLabel = $('#SearchMaterialInfoLabel').val().trim();
+        var rows = $("#tbSelectMaterialInfoNoPagingList").datagrid('getRows');
+        $("#tbSelectMaterialInfoNoPagingList").datagrid('options').checkOnSelect = false;
+        if (searchName != '' && searchLabel != '') {
+            $(rows).each(function(i, n) {
+                if (n.Name.indexOf(searchName) >= 0 && n.Label==searchLabel) {
+                    $("#tbSelectMaterialInfoNoPagingList").datagrid('selectRow', i);
+                    return false;
+                }
+            });
+        } else if (searchName != '') {
+            $(rows).each(function(i, n) {
+                if (n.Name.indexOf(searchName) >= 0) {
+                    $("#tbSelectMaterialInfoNoPagingList").datagrid('selectRow', i);
+                    return false;
+                }
+            });
+        } else if (searchLabel != '') {
+            $(rows).each(function(i, n) {
+                if (n.Label==searchLabel) {
+                    $("#tbSelectMaterialInfoNoPagingList").datagrid('selectRow', i);
+                    return false;
+                }
+            });
+        }
+        $("#tbSelectMaterialInfoNoPagingList").datagrid('options').checkOnSelect = true;
+    }
+</script>

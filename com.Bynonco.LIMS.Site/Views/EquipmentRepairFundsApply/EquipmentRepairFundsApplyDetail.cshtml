@@ -1,0 +1,11 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentRepairFundsApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.JTab("divEquipmentRepairFundsApplyDetail").SetBorder(false).SetWidth(625).ToMvcString()
+<div id="divEquipmentRepairFundsApplyDetail" style="width:800px;overflow-x:hidden; overflow-y:auto;">
+    <div title="基本信息">
+        <div style="height:550px;overflow-x:hidden; overflow-y:auto;"> @Html.Partial("EquipmentRepairFundsApplyInfo")</div>
+   </div> 
+   <div title="附件信息">
+        @Html.Partial("EquipmentRepairFundsApplyAttachmentList")
+   </div>
+</div>

@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JDataGrid("tbHotEquipmentList")
+       .SetUrl(Url.Action("GetGridHotEquipmentList", "Equipment"))
+       .SetHeight(650)
+       .SetSortName("HotDegree")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(false)
+       .SetShowAddButton(true)
+       .SetShowEditButton(true)
+       .SetAddScript("doAddHotEquipment('');")
+       .SetEditScript("doEditHotEquipment('');")
+       .SetOnDblClickRow("doEditHotEquipment(rowData.Id);")
+       .SetShowDeleteButton(true)
+       .SetDeleteScript("doDeleteHotEquipment('');");
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器名称", "Name").SetWidth(250).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("资产编号", "Label").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("热门推荐值", "HotDegree").SetWidth(100).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

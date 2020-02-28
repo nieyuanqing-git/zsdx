@@ -1,0 +1,44 @@
+﻿@model com.Bynonco.LIMS.Model.User
+@using com.Bynonco.LIMS.Utility;
+@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    var name = Model == null ? "" : Model.UserName;
+    var cutName = ShortcutStringUtility.GetSubString(name, 6, "..");
+    var subejctName = Model != null && Model.GetMySubject() != null ? Model.GetMySubject().Name : "";
+    var cutSubejctName = ShortcutStringUtility.GetSubString(subejctName, 16, "..");
+}
+<img alt="头像" class="pic" src='@(Model == null || Model.RelativePic == "" ? Url.Content("~/Content/images/UserPhoto.jpg") : Url.Content("~/" + Model.RelativePic) + "?date=" + DateTime.Now.Millisecond)'/>
+<p style='line-height:25px;'>
+    欢迎您，<a href="#" onclick="doLoadMyInfo();return false;" title='@name'>@cutName</a>！<br />
+    状态: @(Model == null ? "" : Model.UserStatusStr)<br />
+    <a href="#" onclick="doLoadMySubject();return false;" title='@subejctName'>@cutSubejctName</a><br />
+    上次登录时间：@(Model == null || !Model.LastLoginTime.HasValue ? "" : Model.LastLoginTime.Value.ToString("yyyy-MM-dd HH:mm"))<br />
+    <a class="botton" href="@Url.Action("ShowList", "Equipment", routeCurrentXPathValue)">
+        <span>
+            <span style="padding: 0 5px;">设备预约</span>
+        </span>
+    </a>
+     <a class="botton" href="@Url.Action("Index", "Admin")" style="margin-left:5px">
+        <span>
+            <span style="padding: 0 5px;">个人中心</span>
+        </span>
+    </a>
+    <a class="botton botton-gray" href="javascript:" onclick="doLogOffSubmit()" style="margin-left:5px">
+        <span>
+            <span style="padding: 0 5px;">注&nbsp;&nbsp;销</span>
+        </span>
+    </a>
+</p>
+ <script type="text/javascript">
+     function doLoadMySubject() {
+         var url = '@Url.Action("UserRelevantSubjectsManage", "Subject")' + "?time=" + new Date().getMilliseconds() + "&isCooperative=true";
+         ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+         return false;
+     }
+     function doLoadMyInfo() {
+         var url = '@Url.Action("Manage", "Account")' + "?date=" + new Date().getMilliseconds();
+         ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+         return false;
+     }
+</script>

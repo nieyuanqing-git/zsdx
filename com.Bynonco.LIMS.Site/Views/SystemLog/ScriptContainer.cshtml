@@ -1,0 +1,20 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSystemLogViewDialog" style="display:none;"></div>
+<script type="text/javascript">
+    var viewDialog;
+    function doView(id) {
+        if(viewDialog) viewDialog.dialog('destroy');
+        var url = '@Url.Action("View","SystemLog")' +  "?id=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSystemLogViewDialog").load(url, function () {
+            $.messager.progress('close');
+            viewDialog = @(Html.JDialog("divSystemLogView").SetTitle("系统日志信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("viewDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbViewSystemLog").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbViewSystemLog").datagrid("load", { "queryExpression": queryExpression.trim(),"time":new Date().getMilliseconds() });
+    }    
+</script>

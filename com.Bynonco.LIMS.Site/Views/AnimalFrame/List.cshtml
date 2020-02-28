@@ -1,0 +1,46 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var animalFramePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAnimalFramePrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbAnimalFrame")
+            .SetUrl(Url.Action("GetGridViewAnimalFrameList", "AnimalFrame", new { time = DateTime.Now.Millisecond.ToString() }))
+            .SetHeight(650)
+            .SetPageSize(20)
+            .SetSortName("LabRoomName")
+            .SetShowAddButton(animalFramePrivilige.IsEnableAdd);
+            if (animalFramePrivilige.IsEnableBatchStart)
+            {
+                dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStart();return false;", IconCls = "icon-play", Id = "btnBatchStart", Text = "启用" });
+            }
+            if (animalFramePrivilige.IsEnableBatchStop)
+            {
+                dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStop();return false;", IconCls = "icon-stop", Id = "btnBatchStop", Text = "停用" });
+            }
+            if (animalFramePrivilige.IsEnableAdd)
+            {
+                dataGrid.SetAddScript("doAddOrEdit('');");
+            }
+            if (animalFramePrivilige.IsEnableDelete)
+            {
+                dataGrid.SetDeleteScript("doDelete('');");
+            }
+            dataGrid.SetShowDeleteButton(animalFramePrivilige.IsEnableDelete)
+            .SetShowPrintButton(true);
+            if (animalFramePrivilige.IsEnableEdit)
+            {
+                dataGrid.SetOnDblClickRow("doAddOrEdit(rowData.Id);");
+                dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetWidth(50).SetAlign(Align.center));
+            }
+            dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+            .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left))
+            .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编号", "Code").SetWidth(120).SetAlign(Align.left))
+            .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在房间", "LabRoomName").SetWidth(180).SetAlign(Align.left))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("行数", "ColCnt").SetWidth(80).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("列数", "RowCnt").SetWidth(80).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(100).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作人", "OperatorName").SetWidth(100).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作数间", "OperateTimeStr").SetWidth(120).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left))
+            .SetShowSearchButton(true)
+            .SetSearchScript("doShowSearch()");
+  }
+  @(dataGrid.ToMvcString())    

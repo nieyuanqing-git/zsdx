@@ -1,0 +1,36 @@
+﻿@model com.Bynonco.LIMS.Model.Equipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divHotEquipmentEdit">
+ <form id="frmHotEquipmentEdit" action="#">
+    <table class="edit-table"  style="width:385px;">
+        <tr>
+            <th>仪器设备</th>
+            <td id='tdHotEquipment'>
+               @if(Model == null)
+               {
+                   @(Html.TokenInput("EquipmentId")
+                    .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                    .SetPrePopulate(ViewData["EquipmentJson"] == null  ? null : ViewData["EquipmentJson"].ToString())
+                    .SetSingle(true)
+                    .SetWidth(400)
+                    .ToMvcString())
+                }
+                else
+                {
+                    @Html.Hidden("EquipmentId",  Model.Id.ToString())
+                    @Model.Name
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>热门推荐度</th>
+            <td>
+                @Html.JValidateBox("HotDegree").SetValue(Model == null ? "" : Model.HotDegree.ToString()).SetWidth(100).ToMvcString()
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+ $(function () {
+        $("#tdHotEquipment ul.token-input-list-facebook").css("width", "200px");
+    });

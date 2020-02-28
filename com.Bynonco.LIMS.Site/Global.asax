@@ -1,0 +1,1 @@
+﻿<%@ Application Inherits="com.Bynonco.LIMS.MVC.LIMSApplication" Language="C#" %>

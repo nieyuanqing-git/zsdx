@@ -1,0 +1,200 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPractice
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum; 
+<div class="edit-operate">
+    @{
+        var backUrl = Url.Action("Index", "EquipmentOpenPractice");
+        var reloadUrl = Url.Action("Closed", "EquipmentOpenPractice");
+        var action = ViewContext.RouteData.Values["action"].ToString();
+        if (action.StartsWith("ClosedTeacher", true, null)) { backUrl = Url.Action("ClosedTeacherIndex", "EquipmentOpenPractice"); reloadUrl = Url.Action("ClosedTeacherAudit", "EquipmentOpenPractice"); }
+        if (action.StartsWith("ClosedCollege", true, null)) { backUrl = Url.Action("ClosedCollegeIndex", "EquipmentOpenPractice"); reloadUrl = Url.Action("ClosedCollegeAudit", "EquipmentOpenPractice"); }
+        if (action.StartsWith("ClosedManage", true, null)) { backUrl = Url.Action("ClosedAdminIndex", "EquipmentOpenPractice"); reloadUrl = Url.Action("ClosedManageAudit", "EquipmentOpenPractice"); }
+        var isClosedSave = ViewData["IsClosedSave"] == null ? false : bool.Parse(ViewData["IsClosedSave"].ToString());
+        var isClosedManageAudit = ViewData["IsClosedManageAudit"] == null ? false : bool.Parse(ViewData["IsClosedManageAudit"].ToString());
+        var isClosedCollegeAudit = ViewData["IsClosedCollegeAudit"] == null ? false : bool.Parse(ViewData["IsClosedCollegeAudit"].ToString());
+        var isClosedTeacherAudit = ViewData["IsClosedTeacherAudit"] == null ? false : bool.Parse(ViewData["IsClosedTeacherAudit"].ToString());
+        var equipmentOpenPracticePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentOpenPracticePrivilige(User.Identity.Name);
+     }
+     
+     @if (Model != null)
+     {
+         var auditRemark = "";
+         bool isShowRemark = false;
+         bool isShowSubmit = true;
+         if (isClosedManageAudit && action.StartsWith("ClosedManage", true, null))
+         {
+             isShowRemark = true;
+             auditRemark = Model.ClosedManageAuditRemark;
+         }
+         if (isClosedCollegeAudit && action.StartsWith("ClosedCollege", true, null))
+         {
+             isShowRemark = true;
+             auditRemark = Model.ClosedCollegeAuditRemark;
+         }
+         if (isClosedTeacherAudit && action.StartsWith("ClosedTeacher", true, null))
+         {
+             isShowRemark = true;
+             auditRemark = Model.ClosedTeacherAuditRemark;
+         }
+         if (isShowRemark)
+         {
+             <table style='width: 500px;'>
+                 <tr>
+                     <th style='width: 80px;'>审核备注</th>
+                     <td>
+                         @Html.TextArea("AuditRemark", auditRemark, new {style = "width:400px;height:60px;"})
+                     </td>
+                 </tr>
+             </table>
+         }
+         if (isClosedSave && (Model.Status == (int)EquipmentOpenPracticeStatus.ClosedDraft || Model.Status == (int)EquipmentOpenPracticeStatus.ManageAuditPass || Model.Status == (int)EquipmentOpenPracticeStatus.ClosedTeacherAuditReject))
+         {
+             @Html.JLinkButton("btnSaveBasicClosed", "结题报告保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveBasicClosed();return false;").SetVisible(equipmentOpenPracticePrivilige.IsEnableSaveBasicClosed).ToMvcString()
+         }
+         if (isClosedManageAudit && action.StartsWith("ClosedManage", true, null))
+         {
+             isShowSubmit = false;
+             @Html.JLinkButton("btnClosedManageAuditPass", "实管处结题审核通过").SetIconCls("icon-pass").SetPlain(true).SetOnclick("doClosedManageAuditPass('" + Model.Id + "');return false;").ToMvcString()
+             @Html.JLinkButton("btnClosedManageAuditReject", "实管处结题审核不通过").SetIconCls("icon-no").SetPlain(true).SetOnclick("doClosedManageAuditReject('" + Model.Id + "');return false;").ToMvcString()
+         }
+         if (isClosedCollegeAudit && action.StartsWith("ClosedCollege", true, null))
+         {
+             isShowSubmit = false;
+             @Html.JLinkButton("btnClosedCollegeAuditPass", "学院结题审核通过").SetIconCls("icon-pass").SetPlain(true).SetOnclick("doClosedCollegeAuditPass('" + Model.Id + "');return false;").ToMvcString()
+             @Html.JLinkButton("btnClosedCollegeAuditReject", "学院结题审核不通过").SetIconCls("icon-no").SetPlain(true).SetOnclick("doClosedCollegeAuditReject('" + Model.Id + "');return false;").ToMvcString()
+         }
+         if (isClosedTeacherAudit && action.StartsWith("ClosedTeacher", true, null))
+         {
+             isShowSubmit = false;
+             @Html.JLinkButton("btnClosedTeacherAuditPass", "导师结题审核通过").SetIconCls("icon-pass").SetPlain(true).SetOnclick("doClosedTeacherAuditPass('" + Model.Id + "');return false;").ToMvcString()
+             @Html.JLinkButton("btnClosedTeacherAuditReject", "导师结题审核不通过").SetIconCls("icon-no").SetPlain(true).SetOnclick("doClosedTeacherAuditReject('" + Model.Id + "');return false;").ToMvcString()
+         }
+         if (isShowSubmit && Model.Status == (int)EquipmentOpenPracticeStatus.ClosedDraft || Model.Status == (int)EquipmentOpenPracticeStatus.ClosedTeacherAuditReject)
+         {
+             @Html.JLinkButton("btnSubmitBasic", "确认提交").SetIconCls("icon-up").SetPlain(true).SetOnclick("doSubmitBasicClosed();return false;").SetVisible(equipmentOpenPracticePrivilige.IsEnableSaveBasicClosed).ToMvcString()
+         }
+     }
+    @Html.JLinkButton("btnBackBasic", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doBack();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doBack() {
+        var url = '@backUrl';
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+
+    function doSaveBasicClosed() {
+        var url = '@Url.Action("SaveBasicClosed", "EquipmentOpenPractice")' + '?status=' + '@((int) EquipmentOpenPracticeStatus.ClosedDraft)';
+        doSaveAndAuditPassBasicClosed(url);
+        return false;
+    }
+
+    function doSubmitBasicClosed() {
+        $.messager.confirm("确认提交", "确认提交指导老师结题审核？提交后将不能进行修改！", function (data) {
+            if (data) {
+                var url = '@Url.Action("SaveBasicClosed", "EquipmentOpenPractice")' + '?status=' + '@((int) EquipmentOpenPracticeStatus.Closed)';
+                doSaveAndAuditPassBasicClosed(url);
+            }
+        });
+        return false;
+    }
+
+    function doClosedTeacherAuditPass(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ClosedTeacherAuditPass", "EquipmentOpenPractice")';
+        doSaveAndAuditPassBasicClosed(url);
+        return false;
+    }
+    function doClosedTeacherAuditReject(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核不通过的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ClosedTeacherAuditReject", "EquipmentOpenPractice")' + "?Id=" + id;
+        doAuditRejectBasicClosed(url);
+        return false;
+    }
+    function doClosedCollegeAuditPass(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到审核的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ClosedCollegeAuditPass", "EquipmentOpenPractice")';
+        doSaveAndAuditPassBasicClosed(url);
+        return false;
+    }
+    function doClosedCollegeAuditReject(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核不通过的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ClosedCollegeAuditReject", "EquipmentOpenPractice")' + "?Id=" + id;
+        doAuditRejectBasicClosed(url);
+        return false;
+    }
+    function doClosedManageAuditPass(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ClosedManageAuditPass", "EquipmentOpenPractice")';
+        doSaveAndAuditPassBasicClosed(url);
+        return false;
+    }
+    function doClosedManageAuditReject(id) {
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '警告', msg: "找不到待审核不通过的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("ClosedManageAuditReject", "EquipmentOpenPractice")' + "?Id=" + id;
+        doAuditRejectBasicClosed(url);
+        return false;
+    }
+    function doSaveAndAuditPassBasicClosed(url) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var usedProcess = CKEDITOR.instances.UsedProcess.getData();
+        $("#UsedProcess").val(usedProcess);
+        var usedResult = CKEDITOR.instances.UsedResult.getData();
+        $("#UsedResult").val(usedResult);
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmEquipmentOpenPracticeEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                doReloadClosed(msg);
+            }
+        });
+        return false;
+    }
+    function doAuditRejectBasicClosed(url) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "审核不通过成功", showType: 'show' });
+                doReloadClosed(msg);
+            }
+        });
+    }
+    function doReloadClosed(id) {
+        var url = '@reloadUrl' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>

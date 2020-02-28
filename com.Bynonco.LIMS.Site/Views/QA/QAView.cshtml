@@ -1,0 +1,26 @@
+﻿@model com.Bynonco.LIMS.Model.Question
+           
+<div id="divQAView"  style="width:500px;padding-top:10px;">
+     @if (Model != null)
+     {
+        <span class="icon icon-Q" style="padding-left:20px;color:#B82E2E;">@Model.ContentNoHTML</span> 
+        <div style="padding-left:20px;color:#CCC;font-size:12px;">
+            <span class="float_l">--</span>
+            <span class="float_l">@Model.LabOrganizationName</span>
+            <span class="float_l margin-l-10">@Model.CreatorName</span>
+            <span class="float_l margin-l-10">@Model.CreateTime</span>
+            <div class="clear-both"></div>
+        </div>
+        if (Model.Answer != null)
+        {
+            <div style="padding: 0 20px;">
+                <span class="icon icon-A" style="padding-left:20px;">@Model.Answer.ContentHTML</span>
+                <div style="padding-left:20px;color:#CCC;font-size:12px;">
+                    --
+                    <span>@Model.Answer.CreatorName</span>
+                    <span class="margin-l-10">@Model.Answer.CreateTime</span>
+                </div>
+            </div>
+        }
+     }
+</div>

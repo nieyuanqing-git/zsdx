@@ -1,0 +1,25 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Equipment/EquimentDutyFreeSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../Equipment/EquimentDutyFreeList")
+</div>
+
+<script type="text/javascript">
+    function doEquipmentDutyFreeSearch() {
+        var queryExpression = generateEquipmentDutyFreeQueryExpress();
+       $("#tbEquipmentDutyFreeList").datagrid('loadData', { total: 0, rows: [] });
+       $("#tbEquipmentDutyFreeList").datagrid("load", { "queryExpression": queryExpression });
+   }
+   function doEquipmentDutyFreeExportExcel() {
+       var queryExpression = generateEquipmentDutyFreeQueryExpress();
+       var url = '@Url.Action("EquipmentDutyFreeExportExcel", "Equipment")' + "?queryExpression=" + queryExpression.trim() + "&time=" + new Date().getMilliseconds();
+       window.open(url, '_blank');
+   }
+</script>

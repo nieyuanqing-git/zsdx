@@ -1,0 +1,74 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+    var userLabOrganizationExaminationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserLabOrganizationExaminationPrivilige(User.Identity.Name);
+    var userEquipmentExaminationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserEquipmentExaminationPrivilige(User.Identity.Name);
+    bool isHasSelectIndex = false;
+    var isManage = ViewData["IsManage"] == null ? true : (bool)ViewData["IsManage"];
+}
+<div style="display:none">@Html.Partial("../UsedConfirm/ScriptContainer")</div>
+<div class="layout-center-full">
+    <div>
+        <ul class="tabs" style="border-bottom:0;">
+            @if (userEquipmentExaminationPrivilige.IssEnableManageEquipmentExamination || userEquipmentExaminationPrivilige.IssEnableManageMyEquipmentExamination)
+            {
+                if(!isHasSelectIndex)
+                {
+                    <li class="tabs-selected" id="liUserEquipmentExamination"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">仪器设备考试记录</span><span class="tabs-icon"></span></a></li>
+                    isHasSelectIndex = true;
+                }
+                else
+                {
+                    <li  id="liUserEquipmentExamination"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">仪器设备考试记录</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+            @if (userLabOrganizationExaminationPrivilige.IsEnableManageLabOrganizationExamination || userLabOrganizationExaminationPrivilige.IsEnableManageMyLabOrganizationExamination)
+            {
+                if(!isHasSelectIndex)
+                {
+                    <li class="tabs-selected" id="liUserLabOrganizationExamination"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">组织机构考试记录</span><span class="tabs-icon"></span></a></li>
+                    isHasSelectIndex = true;
+                }
+                else
+                {
+                    <li id="liUserLabOrganizationExamination"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">组织机构考试记录</span><span class="tabs-icon"></span></a></li>
+                }
+            }
+        </ul>
+        <div id="divUserExaminationContainer"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            loadUserExaminationList();
+        });
+        loadUserExaminationList();
+    });
+    function doSearch() {
+        doSearchUserExamination();
+    }
+    function loadUserExaminationList() {
+        ajaxloadbegin();
+        if ($(".tabs .tabs-selected")) {
+            var url = "";
+            var tabId = $(".tabs .tabs-selected").attr("id");
+            switch (tabId) {
+                case "liUserEquipmentExamination":
+                    url = '@Url.Action(isManage?"EquipmentExaminationContainer":"MyEquipmentExaminationContainer", "UserExamination")';
+                    break;
+                case "liUserLabOrganizationExamination":
+                    url = '@Url.Action(isManage?"LabOrganizationExaminationContainer":"MyLabOrganizationExaminationContainer","UserExamination")';
+                    break;
+            }
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divUserExaminationContainer").load(url, function () {
+                $.messager.progress('close');
+                ajaxloadsuccess();
+            });
+        }
+    }
+</script>

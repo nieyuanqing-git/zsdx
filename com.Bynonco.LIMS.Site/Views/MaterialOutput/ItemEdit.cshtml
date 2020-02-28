@@ -1,0 +1,35 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewMaterialOutputItem
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+@if (Model != null)
+{
+    var infoId = Model.MaterialInfoId;
+    <tr id='tr_@(infoId)'>
+        <td style='text-align:center;'>
+            @Html.Hidden("Id_" + infoId, Model == null ? "" : Model.Id.ToString())
+            @Html.Hidden("MaterialRecipientItemId_" + infoId, Model == null || !Model.MaterialRecipientItemId.HasValue ? "" : Model.MaterialRecipientItemId.Value.ToString())
+            <div class='@(Model.MaterialRecipientItemId.HasValue ? "hide" : "")'>
+                @Html.JLinkButton("btnRemoveMaterialOutputItem_" + infoId, "").SetDisabled(Model.MaterialRecipientItemId.HasValue).SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveMaterialOutputItem('" + infoId + "');return false;").ToMvcString()
+            </div>
+        </td>
+        <td>@(Model.Name)</td>
+        <td style='text-align:center;'>@(Model.UnitValue)</td>
+        <td style='text-align:center;'>@(Model.StockValue)</td>
+        <td style='text-align:center;'>@(Model.WarningValue)</td>
+        <td>
+            @Html.JValidateBox("UnitPrice_" + infoId).SetValue(Model == null ? "" : Math.Round(Model.UnitPrice,2).ToString()).SetOnChange("doChangeMaterialOutputItemAmount('" + infoId + "');return false;").SetWidth(50).ToMvcString()
+            @(Model.PriceTypeValue)
+        </td>
+        <td class='@(!Model.MaterialRecipientItemId.HasValue ? "hide" : "")' style='text-align:center;'>@(Model.RecipientValue.HasValue ? Math.Round(Model.RecipientValue.Value,2).ToString() : "--")</td>
+        <td>
+            @Html.JValidateBox("OutputValue_" + infoId).SetValue(Model == null ? "" : Model.OutputValue.ToString()).SetOnChange("doChangeMaterialOutputItemAmount('" + infoId + "');return false;").SetWidth(70).ToMvcString()
+        </td>
+        <td>
+            @Html.JValidateBox("Amount_" + infoId).AddClass("MaterialOutputAmount").SetValue(Model == null ? "" : Math.Round(Model.Amount,2).ToString()).SetWidth(50).ToMvcString()
+            @(Model.PriceTypeValue)
+        </td>
+        <td>
+            @Html.JValidateBox("Remark_" + infoId).AddClass("MaterialOutputRemark").SetValue(Model.Remark).SetWidth(100).ToMvcString()
+        </td>
+    </tr>
+}

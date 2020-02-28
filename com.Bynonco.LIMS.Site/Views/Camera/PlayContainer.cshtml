@@ -1,0 +1,67 @@
+﻿@model IList<com.Bynonco.LIMS.Model.Camera>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>视频监控</title>
+</head> 
+<body>
+@{
+    var relationName = ViewData["RelationName"] == null ? "" : ViewData["RelationName"].ToString().Trim();
+    if (relationName != "")
+    {
+        <p style='font-size:16px;font-weight:bold;text-align:center;'>@relationName</p>
+    }
+    var screenWidth = ViewData["ScreenWidth"] == null || string.IsNullOrWhiteSpace(ViewData["ScreenWidth"].ToString()) ? 1024 : Int32.Parse(ViewData["ScreenWidth"].ToString().Trim());
+    screenWidth = screenWidth - 50;
+    if (Model != null && Model.Count() > 0)
+    {
+        bool isSelect = true;
+        var EasyN_H3 = Model.Where(p => p.CameraTypeEnum == com.Bynonco.LIMS.Model.Enum.CameraType.EasyN_H3).ToList();
+        if (EasyN_H3.Count() > 0)
+        {
+            int videoCount = EasyN_H3.Count() > 3 ? 3 : EasyN_H3.Count();
+            int videoWidth = screenWidth / videoCount - 20;
+            int videoHeight = videoWidth * 352 / 640;  //640:352
+            foreach (var item in EasyN_H3)
+            {
+                var url = Url.Action("Play", "Camera") + "?id=" + item.Id + "&VideoWidth=" + videoWidth + "&VideoHeight=" + videoHeight;
+                <iframe width='@(videoWidth + 20)' height='@(videoHeight + 80)' frameborder='0' scrolling='auto' src='@url' ></iframe>
+            }
+        }
+        var AEBELL_C50 = Model.Where(p => p.CameraTypeEnum == com.Bynonco.LIMS.Model.Enum.CameraType.AEBELL_C50).ToList();
+        if (AEBELL_C50.Count() > 0)
+        {
+            if(EasyN_H3.Count() == 0 && AEBELL_C50.Count() == 1)
+            {
+                int videoWidth = screenWidth  - 20;
+                int videoHeight = videoWidth * 352 / 640;  //640:352
+                foreach (var item in AEBELL_C50)
+                {
+                    var url = string.Format("http://{0}{1}/", item.IP, item.WebPort.HasValue ? ":" + item.WebPort : "");
+                    <div id="divShowAEBELL_C50_@(item.Id)" class='tagContainer @(isSelect? "" : "hide")'>
+                        <iframe width='@(videoWidth + 20)' height='@(videoHeight + 80)' frameborder='0' scrolling='auto' src='@url' ></iframe>
+                    </div>
+                }
+            }
+            else
+            {
+                @Html.Partial("../Camera/Help_AEBELL")
+                <p>以下是相关美电贝尔AEBELL摄像机：</p>
+                foreach (var item in AEBELL_C50)
+                {
+                    var url = string.Format("http://{0}{1}/", item.IP, item.Port.HasValue ? ":" + item.Port : "");
+                    <a href='@url' target="_blank">@item.Name</a><br />
+                    <script type="text/javascript">
+                        window.open('@url');
+                    </script>
+                }
+                
+            }
+        }
+    }
+}
+</body>
+</html>
+
+    
+

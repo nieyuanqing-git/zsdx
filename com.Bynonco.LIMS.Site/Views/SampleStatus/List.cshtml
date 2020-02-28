@@ -1,0 +1,42 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var sampleStatusPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSampleStatusPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSampleStatus")
+            .SetUrl(Url.Action("GetGridSampleStatusList", "SampleStatus", new { time = DateTime.Now.Millisecond.ToString() }))
+            .SetHeight(650)
+            .SetPageSize(20)
+            .SetSortName("OrderNo")
+            .SetShowAddButton(sampleStatusPrivilige.IsEnableAdd);
+            if (sampleStatusPrivilige.IsEnableBatchStart)
+            {
+                dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStart();return false;", IconCls = "icon-play", Id = "btnBatchStart", Text = "启用" });
+            }
+            if (sampleStatusPrivilige.IsEnableBatchStop)
+            {
+                dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doBatchStop();return false;", IconCls = "icon-stop", Id = "btnBatchStop", Text = "停用" });
+            }
+            if(sampleStatusPrivilige.IsEnableAdd)
+            {
+                dataGrid.SetAddScript("doAddOrEdit('');");
+            }
+            if(sampleStatusPrivilige.IsEnableDelete)
+            {
+                dataGrid.SetDeleteScript("doDelete('');");
+            }
+            dataGrid.SetShowDeleteButton(true)
+            .SetShowPrintButton(true);
+            if (sampleStatusPrivilige.IsEnableEdit)
+            {
+                dataGrid.SetOnDblClickRow("doAddOrEdit(rowData.Id);");
+                dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetWidth(50).SetAlign(Align.center));
+            }
+            dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+            .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("排序号", "OrderNo").SetWidth(80).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("助记符", "InputStr").SetWidth(150).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(100).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left))
+            .SetShowSearchButton(true)
+            .SetSearchScript("doShowSearch()");
+  }
+  @(dataGrid.ToMvcString())    

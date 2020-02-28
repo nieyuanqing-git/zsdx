@@ -1,0 +1,162 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var privilige = (com.Bynonco.LIMS.BLL.Business.Privilige.SampleStatisticsPrivilige)ViewData["SampleStatisticsPrivilige"];}
+<div id="divSampleApplyTotal">
+    @if (privilige.IsEnableEquipmentSumTotal)
+    {
+        <div title="按设备汇总" id="divEquipmentSumTotal"></div>  
+    }
+    @if (privilige.IsEnableSampleItemSumTotal)
+    {
+        <div title="按项目汇总" id ="divSampleItemSumTotal"></div>
+    }
+    @if (privilige.IsEnableTesterSumTotal)
+    {
+        <div title="按测样人汇总" id ="divTesterSumTotal"></div>
+    }
+    @if (privilige.IsEnableApplicantSumTotal)
+    {
+        <div title="按送样人汇总" id ="divApplicantSumTotal"></div>
+    }
+    @if (privilige.IsEnablePayerSumTotal)
+    {
+        <div title="按导师汇总" id ="divPayerSumTotal"></div>
+    }
+    @if (privilige.IsEnableEquipmentPayerSumTotal)
+    {
+        <div title="送样收费统计" id ="divEquipmentPayerSumTotal"></div>
+    }
+</div>
+<div id="divShowDetail"></div>
+<script type="text/javascript">
+    var exportQueryExpression = "";
+    var exportQueryTesterId = "";
+    var sampleApplyListDialog;
+    function showAppliantSumTotalDetailDialog(){
+        if(sampleApplyListDialog)
+            sampleApplyListDialog.dialog("destroy");
+        sampleApplyListDialog = @Html.JDialog("divSampleApplyListDialog").SetTitle("申请单列表").SetCancelScript("sampleApplyListDialog.dialog('close');return false;").SetAutoDialog(false).SetOkScript("sampleApplyListDialog.dialog('close');return false;").SetIconCls("icon-search").ToMvcString();
+    }
+    function doSumTotalSelectChanged(title) {
+        var queryExpression = generateSampleTotalQueryExpress();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        switch (title){
+            case "按设备汇总":
+                $("#divEquipmentSumTotal").load('@Url.Action("EquipmentSumTotal", "SampleStatistics")', { "queryExpression": encodeURI(queryExpression.trim()), "time": new Date().getMilliseconds() }, function (data) {});
+                break;
+            case "按项目汇总":
+                $("#divSampleItemSumTotal").load('@Url.Action("SampleItemSumTotal", "SampleStatistics")', { "queryExpression": encodeURI(queryExpression.trim()), "time": new Date().getMilliseconds() }, function (data) { });
+                break;
+            case "按测样人汇总":
+                $("#divTesterSumTotal").load('@Url.Action("TesterSumTotal", "SampleStatistics")', { "queryExpression": encodeURI(queryExpression.trim()), "time": new Date().getMilliseconds() }, function (data) { });
+                break;
+            case "按送样人汇总":
+                $("#divApplicantSumTotal").load('@Url.Action("ApplicantSumTotal", "SampleStatistics")', { "queryExpression": encodeURI(queryExpression.trim()), "time": new Date().getMilliseconds() }, function (data) { });
+                break;
+            case "按导师汇总":
+                $("#divPayerSumTotal").load('@Url.Action("PayerSumTotal", "SampleStatistics")', { "queryExpression": encodeURI(queryExpression.trim()), "time": new Date().getMilliseconds() }, function (data) {});
+                break;
+            case "送样收费统计":
+            $("#divEquipmentPayerSumTotal").load('@Url.Action("EquipmentPayerSumTotal", "SampleStatistics")', { "queryExpression": encodeURI(queryExpression.trim()), "time": new Date().getMilliseconds() }, function (data) {});
+                break;
+        }
+        $.messager.progress('close');
+    }
+    function doShowAppliantSumTotalDetail(applicantId){
+         exportQueryTesterId = "";
+         var newQueryExpression = generateSampleTotalQueryExpress();
+         if(applicantId != "" && !applicantId.isDefaultGuid())
+            newQueryExpression += newQueryExpression == "" ? "ApplicantId=\"" + applicantId + "\"" : "*" +  "ApplicantId=\"" + applicantId + "\"";
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $("#divShowDetail").load('@Url.Action("GetSampleApplyListInfo", "SampleStatistics")', { "queryExpression": newQueryExpression.trim(), "time": new Date().getMilliseconds() }, function (data) {
+            showAppliantSumTotalDetailDialog();
+            $.messager.progress('close');
+         });
+         exportQueryExpression = newQueryExpression;
+    }
+    function doExpertSampleApplyApplicantSumTotal(){
+        var newQueryExpression = generateSampleTotalQueryExpress();
+        var url = '@Url.Action("ExpertApplicantSumTotal", "SampleStatistics")' + "?queryExpression=" + newQueryExpression.trim() + "&time="+ new Date().getMilliseconds();
+        window.location.href = url;
+    }
+    function doShowEquipmentSumTotalDetail(equipmentId){
+         exportQueryTesterId="";
+         var newQueryExpression = generateSampleTotalQueryExpress();
+         if(equipmentId != "" && !equipmentId.isDefaultGuid())
+            newQueryExpression += newQueryExpression == "" ? "EquipmentId=\"" + equipmentId + "\"" : "*" +  "EquipmentId=\"" + equipmentId + "\"";
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $("#divShowDetail").load('@Url.Action("GetSampleApplyListInfo", "SampleStatistics")', { "queryExpression": newQueryExpression.trim(), "time": new Date().getMilliseconds() }, function (data) {
+            showAppliantSumTotalDetailDialog();
+            $.messager.progress('close');
+         });
+         exportQueryExpression = newQueryExpression;
+    }
+    function doExpertSampleApplyEquipmentSumTotal(){
+        var newQueryExpression = generateSampleTotalQueryExpress();
+        var url = '@Url.Action("ExpertEquipmentSumTotal", "SampleStatistics")' + "?queryExpression=" + newQueryExpression.trim() + "&time="+ new Date().getMilliseconds();
+        window.location.href = url;
+    }
+    function doShowSampleItemSumTotalDetail(sampleItemId){
+         exportQueryTesterId="";
+         var newQueryExpression = generateSampleTotalQueryExpress();
+         if(sampleItemId != "" && !sampleItemId.isDefaultGuid())
+            newQueryExpression += newQueryExpression == "" ? "SampleItemId=\"" + sampleItemId + "\"" : "*" +  "SampleItemId=\"" + sampleItemId + "\"";
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $("#divShowDetail").load('@Url.Action("GetSampleApplyListInfo", "SampleStatistics")', { "queryExpression": newQueryExpression.trim(), "time": new Date().getMilliseconds() }, function (data) {
+            showAppliantSumTotalDetailDialog();
+            $.messager.progress('close');
+         });
+         exportQueryExpression = newQueryExpression;
+    }
+    function doExpertSampleApplySampleItemSumTotal(){
+        var newQueryExpression = generateSampleTotalQueryExpress();
+        var url = '@Url.Action("ExpertSampleItemSumTotal", "SampleStatistics")' + "?queryExpression=" + newQueryExpression.trim() + "&time="+ new Date().getMilliseconds();
+        window.location.href = url;
+    }
+    function doShowTesterSumTotalDetail(testerId){
+        exportQueryTesterId=testerId;
+        var newQueryExpression = generateSampleTotalQueryExpress();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divShowDetail").load('@Url.Action("GetSampleApplyListInfoTesterId", "SampleStatistics")', {"testerId":testerId,"queryExpression": newQueryExpression.trim(), "time": new Date().getMilliseconds() }, function (data) {
+            showAppliantSumTotalDetailDialog();
+            $.messager.progress('close');
+         });
+        exportQueryExpression = newQueryExpression;
+    }
+    function doExpertSampleApplyTesterSumTotal(){
+        var newQueryExpression = generateSampleTotalQueryExpress();
+        var url = '@Url.Action("ExpertTesterSumTotal", "SampleStatistics")' + "?queryExpression=" + newQueryExpression.trim() + "&time="+ new Date().getMilliseconds();
+        window.location.href = url;  
+    }
+
+    function doExpertSampleApplyPayerSumTotal(){
+        var newQueryExpression = generateSampleTotalQueryExpress();
+        var url = '@Url.Action("ExpertPayerumTotal", "SampleStatistics")' + "?queryExpression=" + newQueryExpression.trim() + "&time="+ new Date().getMilliseconds();
+        window.location.href = url;  
+    }
+    function doExpertSampleApplyEquipmentPayerSumTotal(){
+        var newQueryExpression = generateSampleTotalQueryExpress();
+        var url = '@Url.Action("ExpertEquipmentPayerSumTotal", "SampleStatistics")' + "?queryExpression=" + newQueryExpression.trim() + "&time="+ new Date().getMilliseconds();
+        window.location.href = url;  
+    }
+    function doShowPayerSumTotalDetail(payerId){
+        exportQueryTesterId = "";
+        var newQueryExpression = generateSampleTotalQueryExpress();
+         if(payerId != "" && !payerId.isDefaultGuid())
+            newQueryExpression += newQueryExpression == "" ? "SubjectDirectorId=\"" + payerId + "\"" : "*" +  "SubjectDirectorId=\"" + payerId + "\"";
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $("#divShowDetail").load('@Url.Action("GetSampleApplyListInfo", "SampleStatistics")', { "queryExpression": newQueryExpression.trim(), "time": new Date().getMilliseconds() }, function (data) {
+            showAppliantSumTotalDetailDialog();
+            $.messager.progress('close');
+         });
+         exportQueryExpression = newQueryExpression;
+    }
+
+
+    function doExpertSampleStatisticsDetail(){
+        if(exportQueryExpression=="" && exportQueryTesterId=="") return;
+        var newQueryExpression = generateSampleTotalQueryExpress();
+        var url = '@Url.Action("ExpertStatisticsDetail", "SampleStatistics")' + "?queryExpression=" + exportQueryExpression+ "&testerId=" + exportQueryTesterId  + "&time="+ new Date().getMilliseconds();
+        window.location.href = url;  
+    }
+</script>
+@(Html.JTab("divSampleApplyTotal").SetBorder(false).SetHeight(800).SetOnSelect("doSumTotalSelectChanged(title);").ToMvcString())

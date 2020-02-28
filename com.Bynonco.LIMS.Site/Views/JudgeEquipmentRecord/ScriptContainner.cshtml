@@ -1,0 +1,153 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+.redborder{border-color:Red;}
+</style>
+<div id="divJudgeEquipmentRecordDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbJudgeEquipmentRecordList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbJudgeEquipmentRecordList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var judgeEquipmentRecordDialog;
+    function doJudgeEquipmentRecordDialog() {
+        if (judgeEquipmentRecordDialog) {
+            judgeEquipmentRecordDialog.dialog("destroy");
+        }
+        judgeEquipmentRecordDialog =  @Html.JDialog("divJudgeEquipmentRecordEdit").SetTitle("设备审核评价信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("judgeEquipmentRecordDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveJudgeEquipmentRecord();").ToMvcString();
+    }
+    function doAddJudgeEquipmentRecord(id) {
+       doAddOrEditJudgeEquipmentRecord(id);
+    }
+    function doEditJudgeEquipmentRecord(id) {
+       if(!id || id.trim()==""){
+           var selectedJudgeEquipmentRecord = $("#tbJudgeEquipmentRecordList").datagrid("getSelected");
+           if(!selectedJudgeEquipmentRecord || selectedJudgeEquipmentRecord.Id=="" || selectedJudgeEquipmentRecord.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择设备审核评价", showType: 'show' });
+              return false;
+           }
+           id = selectedJudgeEquipmentRecord.Id;
+       }
+       doAddOrEditJudgeEquipmentRecord(id);
+    }
+    function doAddOrEditJudgeEquipmentRecord(id){
+        var url = '@Url.Action("Edit","JudgeEquipmentRecord")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divJudgeEquipmentRecordDialog").load(url,function(){
+            doJudgeEquipmentRecordDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doViewJudgeEquipmentRecordDialog() {
+        if (judgeEquipmentRecordDialog) {
+            judgeEquipmentRecordDialog.dialog("destroy");
+        }
+        judgeEquipmentRecordDialog =  @Html.JDialog("divJudgeEquipmentRecordEdit").SetTitle("查看设备审核评价信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("judgeEquipmentRecordDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doViewJudgeEquipmentRecord(id) {
+       if(!id || id.trim()==""){
+           var selectedJudgeEquipmentRecord = $("#tbJudgeEquipmentRecordList").datagrid("getSelected");
+           if(!selectedJudgeEquipmentRecord || selectedJudgeEquipmentRecord.Id=="" || selectedJudgeEquipmentRecord.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择设备审核评价", showType: 'show' });
+              return false;
+           }
+           id = selectedJudgeEquipmentRecord.Id;
+       }
+       var url = '@Url.Action("ViewRecord","JudgeEquipmentRecord")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divJudgeEquipmentRecordDialog").load(url,function(){
+            doViewJudgeEquipmentRecordDialog();
+            $.messager.progress('close');
+        })
+    }
+
+    function doSaveJudgeEquipmentRecord(){
+        if($("#EquipmentId").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "设备为空", showType: 'show' });
+          return false;
+        }
+        if($("#RecordNum").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "编号为空", showType: 'show' });
+          return false;
+        }
+        if($("#JudgeTime").datetimebox("getValue") == ""){
+          $.messager.show({ title: '提示', msg:"评价时间为空", showType: 'show' });;
+          return false;
+        }
+        var isCentOk = true;
+        $(".ItemCent").each(function(){
+            if($(this).val().trim() != '0' && ($(this).val().trim() == "" || !$(this).validatebox("isValid") || !$(this).val().trim().isPositiveInt()))
+            {
+                $(this).addClass("redborder");
+                isCentOk = false;
+            }
+            else
+                $(this).removeClass("redborder");
+        });
+        $(".ContentCent").each(function(){
+            if($(this).val().trim() != '0' && ($(this).val().trim() == "" || !$(this).validatebox("isValid") || !$(this).val().trim().isPositiveInt()))
+            {
+                $(this).addClass("redborder");
+                isCentOk = false;
+            }
+            else
+                $(this).removeClass("redborder");
+        });
+        if(!isCentOk)
+        {
+            $.messager.show({ title: '提示', msg:"分数格式不正确,请输入整数", showType: 'show' });
+            return false;
+         }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","JudgeEquipmentRecord")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmJudgeEquipmentRecordEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                judgeEquipmentRecordDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteJudgeEquipmentRecord(id){
+        if(!id || id.trim() == ""){
+              var selectedJudgeEquipmentRecord = $("#tbJudgeEquipmentRecordList").datagrid("getSelected");
+                if(!selectedJudgeEquipmentRecord || selectedJudgeEquipmentRecord.Id.trim() == "" || selectedJudgeEquipmentRecord.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedJudgeEquipmentRecord.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "JudgeEquipmentRecord")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function doExportExcel()
+    {
+        var queryExpression = generateQueryExpress();
+        var url='@Url.Action("ExportExcel","JudgeEquipmentRecord")' + "?queryExpression=" + queryExpression + "&date=" + new Date().getMilliseconds();
+        window.open(url,'_blank');
+    }
+</script>

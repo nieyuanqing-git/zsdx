@@ -1,0 +1,110 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Equipment/Search")
+    </div>
+</div>
+<div class="layout-center-left">
+    @Html.Partial("../LabOrganizationAdmin/List")
+</div>
+<div class="layout-center-right">
+    @Html.Partial("../EquipmentAuthorization/List")
+</div>
+<div class="clear-both"></div>
+<div id="divUserEquipmentAuthorizationManageDialog" style="display:none"></div>
+<div id="divUserEquipmentContinuedAuthorizationManageDialog" style="display:none"></div>
+@Html.Partial("../Equipment/ScriptContainer")
+
+<script type="text/javascript">
+    function doEquipmentSearch(xpath) {
+        if(!xpath || xpath.trim()==""){
+           var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+           if(!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id=="" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+              return false;
+           }
+           xpath = selectedLabOrganizationAdmin.XPath;
+       }
+       var queryExpression = generateEquipmentQueryExpress();
+       queryExpression  += (queryExpression == "" ? "" : "*") + "(OrgXPath→\"" + xpath  + "\"+RoomXPath→\"" + xpath  + "\")";
+       $("#tbEquipmentList").datagrid('loadData', { total: 0, rows: [] });
+       $("#tbEquipmentList").datagrid("load", { "queryExpression": queryExpression});
+    }
+    function doOnLabOrganizationAdminSelected(rowData){
+        if(typeof(doEquipmentQueryReset) == 'function') doEquipmentQueryReset();
+        doEquipmentSearch(rowData.XPath);
+    }
+
+    var userEquipmentAuthorizationManageDialog;
+    function doUserEquipmentAuthorizationManageDialog() {
+        if (userEquipmentAuthorizationManageDialog) {
+            userEquipmentAuthorizationManageDialog.dialog("destroy");
+        }
+        userEquipmentAuthorizationManageDialog =  @Html.JDialog("divUserEquipmentAuthorizationManage").SetTitle("设备授权管理").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("userEquipmentAuthorizationManageDialog.dialog('destroy');return false;").SetCancelScript("userEquipmentAuthorizationManageDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    
+    function doUserEquipmentAuthorizationManage(id) {
+       if(!id || id.trim()==""){
+           var selectedEquipment = $("#tbEquipmentList").datagrid("getSelected");
+           if(!selectedEquipment || selectedEquipment.Id=="" || selectedEquipment.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedEquipment.Id;
+       }
+        var url = '@Url.Action("UserEquipmentAuthorizationManage", "EquipmentAuthorization")';
+        $("#divUserEquipmentAuthorizationManageDialog").load(url,{"EquipmentId":id,"IsPopDialog":true,"date":new Date().getMilliseconds()},function(){
+            doUserEquipmentAuthorizationManageDialog();
+        })
+        return false;
+    }
+
+    var userEquipmentContinuedAuthorizationManageDialog;
+    function doUserEquipmentContinuedAuthorizationManageDialog() {
+        if (userEquipmentContinuedAuthorizationManageDialog) {
+            userEquipmentContinuedAuthorizationManageDialog.dialog("destroy");
+        }
+        userEquipmentContinuedAuthorizationManageDialog =  @Html.JDialog("divUserEquipmentContinuedAuthorizationManage").SetTitle("设备周期性授权管理").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("userEquipmentContinuedAuthorizationManageDialog.dialog('destroy');return false;").SetCancelScript("userEquipmentContinuedAuthorizationManageDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    
+    function doUserEquipmentContinuedAuthorizationManage(id) {
+       if(!id || id.trim()==""){
+           var selectedEquipment = $("#tbEquipmentList").datagrid("getSelected");
+           if(!selectedEquipment || selectedEquipment.Id=="" || selectedEquipment.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedEquipment.Id;
+       }
+        var url = '@Url.Action("UserEquipmentContinuedAuthorizationManage", "EquipmentAuthorization")';
+        $("#divUserEquipmentContinuedAuthorizationManageDialog").load(url,{"EquipmentId":id,"IsPopDialog":true,"date":new Date().getMilliseconds()},function(){
+            doUserEquipmentContinuedAuthorizationManageDialog();
+        })
+        return false;
+    }
+    function doUpdateOfflineRecord() {
+        var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+        if (!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id == "" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+            return false;
+        }
+        var id = selectedLabOrganizationAdmin.Id;
+        $.messager.confirm('提示', '是否确认通知服务器更新离线记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateOfflineRecord", "UserAuthorization")',
+                data: "LabOrganizationId=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+            });
+        });
+    }
+</script>

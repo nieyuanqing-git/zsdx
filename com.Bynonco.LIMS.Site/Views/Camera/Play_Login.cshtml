@@ -1,0 +1,505 @@
+﻿@model com.Bynonco.LIMS.Model.Camera
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Layout = null;
+    var videoWidth = ViewData["VideoWidth"] == null || string.IsNullOrWhiteSpace(ViewData["VideoWidth"].ToString()) ? 640 : Int32.Parse(ViewData["VideoWidth"].ToString().Trim());
+    var videoHeight = ViewData["VideoHeight"] == null || string.IsNullOrWhiteSpace(ViewData["VideoHeight"].ToString()) ? 350 : Int32.Parse(ViewData["VideoHeight"].ToString().Trim());
+    var cameraUrl = "http://" + Model.IP + "/";
+}
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<script src="@Url.Content("~/Scripts/AEBELL_C50.js?v=1.4.0.9")" type="text/javascript"  charset="utf-8"  ></script>
+    <script type="text/javascript">
+        var szHostname = '192.168.1.108';
+    </script>
+<title></title>
+<style type="text/css" >  
+.inputext
+{
+    font-size:12px;
+    width:120px;
+    height:18px;
+    color:#000000;
+	margin-left:5px;
+}
+a:link
+{
+    margin: 0px;
+    color: #0000FF;
+    text-decoration: none;
+    word-spacing: 0;
+    text-indent: 0; 
+}
+a
+{
+	vertical-align:middle; 
+}
+a:visited
+{
+    margin: 0;
+    color: #0000FF;
+    text-decoration: none;
+    word-spacing: 0;
+    text-indent: 0; 
+}
+a:hover
+{
+	margin: 0px;
+	color: #ed6c00;
+	word-spacing: 0;
+	text-indent: 0; 
+}
+.showitemfont
+{
+    font-size:14px;
+    color:#ffffff;
+}
+.selectitem
+{
+    font-size:12px;
+    border:1px solid #000000;
+}
+.divbutton
+{
+	margin:0 auto;
+	vertical-align:middle;
+	float:left;
+	background-image:url(@(cameraUrl)images/button100.png);
+   	background-position: 0px 0px;
+	height:78px;
+	line-height:78px;
+	cursor:pointer;	
+	width:65px;
+	color:#ffffff;
+	margin-right:2px;
+	text-align:center;	
+}
+ .divbutton:hover
+{
+   	background: url(@(cameraUrl)images/button100.png) no-repeat 0px -78px;
+}
+
+.tiplabelcolor
+{
+    color:#ffffff;
+    text-align:right; 
+}
+
+.download_btn{  background: url(@(cameraUrl)images/download.png) no-repeat; width:61px; height:20px;}
+.download_btn:hover{ background: url(@(cameraUrl)images/download_hover.png) no-repeat; width:61px; height:20px;}
+
+
+</style>
+</head>
+ 
+
+
+
+
+<body  bgcolor="#FFFFFF" leftmargin="0" topmargin="0"    marginwidth="0" marginheight="0" style="text-align:center;"   >
+<input type="hidden" value="" id="idCallBack" />
+<input type="hidden" value="" id="idPTZPort" />
+<input type="hidden" value="" id="Logon" />
+<input type="hidden" value="" id="selectchange" />
+<input type="hidden" value="" id="ctrl_version" />
+<table  width="100%" height="100%"   border="0" cellspacing="0" cellpadding="0">
+<tr><td  width="100%" height="100%" align="center" valign="middle" >
+
+
+
+<table  style="background:url(@(cameraUrl)images/login.jpg) no-repeat; width:996px; height:600px;" border="0" cellpadding="0" cellspacing="0"   >
+<tr>
+<td>
+    
+    <table cellpadding="0" cellspacing="0" border="0"  >
+            <tr>
+                <td style="height:167px; width:280px;" >&nbsp;</td>
+                <td style="width:200px;" >&nbsp;</td>
+                <td style="width:220px;" >&nbsp;</td>    
+                <td style="width:260px;" >&nbsp;</td>                 
+            </tr>
+            <tr >
+                <td style="height:95px;" >&nbsp;</td>
+                <td colspan="2" valign="top" ><img src="@(cameraUrl)images/logo-zh-cn.png" id="logo_img"  border="0"  /></td>
+              <td>&nbsp;</td>                 
+            </tr>
+            <tr>
+				<td>
+                </td>
+				<td>
+                </td>
+				<td >
+				</td>
+				<td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td  style="height:140px;" >&nbsp;</td>
+                <td colspan="2"  >
+                <table cellpadding="0" cellspacing="0"  >
+            <tr>
+                <td align="right"  style="width:120px;"> 
+                  	<label id="lusername"  class="tiplabelcolor"  >用户账户</label>
+                </td>
+				<td style="padding-left:15px;" align="left" >
+                 	<input style="width:90%;" id="username" maxlength="30" class="inputext" value=""  tabindex="1" onBlur="ChangeItem(1,this,this.value);"  />
+                </td>
+				<td rowspan="3"  style=" text-align:left;" >
+				 	<label style="margin:0px 20px;" class="divbutton" id="LoginButton"  onclick="DoLogin();" >登录</label>                      
+				</td>
+				<td>&nbsp;</td> 
+			</tr>
+			<tr >
+				<td align="right"  style="padding-top:10px;">
+                    <label id="lpassword"   class="tiplabelcolor"  >用户密码</label>
+                </td>
+				<td style="padding:10px 0 0 15px;"  align="left" > 
+                    <input style="width:90%;" id="password" maxlength="30" class="inputext"   type="password" value=""  onblur="ChangeItem(2,this,this.value);"  tabindex="2"  />
+                </td>
+				<td>&nbsp;</td> 
+			</tr> 
+			<tr>
+				<td>&nbsp;</td>
+				<td  style="height:20px;" >&nbsp;</td>
+				<td>&nbsp;</td> 
+			</tr> 
+			<tr>
+				<td>
+                </td>
+				<td>
+                </td>
+				<td >
+				</td>
+				<td>&nbsp;</td>
+            </tr>
+            <tr>
+				<td>
+                </td>
+				<td>
+                </td>
+				<td >
+				</td>
+				<td>&nbsp;</td>
+            </tr>
+            <tr>
+				<td id="tdLanguage"  class="tiplabelcolor">
+                  语言类型
+                </td>
+				<td style="padding-left:15px;" >
+                    <select class="selectitem" id="idLanguage"  onchange="OnChangeLangSel(this.value,'@(cameraUrl)xml/Login.xml');"  style="WIDTH: 60px; HEIGHT: 20px">
+                    </select>                        
+                </td>
+				<td style="text-align:left;" >
+                    <input class="download_btn" style="color:#FFFFFF; font-size:12px; border:0px;margin:0 0 0 20px;" id="DownloadButton" onClick="DownloadCtrl();" 	type="button" value="安装控件"/>
+				</td>
+				<td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="4" style="text-align:left; height:22px;" >
+                    <table cellpadding="0" cellspacing="0" >                        
+            <tr>
+                <td style="width:20px;" >&nbsp;</td>
+                <td> 
+                   <div id="tipinfo_div"  class="tiplabelcolor"  style="display:block;text-indent:20px;height:20px; overflow:hidden; width:420px; 
+                         font-size:12px; text-align:left;" > </div>  
+                </td>
+            </tr>
+                  </table> 
+                </td>
+            </tr>
+                  </table></td>    
+                <td>&nbsp;</td>                 
+            </tr>
+            <tr>
+                <td style="height:60px;" >&nbsp;</td>
+                <td colspan="2">                
+                                  </td>    
+                <td>&nbsp;</td>                 
+            </tr>
+            <tr>
+                <td style="height:160px;" >&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>    
+                <td>&nbsp;</td>                 
+            </tr>
+    </table>
+</td>
+</tr>
+</table>
+<!-- End Save for Web Slices -->
+<script type="text/javascript">
+
+
+
+    if (document.layers) {
+        document.captureEvents(Event.KEYPRESS);
+    }
+
+
+    function OnTabKeyEventAction() {
+        if (document.activeElement == document.getElementById("username")) {
+            document.getElementById("password").focus();
+        }
+        else if (document.activeElement == document.getElementById("password")) {
+            document.getElementById("LoginButton").focus();
+        }
+        else if (document.activeElement == document.getElementById("LoginButton")) {
+            document.getElementById("username").focus();
+        }
+        else {
+            //document.getElementById("LoginButton").focus();
+            DoLogin();
+        }
+    }
+
+
+    function backhome(e) {
+        try {
+            var KeyID = (window.event) ? event.keyCode : e.keyCode;
+            if (KeyID == 9) {
+                OnTabKeyEventAction();
+            }
+            else if (KeyID == 13) {//回车
+                if (document.activeElement == document.getElementById("password")) {
+                    var un = document.getElementById("username");
+                    var pw = document.getElementById("password");
+                    if (un.value != "" && pw.value != "") {
+                        DoLogin();
+                    }
+                }
+                OnTabKeyEventAction();
+            }
+        }
+        catch (eevv) {
+
+        }
+    }
+    document.onkeypress = backhome;
+
+
+    function OnTabKeyDown(keyval, actype) {
+        OnTabKeyEventAction();
+        return true;
+    }
+
+
+    function LoginCallBack(strCode) {
+        var Tips2 = getNodeValue("LoginTips2");
+        var Tips3 = getNodeValue("LoginTips3");
+        var nCode = Math.floor(strCode);
+        switch (nCode) {
+            case 4:
+                {
+                    //document.location.href="player.html";
+                }
+                break;
+            case 5:
+            case 2:
+            case 3:
+            case 31:
+                {
+                    if (2 == nCode || 3 == nCode) {
+                        var networkerror = getNodeValue("networdk_connecterror");
+                        ShowErrorTip(networkerror);
+                    }
+                    else if (5 == nCode) {
+                        var userlogin_error = getNodeValue("userlogin_error");
+                        ShowErrorTip(userlogin_error);
+                    }
+                    var un = document.getElementById("username");
+                    var pw = document.getElementById("password");
+                    pw.setAttribute("value", "");
+                    //un.setAttribute("value", "");
+                    pw.focus();
+                }
+            case 2000:
+            case 1000: //没有自动登录
+                {
+                    try {
+                        document.getElementById("__01").style.display = "block";
+                    }
+                    catch (eee) {
+                        ShowError(eee);
+                    }
+                    var un = document.getElementById("username");
+                    var pw = document.getElementById("password");
+                    pw.setAttribute("value", "");
+                    try {
+                        if (un.value != "") {
+                            pw.focus();
+                        }
+                        else {
+                            un.focus();
+                        }
+                    }
+                    catch (eee) {
+                        ShowError(eee);
+                    }
+                    try {
+                        if (nCode == 2000) {// only for admin user  
+                            document.getElementById("username").value = "admin";
+                            document.getElementById("username").style.display = "none";
+                            document.getElementById("admin_label").style.display = "block";
+                        }
+                        else {
+                            document.getElementById("username").style.display = "block";
+                            document.getElementById("admin_label").style.display = "none";
+                        }
+                    }
+                    catch (eee) {
+                        ShowError(eee);
+                    }
+                }
+                break;
+        }
+    }
+
+
+
+
+    function DownloadCtrl() {
+        window.location = "IPCConfig.exe?version=1.4.0.9.exe";
+    }
+
+
+
+    function ShowErrorTip(msg) {
+        try {
+            document.getElementById("tipinfo_div").innerHTML = msg;
+        }
+        catch (eevv) {
+            try {
+                document.getElementById("tipinfo_div").setAttribute("nnerHTML", msg);
+            }
+            catch (vv) { }
+        }
+    }
+
+
+    function OnChangeLangSel(va, file) {
+        OnLoginChangeLanguage(va, file);
+        ShowErrorTip("");
+    }
+
+
+
+    function InitCheckVersion() {
+        var verseionerror = getNodeValue("htmllogin_ctrlversionerror");
+        var version = GetCtrlVersion();
+        var pubversion = "v=1.4.0.9";
+        if (version != pubversion) {
+            var nowvls = version.split(".");
+            var pubvls = pubversion.split(".");
+            if (nowvls[0] != pubvls[0] || nowvls[1] != pubvls[1]) {// 要求强制安装 
+                return verseionerror;
+            }
+            else {//不提示版本可能不兼容，直接让他使用。
+                //ShowErrorTip(verseionerror);
+            }
+        }
+        else {
+            ShowErrorTip("");
+        }
+        return "";
+    }
+
+
+    function checkdata(thf) {
+        var Tips1 = getNodeValue("LoginTips1");
+        var Tips2 = getNodeValue("htmllogin_passisempty");
+        if (document.getElementById("username").value == "") {
+            document.getElementById("username").setAttribute("value", "");
+            document.getElementById("username").focus();
+            return Tips1;
+        }
+        else if (document.getElementById("password").value == "") {
+            document.getElementById("password").focus();
+            return Tips2;
+        }
+        var checkversionerror = InitCheckVersion();
+        if (checkversionerror != "") {
+            return checkversionerror;
+        }
+        return "";
+    }
+
+
+
+    function DoLogin() {
+        ShowErrorTip("");
+        var errormsg = checkdata("");
+        if (errormsg == "") {
+            CheckAndLogin();
+            var userlogin_waitinfo = getNodeValue("userlogin_waitinfo");
+            ShowErrorTip(userlogin_waitinfo);
+        }
+        else {
+            ShowErrorTip(errormsg);
+        }
+    }
+
+
+    function ChangeItem(idx, obj, objvalue) {
+        var KeyID = (window.event) ? event.keyCode : e.keyCode;
+        if (KeyID != 9) {
+            return false;
+        }
+        if (idx == 1) {
+            if (objvalue != "") {
+                document.getElementById("password").focus();
+            }
+            else {
+                document.getElementById("username").focus();
+            }
+        }
+        else if (idx == 2) {
+            if (objvalue != "") {
+                document.getElementById("LoginButton").focus();
+            }
+            else {
+                document.getElementById("password").focus();
+            }
+        }
+        else {
+            document.getElementById("username").focus();
+        }
+    }
+
+    function jsInitLg() {
+        ShowErrorTip("");
+        InitLoginLanguage('@(cameraUrl)xml/Login.xml', LoginCallBack); //  设置登录回调并进行登?
+        try {
+            document.getElementById("username").focus();
+        }
+        catch (eevv) { }
+        InitCheckVersion();
+    }
+
+
+    var allowselectlang = true; //if have more than one language,set allowselectlang=true
+    //SetCookie('language', "en-us");//如果每次都要指定语言，则这里设置默认语言
+
+    function Init_LoginOnload() {
+        jsInitLg();
+        InitCheckVersion();
+        document.getElementById("username").focus();
+        try {
+            if (allowselectlang) {
+                document.getElementById("tdLanguage").style.display = "block";
+                document.getElementById("idLanguage").style.display = "block";
+            }
+            else {
+                document.getElementById("tdLanguage").style.display = "none";
+                document.getElementById("idLanguage").style.display = "none";
+            }
+        } catch (eevv) { }
+    }
+    Init_LoginOnload();
+
+</script>
+
+
+
+
+</body>
+</html>

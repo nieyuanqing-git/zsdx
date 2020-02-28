@@ -1,0 +1,166 @@
+﻿<div class="edit-operate hide">
+    <a href="javascript:void(0);" onclick="doSaveRegisterBasic();return false;" class="botton">
+        <span>
+            <span>提 交</span>
+        </span>
+    </a>
+</div>
+<script type="text/javascript">
+    function checkBasicInfo() {
+        var isOk = true;
+        
+        if (!$("#UserTypeId").closest('div.edit-info').hasClass('hide')) {
+            if ($("#UserTypeId").combotree("getValue").trim() == "" || $("#UserTypeId").combotree("getValue").trim().isDefaultGuid()) {
+                $("#UserTypeId").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+        if ($("#Label").val().trim() == "") {
+            $("#Label").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if ($("#frmUserRegister").find("#LoginPassword").val().trim() == "" || !$("#frmUserRegister").find("#LoginPassword").validatebox("isValid")) {
+            $("#frmUserRegister").find("#LoginPassword").parents(".edit-info").find(".pw-weight").addClass("hide")
+            $("#frmUserRegister").find("#LoginPassword").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if ($("#ConfirmPassword").val().trim() != "" && $("#frmUserRegister").find("#LoginPassword").val().trim() != $("#ConfirmPassword").val().trim()) {
+            $("#ConfirmPassword").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if ($("#UserName").val().trim() == "") {
+            $("#UserName").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if ($("#Sex").combobox("getValue").trim() == "" && checkIsRegisterNotNull("性别")) {
+            $("#Sex").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if ($("#CertificateTypeId").combobox("getValue").trim() == "" && checkIsRegisterNotNull("证件类型")) {
+            $("#CertificateTypeId").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if ($("#IdentityCardNo").val().trim() == "" && checkIsRegisterNotNull("证件号码")) {
+            $("#IdentityCardNo").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if (!$("#OrganizationId").closest('div.edit-info').hasClass('hide')) {
+            if ($("#OrganizationId").val().trim() == "" || $("#OrganizationId").val().trim().isDefaultGuid()) {
+                $("#OrganizationId").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+        if (!$("#OtherOrganization").closest('div.edit-info').hasClass('hide')) {
+            if ($("#OtherOrganization").val().trim() == "") {
+                $("#OtherOrganization").parents(".edit-info").find(".errormt").removeClass("hide");
+            }
+        }
+        //if ($("#MoneyCard").length > 0) {
+        //    if ($("#divTutor").hasClass("hide") && $("#MoneyCard").val() == "") {
+        //        $("#MoneyCard").parents(".edit-info").find(".errormt").removeClass("hide");
+        //        isOk = false;
+        //    }
+        //}
+        if (!$("#Jobtitle").closest('div.edit-info').hasClass('hide')) {
+            if ($("#Jobtitle").val().trim() == "" && checkIsRegisterNotNull("职称")) {
+                $("#Jobtitle").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+        if (!$("#Grade").closest('div.edit-info').hasClass('hide')) {
+            if ($("#Grade").val().trim() == "" && checkIsRegisterNotNull("年级")) {
+                $("#Grade").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+        if (!$("#Speciality").closest('div.edit-info').hasClass('hide')) {
+            if ($("#Speciality").val().trim() == "" && checkIsRegisterNotNull("专业")) {
+                $("#Speciality").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+        if (!$("#ResearchDirection").closest('div.edit-info').hasClass('hide')) {
+            if ($("#ResearchDirection").val().trim() == "" && checkIsRegisterNotNull("研究方向")) {
+                $("#ResearchDirection").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+        if (!$("#ThesisTopic").closest('div.edit-info').hasClass('hide')) {
+            if ($("#ThesisTopic").val().trim() == "" && checkIsRegisterNotNull("拟研究论文题目")) {
+                $("#ThesisTopic").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+        if ($("#AnimalExperimentNum").length > 0 && !doCheckAnimalExperimentNum()) {
+            $("#AnimalExperimentNum").parents(".edit-info").find(".tips").addClass("hide");
+            isOk = false;
+        }
+        if ($("#AnimalExperimentName").length > 0) {
+            if ($("#AnimalExperimentName").val() == "") {
+                $("#AnimalExperimentName").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+        if ($("#RelativePic").length > 0 && $("#RelativePic").val() == "") {
+            $("#RelativePic").parents(".edit-info").find(".tips").addClass("hide");
+            $("#RelativePic").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+
+        if ($("#ContactAddress").val().trim() == "" && checkIsRegisterNotNull("联系地址")) {
+            $("#ContactAddress").parents(".edit-info").find(".errormt").removeClass("hide");
+            isOk = false;
+        }
+        if ($("#Email").val().trim() == "" || !$("#Email").validatebox("isValid")) {
+            if ($("#Email").val().trim() != "" || checkIsRegisterNotNull("邮箱")) {
+                $("#Email").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+        if ($("#PhoneNumber").val().trim() == "" || !$("#PhoneNumber").validatebox("isValid")) {
+            if ($("#PhoneNumber").val().trim() != "" || checkIsRegisterNotNull("手机")) {
+                $("#PhoneNumber").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+        if ($("#FixedPhone").val().trim() == "" || !$("#FixedPhone").validatebox("isValid")) {
+            if ($("#FixedPhone").val().trim() != "" || checkIsRegisterNotNull("固话")) {
+                $("#FixedPhone").parents(".edit-info").find(".errormt").removeClass("hide");
+                isOk = false;
+            }
+        }
+
+        if (!$("#Subject").closest('div.edit-info').hasClass('hide')) {
+            if ($("#Subject").val().trim() == "") {
+                $("#Subject").parents(".edit-info").find(".errormt").removeClass("hide");
+            }
+        }
+        return isOk;
+    }
+
+    function doSaveRegisterBasic() {
+        $(".text-over").removeClass('text-over');
+        var isOk = checkBasicInfo();
+        if (!isOk) return false;
+        if (!$("#IsReadAgreement").attr("checked")) {
+            $.messager.alert('提示', '请阅读并同意注册协议.', 'warning');
+            return false;
+        }
+
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveRegisterBasic", "User")',
+            data: $("#frmUserRegister").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function(msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                location.href = '@Url.Action("Index", "Admin")';
+            }
+        });
+        return false;
+    }
+</script>

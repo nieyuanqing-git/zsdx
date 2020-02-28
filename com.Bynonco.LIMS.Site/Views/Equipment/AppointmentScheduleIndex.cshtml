@@ -1,0 +1,283 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@{
+    Layout = "~/Views/Shared/_TwoColumnLayout.cshtml";
+
+}
+@section ImportCssAndJs
+{
+<script src="@Url.Content("~/JqueryPlugin/Schedule/js/datepicker_lang_zh_Cn.js")" type="text/javascript"></script>   
+<script src="@Url.Content("~/JqueryPlugin/Schedule/js/jquery.datepicker.js")" type="text/javascript"></script>  
+<script src="@Url.Content("~/JqueryPlugin/Schedule/js/wdCalendar_lang_zh_CN.js")" type="text/javascript"></script>   
+<script src="@Url.Content("~/JqueryPlugin/Schedule/js/wdCalendar.js")" type="text/javascript"></script>  
+<link href="@Url.Content("~/JqueryPlugin/Schedule/Theme/Default/main.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/JqueryPlugin/Schedule/Theme/Default/dailog.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/JqueryPlugin/Schedule/Theme/Default/calendar.css")" rel="stylesheet" type="text/css" /> 
+<link href="@Url.Content("~/JqueryPlugin/Schedule/Theme/Default/dp.css")" rel="stylesheet" type="text/css" />   
+<link href="@Url.Content("~/JqueryPlugin/Schedule/Theme/Default/alert.css")" rel="stylesheet" type="text/css" />     
+<link href="@Url.Content("~/JqueryPlugin/Schedule/Theme/Shared/blackbird.css")" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+    var equipmentId = '@(Model == null ? Guid.Empty : Model.Id)';
+    var islogin = 'False'; 
+          
+    var opensh =  9;
+    var opensm =  0;
+    var openeh =  22;
+    var openem =  0;
+    var IsOpen_Saturday = 1;
+    var IsOpen_Sunday = 1;
+          
+    var stHeight = 378; 
+    var openHeight = 546;
+    var endHeight = 84;
+
+    function reloadcurrentshowdate() {
+        var p = $("#gridcontainer").swtichView("week").BcalGetOp();
+        if (p && p.datestrshow) {
+            $("#txtdatetimeshow").text(p.datestrshow);
+        }
+    }
+    $(document).ready(function () {
+        var view = "week";
+        var op = {
+            view: view,
+            theme: 3,
+            showday: new Date(),
+            EditCmdhandler: Edit,
+            DeleteCmdhandler: Delete,
+            ViewCmdhandler: View,
+            onWeekOrMonthToDay: wtd,
+            onBeforeRequestData: cal_beforerequest,
+            onAfterRequestData: cal_afterrequest,
+            onRequestDataError: cal_onerror,
+            autoload: true,
+            url: "@Url.Action("GetEquipmentAppointmentList", "Equipment", new { EquipmentId = (Model == null ? Guid.Empty : Model.Id) })",
+            readonly: false
+        };
+        op.extParam = [{ name: "islogin", value: islogin },
+                           { name: "equipmentId", value: equipmentId },
+                           { name: "opensh", value: opensh },
+                           { name: "opensm", value: opensm },
+                           { name: "openeh", value: openeh },
+                           { name: "openem", value: openem },
+                           { name: "IsOpen_Saturday", value: IsOpen_Saturday },
+                           { name: "IsOpen_Sunday", value: IsOpen_Sunday },
+                           { name: "stHeight", value: stHeight },
+                           { name: "openHeight", value: openHeight },
+                           { name: "endHeight", value: endHeight}];
+
+        var $dv = $("#calhead");
+        var _MH = document.documentElement.clientHeight;
+        var dvH = $dv.height() + 2;
+        op.height = _MH - dvH;
+        op.eventItems = [];
+        var p = $("#gridcontainer").bcalendar(op).BcalGetOp();
+        if (p && p.datestrshow) {
+            $("#txtdatetimeshow").text(p.datestrshow);
+        }
+        else {
+            $("#txtdatetimeshow").text('');
+        }
+        $("#caltoolbar").noSelect();
+
+        $("#hdtxtshow").datepicker({ picker: "#txtdatetimeshow", showtarget: $("#txtdatetimeshow"),
+            onReturn: function (r) {
+                var p = $("#gridcontainer").gotoDate(r).BcalGetOp();
+                if (p && p.datestrshow) {
+                    $("#txtdatetimeshow").text(p.datestrshow);
+                }
+            }
+        });
+        function cal_beforerequest(type) {
+            var t = "Loading data...";
+            switch (type) {
+                case 1:
+                    t = "Loading data...";
+                    break;
+                case 2:
+                case 3:
+                case 4:
+                    t = "The request is being processed ...";
+                    break;
+            }
+            $("#errorpannel").hide();
+            $("#loadingpannel").html(t).show();
+        }
+        function cal_afterrequest(type) {
+            switch (type) {
+                case 1:
+                    $("#loadingpannel").hide();
+                    break;
+                case 2:
+                case 3:
+                case 4:
+                    $("#loadingpannel").html("Success!");
+                    window.setTimeout(function () { $("#loadingpannel").hide(); }, 2000);
+                    break;
+            }
+
+        }
+        function cal_onerror(type, data) {
+            $("#errorpannel").show();
+        }
+        function Edit(data) {
+
+        }
+        function View(data) {
+            if (data) {
+                doShowAppointmentDetailInfo(data[0]);
+            }
+        }
+        function Delete(data, callback) {
+
+        }
+        function wtd(p) {
+            if (p && p.datestrshow) {
+                $("#txtdatetimeshow").text(p.datestrshow);
+            }
+            $("#caltoolbar div.fcurrent").each(function () {
+                $(this).removeClass("fcurrent");
+            })
+            $("#showdaybtn").addClass("fcurrent");
+        }
+        $("#showdaybtn").click(function (e) {
+            $("#caltoolbar div.fcurrent").each(function () {
+                $(this).removeClass("fcurrent");
+            })
+            $(this).addClass("fcurrent");
+            var p = $("#gridcontainer").swtichView("day").BcalGetOp();
+            if (p && p.datestrshow) {
+                $("#txtdatetimeshow").text(p.datestrshow);
+            }
+            $("#gridcontainer").reload();
+        });
+        $("#showweekbtn").click(function (e) {
+            $("#caltoolbar div.fcurrent").each(function () {
+                $(this).removeClass("fcurrent");
+            })
+            $(this).addClass("fcurrent");
+            var p = $("#gridcontainer").swtichView("week").BcalGetOp();
+            if (p && p.datestrshow) {
+                $("#txtdatetimeshow").text(p.datestrshow);
+            }
+            $("#gridcontainer").reload();
+        });
+        $("#showmonthbtn").click(function (e) {
+            $("#caltoolbar div.fcurrent").each(function () {
+                $(this).removeClass("fcurrent");
+            })
+            $(this).addClass("fcurrent");
+            var p = $("#gridcontainer").swtichView("month").BcalGetOp();
+            if (p && p.datestrshow) {
+                $("#txtdatetimeshow").text(p.datestrshow);
+            }
+            $("#gridcontainer").reload();
+        });
+
+        $("#showreflashbtn").click(function (e) {
+            $("#gridcontainer").reload();
+        });
+        $("#showtodaybtn").click(function (e) {
+            var p = $("#gridcontainer").gotoDate().BcalGetOp();
+            if (p && p.datestrshow) {
+                $("#txtdatetimeshow").text(p.datestrshow);
+            }
+        });
+        $("#sfprevbtn").click(function (e) {
+            var p = $("#gridcontainer").previousRange().BcalGetOp();
+            if (p && p.datestrshow) {
+                $("#txtdatetimeshow").text(p.datestrshow);
+            }
+            $("#gridcontainer").reload();
+        });
+        $("#sfnextbtn").click(function (e) {
+            var p = $("#gridcontainer").nextRange().BcalGetOp();
+            if (p && p.datestrshow) {
+                $("#txtdatetimeshow").text(p.datestrshow);
+            }
+            $("#gridcontainer").reload();
+        });
+
+        setTimeout("reloadcurrentshowdate();", 1000);
+    });
+    </script>
+}
+@section MainLeft
+{
+    @if(Model != null)
+    {
+<ul>
+    <li>仪器：<a href="../WebSite/Products/view.aspx?id=2db99882-e3eb-4720-b24f-6142137075ff" id="HyperLink1">第二代核酸转染仪</a>
+    </li>
+    <li>设备号：<span id="Label2"></span>
+    </li>
+    <li>型号：<span id="Label3">Amaxa</span>
+    </li>
+    <li>参数：<span id="Label4"></span>
+    </li>
+    <li>保管单位：<span id="Label5">生化平台</span>
+    </li>
+    <li>存放地址：<span id="Label6">科B302</span>
+    </li>
+    <li>管理员：<span id="Label7">王佳佳</span>
+    </li>
+    <li>办公电话：<span id="Label8">88981951/88981952</span>
+    </li>
+    <li>校内收费标准：<span id="Label9"></span>
+    </li>
+    <li>校外收费标准：<span id="Label10"></span>
+    </li>
+    <li>注意事项：<span id="Label11"></span>
+    </li>
+    <li>
+        附件：
+    </li>
+</ul>
+    }
+}
+@section MainRight
+{
+<h2 class='title'>预约日历</h2>
+<div id="calhead">          
+    <div id="caltoolbar" class="ctoolbar">
+        <div id="showtodaybtn" class="fbutton">
+            <div><span title='Click to back to today ' class="showtoday">今天</span></div>
+        </div>
+        <div id="showdaybtn" class="fbutton">
+            <div><span title='Day' class="showdayview">日</span></div>
+        </div>
+        <div  id="showweekbtn" class="fbutton fcurrent">
+            <div><span title='Week' class="showweekview">周</span></div>
+        </div>
+        <div  id="showmonthbtn" class="fbutton">
+            <div><span title='Month' class="showmonthview">月</span></div>
+        </div>
+        <div  id="showreflashbtn" class="fbutton">
+            <div><span title='Refresh view' class="showdayflash">刷新</span></div>
+        </div>
+        <div id="sfprevbtn" title="Prev"  class="fbutton">
+            <span class="fprev"></span>
+        </div>
+        <div id="sfnextbtn" title="Next" class="fbutton">
+            <span class="fnext"></span>
+        </div>
+        <div class="fshowdatep fbutton">
+            <div>
+                <input type="hidden" name="txtshow" id="hdtxtshow" />
+                <span id="txtdatetimeshow">Loading</span>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+</div>
+<div style='border:1px solid #D3D3D3;border-top:0;'>
+	<div>
+        <div class="t1 chromeColor">&nbsp;</div>
+        <div class="t2 chromeColor">&nbsp;</div>
+        <div id="dvCalMain" class="calmain printborder">
+            <div id="gridcontainer" style="overflow-y: visible;"></div>
+        </div>
+        <div class="t2 chromeColor"> &nbsp;</div>
+        <div class="t1 chromeColor">&nbsp;</div>
+    </div>	  
+</div>
+}

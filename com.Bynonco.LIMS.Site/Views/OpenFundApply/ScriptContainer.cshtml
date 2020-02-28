@@ -1,0 +1,256 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var openFundApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetOpenFundApplyPrivilige(User.Identity.Name);}
+<div id="divOpenFundApplyDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doApplySearch() {
+        var queryExpression = generateApplyQueryExpress();
+        if($(".tabs").find("li.tabs-selected").length > 0)
+        {
+            var status = $(".tabs").find("li.tabs-selected").attr("status");
+            if(status != undefined && status != '') 
+            {
+                var str = status.split(",");
+                var statusQyeryExpression = "";
+                for (i=0; i < str.length; i++ )   
+                {   
+                    statusQyeryExpression += (statusQyeryExpression == "" ? "" :"+") + "Status=\"" + str[i] + "\""; 
+                } 
+                if(statusQyeryExpression != "") queryExpression += (queryExpression == "" ? "" : "*") + "(" + statusQyeryExpression + ")";  
+            }
+        }
+        $("#tbOpenFundApplyList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbOpenFundApplyList").datagrid("load", { "queryExpression": queryExpression.trim()});
+        return false;
+    }
+    var openFundApplyDialog;
+    function doOpenFundApplyDialog() {
+        if (openFundApplyDialog) {
+            openFundApplyDialog.dialog("destroy");
+        }
+        openFundApplyDialog = @Html.JDialog("divOpenFundApplyEdit").SetTitle("开放基金申请单信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("openFundApplyDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSave();").ToMvcString();
+    }
+    function doAuditOpenFundApplyDialog() {
+        if (openFundApplyDialog) {
+            openFundApplyDialog.dialog("destroy");
+        }
+        openFundApplyDialog =  @(Html.JDialog("divOpenFundApplyEdit")
+            .SetTitle("开放基金申请单信息")
+            .AddButton(new ToolBarButton() { Handler = "doAuditPassOpenFundApply();return false;", Id = "btnAuditPassOpenFundApply", Text = "审核通过", IconCls = "icon-pass",Disabled = !openFundApplyPrivilige.IsEnableAudit })
+            .AddButton(new ToolBarButton() { Handler = "doAuditRejectOpenFundApply();return false;", Id = "btnAuditRejectOpenFundApply", Text = "审核不通过", IconCls = "icon-reject",Disabled = !openFundApplyPrivilige.IsEnableAudit })
+            .SetIconCls("icon-save")
+            .SetAutoDialog(false)
+            .SetShowOkButton(false)
+            .SetCancelScript("openFundApplyDialog.dialog('destroy');return false;")
+            .SetModal(true).ToMvcString());
+    }
+    function doAuditOpenFundApply(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedOpenFundApply = $("#tbOpenFundApplyList").datagrid("getSelected");
+           if(!selectedOpenFundApply || selectedOpenFundApply.Id=="" || selectedOpenFundApply.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择开放基金申请单", showType: 'show' });
+              return false;
+           }
+           id = selectedOpenFundApply.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Audit","OpenFundApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divOpenFundApplyDialog").load(url,function(){
+            doAuditOpenFundApplyDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAuditPassOpenFundApply()
+    {
+        var url = '@Url.Action("AuditPass","OpenFundApply")'
+        if(doCheckOpenFundApplyInfo()) 
+            doSaveOpenFundApply(url)
+    }
+    function doAuditRejectOpenFundApply()
+    {
+        var url = '@Url.Action("AuditReject","OpenFundApply")'
+        doSaveOpenFundApply(url)
+    }
+    function doBalanceOpenFundApplyDialog() {
+        if (openFundApplyDialog) {
+            openFundApplyDialog.dialog("destroy");
+        }
+        openFundApplyDialog =  @(Html.JDialog("divOpenFundApplyEdit")
+            .SetTitle("开放基金申请单结算")
+            .AddButton(new ToolBarButton() { Handler = "doBalanceClosed();return false;", Id = "btnBalanceClosed", Text = "结算", IconCls = "icon-yen",Disabled = !openFundApplyPrivilige.IsEnableBalance })
+            .SetIconCls("icon-save")
+            .SetAutoDialog(false)
+            .SetShowOkButton(false)
+            .SetCancelScript("openFundApplyDialog.dialog('destroy');return false;")
+            .SetModal(true).ToMvcString());
+    }
+    function doBalanceOpenFundApply(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedOpenFundApply = $("#tbOpenFundApplyList").datagrid("getSelected");
+           if(!selectedOpenFundApply || selectedOpenFundApply.Id=="" || selectedOpenFundApply.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择开放基金申请单", showType: 'show' });
+              return false;
+           }
+           id = selectedOpenFundApply.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Balance","OpenFundApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divOpenFundApplyDialog").load(url,function(){
+            doBalanceOpenFundApplyDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doBalanceClosed()
+    {
+        var url = '@Url.Action("BalanceClosed","OpenFundApply")'
+        $.messager.confirm('提示', '是否确定结算?', function (r) {
+            doSaveOpenFundApply(url);
+        });
+
+    }
+    function doAddOrEditOpenFundApply(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Edit","OpenFundApply")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divOpenFundApplyDialog").load(url,function(){
+            doOpenFundApplyDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAddOpenFundApply(id) {
+       doAddOrEditOpenFundApply(id);
+    }
+    function doEditOpenFundApply(id) {
+       if(!id || id.trim()==""){
+           var selectedOpenFundApply = $("#tbOpenFundApplyList").datagrid("getSelected");
+           if(!selectedOpenFundApply || selectedOpenFundApply.Id=="" || selectedOpenFundApply.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择开放基金申请单", showType: 'show' });
+              return false;
+           }
+           id = selectedOpenFundApply.Id;
+       }
+       doAddOrEditOpenFundApply(id);
+    }
+    function doSave()
+    {
+        if(doCheckOpenFundApplyInfo()) 
+            doSaveOpenFundApply()
+    }
+    function doCheckOpenFundApplyInfo(){
+        if($("#ApplyNum").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"申请单号为空", showType: 'show' });;
+          return false;
+        }
+        if($("#UserId").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"申请人为空", showType: 'show' });;
+          return false;
+        }
+        if($("#ApplyTime").datetimebox("getValue") == ""){
+          $.messager.show({ title: '提示', msg:"申请时间为空", showType: 'show' });;
+          return false;
+        }
+        if($("#EquipmentIds").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"开放基金明细为空", showType: 'show' });;
+          return false;
+        }
+        return true;
+   }
+   function doSaveOpenFundApply(url){
+        if(!url || url.trim() == "")
+        {
+            url = '@Url.Action("Save","OpenFundApply")';
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmOpenFundApplyEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                openFundApplyDialog.dialog('destroy');
+                doApplySearch();
+            }
+        });
+   }
+   function doDeleteOpenFundApply(id){
+        if(!id || id.trim() == ""){
+              var selectedOpenFundApply = $("#tbOpenFundApplyList").datagrid("getSelected");
+                if(!selectedOpenFundApply || selectedOpenFundApply.Id.trim() == "" || selectedOpenFundApply.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的领用单", showType: 'show' });
+                    return false;
+                }
+                id = selectedOpenFundApply.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "OpenFundApply")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doApplySearch();
+                }
+            });
+        });
+        return false;
+   }
+
+    var openFundApplyViewInfoDialog;
+    function doOpenFundApplyViewInfoDialog() {
+        if (openFundApplyViewInfoDialog) {
+            openFundApplyViewInfoDialog.dialog("destroy");
+        }
+        openFundApplyViewInfoDialog =  @Html.JDialog("divOpenFundApplyViewInfo").SetTitle("开放基金申请单信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("openFundApplyViewInfoDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doShowOpenFundApplyInfo(id){
+        if(!id || id.trim()==""){
+            var selectedOpenFundApply = $("#tbOpenFundApplyList").datagrid("getSelected");
+            if(!selectedOpenFundApply || selectedOpenFundApply.Id=="" || selectedOpenFundApply.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择开放基金信息", showType: 'show' });
+                return false;
+            }
+            id = selectedOpenFundApply.Id;
+        }
+        var url = '@Url.Action("ViewInfo", "OpenFundApply")'+ "?id=" + id;;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divOpenFundApplyDialog").load(url,function(){
+            doOpenFundApplyViewInfoDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doExportExcel(){
+        var queryExpression = generateApplyQueryExpress();
+        if($(".tabs").find("li.tabs-selected").length > 0)
+        {
+            var status = $(".tabs").find("li.tabs-selected").attr("status");
+            if(status != undefined && status != '') 
+            {
+                var str = status.split(",");
+                var statusQyeryExpression = "";
+                for (i=0; i < str.length; i++ )   
+                {   
+                    statusQyeryExpression += (statusQyeryExpression == "" ? "" :"+") + "Status=\"" + str[i] + "\""; 
+                } 
+                if(statusQyeryExpression != "") queryExpression += (queryExpression == "" ? "" : "*") + "(" + statusQyeryExpression + ")";  
+            }
+        }
+        var url = '@Url.Action("ExportExcel", "OpenFundApply")?queryExpression=' + encodeURIComponent(queryExpression.trim());
+        window.open(url);
+        return false;
+    }
+
+</script>

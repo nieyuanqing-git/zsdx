@@ -1,0 +1,27 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Partial("AnimalDeathRegisterStatisticsSearch")
+<div id="divAnimalDeathRegisterStatisticsContainer"></div>
+<div id="divAnimalDeathRegisterStatisticsDialog" style="display:none;"></div>
+<script type="text/javascript">
+    function doAnimalDeathRegisterStatisticsDetail() {
+        var beginDate = $("#beginDate").datebox("getValue");
+        var endDate = $("#endDate").datebox("getValue");
+        var url = '@Url.Action("AnimalDeathRegisterStatisticsDetailContainer")' + "?time=" + new Date().getMilliseconds();
+        $("#divAnimalDeathRegisterStatisticsContainer").load(url, { "beginDate": beginDate, "endDate": endDate }, function (data) {
+        });
+    }
+    var animalDeathRegisterStatisticsDetailDialog;
+    function doShowAnimalDeathRegisterStatisticsDetail(beginDate,endDate, ownerId,animalCategoryId,registerDeathOperatorId,isNotice) {
+        if(animalDeathRegisterStatisticsDetailDialog) animalDeathRegisterStatisticsDetailDialog.dialog('destroy');
+        var url = '@Url.Action("AnimalDeathRegisterStatisticsDetailInfoContainer","AnimalStatistics")' + "?time=" + new Date().getMilliseconds().toString();
+        var data = {"beginDate":beginDate,"endDate":endDate,"ownerId":ownerId,"animalCategoryId":animalCategoryId,"registerDeathOperatorId":registerDeathOperatorId,"isNotice":isNotice};  
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAnimalDeathRegisterStatisticsDialog").load(url,data,function () {
+            $.messager.progress('close');
+            animalDeathRegisterStatisticsDetailDialog = @(Html.JDialog("divAnimalDetail").SetTitle("实验动物死亡登记明细信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("animalDeathRegisterStatisticsDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("animalDeathRegisterStatisticsDetailDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    $(function(){
+        doAnimalDeathRegisterStatisticsDetail();
+    });
+</script>

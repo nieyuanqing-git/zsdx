@@ -1,0 +1,42 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var businessType = ViewData["BusinessType"] == null ? -1 : int.Parse(ViewData["BusinessType"].ToString());
+    Guid? businessId = null;
+    if (ViewData["BusinessId"] != null) { businessId = new Guid(ViewData["BusinessId"].ToString()); }
+    Guid? trainningExaminationId = null;
+    if (ViewData["TrainningExaminationId"] != null) { trainningExaminationId = new Guid(ViewData["TrainningExaminationId"].ToString()); }
+}
+<div id="TrainningMaterialList"></div>
+<div class="edit-operate" style='padding-left:0;'>
+    @Html.JLinkButton("btnStartTesting", "开始考试").SetIconCls("icon-examination").SetPlain(false).SetOnclick("doStartTesting('" + businessType + "','" + (businessId.HasValue ? businessId.Value.ToString() : "") + "','" + (trainningExaminationId.HasValue ? trainningExaminationId.Value.ToString() : "") + "');return false;").ToMvcString()
+    @Html.JLinkButton("btnBackToExamination", "返回").SetIconCls("icon-back").SetPlain(false).SetOnclick("doRelaodUserExamination('" + businessType + "','" + (businessId.HasValue ? businessId.Value.ToString() : "") + "');return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    var perPageSize = 1;
+    var myMaterialReadingTime;
+    function doSelectPage(pageNumber, pageSize) {
+        var pageNumber = $('#PageTrainningMaterialList').pagination("options").pageNumber;
+        var pageSize = $('#PageTrainningMaterialList').pagination("options").pageSize;
+        doLoadTrainningMaterialList(pageNumber, pageSize);
+        return false;
+        if (typeof (MaterialReadingTimeSave) == 'function') MaterialReadingTimeSave();
+    }
+    function doLoadTrainningMaterialList(pageNumber, pageSize) {
+        if ($("#TrainningMaterialList").length > 0) {
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("ReadMaterial", "UserExamination")',
+                data: "BusinessType=" + '@businessType' + "&BusinessId=" + '@businessId' + "&TrainningExaminationId=" + '@trainningExaminationId' + "&page=" + pageNumber + "&rows=" + pageSize + "&date=" + new Date(),
+                success: function (data) {
+                    $.messager.progress('close');
+                    $("#TrainningMaterialList").html(data);
+                    return false;
+                }
+            });
+        }
+    }
+    $(function(){
+        doLoadTrainningMaterialList(1, perPageSize)
+    });
+</script>

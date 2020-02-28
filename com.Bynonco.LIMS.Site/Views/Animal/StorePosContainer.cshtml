@@ -1,0 +1,67 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{    
+    var cageId = (Guid?)ViewData["AnimalCageId"];
+    int? cageRowNo = (int?)ViewData["AnimalCageRowNo"];
+    int? cageColNo = (int?)ViewData["AnimalCageColNo"];
+ }
+<script type="text/javascript">
+    function doOnFrameSelectedCallBack(id) {
+        $("#searchStoreLabRoomList").combotree("setValue", id);
+    }
+    function doOnAnimalStoreNodeSelectedCallBack(id) {
+        $("#divAnimalCageContainerTip").css("display", "none");
+        $("#divAnimalCageContainer").css("display", "none");
+        $("#divAnimalCageContainer").html("");
+        $("#divAnimalFrameContainerTip").css("display", "none");
+        $("#divAnimalFrameContainer").css("display", "none");
+        $("#divAnimalFrameContainer").html("");
+        var isCage = $("ul.tree li ul li div.tree-node-selected span.icon-chartpie").length > 0;
+        var isFrame = $("ul.tree li ul li div.tree-node-selected span.icon-equipmentcategory").length > 0;
+        if (isCage) {
+            $("#divAnimalCageContainerTip").css("display", "block");
+            $("#divAnimalCageContainer").css("display", "block");
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("StoreCageContainer", "Animal")' + "?time=" + new Date().getMilliseconds().toString(),
+                data: { "cageId": id, "curCageId": '@(cageId.HasValue ? cageId.Value.ToString() : "")', "cageRowNo": '@(cageRowNo.HasValue ? cageRowNo.Value.ToString() : "")', "cageColNo": '@(cageColNo.HasValue ? cageColNo.Value.ToString() : "")' },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $("#divAnimalCageContainer").html(msg);
+                }
+            });
+        }
+        if (isFrame) {
+            $("#divAnimalFrameContainerTip").css("display", "block");
+            $("#divAnimalFrameContainer").css("display", "block");
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("StoreFrameContainer", "Animal")' + "?time=" + new Date().getMilliseconds().toString(),
+                data: { "frameId": id },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $("#divAnimalFrameContainer").html(msg);
+                }
+            });
+        }
+    }
+</script>
+<div id="divAnimalStorePosContainer" style="width:1000px;height:580px;">
+    <div id="divStoreLabRoomList">
+       请选择笼位:@Html.JComboTree("searchStoreLabRoomList").SetValue(ViewData["AnimalCageId"] != null ? ViewData["AnimalCageId"].ToString() : "").SetMultiple(false).SetOnSelect("doOnAnimalStoreNodeSelectedCallBack(node.id);").SetData(ViewData["StoreLabRoomListJson"]).SetWidth(305).ToMvcString()
+    </div>
+    <div id="divAnimalCageContainer"  style="height:650px; margin-top:5px;clear:both; width:950px;display:none;">
+    </div>
+    <div id="divAnimalFrameContainer"  style="height:650px; margin-top:5px;clear:both; width:950px;display:none;">
+    </div>
+
+</div>

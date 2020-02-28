@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+    
+    var doorPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDoorPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbDoorAccessRecordList")
+        .SetUrl(Url.Action("GetGridViewDoorAccessRecordList", "Door"))
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetHeight(650)
+        .SetPageSize(20)
+        .SetSortName("OptTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("门", "DoorName").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerOrgName, "DoorOrgName").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作", "OperationStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("进出", "StatusStr").SetWidth(50).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("时间", "OptTimeStr").SetWidth(110).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作人", "UserName").SetWidth(90).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("卡号", "CardStr").SetWidth(110).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "TutorName").SetWidth(90).SetAlign(Align.center));
+    dataGrid.SetShowExpertButton(doorPrivilige.IsEnableDoorAccessRecordExportExcel);
+    if (doorPrivilige.IsEnableDoorAccessRecordExportExcel)
+    {
+        dataGrid.SetExpertScript("doDoorAccessRecordExcel();");
+    }
+ }
+@(dataGrid.ToMvcString())

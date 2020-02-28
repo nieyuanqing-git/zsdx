@@ -1,0 +1,25 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@{
+    Layout = ViewBag.Layout;
+    var sampleRoleStr = ViewData["SampleRoleStr"].ToString();
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../SampleManage/SampleDepositRecordSearch")</div>
+</div>
+<div>@Html.Partial("../SampleManage/SampleDepositRecordList")</div>
+<div style="display:none">@Html.Partial("../DepositRecord/ScriptContainer")</div>
+<div style="display:none">@Html.Partial("../SampleManage/SampleApplyScriptContainer")</div>
+<script type="text/javascript">
+    var sampleRoleStr = "@sampleRoleStr";
+    function doSearch(){
+        var queryExpression = generateQueryExpress();
+        $("#tbSampleDepositRecordList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleDepositRecordList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+    function depositCallBack(){
+        doSearch();
+    }
+</script>

@@ -1,0 +1,72 @@
+﻿@model com.Bynonco.LIMS.Model.TemperatureHumiditySetup
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divTemperatureHumiditySetupEdit">
+ <form id="frmTemperatureHumiditySetupEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("TemperatureHumiditySetupId", ViewData["TemperatureHumiditySetupId"] == null ? "" : ViewData["TemperatureHumiditySetupId"].ToString())
+    @Html.Hidden("ControllerType", ViewData["ControllerType"] == null ? "" : ViewData["ControllerType"].ToString())
+    @Html.Hidden("EquipmentId", ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString())
+    <table id="tdCountryEdit" class="edit-table"  style="width:385px;">
+        <tr>
+            <th>仪器名称</th>
+            <td id="tdName">
+                 @Html.JValidateBox("Name").SetValue(ViewData["Name"] == null ? "" : ViewData["Name"].ToString()).SetReadOnly(true).SetWidth(240).ToMvcString()   
+            </td>
+        </tr>
+        <tr>
+            <th>资产编号</th>
+            <td id="tdLabel">
+                 @Html.JValidateBox("Label").SetValue(ViewData["Label"] == null ? "" : ViewData["Label"].ToString()).SetReadOnly(true).SetWidth(240).ToMvcString()   
+            </td>
+        </tr>
+        <tr>
+            <th>型号</th>
+            <td id="tdModel">
+                 @Html.JValidateBox("Model").SetValue(ViewData["Model"] == null ? "" : ViewData["Model"].ToString()).SetReadOnly(true).SetWidth(240).ToMvcString()   
+            </td>
+        </tr>        
+        <tr>
+            <th>温度下限</th>
+            <td>                
+                @Html.JValidateBox("LowerTemperature").SetValue(Model == null ? "" : Model.LowerTemperature.ToString()).SetWidth(200).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的温度").ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>温度上限</th>
+            <td>
+                @Html.JValidateBox("UpperTemperature").SetValue(Model == null ? "" : Model.UpperTemperature.ToString()).SetWidth(200).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的温度").ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>温度波动值</th>
+            <td>
+                @Html.JValidateBox("OffsetTemperature").SetValue(Model == null ? "" : Model.OffsetTemperature.ToString()).SetWidth(200).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的温度").ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>湿度下限</th>
+            <td>
+                @Html.JValidateBox("LowerHumidity").SetValue(Model == null ? "" : Model.LowerHumidity.ToString()).SetWidth(200).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的湿度").ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>湿度上限</th>
+            <td>
+                @Html.JValidateBox("UpperHumidity").SetValue(Model == null ? "" : Model.UpperHumidity.ToString()).SetWidth(200).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的湿度").ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>湿度波动值</th>
+            <td>
+                @Html.JValidateBox("OffsetHumidity").SetValue(Model == null ? "" : Model.OffsetHumidity.ToString()).SetWidth(200).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的湿度").ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>      
+    </table>
+  </form>
+</div> 

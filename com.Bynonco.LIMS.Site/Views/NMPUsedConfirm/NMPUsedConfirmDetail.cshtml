@@ -1,0 +1,161 @@
+﻿@model com.Bynonco.LIMS.Model.NMPUsedConfirm
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var chargeStandard = ViewData["ChargeStandard"] == null ? null : (com.Bynonco.LIMS.Model.NMPChargeStandard)ViewData["ChargeStandard"];
+    var calcFeeTimeRule = ViewData["CalcFeeTimeRule"] == null ? null : (NMPCalcFeeTimeRule)ViewData["CalcFeeTimeRule"];
+    var costDeduct = ViewData["CostDeduct"] == null ? null : (CostDeduct)ViewData["CostDeduct"];
+    var isHasCharged = costDeduct != null;
+ }
+<div id="divNMPUsedConfirmDetail" style="overflow-x:hidden;height:450px;">
+    <table class="edit-table" style="width:400px;height:450px;">
+        <tr>
+            <th colspan="2"><b>基本信息</b></th>
+        </tr>
+        <tr>
+            <th>使用者</th>
+            <td>@Model.User.UserName</td>
+        </tr>
+        <tr>
+            <th>付费方式</th>
+            <td>@Model.PaymentMethodEnum.ToCnName()</td>
+        </tr>
+        <tr>
+            <th>工位名称</th>
+            <td>@Model.NMPEquipment.NMP.Name</td>
+        </tr>
+        <tr>
+            <th>设备名称</th>
+            <td>@Model.NMPEquipment.Name</td>
+        </tr>
+        <tr>
+            <th>放置地点</th>
+            <td>@(Model.NMPEquipment.NMP.GetLabRoom() == null ? "" : Model.NMPEquipment.NMP.GetLabRoom().Name)</td>
+        </tr>
+        <tr>
+            <th>课题组</th>
+            <td>@Model.Subject.Name</td>
+        </tr>
+        <tr>
+            <th>项目名称</th>
+            <td>@(Model.SubjectProject != null ? Model.SubjectProject.Name : "")</td>
+        </tr>
+        <tr>
+            <th>预约时间 </th>
+            <td>
+                @if (Model.NMPAppointmentId.HasValue && Model.GetNMPAppointment() != null)
+                {
+                   @(Model.GetNMPAppointment().BeginTime.Value.ToString("yyyy-MM-dd HH:mm")
+                       + "~"
+                       + Model.GetNMPAppointment().EndTime.Value.ToString("yyyy-MM-dd HH:mm"))       
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>使用时间</th>
+            <td>
+                @(Model.BeginAt.Value.ToString("yyyy-MM-dd HH:mm:ss")
+                    + "～" +
+                 (Model.EndAt.HasValue ? Model.EndAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : ""))
+            </td>
+        </tr>
+        <tr>
+            <th>计费时长</th>
+            <td>@Model.DurationStr</td>
+        </tr>
+        <tr>
+            <th>计费标准</th>
+            <td>
+                @Model.UnitPriceStr
+            </td>
+        </tr>
+        <tr>
+            <th>计费时间规则</th>
+            <td>
+                @if (calcFeeTimeRule == null)
+                {
+                    @("未定义计费时间规则")
+                }
+                else
+                {
+                    @(!string.IsNullOrWhiteSpace(calcFeeTimeRule.ReadableExpression) ?
+                        calcFeeTimeRule.ReadableExpression :
+                        calcFeeTimeRule.Expression)
+                }
+            </td>
+        </tr>
+        @if (isHasCharged)
+        {
+            <tr>
+                <th>
+                    费用 
+                </th>
+                <td>
+                    @{   var str = "";
+                        if (costDeduct.RealCurrency.HasValue && costDeduct.RealCurrency.Value != 0) { str += (str == "" ? "" : ", ") + "真实币 : " + Math.Round(costDeduct.RealCurrency.Value, 2).ToString() + " 元"; }
+                        if (costDeduct.VirtualCurrency.HasValue && costDeduct.VirtualCurrency.Value != 0) { str += (str == "" ? "" : ", ") + "奖励币 : " + Math.Round(costDeduct.VirtualCurrency.Value, 2).ToString() + " 元"; }
+                        if (str == "") { str = "0元"; }
+                        @(str)
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    付费人
+                </th>
+                <td>@(costDeduct != null ? costDeduct.UserAccount.GetUser().UserName : "")</td>
+            </tr>
+            <tr>
+                <th>
+                    扣费时间
+                </th>
+                <td>@Model.CreateAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+            </tr>
+        }
+        else
+        {
+            <tr>
+                <th>
+                    未扣费原因
+                </th>
+                <td>@System.Web.Mvc.MvcHtmlString.Create((string.IsNullOrWhiteSpace(Model.WhyNotCostDeduct) ? "" : Model.WhyNotCostDeduct.ToHtmlBr()))</td>
+            </tr>
+        }
+        <tr>
+            <th>备注</th>
+            <td>@Model.Remark</td>
+        </tr>
+        @if (Model.FeedBack != null)
+        {
+            <tr>
+                <th colspan="2"><b>反馈信息</b></th>
+            </tr>
+            <tr>
+                <th>反馈时间</th>
+                <td>@Model.FeedBack.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+            </tr>
+            <tr>
+                <th>状态</th>
+                <td>@Model.FeedBack.StatusEnum.ToCnName()</td>
+            </tr>
+           
+            <tr>
+                <th>反馈内容</th>
+                <td>@Model.FeedBack.Remark</td>
+            </tr>
+        }
+        @if (Model.NMPUsedConfirmAddtionChargeItems != null && Model.NMPUsedConfirmAddtionChargeItems.Count > 0)
+        {
+            <th colspan="2"><b>附件费用</b></th>
+            foreach (var nmpUsedConfirmAddtionChargeItem in Model.NMPUsedConfirmAddtionChargeItems)
+            {
+                 <tr>
+                    <th>@nmpUsedConfirmAddtionChargeItem.GetNMPAdditionChargeItem().Name</th>
+                    <td>@(nmpUsedConfirmAddtionChargeItem.FeeStr) 元</td>
+                 </tr>
+            }
+        }
+    </table>
+</div>

@@ -1,0 +1,167 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var user = (User)ViewData["User"];
+    var viewEquipment = (com.Bynonco.LIMS.Model.View.ViewEquipment)ViewData["ViewEquipment"];
+    var chargeStandard = ViewData["ChargeStandard"] != null ? (com.Bynonco.LIMS.Model.ChargeStandard)ViewData["ChargeStandard"] : null;
+    var equipmentUseConditionList = ViewData["EquipmentUseConditionList"] != null ? (IList<EquipmentUseCondition>)ViewData["EquipmentUseConditionList"] : null;
+    var customer = CustomerFactory.GetCustomer();
+    var isSampleCountReqired = customer.GetIsAppointmentSampleAmountRequired() || (chargeStandard != null && chargeStandard.ChargeTypeEnum == com.Bynonco.LIMS.Model.Enum.ChargeType.BySampleCount);
+    var isShowSampleNo = customer.GetIsShowAppointmentSampleInfo();
+    var isShowSampleCount = customer.GetIsShowAppointmentSampleInfo() || isSampleCountReqired;
+    var isShowSampleTarget = customer.GetIsShowAppointmentSampleTarget();
+    var isShowSampleStuff = customer.GetIsShowAppointmentSampleStuff();
+    var isShowSampleSize = customer.GetIsShowAppointmentSampleSize();
+    var isAppointmentSubjectProjectRequired = customer.GetIsAppointmentSubjectProjectRequired();
+    var isEqAdmin = (bool)ViewData["IsEqAdmin"];
+    var isAppointmentEqAdminNeedSelectSampleApply = customer != null && customer.GetIsAppointmentEqAdminNeedSelectSampleApply() && isEqAdmin;
+    var equipmentTimeAppointmemtMode = (com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode)ViewData["EquipmentTimeAppointmemtMode"];
+    var appointmentInputSetting = (com.Bynonco.LIMS.Model.Business.AppointmentInputSetting)ViewData["AppointmentInputSetting"];
+ }
+ <script type="text/javascript">
+      function getSelectedSubjectProjectId() {return '';}
+      function doOnDataDictChangedCallBack(va) {}
+ </script>
+@Html.Partial("../Subject/LoadSubjectProjectScript")
+<style type="text/css">
+    #frmAppointmentUserRelativeInfo table tr th em{color:#FF0000; font-size:14px}
+</style>
+@if (equipmentTimeAppointmemtMode == com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.CommondCalendar)
+{
+    <p><span class="icon icon-detail"></span>用户预约基本信息</p>
+}
+<form id="frmAppointmentUserRelativeInfo">
+<table class='@(equipmentTimeAppointmemtMode == com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.CommondCalendar ? "edit-info" : "edit-table")' style='@(equipmentTimeAppointmemtMode== com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.DragableCalendar?"width:100%;":"")'>
+    <tr>
+        <th>
+            <span class="required">*</span>预约人
+        </th>
+        <td>@user.UserName</td>
+    </tr>
+    <tr>
+        <th>
+            <span class="required">*</span>课题组
+         </th>
+        <td>@Html.JComboBox("SubjectId").SetData(ViewData["SubjectJson"]).SetOnChange("doOnSubjectChanged(newValue, oldValue)").SetWidth(330).ToMvcString()</td>
+    </tr>
+    <tr>
+        <th>
+            @if (isAppointmentSubjectProjectRequired)
+            {
+                <span class="required">*</span>
+            }
+            @(ViewData["ProjectShowName"].ToString())
+         </th>
+        <td>
+            @Html.JComboBox("SubjectProjectId").SetWidth(330).ToMvcString()
+            @if (isAppointmentSubjectProjectRequired)
+            {   <br />
+                @:【
+                @(ViewData["ProjectShowName"].ToString()) 
+                @:】管理：课题组管理 - 项目信息 -新增|编辑
+            }
+        </td>
+    </tr>
+    <tr class='@(isShowSampleNo && !(isAppointmentEqAdminNeedSelectSampleApply) ? "" : "hide")'>
+        <th>样品编号</th>
+        <td>@Html.JValidateBox("SampleNo").SetWidth(325).ToMvcString()</td>
+    </tr>
+    @if (isAppointmentEqAdminNeedSelectSampleApply)
+    {
+         <tr>
+            <th><span class="required">*</span>样品编号</th>
+            <td id="tdSampleApplyId" style="padding-left:2px;">
+                <div class="float_l">
+                    <div style="float:left;">@Html.TokenInput("SampleApplyId").SetOnChange("doOnSelectSampleApplyChanged();").SetUrl(Url.Action("GetUnTestSampleApplyByTesterId", "SampleManage") + "?time=" + DateTime.Now.Millisecond + "&EquipmentId=" + viewEquipment.Id + "&TesterId=" + user.Id).ToMvcString()</div>
+                    @if (Model == null)
+                    {
+                        <div style="float:left;">@Html.JLinkButton("btnClearSampleApplyId", "").SetIconCls("icon-remove").SetPlain(true).SetOnclick("$('#SampleApplyId').tokenInput('clear');").ToMvcString()</div>
+                    }
+                    <div style="clear:both;"></div>
+                </div> 
+            </td>
+        </tr>
+    }
+    <tr class='@(isShowSampleCount ? "" : "hide")'>
+        <th>
+             @if (isSampleCountReqired)
+             {
+                <span class="required">*</span>
+             }
+             样品数
+        </th>
+        <td>@Html.JValidateBox("SampleCount").SetWidth(325).ToMvcString()</td>
+    </tr>
+    <tr class='@(isShowSampleStuff ? "" : "hide")'>
+        <th>样品材料</th>
+        <td>@Html.JValidateBox("SampleStuff").SetWidth(325).ToMvcString()</td>
+    </tr>
+    <tr class='@(isShowSampleSize ? "" : "hide")'>
+        <th>样品尺寸</th>
+        <td>@Html.JValidateBox("SampleSize").SetWidth(325).ToMvcString()</td>
+    </tr>
+    <tr class='@(isShowSampleTarget ? "" : "hide")'>
+        <th>样品目的</th>
+        <td>@Html.JValidateBox("Target").SetWidth(325).ToMvcString()</td>
+    </tr>
+    <tr>
+        <th>
+            @if (appointmentInputSetting.IsUseNatureRequired)
+            {
+                <span class="required">*</span>
+            }
+            使用性质
+        </th>
+        <td>@Html.JComboBox("UseNature").SetData(ViewData["UseNatureJson"]).SetWidth(330).ToMvcString()</td>
+    </tr>
+    <tr>
+        <th>
+            @if (appointmentInputSetting.IsExperimentContentRequired)
+            {
+                <span class="required">*</span>
+            }
+            实验内容
+        </th>
+        <td>@Html.TextArea("ExperimentationContent", "", new { rows = "6", cols = "70" })</td>
+    </tr>
+</table>
+<table class="edit-info">
+    @Html.Partial("../Equipment/EquipmentUseConditionContainer", equipmentUseConditionList)
+</table>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#tdSampleApplyId ul.token-input-list-facebook").attr("style", "width: 328px; height:32px !important;");
+    });
+    function doOnSelectSampleApplyChanged() {
+        $("#SampleCount").val("");
+        $("#SampleNo").val("");
+        $("#SampleStuff").val("");
+        $("#SampleSize").val("");
+        $("#Target").val("");
+        var sampleApplyId = $("#SampleApplyId").val().trim();
+        var testerId = '@user.Id';
+        if (sampleApplyId == "") return;
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetUnTestSampleApplyById","SampleManage")' + "?time=" + new Date().getMilliseconds(),
+            data: { "sampleApplyId": sampleApplyId, "testerId": testerId },
+            success: function (data) {
+                $.messager.progress("close");
+                if (data) {
+                    var sampleApplyDatas = eval("(" + data + ")");
+                    if (sampleApplyDatas.length > 0) {
+                        var sampleApplyData = sampleApplyDatas[0];
+                        $("#SampleCount").val(sampleApplyData.Quatity);
+                        $("#SampleNo").val(sampleApplyData.SampleNo);
+                        $("#SampleStuff").val(sampleApplyData.SampleStuff);
+                        $("#SampleSize").val(sampleApplyData.SampleSize);
+                        $("#Target").val(sampleApplyData.Target);
+                    }
+                }
+            }
+        });
+    }
+</script>

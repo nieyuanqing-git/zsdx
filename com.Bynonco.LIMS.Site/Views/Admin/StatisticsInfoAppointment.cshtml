@@ -1,0 +1,89 @@
+﻿@model com.Bynonco.LIMS.Model.Business.StatisticsInfo
+@if (Model != null && (Model.IsShowManageAppointment || Model.IsShowPersonalAppointment || Model.IsShowExperimenterSubjectAppointment))
+{
+    var showAppointmentDays = ViewData["ShowAppointmentDays"] == null ? 1 : int.Parse(ViewData["ShowAppointmentDays"].ToString());
+     
+    <table class="edit-info admin-statistics">
+        @if (Model.IsShowManageAppointment)
+        {
+        <tr>
+            <td class='col-first'><span class="icon icon-globe" title='管理相关' style='margin-right: 0;'>&nbsp;</span></td>
+            @if (Model.IsShowAppointmentToday)
+            {
+                <th><a href="#" onclick="doLoadAppointmentToday();return false;">@(showAppointmentDays == 1 ? "今天" : showAppointmentDays + "天内")的预约</a></th>
+                <td class='@(Model.IsShowMayMissAppointmentToday || Model.IsShowDoingAppointmentToday ? "" : "col-last")'>
+                    <a href="#" onclick="doLoadAppointmentToday();return false;">@Model.AppointmentToday</a>
+                </td>
+            }
+            @if (Model.IsShowDoingAppointmentToday)
+            {
+                <th><a href="#" onclick="doLoadDoingAppointmentToday();return false;">@(showAppointmentDays == 1 ? "今天" : showAppointmentDays + "天内")未开始的预约</a></th>
+                <td  class='@(Model.IsShowMayMissAppointmentToday ? "" : "col-last")'>
+                    <a href="#" onclick="doLoadDoingAppointmentToday();return false;">@Model.DoingAppointmentToday</a>
+                </td>
+            }
+            @if (Model.IsShowMayMissAppointmentToday)
+            {
+                <th><a href="#" onclick="doLoadMayMissAppointmentToday();return false;">@(showAppointmentDays == 1 ? "今天" : showAppointmentDays + "天内")可能爽约的预约</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadMayMissAppointmentToday();return false;">@Model.MayMissAppointmentToday</a>
+                </td>
+            }
+        </tr>
+        }
+        @if (Model.IsShowExperimenterSubjectAppointment)
+        {
+        <tr class='@(Model.IsShowManageAppointment ? "nofirst" : "")'>
+            <td class='col-first'><span class="icon icon-subject" title='课题组相关' style='margin-right: 0;'>&nbsp;</span></td>
+            @if (Model.IsShowExperimenterSubjectAppointmentToday)
+            {
+                <th><a href="#" onclick="doLoadExperimenterSubjectAppointmentToday();return false;">@(showAppointmentDays == 1 ? "今天" : showAppointmentDays + "天内")的预约</a></th>
+                <td class='@(Model.IsShowExperimenterSubjectMayMissAppointmentToday || Model.IsShowExperimenterSubjectDoingAppointmentToday ? "" : "col-last")'>
+                    <a href="#" onclick="doLoadExperimenterSubjectAppointmentToday();return false;">@Model.ExperimenterSubjectAppointmentToday</a>
+                </td>
+            }
+            @if (Model.IsShowExperimenterSubjectDoingAppointmentToday)
+            {
+                <th><a href="#" onclick="doLoadExperimenterSubjectDoingAppointmentToday();return false;">@(showAppointmentDays == 1 ? "今天" : showAppointmentDays + "天内")未开始的预约</a></th>
+                <td  class='@(Model.IsShowExperimenterSubjectMayMissAppointmentToday ? "" : "col-last")'>
+                    <a href="#" onclick="doLoadExperimenterSubjectDoingAppointmentToday();return false;">@Model.ExperimenterSubjectDoingAppointmentToday</a>
+                </td>
+            }
+            @if (Model.IsShowExperimenterSubjectMayMissAppointmentToday)
+            {
+                <th><a href="#" onclick="doLoadExperimenterSubjectMayMissAppointmentToday();return false;">@(showAppointmentDays == 1 ? "今天" : showAppointmentDays + "天内")可能爽约的预约</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadExperimenterSubjectMayMissAppointmentToday();return false;">@Model.ExperimenterSubjectMayMissAppointmentToday</a>
+                </td>
+            }
+        </tr>
+        }
+        @if (Model.IsShowPersonalAppointment)
+        {
+        <tr class='@(Model.IsShowManageAppointment || Model.IsShowExperimenterSubjectAppointment ? "nofirst" : "")'>
+            <td class='col-first'><span class="icon icon-user" title='个人相关' style='margin-right: 0;'>&nbsp;</span></td>
+                @if (Model.IsShowPersonalAppointmentToday)
+                {
+                <th><a href="#" onclick="doLoadPersonalAppointmentToday();return false;">@(showAppointmentDays == 1 ? "今天" : showAppointmentDays + "天内")的预约</a></th>
+                <td class='@(Model.IsShowPersonalMayMissAppointmentToday || Model.IsShowPersonalDoingAppointmentToday ? "" : "col-last")'>
+                    <a href="#" onclick="doLoadPersonalAppointmentToday();return false;">@Model.PersonalAppointmentToday</a>
+                </td>
+                }
+            @if (Model.IsShowPersonalDoingAppointmentToday)
+            {
+                <th><a href="#" onclick="doLoadPersonalDoingAppointmentToday();return false;">@(showAppointmentDays == 1 ? "今天" : showAppointmentDays + "天内")未开始的预约</a></th>
+                <td  class='@(Model.IsShowPersonalMayMissAppointmentToday ? "" : "col-last")'>
+                    <a href="#" onclick="doLoadPersonalDoingAppointmentToday();return false;">@Model.PersonalDoingAppointmentToday</a>
+                </td>
+            }
+            @if (Model.IsShowPersonalMayMissAppointmentToday)
+            {
+                <th><a href="#" onclick="doLoadPersonalMayMissAppointmentToday()">@(showAppointmentDays == 1 ? "今天" : showAppointmentDays + "天内")可能爽约的预约</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadPersonalMayMissAppointmentToday()">@Model.PersonalMayMissAppointmentToday</a>
+                </td>
+            }
+        </tr>
+        }
+    </table>
+}

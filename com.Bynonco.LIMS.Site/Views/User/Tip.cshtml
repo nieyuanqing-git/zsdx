@@ -1,0 +1,48 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUser
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+     #tbUserTip th{width:100px; text-align:center; padding-right:2px;font-size:12px; color:White;background-color:#666666}
+     #tbUserTip td{text-align:left; padding-left:2px;font-size:12px; width:200px}
+</style>
+
+@{
+    if(Model != null)
+    {
+        <table id="tbUserTip">
+            <tr>
+                <td style="width:60px; height:60px" >
+                    <img style="width:60px; height:60px;" src="@Model.IconPath"/>
+                </td>
+                <td colspan="2" style="font-weight:bold; text-align:left"> @(Model.Titile)</td>
+            </tr>
+            <tr>
+                <th>角色</th>
+                <td> @(Model.RoleNames)</td>
+            </tr>
+            <tr>
+                <th>
+                    邮箱
+                </th>
+                <td>
+                    @(Model.Email)
+                </td>
+            </tr>
+            <tr>
+                 <th>
+                    机构
+                </th>
+                <td>
+                    @Model.OrganizationName
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    联系电话
+                </th>
+                <td>
+                    @Model.PhoneNumber
+                </td>
+            </tr>
+        </table>
+    }
+}

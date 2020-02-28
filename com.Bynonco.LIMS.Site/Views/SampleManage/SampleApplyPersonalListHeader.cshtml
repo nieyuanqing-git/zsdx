@@ -1,0 +1,46 @@
+﻿@{
+    var isTurtor = ViewData["IsTurtor"] != null && (bool)ViewData["IsTurtor"] ? true : false;
+ }
+<div class="panel-header">
+    <div class="menu-type">
+        <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnShowAll" hidefocus="true" onclick="doShowAllPersonalSampleApply();return false;">
+            <span class="l-btn-left"><span class="l-btn-text icon-list-menu-current" style="padding-left: 20px;">全部</span></span>
+        </a>
+        <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnShowIcon" hidefocus="true" onclick="doShowPersonalSampleApply();return false;">
+            <span class="l-btn-left"><span class="l-btn-text icon-user icon-user-unselect" style="padding-left: 20px;">个人送样记录</span></span>
+        </a>
+        @if (isTurtor)
+        {
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnShowList" hidefocus="true" onclick="doShowTurtorSampleApply();return false;">
+                <span class="l-btn-left"><span class="l-btn-text icon-subject icon-subject-unselect" style="padding-left: 20px;">课题成员送样记录</span></span>
+            </a>
+        }
+    </div>
+    <div class="clear-both"></div>
+</div>
+<script type="text/javascript">
+    function doShowAllPersonalSampleApply() {
+        $("#btnShowAll span.l-btn-left span.l-btn-text").addClass("icon-list-menu-current");
+        $("#btnShowAll span.l-btn-left span.l-btn-text").removeClass("icon-list-menu");
+        $("#btnShowIcon span.l-btn-left span.l-btn-text").addClass("icon-user-unselect");
+        $("#btnShowList span.l-btn-left span.l-btn-text").addClass("icon-subject-unselect");
+        doQueryReset();
+        doSearch();
+    }
+    function doShowPersonalSampleApply() {
+        $("#btnShowAll span.l-btn-left span.l-btn-text").removeClass("icon-list-menu-current");
+        $("#btnShowAll span.l-btn-left span.l-btn-text").addClass("icon-list-menu");
+        $("#btnShowIcon span.l-btn-left span.l-btn-text").removeClass("icon-user-unselect");
+        $("#btnShowList span.l-btn-left span.l-btn-text").addClass("icon-subject-unselect");
+        doSetPersionalQuery();
+        doSearch();
+    }
+    function doShowTurtorSampleApply() {
+        $("#btnShowAll span.l-btn-left span.l-btn-text").removeClass("icon-list-menu-current");
+        $("#btnShowAll span.l-btn-left span.l-btn-text").addClass("icon-list-menu");
+        $("#btnShowIcon span.l-btn-left span.l-btn-text").addClass("icon-user-unselect");
+        $("#btnShowList span.l-btn-left span.l-btn-text").removeClass("icon-subject-unselect");
+        doSetSubejctExperimenterQuery();
+        doSearch();
+    }
+</script>

@@ -1,0 +1,127 @@
+@model com.Bynonco.LIMS.Model.Camera
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Layout = null;
+    var videoWidth = ViewData["VideoWidth"] == null || string.IsNullOrWhiteSpace(ViewData["VideoWidth"].ToString()) ? 640 : Int32.Parse(ViewData["VideoWidth"].ToString().Trim());
+    var videoHeight = ViewData["VideoHeight"] == null || string.IsNullOrWhiteSpace(ViewData["VideoHeight"].ToString()) ? 350 : Int32.Parse(ViewData["VideoHeight"].ToString().Trim());
+}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>视频监控</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="@Url.Content("~/Content/main.css")" type="text/css" media="screen" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/admin.css")" type="text/css" media="screen" />
+    <script src="@Url.Content("~/Scripts/jquery-1.7.2.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/MicrosoftAjax.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/MicrosoftMvcAjax.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.unobtrusive-ajax.js")" type="text/javascript"></script>
+    <!-- JqueryEasyUI -->
+    <link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/gray/easyui.css")" type="text/css" media="screen" />
+    <link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/icon.css")" type="text/css" media="screen" />
+	
+    <script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/jquery.easyui.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/locale/easyui-lang-zh_CN.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/locale/jquery.validateboxEx.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/commond.js")" type="text/javascript"></script>
+    <!--[if lte IE 6]>
+        <script src="@Url.Content("~/Scripts/DD_belatedPNG_0.0.8a.js")" type="text/javascript" ></script>
+        <script type="text/javascript">
+                DD_belatedPNG.fix('.inner-right, .icon, .tree-folder');
+        </script>
+    <![endif]-->
+    
+    @if (Model != null)
+    {
+    <script type="text/javascript">
+        var w = @videoWidth;
+        var h = @videoHeight;
+        var ip = '@(Model.IP)';
+        var port = '@(Model.Port)';
+        var loginName = 'admin';
+        var loginPW = '@(Model.AdminPassword)';
+        var rtsp;
+        var url = "http://" + ip + ":" + port;
+        function IniVideoLoad() {
+            rtsp = url + "/" + "iphone/11" + "?" + loginName + ":" + loginPW + "&";
+            if ((navigator.appVersion.indexOf("iPod") != -1) || (navigator.appVersion.indexOf("iPhone") != -1)) {
+                data = "<img src='" + url + "/tmpfs/auto.jpg' id='rimg12'>";
+                document.getElementById('divCameraVideo').innerHTML = data;
+            }
+            else {
+                if (navigator.appName.indexOf("Microsoft Internet Explorer") != -1) {
+                    try{
+                        var streamnum = DHiMPlayer.GetStreamNum();
+                        DHiMPlayer.SetUrl(url, 80, streamnum, loginName, loginPW);
+                        DHiMPlayer.SetWndPos(0, 0, w, h);
+                        DHiMPlayer.Play();
+                    }
+                    catch(e){}
+                }
+                else {
+                    h = h + 14;
+                    data = '<embed src=' + rtsp + ' width=' + w + ' height=' + h + ' autoplay="true" controller="true" ShowStatusBar="false" type="video/quicktime" pluginspage="http://www.apple.com/quicktime/download/index.html"> </embed>';
+                    document.getElementById('divCameraVideo').innerHTML = data;
+                }
+            }
+        }
+
+        function doSnapShot() {
+            DHiMPlayer.Snapshot();
+        }
+        function doRecVideo() {
+            var flag;
+            DHiMPlayer.Record(0);
+            flag = DHiMPlayer.GetRecordState();
+            if (flag == 0) {
+                $("#btnRecVideoStart").attr("style","display:none;");
+                $("#btnRecVideoEnd").attr("style","");
+            }
+            else {
+                $("#btnRecVideoStart").attr("style","");
+                $("#btnRecVideoEnd").attr("style","display:none;");
+            }
+        }
+        $(function()
+        {
+            IniVideoLoad();
+            $("#btnRecVideoEnd").attr("style","display:none;");
+
+        });
+    </script>
+    }
+</head>
+<body>
+    <div style="margin-bottom:10px;">
+        <a class="l-btn-color l-btn-color-blue" onclick="return false;" href="#" title='@(Model != null ? Model.Name : "")'>
+            @(Model != null ? Model.Name : "")
+        </a>
+        @(Html.JLinkButton("btnSnapShot", "拍照").SetIconCls("icon-photo").SetOnclick("doSnapShot();return false;").SetVisible(Model != null).SetPlain(false).ToMvcString())
+        @(Html.JLinkButton("btnRecVideoStart", "录像").SetIconCls("icon-rec").SetOnclick("doRecVideo();return false;").SetVisible(Model != null).SetPlain(false).ToMvcString())
+        @(Html.JLinkButton("btnRecVideoEnd", "停止录像").SetIconCls("icon-stop").SetOnclick("doRecVideo();return false;").SetVisible(Model != null).SetPlain(false).ToMvcString())
+    </div>
+
+    <div id="divCameraVideo">
+        <script type="text/JavaScript">
+            document.open();
+            if (navigator.appName.indexOf("Microsoft Internet Explorer") != -1) {
+            document.write('<object classid="clsid:42B182F9-3F08-484E-9913-07193A5D36A6" codebase="ENWebClientPlus.ocx#version=3,0,0,7" id="DHiMPlayer" align="absbottom" viewastext>');
+            document.write('    <p align="left" style="font-size:14px">');
+            document.write('        <span id="t5">警告信息显示如下：</span><br>');
+            document.write('        <span id="t6">1. 您的电脑没有安装浏览视频控件。<br>2. 您已经安装控件但版本是不最新，请重新安装控件。<br><br>请点击</span><a href="http://@(Model.IP + ":" + Model.Port)/web/ax912_EasyN.exe" id="t7">下载控件</a>');
+            document.write('        <span id="t8">然后点击</span> <b id="t9"> 运行</b> <span id="t10">安装控件，重新刷新网页，浏览视频。</span>');
+            document.write('    </p>');
+            document.write('    <param name="_Version" value="65536" /> ');
+            document.write('    <param name="_ExtentX" value="10954" /> ');
+            document.write('    <param name="_ExtentY" value="6826" />');
+            document.write('    <param name="_StockProps" value="0" />');
+            document.write('    <embed src="" _version="65536" _extentx="10954" _extenty="6826" _stockprops="0" align="center" height="0" width="0"> ');
+            document.write('</object>');
+            }
+            document.close();
+	    </script>	
+    </div>
+</body>
+</html>

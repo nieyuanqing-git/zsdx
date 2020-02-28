@@ -1,0 +1,21 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{    
+    var workGroupId = ViewData["WorkGroupId"] == null ? "" : ViewData["WorkGroupId"].ToString();
+ }
+
+ <div id="divViewWorkGroupUserList" style="width:895px;height:630px;overflow:hidden">   
+    <div>@Html.Partial("../WorkGroup/ViewWorkGroupUserList")</div>
+    @*<div style="display">@Html.Partial("../Appointment/ScriptContainer")</div>*@
+</div>
+
+<script type="text/javascript">    
+    var workGroupUserListDialog;
+    function doShowWorkGroupUserListDialog()
+    {
+         if (workGroupUserListDialog) {
+            workGroupUserListDialog.dialog("destroy");
+        }
+        workGroupUserListDialog = @(Html.JDialog("divViewWorkGroupUserList").SetTitle("查看成员").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("workGroupUserListDialog.dialog('close');return false;").SetModal(true).SetOkScript("workGroupUserListDialog.dialog('close');return false;").SetTitle("查看成员").SetIconCls("icon-save").SetAutoDialog(false).ToMvcString());
+        $("div.panel-title").text("查看成员");
+    }
+</script>

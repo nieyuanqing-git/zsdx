@@ -1,0 +1,50 @@
+﻿@model com.Bynonco.LIMS.Model.UserExamination
+@using com.Bynonco.JqueryEasyUI.Core;
+
+<div id="divUserExaminationEdit" style="width:385px;"> 
+    <form id="frmUserExaminationEdit" action="#">
+        @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+        <table id="tbUserExaminationEdit" class="edit-table" >
+            <tr>
+                <th>考生姓名</th>
+                <td colspan="3">@(Model == null ? "" : Model.User.UserName)</td>
+            </tr>
+            <tr>
+                <th>试卷名称</th>
+                <td  colspan="3">@(Model == null ? "" : Model.Name)</td>
+            </tr>
+            <tr>
+                <th>考题数量</th>
+                <td>@(Model == null || !Model.QuestionCount.HasValue ? "" : Model.QuestionCount.Value.ToString())</td>
+                <th>总分</th>
+                <td>@(Model == null || !Model.TotalTime.HasValue ? "" : Model.TotalTime.Value.ToString())</td>
+            </tr>
+            <tr>
+                <th>考生得分</th>
+                <td>@(Model == null || !Model.UserScore.HasValue ? "" : Model.UserScore.Value.ToString())</td>
+                <th>正确率</th>
+                <td>@(Model == null ? "" : Model.AccuracyStr)</td>
+            </tr>
+            <tr>
+                <th>通过条件</th>
+                <td>@(Model == null ? "" : Model.PassStandardStr)</td>
+                <th>是否通过</th>
+                <td>@(Model == null ? "" : Model.IsPassStr)</td>
+            </tr>
+            <tr>
+                <th>开考时间</th>
+                <td>@(Model == null ? "" : Model.StartTimeStr)</td>
+                <th>结束时间</th>
+                <td>@(Model == null ? "" : Model.EndTimeStr)</td>
+            </tr>
+            <tr>
+                <th>状态</th>
+                <td>@(Model == null ? "" : Model.StatusStr)</td>
+                <th>是否停用</th>
+                <td>
+                    @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+                </td>
+            </tr>
+        </table>
+      </form>
+</div>

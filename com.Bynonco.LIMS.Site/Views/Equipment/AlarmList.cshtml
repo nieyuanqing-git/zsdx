@@ -1,0 +1,42 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEquipmentAlarmList")
+       .SetHeight(650)
+       .SetSortName("OptTime")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(20)
+       .SetMutiSelect(true)
+       .SetSingleSelect(false)
+       .SetShowPrintButton(false);
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.SetShowRefreshButton(false);
+    dataGrid.SetShowSearchButton(true);
+    dataGrid.SetSearchScript("doShowSearch();");
+    if (equipmentPrivilige.IsEnableAlarmOpen)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSetEquipmentAlarmOpen('');", IconCls = "icon-alarm", Id = "btnSetEquipmentAlarmOpen", Text = "开启警告" });
+    }
+    if (equipmentPrivilige.IsEnableAlarmOpen)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSetEquipmentAlarmCloesd('');", IconCls = "icon-unalarm", Id = "btnSetEquipmentAlarmCloesd", Text = "关闭警告" });
+    }
+    if (equipmentPrivilige.IsEnableAlarmDelete)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDeleteEquipmentAlarm('');", IconCls = "icon-cancel", Id = "btnDeleteEquipmentAlarm", Text = "删除" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doEquipmentAlarmSearch();", IconCls = "icon-reload", Id = "btnEquipmentAlarmSearch", Text = "刷新" });
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("资产编号", "Label").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("持续开机", "IntervalStr").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusNickName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("警告时间", "OptTimeStr").SetWidth(130).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所属机构", "EquipmentOrgName").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(120).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

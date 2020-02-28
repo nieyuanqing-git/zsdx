@@ -1,0 +1,73 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var equipmentPrivilige = equipmentId == "" ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,new Guid(equipmentId));
+}
+<div id="divEquipmentBrokenReportDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEquipmentBrokenReportSearch() {
+        var queryExpression = generateBrokenReportQueryExpress();
+        $("#tbEquipmentBrokenReportList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentBrokenReportList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        return false;
+    }
+    function doEditEquipmentBrokenReport(){
+        var selectedRow = $("#tbEquipmentBrokenReportList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        doAddOrEditEquipmentBrokenReport(selectedRow.Id);
+    }
+    function doAddOrEditEquipmentBrokenReport(id) {
+        var equipmentId = '@equipmentId';
+        var url = '@Url.Action("EditBrokenReport","Equipment")' + "?id=" + id + "&EquipmentId=" + equipmentId +  "&date=" + new Date().getMilliseconds();
+        $("#divEquipmentBrokenReportDialog").load(url, function (data) {
+            doEquipmentBrokenReportDialog();
+        })
+        return false;
+    }
+    var equipmentBrokenReportDialog;
+    function doEquipmentBrokenReportDialog() {
+        if (equipmentBrokenReportDialog) {
+            equipmentBrokenReportDialog.dialog("destroy");
+        }
+        equipmentBrokenReportDialog =  @(Html.JDialog("divEquipmentBrokenReportEdit")
+        .SetTitle("设备故障报告信息")
+        .SetIconCls("icon-save")
+        .SetAutoDialog(false)
+        .SetCancelScript("equipmentBrokenReportDialog.dialog('destroy');return false;")
+        .SetModal(true)
+        .SetShowOkButton(equipmentPrivilige.IsEnableSaveBrokenReport)
+        .SetOkScript(equipmentPrivilige.IsEnableSaveBrokenReport ? "doSaveEquipmentBrokenReport();return false;" : "")
+        .ToMvcString());
+    }
+    function doDeleteEquipmentBrokenReport(){
+        var selectedRows = $('#tbEquipmentBrokenReportList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteBrokenReport","Equipment")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doEquipmentBrokenReportSearch();
+                    }
+                });
+            });
+        }
+    }
+</script>

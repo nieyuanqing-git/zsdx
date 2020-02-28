@@ -1,0 +1,37 @@
+﻿@model com.Bynonco.LIMS.Model.WorkGroup
+@using com.Bynonco.JqueryEasyUI.Core;
+
+<div id="divWorkGroupView" style="width:385px;height:500px;"> 
+    <form id="frmWorkGroupView" action="#">
+        <table id="tbWorkGroupView" class="edit-table" style="width:100%">
+            <tr>
+                <th>名称</th>
+                <td>
+                    @Html.JValidateBox("ViewName").SetValue(Model == null ? "" : Model.Name).SetWidth(250).SetDisabled(true).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>助记符</th>
+                <td>
+                    @Html.JValidateBox("ViewInputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(250).SetDisabled(true).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>是否停用</th>
+                <td>
+                    @Html.JValidateBox("ViewIsStop").SetValue(Model == null ? "" : Model.IsStopStr).SetWidth(250).SetDisabled(true).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>备注</th>
+                <td>
+                    <span>@(Model == null ? "" : Model.Remark)</span>
+                </td>
+            </tr>
+            <tr>
+                <th colspan="2">权限</th>
+            </tr>
+        </table>
+	    <ul id="ulViewWorkGroupModuleList"></ul>
+    </form>
+</div>

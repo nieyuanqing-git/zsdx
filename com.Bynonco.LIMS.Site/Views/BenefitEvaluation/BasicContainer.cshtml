@@ -1,0 +1,271 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core
+@using com.Bynonco.LIMS.Model
+@model com.Bynonco.LIMS.Model.BenefitEvaluation.EvaluationTable
+@{
+    Layout = ViewBag.Layout;
+    string operate = ViewBag.Operate.ToString().ToLower();
+    var isview = operate == "view";
+}
+@Html.Partial("../Admin/NavMenu")@*导航栏*@
+<div class="main-content-box">
+    <div class="main-title">
+        <ul class="content-box-tabs">
+            <li class="current">
+                @Ajax.ActionLink(Model.Title, operate, "BenefitEvaluation", new { type = Model.EvaluationType , equipmentId = Model.EquipmentId, date = DateTime.Now.Millisecond }, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "layoutCenterBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess", OnBegin = "ajaxloadbegin" })
+            </li>
+            <div class="clear-both"></div>
+        </ul>
+        <div class="clear-both"></div>
+    </div>
+    <div class="main-content" id="divMainContentBox">
+        <div class="layout-center-full">
+            <form id="formEvaluationTableEdit">
+                <input type="hidden" name="Id" value="@Model.Id" />
+                <input type="hidden" name="EquipmentId" value="@Model.EquipmentId" />
+                <input type="hidden" name="EvaluationType" value="@Model.EvaluationType" />
+                <table class="EvaluationTable">
+                    <tr>
+                        <td>自评单位（盖章）</td>
+                        <td colspan="3">
+                            @if (isview)
+                            {
+                                @Model.Organization.Name
+                            }
+                            else
+                            {
+                                @Html.DropDownList("OrganizationId", (IEnumerable<SelectListItem>)ViewData["OrganizationSelectListItem"], new { style = "width:255px;" })
+                            }
+                        </td>
+                        <td colspan="2">自评填表人</td>
+                        <td colspan="2">@Model.Filler.UserName</td>
+                        <td rowspan="3">自评得分</td>
+                        <td rowspan="3"><span id="totalScore">@Model.TotalScore</span></td>
+                    </tr>
+                    <tr>
+                        <td>设备编号</td>
+                        <td colspan="3">@Model.Equipment.Label</td>
+                        <td colspan="2">入库时间</td>
+                        <td colspan="2">
+                            @if (isview)
+                            {
+                                @Model.FillDate.Value.ToString("yyyy-MM-dd")
+                            }
+                            else
+                            {
+                                @(Html.JDateTimePicker("FillDate")
+                                      .SetValue(Model.FillDate.Value.ToString("yyyy-MM-dd"))
+                                      .ToMvcString())
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>设备名称</td>
+                        <td colspan="3">@Model.Equipment.Name</td>
+                        <td colspan="2">自评时间</td>
+                        <td colspan="2">
+                            @if (isview)
+                            {
+                                @Model.RatingDate.Value.ToString("yyyy-MM-dd")
+                            }
+                            else
+                            {
+                                @(Html.JDateTimePicker("RatingDate")
+                                      .SetValue(Model.RatingDate.Value.ToString("yyyy-MM-dd"))
+                                      .ToMvcString())
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 160px;">项目</td>
+                        <td style="width: 80px;">权重</td>
+                        <td style="width: 160px;" colspan="2">内容</td>
+                        <td style="width: 80px;">数量</td>
+                        <td style="width: 160px;" colspan="2">评分标准</td>
+                        <td style="width: 80px;">分项得分</td>
+                        <td style="width: 160px;">小计（满分100）</td>
+                        <td style="width: 80px;">加权得分</td>
+                    </tr>
+                    @foreach (var item in Model.EvaluationItems)
+                    {
+                        var count = item.SubItems.Count;
+                        if (item.ItemName.Equals("机时利用"))
+                        {
+                            count += 1;
+                        }
+                        var sub = item.SubItems[0];
+                        <tr>
+                            <td rowspan="@count">@item.ItemName</td>
+                            <td rowspan="@count"><span id="@(item.ItemName)_Right">@(item.ItemRight*100)</span> %</td>
+                            <td colspan="2">@sub.SubName</td>
+                            <td>
+                                @if (isview)
+                                {
+                                    @sub.SubNumber
+                                }
+                                else
+                                {
+                                    @(Html.JValidateBox(string.Format("{0}_{1}_SubNumber", item.ItemName, sub.SubName))
+                                          .SetValidateType(ValidateType.number)
+                                          .SetWidth(60)
+                                          .SetValue(sub.SubNumber.ToString())
+                                          .ToMvcString())
+                                }
+                            </td>
+                            <td colspan="2">@(Html.Raw(sub.ScoreStandard.Replace("\r\n", "<br />")))</td>
+                            <td>
+                                @if (isview)
+                                {
+                                    @sub.SubScore
+                                }
+                                else
+                                {
+                                    @(Html.JValidateBox(string.Format("{0}_{1}_SubScore", item.ItemName, sub.SubName))
+                                          .SetValidateType(ValidateType.number)
+                                          .SetWidth(60)
+                                          .AddClass(item.ItemName)
+                                          .SetValue(sub.SubScore.ToString())
+                                          .SetOnChange(string.Format("calculation(this, '#{0}')", item.ItemName))
+                                          .ToMvcString())
+                                }
+                            </td>
+                            <td rowspan="@count"><span id="@(item.ItemName)_Score">@item.ItemScore</span></td>
+                            <td rowspan="@count"><span class="scoreright" id="@(item.ItemName)_ScoreRight">@item.ItemRightScore</span></td>
+                        </tr>
+                        if (item.ItemName.Equals("机时利用"))
+                        {
+                            <tr>
+                                <td colspan="3">
+                                    <input type="checkbox" id="cbGeneral" name="IsGeneralEquipment" @(Model.IsGeneralEquipment ?　"checked" : string.Empty) value="true" @(isview ? "disabled": string.Empty)/><label for="cbGeneral">通用设备</label>
+                                    <input type="checkbox" id="cbSpecial" name="IsSpecialEquipment" @(Model.IsSpecialEquipment ?　"checked" : string.Empty) value="true" @(isview ? "disabled": string.Empty)/><label for="cbSpecial">专用设备</label>
+                                </td>
+                                <td colspan="3">有效机时小于200小时，说明情况</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            for (int i = 1; i < count; i++)
+                            {
+                                sub = item.SubItems[i];
+                                <tr>
+                                    <td colspan="2">@sub.SubName</td>
+                                    <td>
+                                        @if (isview)
+                                        {
+                                            @sub.SubNumber
+                                        }
+                                        else
+                                        {
+                                            @(Html.JValidateBox(string.Format("{0}_{1}_SubNumber", item.ItemName, sub.SubName))
+                                                  .SetValidateType(ValidateType.number)
+                                                  .SetWidth(60)
+                                                  .SetValue(sub.SubNumber.ToString())
+                                                  .ToMvcString())
+                                        }
+                                    </td>
+                                    <td colspan="2">@(Html.Raw(sub.ScoreStandard.Replace("\r\n", "<br />")))</td>
+                                    <td>
+                                        @if (isview)
+                                        {
+                                            @sub.SubScore
+                                        }
+                                        else
+                                        {
+                                            @(Html.JValidateBox(string.Format("{0}_{1}_SubScore", item.ItemName, sub.SubName))
+                                                  .SetValidateType(ValidateType.number)
+                                                  .SetWidth(60)
+                                                  .AddClass(item.ItemName)
+                                                  .SetValue(sub.SubScore.ToString())
+                                                  .SetOnChange(string.Format("calculation(this, '#{0}')", item.ItemName))
+                                                  .ToMvcString())
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                </table>
+            </form>
+            <div class="edit-operate">
+                @if (operate == "add" || operate == "edit")
+                {
+                    if (Model.AuditStatusEnum == EvaluationAuditStatus.Draft || Model.AuditStatusEnum == EvaluationAuditStatus.Submit)
+                    {
+                        @Html.JLinkButton("btnSave", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveEvaluationTable();return false;").ToMvcString()
+                    }
+                }
+                @if (operate == "edit")
+                {
+                    if (Model.AuditStatusEnum == EvaluationAuditStatus.Draft || Model.AuditStatusEnum == EvaluationAuditStatus.Submit)
+                    {
+                        @Html.JLinkButton("btnSubmit", "提交").SetIconCls("icon-export").SetPlain(true).SetOnclick("doSubmitEvaluationTable();return false;").ToMvcString()
+                    }
+                }
+                @if (operate == "audit")
+                {
+                    if (Model.AuditStatusEnum != EvaluationAuditStatus.Draft)
+                    {
+                        @Html.JLinkButton("btnAuditPass", "审核通过").SetIconCls("icon-pass").SetPlain(true).SetOnclick("doAuditPassEvaluationTable();return false;").ToMvcString()
+                        @Html.JLinkButton("btnAuditReject", "审核不通过").SetIconCls("icon-reject").SetPlain(true).SetOnclick("doAuditRejectEvaluationTable();return false;").ToMvcString()
+                    }
+                }
+                @Html.JLinkButton("btnBack", "返回列表").SetIconCls("icon-back").SetOnclick("doBack();return false;").SetPlain(true).ToMvcString()
+            </div>
+        </div>
+    </div>
+    <div class="main-bottom"></div>
+</div>
+
+<style>
+    h2.EvaluationTable {
+        text-align: center;
+    }
+    table.EvaluationTable {
+        border-collapse: collapse;
+        margin: 0 auto;
+    }
+    table.EvaluationTable td{
+        padding: 0 5px;
+        line-height: 22px;
+        border: 1px solid;
+        text-align: center;
+    }
+    .edit-operate {
+        border-top: 1px dotted #AAAAAA;
+        padding: 10px 0 5px 80px;
+    }
+</style>
+<script>
+    function calculation(sender, selectpartial) {
+        var selectpartialClass = selectpartial.replace('#', '.');
+        var rightSelector = selectpartial + '_Right';
+        var scoreSelector = selectpartial + '_Score';
+        var rightscoreSelector = selectpartial + '_ScoreRight';
+        console.log([selectpartial, selectpartialClass, rightSelector, scoreSelector, rightscoreSelector]);
+        var score = 0;
+        $(selectpartialClass).each(function (i, el) {
+            return score += parseFloat($(el).val());
+        });
+        if (score > 100) {
+            score = 100;
+        }
+        var right = $(rightSelector).text();
+        var rightscore = parseFloat(right) * score * 0.01;
+        console.log([right, score, rightscore]);
+        $(scoreSelector).text(score);
+        $(rightscoreSelector).text(rightscore);
+        var total = 0;
+        $('span.scoreright').each(function(i, el) {
+             return total += parseFloat($(el).text());
+        });
+        console.log(total);
+        $('#totalScore').text(total);
+    }
+    function doBack() {
+        var url = '@Url.Action("Index", "BenefitEvaluation")';
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+    $(function () {
+        if (isIE6 || isIE7) $(".main-content-box .main-title").height(27);
+    });
+
+</script>

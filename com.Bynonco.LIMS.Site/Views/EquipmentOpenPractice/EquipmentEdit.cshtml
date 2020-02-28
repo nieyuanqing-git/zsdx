@@ -1,0 +1,33 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPracticeEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var infoId = Model == null ? Guid.NewGuid() : Model.Id;
+    var str = Model == null || Model.Equipment == null ? "" : "[{\"id\":\"" + Model.Equipment.Id + "\",\"text\":\"" + Model.Equipment.Name + (" (" + Model.Equipment.Model + ")").Replace(" ()", "") + "\"}]";
+}
+<tr id='@("tr_" + infoId)'>
+    <td class='item-Id'>
+        <input id="Id_@(infoId)" type="hidden" value="@(infoId)" name="Id_@(infoId)"/>
+        @Html.JLinkButton("btnRemovePlan_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveItem('" + infoId + "');return false;").ToMvcString()
+    </td>
+    <td id='td@(infoId)'>
+        <div style='float:left;'>
+            @(Html.TokenInput("EquipmentId_" + infoId)
+                .SetUrl(Url.Action("GetEquipmentUndergraduateOpenListByKeyWord", "EquipmentOpen",new{QueryExpression="SemesterId=\""+(ViewData["SemesterId"] == null ? Guid.Empty.ToString(): ViewData["SemesterId"].ToString())+"\""}))
+                .SetPrePopulate(string.IsNullOrWhiteSpace(str) ? null : str)
+                .SetSingle(true)
+                .SetWidth(400)
+                .ToMvcString())
+            </div>
+            <div style='float:left;'>
+                @Html.JLinkButton("btnClearEquipmentId_" + infoId, "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#EquipmentId_" + infoId + "').tokenInput('clear');;return false;").ToMvcString()
+            </div>
+            <div class='clear-both'></div>
+            <script type="text/javascript">
+                $(function () {
+                    $("#td@(infoId) ul.token-input-list-facebook").css("width", "220px");
+                });
+            </script>
+    </td>
+    <td>@Html.JValidateBox("ApplyHours_" + infoId).SetValue(Model == null ? "" : Math.Round(Model.ApplyHours,2).ToString()).SetWidth(80).ToMvcString()</td>
+    <td>@Html.JValidateBox("ApplyMoney_" + infoId).SetValue(Model == null ? "" : Math.Round(Model.ApplyMoney,2).ToString()).SetWidth(80).ToMvcString()</td>
+</tr>

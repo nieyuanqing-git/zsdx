@@ -1,0 +1,207 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var loginJumpTypeHref = ViewData["LoginJumpTypeHref"] == null ? "" : ViewData["LoginJumpTypeHref"].ToString().Trim();
+ }
+<div class='' style='position:relative;margin-right:5px;'>
+    <span class='Top-Login-Button' style='border-right: 1px solid #FFFFFF;display: block;float: left;line-height: 25px;padding: 0 8px;'>
+        <a id='lnkPopLogin' href="#" onclick='backToLogin();return false;' style='color:#fff;font-weight:bold;'>登&nbsp;录</a>
+    </span>
+    <span class='Top-Login-Button' style='display: block;float: left;line-height: 25px;padding: 0 8px;'>
+        <a href="@Url.Action("Register", "Account")" style='color:#fff;font-weight:bold;'>注&nbsp;册</a>
+    </span>
+    <div class='clear-both'></div>
+    <div id="divTopLogin" class='pop-login-box hide' style='display:none;'>
+        <form id="frmTopLogin" action="#">
+            <ul>
+                <li id="liTip" style='width:252px;'>
+                    <span id="spanTip" style='color:#666;'>本地/校外用户登录</span>
+                </li>
+                <li id="liLoginType" style='display:none; margin-right:5px;'>
+                    @Html.JComboBox("LoginType").SetData(ViewData["LoginTypeJson"]).SetWidth(252).SetHeight(30).ToMvcString()
+                </li>
+                <li>
+                    @Html.JValidateBox("LoginName").SetWidth(225).SetHeight(30).AddClass("toptext").AddClass("top-loginname").ToMvcString()
+                </li>
+                <li>
+                    @Html.JValidateBox("LoginPassword").SetWidth(225).SetHeight(30).AddClass("toptext").AddClass("top-loginpassword").SetPasswordMode(true).ToMvcString()
+                </li>
+                <li>
+                    @Html.CheckBox("IsRememberMe")<label for='IsRememberMe'>记住密码</label>
+                    &nbsp; &nbsp;<a href='@Url.Action("ForgetPassword", "Account")' style='float: right; padding-right: 15px; text-decoration: underline;'>忘记密码?</a>
+                </li>
+                <li style="margin:0px;padding:0px;width:252px;height:42px;line-height:42px;" class='top-button'>
+                    <a title="本地/校外用户登录" onclick="doTopLoginBeforeSubmit();return false;" href="javascript:void(0)">&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;</a>
+                </li>
+                <li style="margin:5px 0 0;padding:0px;width:252px;height:42px;line-height:42px;" class='top-button'>
+                    <a title="关闭" onclick="doHideTopLogin();return false;" href="javascript:void(0)">&nbsp;关&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;闭&nbsp;</a>
+                </li>
+                <li style="margin:5px 0 0;padding:0px;width:252px;height:42px;line-height:42px;" class='top-button'>
+                    <a title="统一身份认证登陆" style="background:#D95457;padding:10px 62px;" onclick="showTopCasLogin();" href="javascript:void(0)">统一身份认证登陆</a>
+                </li>
+            </ul>
+            
+        </form>
+    </div>
+    <div id="divCasLogin" class='pop-login-box hide'>
+        <form id="frmGFKJDXTopLogin" name="frmGFKJDXTopLogin" action="http://id.gfkd.mtn/SSO/SignIn.aspx?ReturnUrl=http://dygx.gfkd.mtn/SSOController.aspx" method="post" onsubmit="return doCheckGFKJDXTopLoginSubmit();">
+        <ul>
+            <li style='width:252px;'>
+                <span style='color:#666;'>统一身份认证登陆</span>
+            </li>
+            <li>
+                @Html.JValidateBox("loginName").SetWidth(225).SetHeight(30).AddClass("toptext").AddClass("top-loginname").ToMvcString()
+            </li>
+            <li>
+                @Html.JValidateBox("password").SetWidth(225).SetHeight(30).AddClass("toptext").AddClass("top-loginpassword").SetPasswordMode(true).ToMvcString()
+            </li>
+            <li style="margin:0px;padding:0px;width:252px;height:42px;line-height:42px;" class='top-button'>
+                <input type='submit' id="btnTopSubmit" name='btnTopSubmit' value='提交' style='display:none' />
+                <a title="统一身份认证登陆" onclick="doGFKJDXTopLoginSubmit();" href="javascript:void(0)">&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;</a>
+            </li>
+            <li style="margin:5px 0 0;padding:0px;width:252px;height:42px;line-height:42px;" class='top-button'>
+                <a title="关闭" onclick="doHideTopLogin();return false;" href="javascript:void(0)">&nbsp;关&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;闭&nbsp;</a>
+            </li>
+            <li style="margin:5px 0 0;padding:0px;width:252px;height:42px;line-height:42px;" class='top-button'>
+                <a title="本地/校外用户登录" onclick="showTopOuterLogin();return false;" href="javascript:void(0)" style='background:#D95457;padding:10px 53px;'>&nbsp;本地/校外用户登录&nbsp;</a>
+            </li>
+         </ul>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    function showTopOuterLogin() {
+        $("#divCasLogin").css("display", "none");
+        $("#divTopLogin").css("display", "");
+        backToLogin();
+    }
+    function showTopCasLogin() {
+        $("#divCasLogin").css("display", "");
+        $("#divTopLogin").css("display", "none");
+        backToLogin();
+    }
+</script>
+<script type="text/javascript">
+    var isSchoolInnerOrOuterLoginMode = false;
+    var isCasLoginMode = false;
+    function isVirtualKeyboardInputMode() {
+        return keyBoard && keyBoard.oPopUp && keyBoard.oPopUp.layer && keyBoard.oPopUp.layer.style.display == "block";
+    }
+    $(function () {
+        doIniLoginForm();
+        $("#frmTopLogin").find("#LoginName").attr("placeholder", "登录账号");
+        $("#frmTopLogin").find("#LoginPassword").attr("placeholder", "登录密码");
+        $("#liLoginType span.combo").height(30);
+        $("#liLoginType span.combo input.combo-text").height(30);
+        $("#lnkPopLogin").mouseover(function () {
+            $(".pop-login-box").removeClass("hide");
+        });
+
+        $(document).click(function (e) {
+            try {
+                var dragAccount = $(".pop-account-box"),
+            dragelAccount = $(".pop-account-box")[0],
+            targetAccount = e.target;
+                if (dragelAccount !== targetAccount && !$.contains(dragelAccount, target)) {
+                    $(".pop-account-box").addClass("hide");
+                }
+            }
+            catch (e) { }
+        });
+    });
+    function doHideTopLogin() {
+        $(".pop-login-box").addClass("hide");
+        $(".pop-account-box").addClass("hide");
+    }
+    function doIniLoginForm() {
+        $("#frmTopLogin").find("#LoginPassword").keypress(function (e) {
+            if (e.keyCode == 13) {
+                doTopLoginSubmit();
+            }
+        });
+    }
+    function doTopLoginSubmit() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("LoginSubmit", "Account")',
+            data: $("#frmTopLogin").serialize() + "&date=" + new Date(),
+            success: function (data) {
+                $("#frmTopLogin").find("#imgLoading").addClass("hide");
+                try {
+                    if (data && data.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                        return false;
+                    }
+                }
+                catch (e) { }
+                var topReturnUrl = $("#TopReturnUrl");
+                if (topReturnUrl.length > 0) {
+                    var fName = topReturnUrl.attr("fName");
+                    var equipmentid = topReturnUrl.attr("equipmentid");
+                    var equipmentname = topReturnUrl.attr("equipmentname");
+                    if (fName && equipmentid && equipmentname) {
+                        if (fName == "doAppointment") {
+                            doAppointment(equipmentid, equipmentname);
+                            return false;
+                        }
+                        else if (fName == "doSampleApply") {
+                            doSampleApply(equipmentid, equipmentname);
+                            return false;
+                        }
+                    }
+                }
+                if ('@loginJumpTypeHref' == "") {
+                    location.reload();
+                }
+                else {
+                    window.location.href = '@loginJumpTypeHref'
+                }
+                return false;
+            }
+        });
+    }
+    function doTopLoginBeforeSubmit() {
+        var isOk = true;
+        var errorMsg = "";
+        if ($("#frmTopLogin").find("#LoginName").val().trim() == "") {
+            errorMsg = "请输入用户名"
+            isOk = false;
+        }
+        if ($("#frmTopLogin").find("#LoginPassword").val().trim() == "") {
+            errorMsg = "请输入密码"
+            isOk = false;
+        }
+        if (!isOk) {
+            $.messager.show({ title: '提示', msg: errorMsg, showType: 'show' });
+            return false;
+        }
+        else {
+            $("#frmTopLogin").find("#imgLoading").removeClass("hide");
+            doTopLoginSubmit();
+            return false;
+        }
+    }
+   
+    $(function () {
+        $("#liLoginType input.combo-text").css("width", "232px");
+    });
+    function doCheckGFKJDXTopLoginSubmit() {
+        var isOk = true;
+        if ($("#frmGFKJDXTopLogin").find("#loginName").val().trim() == "") {
+            errorMsg = "请输入统一身份认证用户名"
+            isOk = false;
+        }
+        if (isOk && $("#frmGFKJDXTopLogin").find("#password").val().trim() == "") {
+            errorMsg = "请输入统一身份认证密码"
+            isOk = false;
+        }
+        if (!isOk) {
+            $.messager.show({ title: '提示', msg: errorMsg, showType: 'show' });
+        }
+        return isOk;
+    }
+    function doGFKJDXTopLoginSubmit() {
+        $("#btnTopSubmit").click();
+    }
+</script>

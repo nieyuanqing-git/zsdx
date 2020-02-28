@@ -1,0 +1,26 @@
+﻿@model IList<com.Bynonco.LIMS.Model.View.ViewTrainningExamination>
+@if (Model != null && Model.Count() > 0)
+{
+    var maxExaminationTime =  ViewData["MaxExaminationTime"] == null ? "" : ViewData["MaxExaminationTime"].ToString();
+    var minReadMaterialDateTime =  ViewData["MinReadMaterialDateTime"] == null ? "" : ViewData["MinReadMaterialDateTime"].ToString();
+    var randomQuestionCount =  ViewData["RandomQuestionCount"] == null ? "" : ViewData["RandomQuestionCount"].ToString();
+     <ul>
+     @foreach (var item in Model)
+     {
+         <li>
+             <span style="font-weight:bold; font-size:13px;">
+                 [@(item.TrainningTypeName)] @item.Name  
+                 @if (item.IsRequired)
+                 {
+                     <span style='color:red;'>(必考)</span> 
+                 }
+             </span>
+            <p>学习资料：@(item.MaterialCount)题，学时要求：@(item.MinReadMaterialDateTime.HasValue ? item.MinReadMaterialDateTime.Value.ToString() + "小时" : minReadMaterialDateTime == "" ? "无" : minReadMaterialDateTime  + "小时")</p>
+            <p>
+                @((item.QuestionCount == 0 ? string.Format("随机考题数: {0}条", randomQuestionCount) : string.Format("题目：{0} 题, 总分: {1}分, 考试试卷: {2}分钟", item.QuestionCount, item.TotalScore, item.TotalTimeSpend)) + string.Format(", 通过条件：{0}", item.PassStandardStr))
+            </p>
+            <p>最多考试次数：@(item.MaxExaminationTime.HasValue ? item.MaxExaminationTime.Value.ToString() : maxExaminationTime)次</p>
+        </li>
+     }
+    </ul>
+}

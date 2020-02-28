@@ -1,0 +1,33 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPracticeTeacher
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var infoId = Model == null ? Guid.NewGuid() : Model.Id;
+    var str = Model == null || Model.User == null ? "" : "[{\"id\":\"" + Model.User.Id + "\",\"text\":\"" + Model.User.UserName + (" (" + Model.User.Jobtitle + ")").Replace(" ()", "") + "\"}]";
+}
+<tr id='@("tr_" + infoId)'>
+    <td class='item-Id'>
+        <input id="Id_@(infoId)" type="hidden" value="@(infoId)" name="Id_@(infoId)"/>
+        @Html.JLinkButton("btnRemovePlan_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveItem('" + infoId + "');return false;").ToMvcString()
+    </td>
+    <td id='td@(infoId)'>
+        <div style='float:left;'>
+            @(Html.TokenInput("TeacherUserId_" + infoId)
+                .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                .SetPrePopulate(string.IsNullOrWhiteSpace(str) ? null : str)
+                .SetSingle(true)
+                .SetWidth(400)
+                .ToMvcString())
+            </div>
+            <div style='float:left;'>
+                @Html.JLinkButton("btnClearTeacherUserId_" + infoId, "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#TeacherUserId_" + infoId + "').tokenInput('clear');;return false;").ToMvcString()
+            </div>
+            <div class='clear-both'></div>
+            <script type="text/javascript">
+                $(function () {
+                    $("#td@(infoId) ul.token-input-list-facebook").css("width", "220px");
+                });
+            </script>
+    </td>
+    <td>@Html.JValidateBox("JobNumber_" + infoId).SetValue(Model == null ? "" : Model.JobNumber).SetWidth(150).ToMvcString()</td>
+    <td>@Html.JValidateBox("PracticePosition_" + infoId).SetValue(Model == null ? "" : Model.PracticePosition).SetWidth(150).ToMvcString()</td>
+</tr>

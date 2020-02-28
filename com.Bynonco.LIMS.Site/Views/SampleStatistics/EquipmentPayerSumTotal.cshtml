@@ -1,0 +1,23 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var privilige = (com.Bynonco.LIMS.BLL.Business.Privilige.SampleStatisticsPrivilige)ViewData["SampleStatisticsPrivilige"];
+    var queryExpression = ViewData["QueryExpression"].ToString();
+    var dataGrid = Html.JDataGrid("tbSampleApplyEquipmentPayerSumTotalList")
+        .SetMutiSelect(false)
+        .SetShowFooter(true)
+        .SetUrl(Url.Action("GetEquipmentPayerSumTotal", "SampleStatistics") + "?queryExpression=" + queryExpression + "&time=" + DateTime.Now.Millisecond.ToString())
+        .SetPagination(false);
+        if (privilige.IsEnableExpertEquipmentPayerSumTotal)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doExpertSampleApplyEquipmentPayerSumTotal();", IconCls = "icon-export", Id = "btnExpertSampleApplyEquipmentPayerSumTotal", Text = "导出" });
+        }
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器名称", "EquipmentNameStr").SetWidth(350).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师数", "TotalPayerCount").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请单数", "TotalSampleCount").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("样品总数", "SampleTotalQuatity").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实际样品数", "SampleRealTotalQuatity").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总金额", "TotalFee").SetWidth(80).SetSortable(false).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总真实币", "TotalRealCurrencyFee").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总虚拟币", "TotalVirtualCurrencyFee").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+}
+@(dataGrid.ToMvcString())

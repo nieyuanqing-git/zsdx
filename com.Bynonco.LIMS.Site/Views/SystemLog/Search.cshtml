@@ -1,0 +1,75 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var operateEntityCnName = $("#txtQueryOperateEntityCnName").val().trim();
+        if (operateEntityCnName != "") {
+            queryExpression = "OperateEntityCnName∽\"" + operateEntityCnName + "\"";
+        }
+        var operatorName = $("#txtQueryOperatorName").val().trim();
+        if (operatorName != "") {
+            queryExpression += (queryExpression == "" ? "OperatorName∽\"" + operatorName + "\"" : "*OperatorName∽\"" + operatorName + "\"");
+        }
+        var logContent = $("#txtQueryLogContent").val().trim();
+        if (logContent != "") {
+            queryExpression += (queryExpression == "" ? "LogContent∽\"" + logContent + "\"" : "*LogContent∽\"" + logContent + "\"");
+        }
+        var operateType = $("#cbxQueryOperateType").combobox("getValue").trim();
+        if (operateType != "-1") {
+            queryExpression += (queryExpression == "" ? "OperateType=" + operateType : "*OperateType=" + operateType);
+        }
+
+        var beginTime = $("#dtQueryBeginTime").datebox("getValue").trim();
+        if (beginTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OperateTime>\"" + beginTime + "\"";
+        }
+        var endTime = $("#dtQueryEndTime").datebox("getValue").trim();
+        if (endTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OperateTime<\"" + endTime + " 23:59:59\"";
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#txtQueryOperateEntityCnName").val("");
+        $("#txtQueryOperatorName").val("");
+        $("#txtQueryLogContent").val("");
+        $("#cbxQueryOperateType").combobox('setValue', '-1');
+        $("#dtQueryBeginTime").datebox("setValue", "");
+        $("#dtQueryEndTime").datebox("setValue", "");
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>记录类型</label>
+        @Html.JValidateBox("txtQueryOperateEntityCnName").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+     <li>
+        <label>操作人</label>
+        @Html.JValidateBox("txtQueryOperatorName").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label>操作类型</label>
+        @Html.JComboBox("cbxQueryOperateType").SetEditable(false).SetWidth(155).SetData(ViewData["OperateTypeJson"]).ToMvcString()
+    </li>
+    <li>
+        <label>日志内容</label>
+         @Html.JValidateBox("txtQueryLogContent").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label>开始时间</label>
+        @Html.JDateTimePicker("dtQueryBeginTime").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("dtQueryEndTime").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

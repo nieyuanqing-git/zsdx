@@ -1,0 +1,108 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    @{
+        var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString() + "-";
+        var title = orgName + (ViewBag.Title == null ? "" : ViewBag.Title);
+    }
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <title>@title</title>
+    @Html.Partial("HomeJsCss")
+    @Html.Partial("GetIsAjax")
+   @* @RenderSection("ImportCssAndJs", false)*@
+</head>
+<body>
+    <div class='body-inner'>
+        <div class='top-box'>
+            <div class='top-left'>
+                <span>
+                    <a href='#' id='sethomepage'>设为主页</a>
+                </span>
+                <span>
+                    <a href='#' id='setfavorite'>收藏本页</a>
+                </span>
+                <span class='last'>
+                    <a href='#' id='setdesktop'>发送快捷方式到桌面</a>
+                </span>
+            </div>
+            <div class='top-right'>
+                <div class='top-login-box'>
+                    @{
+                        if (Request.IsAuthenticated && ViewData["LoginUser"] != null)
+                        {
+                            var loginUser = (com.Bynonco.LIMS.Model.User)ViewData["LoginUser"];
+                            @Html.Partial("../Account/TopLoginInfo", loginUser)
+                        }
+                        else
+                        {
+                            <div style='width:450px;float:right'>
+                                @Html.Partial("../Account/TopLogin")
+                            </div>
+                        }
+                    }
+                    <div class="clear-both"></div>
+                </div>
+            </div>
+            
+        </div>
+        <div class='banner-box'>
+            <div class='logo-box'>
+                <a href='#' class='logo'>
+                    <img src='@Url.Content("~/Content/images/logo.png")' alt='@(orgName + "首页")'  height='60px'/>
+                </a>
+            </div>
+            <div class='top-search-box'>
+                <div class='search-input-box'>
+                    <input type="text" />
+                    <a href="#">&nbsp;</a>
+                </div>
+                <div class='hot-search-box'>
+                    <span>热门搜索:&nbsp;</span>
+                    <a href='#'>热门一</a>
+                    <a href='#'>热门二</a>
+                    <a href='#'>热门三</a>
+                    <a href='#'>热门四</a>
+                    <a href='#'>热门五</a>
+                    <a href='#'>热门六</a>
+                    <a href='#'>热门七</a>
+                    <a href='#'>热门八</a>
+                </div>
+            </div>
+        </div>
+        <div class='menu-box'>
+            @Html.Partial("HomeMenu")
+        
+        </div>
+    <div class="top">
+        <div class="top-box">
+        </div>
+    </div>
+    <div class="main-box">
+        <div class="main-box-inner">
+            <div class="main-box-left">
+                <div class="slider-box">
+                  @*  @RenderSection("SliderBox", true)*@
+                </div>
+                @*@RenderSection("MainLeft", true)*@
+            </div>
+            <div class="main-box-right">
+                <div class="right-row-top">
+                   @* @RenderSection("MainRightTop", true)*@
+                </div>
+                @*@RenderSection("MainRightOther", true)*@
+            </div>
+        </div>
+    </div>
+   @* @RenderSection("BottomBox", false)*@
+    <div class="footer">
+        @Html.Partial("Footer")
+    </div>
+    <script type="text/javascript">
+        $("a").attr("hidefocus", "true");
+    </script>
+    </div>
+</body>
+</html>

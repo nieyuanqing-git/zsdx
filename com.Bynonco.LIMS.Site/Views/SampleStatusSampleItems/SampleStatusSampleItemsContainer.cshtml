@@ -1,0 +1,22 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var isShowEquipmentSampleItemSearch = (bool)ViewData["IsShowEquipmentSampleItemSearch"];}
+<div style='display:@(isShowEquipmentSampleItemSearch ? "" : "none")' id="divEquipmentSampleItemsQuery"> 
+    @Html.Partial("../EquipmentSampleItems/Search")  
+</div>
+<div id="divSampleItems">@Html.Partial("SampleItems")</div>
+<script type="text/javascript">
+    function doSearch() {
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        var pageNumber = $('#divPaging').pagination("options").pageNumber;
+        var pageSize = $('#divPaging').pagination("options").pageSize;
+        var queryExpression = generateQueryExpress();
+        var url = encodeURI('@Url.Action("GetSampleStatusSampleItems", "SampleStatusSampleItems")' + "?page=" + pageNumber + "&rows=" + pageSize + "&queryExpression=" + queryExpression);
+        $("#divSampleItems").load(url, function () {
+            $.messager.progress("close");
+        });
+        return false;
+    }
+    $(function () {
+        doSearch();
+    });
+</script>

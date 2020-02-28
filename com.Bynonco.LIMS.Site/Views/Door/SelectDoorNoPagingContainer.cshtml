@@ -1,0 +1,60 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    var selectDoorDialog;
+    var curDoorIdsElement;
+    function doSelectDoorDialog(doorIdsElement,parameter) {
+        curDoorIdsElement = doorIdsElement;
+        var queryExpression = generateSelectedDoorQueryExpression(doorIdsElement);
+        var url = '@Url.Action("SelectDoorNoPaging","Door")';
+        if(selectDoorDialog) {
+            selectDoorDialog.dialog("destroy");
+        }
+        if(!parameter)parameter = {"queryExpression":queryExpression };
+        else parameter.queryExpression = queryExpression;
+        $("#divSelectDoor").load(url, parameter, function () {
+            selectDoorDialog = @(Html.JDialog("divSelectDoorDialog").SetTitle("选择门禁").SetAutoDialog(false).SetOkScript("getSelectedDoors();").SetCancelScript("selectDoorDialog.dialog('close');").SetIconCls("icon-search").ToMvcString());
+        });
+        return false;
+    }
+    function generateSelectedDoorQueryExpression(doorIdsElement) {
+        var selectedDoorIds = document.getElementById(doorIdsElement).value;
+        if (selectedDoorIds.trim() == "") return "";
+        var selectedDoorIdsArray = selectedDoorIds.split(",");
+        if (!selectedDoorIdsArray || selectedDoorIdsArray.length == 0) return "";
+        var queryExpression = "(";
+        for (var i = 0; i < selectedDoorIdsArray.length; i++) {
+            queryExpression += queryExpression == "(" ? "Id=\"" + selectedDoorIdsArray[i] + "\"" : "+" + "Id=\"" + selectedDoorIdsArray[i] + "\"";
+        }
+        queryExpression += ")";
+        
+        return queryExpression;
+    }
+    function getSelectedDoors() {
+        var selectedDoorJsonArray = new Array();
+         var selectedDoorIds = "";
+         var selectedDoorNames = "";
+         var selectedDoors = $("#tbSelectDoorNoPagingList").datagrid("getSelections");
+         if (selectedDoors && selectedDoors!="" && selectedDoors.length > 0) {
+             for (var i = 0; i < selectedDoors.length; i++) {
+                 selectedDoorIds += selectedDoorIds == "" ? selectedDoors[i].Id.toString() : "," + selectedDoors[i].Id.toString();
+                 selectedDoorNames += selectedDoorNames == "" ? selectedDoors[i].Name.toString() : "," + selectedDoors[i].Name.toString();
+                 selectedDoorJsonArray[i] = {Id:selectedDoors[i].Id, Name:selectedDoors[i].Name, Model:selectedDoors[i].Model, RoomName:selectedDoors[i].RoomName};
+             }
+         }
+         if(selectDoorDialog)selectDoorDialog.dialog("close");
+         if(typeof(getSelectedDoorsCallBack) == 'function')getSelectedDoorsCallBack(selectedDoorNames,selectedDoorIds,selectedDoorJsonArray);
+    }
+   function doInitSelectedDoors() {
+        var selectedDoorIds = document.getElementById(curDoorIdsElement).value;
+        if (selectedDoorIds.trim() == "") return;
+        var rows = $("#tbSelectDoorNoPagingList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (selectedDoorIds.indexOf(rows[i].Id) != -1)
+                    $("#tbSelectDoorNoPagingList").datagrid("selectRow", i);
+            }
+        }
+    }
+</script>
+<div id="divSelectDoor" style="display:none"></div>
+

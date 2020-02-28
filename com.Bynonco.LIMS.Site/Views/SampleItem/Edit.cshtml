@@ -1,0 +1,19 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleItem
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.JTab("divSampleItemTabs").SetBorder(false).SetWidth(445).SetHeight(480).ToMvcString()
+<div id="divSampleItemEdit">
+    <form id="frmSampleItem" action="#">
+        <div id="divSampleItemTabs">
+            <div title="基本信息" id="divSampleItemBasic" style="overflow-y:auto;overflow-x:hidden">@Html.Partial("Basic")</div>
+            @if (Model != null)
+            {
+                <div title="收费标准" id ="divSampleItemFeeSetting" >
+                    <div id="divLabelChargeStandsContainer">
+                        <p>@(Html.JLinkButton("btnAddLabelChargeStand", "新增").SetPlain(true).SetIconCls("icon-add").SetOnclick("doAddSampleItemLabelChargeStand();return false;").ToMvcString())</p>
+                        <div>@Html.Partial("LabelChargeStands")</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </form>
+</div>

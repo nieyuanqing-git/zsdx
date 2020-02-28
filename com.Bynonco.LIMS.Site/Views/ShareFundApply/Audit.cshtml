@@ -1,0 +1,90 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewShareFundApply
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+<div id="divShareFundApplyAudit">
+@if (Model != null)
+{
+ <form id="frmShareFundApplyAudit" action="#">
+    @Html.Hidden("Id",Model.Id.ToString())
+    <table  class="edit-table"  style="width:530px;height:auto">
+        <tr>
+            <th>申请人</th>
+            <td style='width:150px;'>@Model.ApplyUserName</td>
+            <th>联系电话</th>
+            <td>@Model.PhoneNumber</td>
+        </tr>
+        <tr>
+            <th>单位</th>
+            <td>@Model.ApplyUserOrgName</td>
+            <th>职务</th>
+            <td>@Model.Jobtitle</td>
+        </tr>
+        <tr>
+            <th>项目名称</th>
+            <td colspan='3'>@Model.ProjectName</td>
+        </tr>
+        <tr>
+            <th>项目类别</th>
+            <td>@Model.ProjectType</td>
+            <th>项目时间</th>
+            <td>@(Model.StartTimeStr + "至" + Model.EndTimeStr)</td>
+        </tr>
+        <tr>
+            <th>申请设备机时</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.ItemDetail)</td>
+        </tr>
+        <tr>
+            <th>申请理由</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.Reason)</td>
+        </tr>
+        <tr>
+            <th>申请基金比例</th>
+            <td colspan='3'>
+                @Model.ApplyProportion
+                %
+            </td>
+        </tr>
+        <tr>
+            <th>负责人</th>
+            <td id="tdAdminUser">
+                @(Html.TokenInput("AdminUserId")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["AdminUserJson"] == null || string.IsNullOrWhiteSpace(ViewData["AdminUserJson"].ToString()) ? null : ViewData["AdminUserJson"].ToString())
+                .SetSingle(true)
+                .SetWidth(200)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>主管院长意见</th>
+            <td colspan='3'>@Html.TextArea("CollegeAuditRemark", Model == null ? "" : Model.CollegeAuditRemark, new { style = "width:96%;" })</td>
+        </tr>
+        <tr>
+            <th rowspan='2'>专家小组意见</th>
+            <td colspan='3'>
+                批准基金比例
+                @Html.JValidateBox("AuditProportion").SetValue(Model == null ? "" : Model.AuditProportion).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <td colspan='3'>
+                @Html.TextArea("GroupAdminAuditRemark", Model == null ? "" : Model.GroupAdminAuditRemark, new { style = "width:96%;" })
+            </td>
+        </tr>
+        <tr>
+            <th>管理处意见</th>
+            <td colspan='3'>@Html.TextArea("LabAdminAuditRemark", Model == null ? "" : Model.LabAdminAuditRemark, new { style = "width:96%;" })</td>
+        </tr>
+    </table>
+</form>
+}
+else
+{
+    @:无效信息
+}
+<script type="text/javascript">
+    $(function () {
+        $("#tdAdminUser ul.token-input-list-facebook").css("width", "205px");
+    });
+</script>
+</div> 

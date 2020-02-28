@@ -1,0 +1,18 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var queryExpression = ViewData["QueryExpression"].ToString();
+    var dataGrid = Html.JDataGrid("tbSampleApplyTesterSumTotalList")
+        .SetMutiSelect(false)
+        .SetShowFooter(true)
+        .SetUrl(Url.Action("GetTesterSumTotal", "SampleStatistics") + "?queryExpression=" + queryExpression + "&time=" + DateTime.Now.Millisecond.ToString())
+        .SetPagination(false)
+        .AddToolBarButton(new ToolBarButton() { Handler = "doExpertSampleApplyTesterSumTotal();", IconCls = "icon-export", Id = "btnExpertSampleApplyApplicantSumTotal", Text = "导出" })
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("测样人", "TesterNameStr").SetWidth(350).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("申请单数", "ApplyTotalQuatity").SetWidth(80).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("样品数", "SampleTotalQuatity").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实际样品数", "SampleRealTotalQuatity").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总金额", "TotalFee").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总真实币", "TotalRealCurrencyFee").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总虚拟币", "TotalVirtualCurrencyFee").SetWidth(80).SetAlign(Align.center));
+ }
+ @(dataGrid.ToMvcString())

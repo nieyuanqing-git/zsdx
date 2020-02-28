@@ -1,0 +1,178 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var controller = ViewContext.RouteData.Values["controller"].ToString().ToLower();
+    var action = ViewContext.RouteData.Values["action"].ToString().ToLower();
+    var articleCategoryId = ViewData["ArticleCategoryId"] == null ? "" : ViewData["ArticleCategoryId"].ToString().ToLower();
+    var viewHomeMenuList = ViewData["ViewHomeMenuList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewHomeMenu>)ViewData["ViewHomeMenuList"];
+    var articleCategory = ViewData["ArticleCategoryList"] == null ? null : (List<com.Bynonco.LIMS.Model.ArticleCategory>)ViewData["ArticleCategoryList"];
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    IList<com.Bynonco.LIMS.Model.LabOrganization> labOrganizationList = ViewData["SubLabOrganizationList"] == null ? null : (IList<com.Bynonco.LIMS.Model.LabOrganization>)ViewData["SubLabOrganizationList"];
+    var customer = CustomerFactory.GetCustomer();
+    var isShowMemuOrganizationList = customer == null ? true : customer.GetIsShowMemuOrganizationList();
+    var isShowDutyFreeEquipment = customer == null ? true : customer.GetIsShowDutyFreeEquipment();
+}
+<script type="text/javascript">
+    $(function () {
+        $('.flyout-menu').each(function(){
+            $(this).menu({
+                content: $(this).next().html(), // grab content from this page
+                flyOut: true,
+			    showSpeed: 100
+            });
+        });
+    });
+</script>
+<div class="home-menu">
+    @if (orgXPath != "000" || (controller != "home" && action != "index") || (controller == "home" && action == "friendlylinklist"))
+    {
+
+        if (labOrganizationList != null && labOrganizationList.Count() > 0 && isShowMemuOrganizationList)
+        {
+            <a href="javascript:;" class="fg-button fg-button-l fg-button-icon-right ui-widget ui-state-default ui-corner-all flyout-menu">
+                <span class="ui-icon ui-icon-triangle-1-s"></span>@(orgXPath != "000" ? "其它仪器共享平台" : "院级仪器共享平台")</a>
+            <div class="hide" style="display:none">
+                <ul>
+                    @foreach (var item in labOrganizationList)
+                    {
+                        object routeXPathValue = new { XPath = item.XPath };
+                        var name = "".PadLeft((item.XPath.Length - 6) * 2 / 3, '-') + item.Name;
+                        var cutName = ShortcutStringUtility.GetSubString(name, 24, "..");
+                        <li><a href="@Url.Action("Index", "Home", routeXPathValue)" title='@name'>@cutName</a></li>
+                    }
+                </ul>
+            </div>
+        }
+    }
+    @if (orgXPath != "000")
+    { 
+        <a href="@Url.Action("Index", "Home", new { XPath = "000" })" class='fg-button ui-widget ui-state-default'>校级首页</a>
+    }
+    @if (viewHomeMenuList != null && viewHomeMenuList.Count() > 0)
+    {
+        var itemList = viewHomeMenuList.Where(p => p.ParentId == null);
+        foreach (var item in itemList)
+        {
+            string checkUrl = "/" + controller;
+            switch (controller)
+            {
+                case "home":
+                case "equipment":
+                    checkUrl += "/" + action;
+                    break;
+                case "exchangefairyland":
+                    checkUrl += "/";
+                    break;
+                case "article":
+                    checkUrl = "articlecategoryid=" + articleCategoryId;
+                    break;
+                default:
+                    checkUrl += "/" + action;
+                    break;
+            }
+            var parentId = item.Id;
+            var childList = viewHomeMenuList.Where(p => p.ParentId == item.Id);
+            if (childList != null && childList.Count() > 0)
+            {
+                <a href="javascript:;" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all flyout-menu">
+                <span class="ui-icon ui-icon-triangle-1-s"></span>@item.Name</a>
+                <div class="hide" style="display:none">
+                    @Html.HtmlChildHomeMenu(viewHomeMenuList, parentId, checkUrl)
+                </div>
+            }
+            else
+            {
+                if ((item.Name == "免税设备" && isShowDutyFreeEquipment) || item.Name != "免税设备")
+                {
+                    var url = "";
+                    var onclickScript = "";
+                    if (!item.Url.ToLower().StartsWith("javascript:")) 
+                    {
+                        url = item.UrlStr; 
+                    }
+                    else 
+                    {
+                        url = "#";
+                        onclickScript = "onclick=" + item.Url; 
+                    }
+                    if (item.Name == "免税设备" && checkUrl == "/equipment/show")
+                    {
+                        <a href="@url" @(onclickScript) class='fg-button ui-widget ui-state-default'>@item.Name</a>
+                    }
+                    else 
+                    {
+                        <a href="@url" @(onclickScript) class='fg-button ui-widget ui-state-default @(item.UrlStr.ToLower().IndexOf(checkUrl) != -1 ? "current" : "")'>@item.Name</a>
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        <a href="@Url.Action("Index", "Home", routeCurrentXPathValue)" class='fg-button ui-widget ui-state-default @(controller == "home" && action == "index" ? "current" : "")'>首 页</a>
+        <a href="@Url.Action("ShowList", "EquipmentCategory", routeCurrentXPathValue)" class='fg-button ui-widget ui-state-default @(controller == "equipmentcategory" && action == "showlist" ? "current" : "")'>设备分类</a>
+        <a href="@Url.Action("ShowList", "Equipment", routeCurrentXPathValue)" class='fg-button ui-widget ui-state-default @(controller == "equipment" ? "current" : "")'>仪器展示</a>
+            if (articleCategory != null && articleCategory.Count() > 0)
+            {
+            <a href="javascript:;" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all flyout-menu">
+                <span class="ui-icon ui-icon-triangle-1-s"></span>业务动态</a>
+            <div class="hide" style="display:none">
+                <ul>
+                    @{
+                        var categoryNames = "";
+                        foreach (var item in articleCategory)
+                        {
+                            if (categoryNames.IndexOf(item.Name + ",") != -1){ continue;}
+                            categoryNames += item.Name + ",";
+                            object routeArticleCategoryValues = new { ArticleCategoryId = item.Id, XPath = orgXPath };
+                            <li><a href="@Url.Action("ShowList", "Article", routeArticleCategoryValues)" class="@(controller == "article" && action == "showList" && articleCategoryId == item.Id.ToString().ToLower() ? "current" : "")">@item.Name</a></li>
+                        }
+                    }
+                </ul>
+            </div>
+            }
+        <a href="@Url.Action("Original", "ExchangeFairyland", routeCurrentXPathValue)" class="fg-button ui-widget ui-state-default @(controller == "exchangefairyland" ? "current" : "")">交流园地</a>
+        <a href="@Url.Action("Show", "QA", routeCurrentXPathValue)" class="fg-button ui-widget ui-state-default @(controller == "qa" ? "current" : "")">问与答</a>
+       @* <a href="@Url.Action("ExaminationListForHome", "LabOrganization", routeCurrentXPathValue)" class="fg-button ui-widget ui-state-default @(controller == "laborganization" && action == "examinationlistforhome" ? "current" : "")">在线考试</a>*@
+    }
+</div>
+<script type="text/javascript">
+    function doEquipmentApply() {
+        if('@(Request.IsAuthenticated && ViewData["LoginUser"] != null)' != 'True' )
+        {
+            $.messager.show({ title: '提示', msg: "请登录系统", showType: 'show' });
+            backToLogin();
+        }
+        else
+        {
+            var url = '@Url.Action("EquipmentApplyIndex", "EquipmentApply")';
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+        return false;
+    }
+    function doJudgeEquipmentRecord() {
+        if('@(Request.IsAuthenticated && ViewData["LoginUser"] != null)' != 'True' )
+        {
+            $.messager.show({ title: '提示', msg: "请登录系统", showType: 'show' });
+            backToLogin();
+        }
+        else
+        {
+            var url = '@Url.Action("RecordIndex", "JudgeEquipmentRecord")';
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+        return false;
+    }
+    function doJudgeShareFundApply() {
+        if ('@(Request.IsAuthenticated && ViewData["LoginUser"] != null)' != 'True') {
+            $.messager.show({ title: '提示', msg: "请登录系统", showType: 'show' });
+            backToLogin();
+        }
+        else {
+            var url = '@Url.Action("Index", "ShareFundApply")';
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+        return false;
+    }
+</script>

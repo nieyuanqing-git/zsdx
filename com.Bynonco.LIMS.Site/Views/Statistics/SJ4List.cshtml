@@ -1,0 +1,57 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSJ4List")
+    .SetUrl(Url.Action("GetGridViewSJ4List", "Statistics"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("ExperimentNum")
+    .SetSingleSelect(true)
+    .SetMutiSelect(false)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学校编码", "SchoolCode").SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验编号", "ExperimentNum").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验名称", "ExperimentName").SetWidth(100).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验类别", "ExperimentType").SetWidth(60).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验类型", "ExperimentCategory").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验所属学科", "ExperimentSubject").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验要求", "ExperimentRequirements").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验者类别", "ExperimentUserType").SetWidth(60).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验者人数", "ExperimentUserCount").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("每组人数", "ExperimentTeamCount").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验学时数", "ExperimentHours").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验室编号", "ExperimentRoomNum").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验室名称", "ExperimentRoomName").SetWidth(100).SetAlign(Align.center))
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .SetShowPrintButton(false)
+    .SetShowRefreshButton(false);
+    dataGrid.SetShowAddButton(statisticsPrivilige.IsEnableSJ4Add);
+    if(statisticsPrivilige.IsEnableSJ4Add)
+    {
+        dataGrid.SetAddScript("doAddSJ4();");
+    }
+    dataGrid.SetShowEditButton(statisticsPrivilige.IsEnableSJ4Edit);
+    if (statisticsPrivilige.IsEnableSJ4Edit)
+    {
+        dataGrid.SetEditScript("doEditSJ4();");
+        dataGrid.SetOnDblClickRow("doEditSJ4(rowData.Id);");
+    }
+    if (statisticsPrivilige.IsEnableSJ4Delete)
+    {
+        dataGrid.SetDeleteScript("doDeleteSJ3();");
+    }
+    if(statisticsPrivilige.IsEnableSJ4AuditPass)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAuditPassSJ4();", IconCls = "icon-pass", Id = "btnSJ4AuditPass", Text = "审核通过" });
+    }
+    if (statisticsPrivilige.IsEnableSJ4AuditReject)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAuditRejectSJ4();", IconCls = "icon-no", Id = "btnSJ4AuditReject", Text = "审核不通过" });
+    }
+    if (statisticsPrivilige.IsEnableSJ3AuditWaitting)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAuditWaittingSJ4();", IconCls = "icon-info", Id = "btnSJ4AuditWaitting", Text = "置为待审" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSJ4Search();", IconCls = "icon-reload", Id = "btnSJ4Reload", Text = "刷新" });
+}
+@(dataGrid.ToMvcString()) 

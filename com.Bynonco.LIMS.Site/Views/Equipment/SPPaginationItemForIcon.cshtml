@@ -1,0 +1,50 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSchoolEquipment
+@using System.Text;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.LIMS.Model.Enum;
+<div class='detail-pannel'>
+    <div class='list-left'>
+        <div class="img-box">
+            <img alt="@(Model.Name)" src='@(Model.ImgURLStr)' style='width:146px;height:126px;cursor:pointer;'/>
+        </div>
+    </div>
+    <div class='list-right'>
+        @{
+            var name = Model == null ? "" : Model.Name;
+            name += Model == null || string.IsNullOrWhiteSpace(Model.Model) ? "" : " (" + Model.Model + ")";
+            var cutName = ShortcutStringUtility.GetSubString(name, 55, "..");
+            var scopeOfApplication = Model.ScopeOfApplication;
+            var cutScopeOfApplication = !string.IsNullOrWhiteSpace(scopeOfApplication) ? ShortcutStringUtility.GetSubString(scopeOfApplication, 50, "..") : scopeOfApplication;
+        }
+        <div class="inner-left">
+            <p class="title">
+                <a href='@(Model.ShowURLStr)' target="_blank" id="EquipmentName"  title='@name'>@cutName</a>
+            </p>
+            <ul>
+                <li>
+                    <span class='title'>型号:</span>@(!string.IsNullOrWhiteSpace(Model.Model)?Model.Model : "-- ")
+                </li>
+                <li>
+                    <span class='title'>联系人:</span>@(!string.IsNullOrWhiteSpace(Model.ContactPerson)?Model.ContactPerson : "-- ")
+                </li>
+                <li>
+                    <span class='title'>电话:</span>@(!string.IsNullOrWhiteSpace(Model.ContalTelNo)?Model.ContalTelNo : "-- ")
+                </li>
+                <li>
+                    <span class='title'>所在地点:</span>@(!string.IsNullOrWhiteSpace(Model.OrgNameStr)?Model.OrgNameStr : "-- ")
+                </li>
+                <li title="@Model.ScopeOfApplication">
+                    <span class='title'>功能说明:</span>@(!string.IsNullOrWhiteSpace(cutScopeOfApplication)?cutScopeOfApplication : "-- ")
+                </li>
+            </ul>
+        </div>
+        <div class="inner-right hide">
+             <a class="l-btn-color l-btn-color-green" href="@Model.ShowURLStr" title='@("点击查看" +　Model.Name + "详细信息")' target="_blank" >查看详情</a>
+             <a class="l-btn-color l-btn-color-blue" href="@Model.BookURLStr" title='@("点击预约" +　Model.Name)' target="_blank" >机时预约</a>
+        </div>
+        <div class="clear-both"></div>
+    </div>
+    <div class="clear-both"></div>
+</div>

@@ -1,0 +1,88 @@
+﻿@{
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+    var sbUserDefinedParams = ViewBag.UserDefinedParams == null ? "" : ViewBag.UserDefinedParams.ToString();
+    if (ViewData["UserCurrentTag"] != null)
+    {
+        IList<com.Bynonco.LIMS.Model.View.ViewWorkGroupModule> viewWorkGroupModuleList = (IList<com.Bynonco.LIMS.Model.View.ViewWorkGroupModule>)ViewData["UserCurrentTag"];
+        if (viewWorkGroupModuleList != null && viewWorkGroupModuleList.Count > 0)
+        {
+            bool isFirstItem = false;
+            com.Bynonco.LIMS.Model.View.ViewWorkGroupModule firstItem = null;
+            com.Bynonco.LIMS.Model.View.ViewWorkGroupModule selectItem = null;
+            string tagActionName = ViewData["TagActionName"] != null ? ViewData["TagActionName"].ToString().ToLower() : "";
+            string tagControllerName = ViewData["TagControllerName"] != null ? ViewData["TagControllerName"].ToString().ToLower() : "";
+            <div class="main-content-box">
+                <div class="main-title">
+                    <ul class="content-box-tabs">
+                        @for (int i = 0; i < viewWorkGroupModuleList.Count(); i++)
+                        {
+                            bool isGetFirst = false;
+                            bool isCurrentItem = false;
+                            var item = viewWorkGroupModuleList[i];
+                            if (!item.IsOnlyShowWithModel || Model != null)
+                            {
+                                if (!isFirstItem)
+                                {
+                                    firstItem = viewWorkGroupModuleList[i];
+                                    isFirstItem = isGetFirst = true;
+                                }
+                                if (item.ActionName.ToLower().Trim() == tagActionName && item.ControllerName.ToLower().Trim() == tagControllerName)
+                                {
+                                    selectItem = viewWorkGroupModuleList[i];
+                                    isCurrentItem = true;
+                                }
+                                <li @("class=" + (isGetFirst ? "first" : "") + (isCurrentItem ? " select" : ""))>
+                                    @if (isAjax)
+                                    {
+                                        @Ajax.ActionLink(item.text, item.ActionName, item.ControllerName, new { id = Model == null || Model.Id == Guid.Empty ? "" : Model.Id.ToString(), userParameters = sbUserDefinedParams.ToString(), date = DateTime.Now.Millisecond }, new AjaxOptions() { LoadingElementId = "Loading", UpdateTargetId = "divMainContentBox", OnFailure = "dialogOpen", OnSuccess = "ajaxloadsuccess", OnBegin = "ajaxloadbegin" })
+                                    }
+                                    else
+                                    {
+                                        @Html.ActionLink(item.text, item.ActionName, item.ControllerName, new { id = Model == null || Model.Id == Guid.Empty ? "" : Model.Id.ToString(), userParameters = sbUserDefinedParams.ToString() }, null)
+                                    }
+                                </li>
+                            }
+                        }
+                        <div class="clear-both"></div>
+                    </ul>
+                    <div class="clear-both"></div>
+                </div>
+                <div class="main-content" id="divMainContentBox">
+                    @{
+                        var currentItem = selectItem;
+                        if (currentItem == null)
+                        {
+                            currentItem = firstItem;
+                        }
+                        if (currentItem != null)
+                        {
+                            <script type="text/javascript">
+                            $(function(){
+                                try {
+                                    if ($(".main-content-box .main-title .content-box-tabs li.select").length > 0) {
+                                        $(".main-content-box .main-title .content-box-tabs li.select").addClass("current");
+                                        $(".main-content-box .main-title .content-box-tabs li.select").removeClass("select");
+                                    }
+                                    else {
+                                        $(".main-content-box .main-title .content-box-tabs li.first").addClass("current");
+                                        $(".main-content-box .main-title .content-box-tabs li.first").removeClass("first");
+                                    }
+                                }
+                                catch (e) { }
+                                var url = '@Url.Action(currentItem.ActionName, currentItem.ControllerName, new { id = Model == null ? "" : Model.Id.ToString(), userParameters = sbUserDefinedParams.ToString(), date = DateTime.Now.Millisecond })';
+                                ajaxActionLink(url, "Loading", "divMainContentBox", ajaxloadsuccess, dialogOpen);
+                            });
+                            </script>
+                        }
+                    }
+                </div>
+                <div class="main-bottom"></div>
+            </div>
+        }
+    }
+}
+<script type="text/javascript">
+    $(function () {
+        if(isIE6 || isIE7) $(".main-content-box .main-title").height(27);
+    });
+</script>

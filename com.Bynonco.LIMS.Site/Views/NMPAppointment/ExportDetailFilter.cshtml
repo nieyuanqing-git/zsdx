@@ -1,0 +1,52 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+ul.export li {padding: 0;}
+</style>
+<script type="text/javascript">
+    function doResetExport() {
+        $("#ExportBeginTimeStart").datebox("setValue", "");
+        $("#ExportBeginTimeEnd").datebox("setValue", "");
+        return false;
+    }
+    
+</script>
+<ul class="search">
+    <li style="padding: 5px 0 5px 15px">
+        <label>开始时间</label>
+        @Html.JDateTimePicker("ExportBeginTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>至</label>
+        @Html.JDateTimePicker("ExportBeginTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>导出归类</label>
+        @(Html.JComboBox("ExportType")
+            .SetEditable(false)
+            .SetData(ViewData["ExportTypeJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li>
+        <label>预约状态</label>
+        @(Html.JComboBox("ExportAppointmentStatus")
+            .SetEditable(false)
+            .SetData(ViewData["ExportAppointmentStatusJson"])
+            .SetMutiSelect(true)
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnExport", "导出").SetOnclick("doExportExcelDetail();doCloseExport();").ToMvcString()
+        @Html.JLinkButton("btnResetExport", "清空").SetOnclick("doResetExport();").ToMvcString()
+        @Html.JLinkButton("btnCloseExport", "关闭").SetOnclick("doCloseExport();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+<script type="text/javascript">
+    $(function () {
+        $("#spExportTutor ul.token-input-list-facebook").css("width", "150px");
+    });
+</script>

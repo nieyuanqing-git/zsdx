@@ -1,0 +1,16 @@
+﻿@model com.Bynonco.LIMS.Model.SJ3
+@{
+    Layout = ViewBag.Layout;
+}
+<script type="text/javascript">
+    function doBack() {
+        var url = '@Url.Action("Index", "Equipment")' + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doReload(id) {
+        var url = '@Url.Action("SJ3EditIndex", "Statistics")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds(); ;
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>

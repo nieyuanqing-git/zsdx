@@ -1,0 +1,22 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "所属单位" : customer.GetLabOrganizationName();
+}
+<span class="span-title">统计年份</span>
+<span id="spOrgIdSelect">
+    @(Html.JComboBox("SearchYear")
+            .SetEditable(false)
+            .SetData(ViewData["SearchYearJson"])
+            .SetWidth(80)
+            .ToMvcString())
+</span>
+<span class="span-title" style='margin-left:10px;'>@customerOrgName</span>
+<span >
+    @Html.DropDownList("SearchOrgId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:155px", onchange = "doSearch();" })
+</span>
+<span  style='margin-left:10px;'>
+    @Html.JLinkButton("btnSearch", "统计").SetOnclick("doSearch();").ToMvcString()
+</span>
+ <span style='margin-left:20px;'>[ 统计单位:小时 ]</span>

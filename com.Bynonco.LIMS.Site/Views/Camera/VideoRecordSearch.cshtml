@@ -1,0 +1,48 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateCameraVideoRecordQueryExpress() {
+        var queryExpression = "";
+        var cameraName = $("#SearchCameraName").val().trim();
+        if (cameraName != "") {
+            queryExpression = "(CameraName∽\"" + cameraName.trim() + "\")";
+        }
+        var relationName = $("#SearchRelationName").val().trim();
+        if (relationName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RelationName=\"" + relationName.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doCameraVideoRecordReset() {
+        $("#SearchCameraName").val("");
+        $("#SearchRelationName").val("");
+        $("#SearchCreateTimeStart").datebox("setValue", "");
+        $("#SearchCreateTimeEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>摄像头</label>
+        @Html.JValidateBox("SearchCameraName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>监控对象</label>
+        @Html.JValidateBox("SearchRelationName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>监控时间</label>
+        @Html.JDateTimePicker("SearchCreateTimeStart").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchCreateTimeEnd").SetMode(DateTimePickerMode.dateTime).SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnVideoRecordSearch", "查询").SetOnclick("doCameraVideoRecordSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnVideoRecordReset", "清空").SetOnclick("doCameraVideoRecordReset();").ToMvcString()
+        @Html.JLinkButton("btnVideoRecordClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

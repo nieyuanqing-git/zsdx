@@ -1,0 +1,30 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+}
+ <div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../EquipmentRepairFundsApply/EquipmentRepairFundsApplySearch")
+    </div>
+</div>
+<div>@Html.Partial("../EquipmentRepairFundsApply/SchoolAuditList")</div>  
+<div>@Html.Partial("../EquipmentRepairFundsApply/ScriptContainer")</div>     
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpression();
+        $("#tbEquipmentRepairFundsApplySchoolAuidtList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentRepairFundsApplySchoolAuidtList").datagrid("reload", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+    function generateSelectedEquipmentRepairFundsApplyIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentRepairFundsApplySchoolAuidtList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+</script>

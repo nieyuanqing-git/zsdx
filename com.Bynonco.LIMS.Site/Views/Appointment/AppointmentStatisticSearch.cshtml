@@ -1,0 +1,51 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateAppointmentStatisticsQueryExpression() {
+        var queryExpression = "";
+        var equipmentName = $("#SearchStatisticsEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression = "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+        var labRoomXPath = $("#SearchLabRoomXPath").val().trim();
+        if (labRoomXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "LabRoomXPath→\"" + labRoomXPath + "\"";
+        }
+        return queryExpression;
+    }
+    function getAppointmentSearchLabRoomXPath(element) {
+        $("#SearchLabRoomXPath").val("");
+        var labRoomId = element.value;
+        if (labRoomId != "" && !labRoomId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labRoomId }, function (data) {
+                if (data && data != "")
+                    $("#SearchLabRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    function doAppointmentStatisticsReset() {
+        $("#SearchStatisticsEquipmentName").val("");
+        $("#SearchLabRoomId").val("@Guid.Empty.ToString()");
+        $("#SearchLabRoomXPath").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchStatisticsEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>放置地点</label>
+        @Html.DropDownList("SearchLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px;", onchange = "getAppointmentSearchLabRoomXPath(this);" })
+        @Html.Hidden("SearchLabRoomXPath")
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnAppointmentStatisticsSearch", "查询").SetOnclick("doAppointmentStatisticsSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnAppointmentStatisticsReset", "清空").SetOnclick("doAppointmentStatisticsReset();").ToMvcString()
+        @Html.JLinkButton("btnAppointmentStatisticsClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

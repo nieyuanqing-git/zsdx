@@ -1,0 +1,20 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JDataGrid("tbAnimalDeathRegisterList")
+    .SetUrl(Url.Action("GetGridAnimalDeathRegisterList", "AnimalStatistics", new { time = DateTime.Now.Millisecond.ToString(), queryExpression = ViewData["QueryExpression"].ToString() }))
+    .SetHeight(500)
+    .SetPageSize(15)
+    .SetSortName("OwnerName");
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+     .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("查看", "ViewOperate").SetWidth(60).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("日期", "DateStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("品种品系", "AnimalCategoryName").SetSortable(false).SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("死亡数量", "Amount").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("通知情况", "IsNoticeStr").SetSortable(false).SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("处理方式", "CorpseHanldedWayName").SetSortable(false).SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("处理人", "FeedBackOperatorName").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("处理确认", "IsFeedBackStr").SetSortable(false).SetWidth(60).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实验人", "OwnerName").SetWidth(80).SetAlign(Align.center));
+    
+  }
+  @(dataGrid.ToMvcString())    

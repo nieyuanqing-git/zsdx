@@ -1,0 +1,27 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+}
+<ul class="search">
+    @if (statisticsPrivilige.IsEnableSJ3StatisticsExportExcel)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnSJ3StatisticsExportExcel", "导出xls").SetIconCls("icon-excel").SetOnclick("doSJ3StatisticsExportExcel('');").ToMvcString()
+        </li>
+    }
+    @if (statisticsPrivilige.IsEnableSJ3StatisticsExportDoc)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnSJ3StatisticsExportDoc", "导出doc").SetIconCls("icon-word").SetOnclick("doSJ3StatisticsExportDoc('');").ToMvcString()
+        </li>
+    }
+    @if (statisticsPrivilige.IsEnableSJ3StatisticsExportTxt)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnSJ3StatisticsExportTxt", "导出txt").SetIconCls("icon-note").SetOnclick("doSJ3StatisticsExportTxt('');").ToMvcString()
+        </li>
+    }
+    <li style='float:none; height:25px;'>
+        @Html.JLinkButton("btnSJ3StatisticsExportClose", "关闭").SetIconCls("icon-cancel").SetOnclick("doCloseSearch();").ToMvcString()
+    </li>
+</ul>

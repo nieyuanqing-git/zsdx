@@ -1,0 +1,119 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+}
+<div>
+    @Html.Partial("../EquipmentCategory/List")
+</div>
+<div id="divEquipmentCategoryDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        $('#tbEquipmentCategoryList').treegrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentCategoryList").treegrid("reload");
+        return false;
+    }
+    var equipmentCategoryDialog;
+    function doEquipmentCategoryDialog() {
+        if (equipmentCategoryDialog) {
+            equipmentCategoryDialog.dialog("destroy");
+        }
+        equipmentCategoryDialog =  @Html.JDialog("divEquipmentCategoryEdit").SetTitle("设备分类信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentCategoryDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEquipmentCategory();").ToMvcString();
+    }
+    function doAddOrEditEquipmentCategory(id){
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Edit","EquipmentCategory")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divEquipmentCategoryDialog").load(url,function(){
+            doEquipmentCategoryDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAddEquipmentCategory(id) {
+       doAddOrEditEquipmentCategory(id);
+    }
+    function doEditEquipmentCategory(id) {
+       if(!id || id.trim()==""){
+           var selectedEquipmentCategory = $("#tbEquipmentCategoryList").treegrid("getSelected");
+           if(!selectedEquipmentCategory || selectedEquipmentCategory.Id=="" || selectedEquipmentCategory.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择设备分类", showType: 'show' });
+              return false;
+           }
+           id = selectedEquipmentCategory.Id;
+       }
+       doAddOrEditEquipmentCategory(id);
+    }
+    function doSaveEquipmentCategory(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"名称为空", showType: 'show' });;
+          return false;
+        }
+        var orgId = $("#OrgId").combotree("getValue");
+        if(!orgId || orgId.trim() ==""){
+            $.messager.show({ title: '提示', msg:"@(customerOrgName)为空", showType: 'show' });;
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","EquipmentCategory")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmEquipmentCategoryEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                equipmentCategoryDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteEquipmentCategory(id){
+        if(!id || id.trim() == ""){
+              var selectedEquipmentCategory = $("#tbEquipmentCategoryList").treegrid("getSelected");
+                if(!selectedEquipmentCategory || selectedEquipmentCategory.Id.trim() == "" || selectedEquipmentCategory.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedEquipmentCategory.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "EquipmentCategory")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpath(xPath,compareTarget){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "EquipmentCategory")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false;
+   }
+</script>

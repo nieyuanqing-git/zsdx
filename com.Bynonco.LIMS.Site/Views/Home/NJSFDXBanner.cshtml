@@ -1,0 +1,14 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var orgLogo  = ViewData["OrgLogo"];
+}
+<div class='banner-box' style='height:1px;margin-bottom:5px;background:none;'>
+    <div class='logo-box hide'>
+        <a href='@Url.Action("Index", "Home", routeCurrentXPathValue)' class='logo'>
+            <img src="@Url.Content("~/" + orgLogo)" alt='@(orgName + "首页")'  height='60px'/>
+        </a>
+    </div>
+</div>

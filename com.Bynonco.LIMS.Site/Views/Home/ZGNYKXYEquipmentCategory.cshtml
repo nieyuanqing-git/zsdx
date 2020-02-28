@@ -1,0 +1,32 @@
+﻿@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Utility;
+@{
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    var EquipmentCategoryList = ViewData["EquipmentCategory"] == null ? null : (List<EquipmentCategory>)ViewData["EquipmentCategory"];
+}
+<h2 class="title">
+    <span>平台</span>
+</h2>
+<div class="content-box content-box-186" style='margin-bottom:0;'>
+    @if (EquipmentCategoryList != null && EquipmentCategoryList.Count() > 0)
+    {
+        <ul class="news-list">
+        @for (int i=0;i<EquipmentCategoryList.Count() && i < 7; i++)
+        {
+            var item = EquipmentCategoryList[i];
+            <li style='background:none;line-height:26px;font-size:13px;' class='liEquipmentCategory'>
+                <a href='@Url.Action("ShowList", "Equipment", new { EquipmentCategoryXPath = item.XPath })' title='@item.Name'>@((i+1).ToString() + ". " + ShortcutStringUtility.GetSubString(item.Name, 26, ".."))</a>
+            </li>
+        }
+        </ul>
+    }
+</div>
+<script type="text/javascript">
+    $(function () {
+        if (isIE7 || isIE6) {
+            $(".liEquipmentCategory").css("line-height", "23px");
+        }
+    });
+</script>

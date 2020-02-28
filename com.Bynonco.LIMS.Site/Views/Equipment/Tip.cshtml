@@ -1,0 +1,55 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+      #tbEquipmentTip th{width:60px; text-align:center; padding-right:2px;font-size:12px; color:White;background-color:#666666}
+      #tbEquipmentTip td{text-align:left; padding-left:2px;font-size:12px; width:100px}
+</style>
+@{
+    if(Model != null)
+    {
+        <table id="tbEquipmentTip">
+            <tr>
+                <td style="width:60px;height:60px;vertical-align:middle">
+                    <img align="middle"  style="width:60px; height:60px" src="@Model.IconPath" />
+                </td>
+                <td colspan="3" style="font-size:13px; font-weight:bold; text-align:left">
+                    @string.Format("{0}({1})", Model.Name, Model.StatusStr)
+                </td>
+            </tr>
+            <tr>
+                <th> 联系人</th>
+                <td colspan="3">@Model.Equipment.LinkManNames</td>
+            </tr>
+            <tr>
+                <th>资产编号</th>
+                <td>@Model.Label</td>
+                <th>设备规格</th>
+                <td>@Model.Specifications</td>
+            </tr>
+            <tr>
+                <th>生产厂家</th>
+                <td>@Model.Factory</td>
+                <th>设备型号</th>
+                <td>@Model.Model</td>
+            </tr>
+             <tr>
+                <th>生产产地</th>
+                <td>@Model.ProductionArea</td>
+                 <th>出产日期</th>
+                <td>@(Model.ProductionDate.HasValue?Model.ProductionDate.Value.ToShortDateString():"")</td>
+            </tr>
+            <tr>
+                <th>放置地点</th>
+                <td colspan="3">@Model.RoomName</td>
+            </tr>
+            <tr>
+                <th>所属分类</th>
+                <td colspan="3">@Model.Equipment.CategoryNames</td>
+            </tr>
+            <tr>
+                <th>购置日期</th>
+                <td colspan="3">@(Model.BuyDate.HasValue ? Model.BuyDate.Value.ToShortDateString() : "")</td>
+            </tr>
+        </table>
+    }
+}

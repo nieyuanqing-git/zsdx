@@ -1,0 +1,132 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.View;
+@using com.Bynonco.LIMS.Model.Enum;
+@{ 
+   var sampleRoleStr = ViewData["SampleRoleStr"].ToString();
+   var attachmentJson = ViewData["AttachmentJson"] == "" ? "null" : ViewData["AttachmentJson"];
+   var viewSampleApply = (ViewSampleApply) ViewData["ViewSampleApply"];
+   var uploadTip =  "(可上传文件类型:" + ViewData["EnableUploadFileType"] + "." + "最大可上传" + ViewData["enableUploadFileSize"] + ")";
+ }
+@Html.Hidden("SampleApplyId",viewSampleApply.Id.ToString())
+<div id="divSampleResultUploadEdit">
+    <div style="width:700px">@Html.Partial("SampleApplyBasicInfo")</div>
+    <div style="width:800px;height:auto; min-height:30px;overflow:auto; max-height:180px; margin-top:5px;">@Html.Partial("SampleApplyResult")</div>  
+    <div style="margin-top:1px;">
+        <table id="tbSampleAnalisysEditattachments" class="edit-table" style="width:773px;">
+            <tr>
+                <th>测试记录文件</th>
+                <td style="padding-left:5px">
+                    <input id="fileToUpload" type="file" name="fileToUpload"/>
+                    @Html.JLinkButton("btnUpLoad", "上传").SetIconCls("icon-upload").SetPlain(true).SetOnclick("ajaxFileUpload();return false;").ToMvcString()
+                    <span style="font-weight:bold">@uploadTip</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="width:800px;margin-top:5px;">@Html.Partial("SampleAnalysisAttchmentList")</div>     
+</div>
+<script type="text/javascript">
+    var sampleRole = "@sampleRoleStr";
+    var attachmentJson =  "@attachmentJson".toJson();
+    $(function () {
+        $('#tbAnalysisAttchmentList').datagrid('loadData', { total: 0, rows: [] });
+        if (attachmentJson != "") $("#tbAnalysisAttchmentList").datagrid("loadData", eval(attachmentJson));
+    })
+    function generateAttachmentFiles() {
+        var rows = $('#tbAnalysisAttchmentList').datagrid("getRows");
+        if (!rows || rows == "") return "";
+        var files = new Array();
+        for (var i = 0; i < rows.length; i++) {
+            files.push(rows[i].Id + "∽" + rows[i].FileNameStr +  "∽" +  rows[i].FileSizeStr);
+        }
+        return files;
+    }
+    function generateAttachmentFileIds() {
+        var rows = $('#tbAnalysisAttchmentList').datagrid("getRows");
+        if (!rows || rows == "") return "";
+        var fileIds = "";
+        for (var i = 0; i < rows.length; i++) {
+            fileIds += i == 0 ? rows[i].Id : "," + rows[i].Id;
+        }
+        return fileIds;
+    }
+
+    function doValidates(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        var fileName = file.getFileName().trim();
+        var rows = $("#tbAnalysisAttchmentList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].FileNameStr.trim() == fileName) {
+                    $.messager.show({ title: '提示', msg: "文件名" + fileName + "已经存在", showType: 'show' });
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    function InsertAttachmentToList(file, data) {
+        $('#tbAnalysisAttchmentList').datagrid('appendRow', {
+            Id: data.fileId,
+            FileNameStr:file.getFileName().trim(),
+            FileSizeStr: data.fileSize
+        });
+    }
+    function doDeleteAttachment() {
+        var rows = $('#tbAnalysisAttchmentList').datagrid("getSelections");
+        if (!rows || rows == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的附件", showType: 'show' });
+            return false;
+        }
+        var fileIds = "";
+        for (var i = 0; i < rows.length; i++) {
+            fileIds += i == 0 ? rows[i].Id : "," + rows[i].Id;
+        }
+        $.messager.progress({ title: '提示', msg: '正在删除附件,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteAnalysisResult","SampleManage")'+ "?time=" + new Date().getMilliseconds(),
+            data: { "fileIds": fileIds},
+            complete: function (data, status) {
+                $.messager.progress('close');
+                var deletedFileIds = data.responseText;
+                if (deletedFileIds && deletedFileIds != "") {
+                    var selectedRows = $('#tbAnalysisAttchmentList').datagrid('getSelections');
+                    if (selectedRows) {
+                        for (var j = 0; j < selectedRows.length; j++) {
+                            if (deletedFileIds.indexOf(selectedRows[j].Id) == -1) continue;
+                            var index = $('#tbAnalysisAttchmentList').datagrid('getRowIndex', selectedRows[j]);
+                            $('#tbAnalysisAttchmentList').datagrid('deleteRow', index);
+                        }
+                    }
+                    return true;
+                }
+                $.messager.show({ title: '提示', msg: "找不到要删除的文件信息", showType: 'show' });
+                return false;
+            }
+        });  
+    }
+    function ajaxFileUpload() {
+        var file = $("#fileToUpload").val();
+        if (!doValidates(file)) return false;
+        $("#fileToUpload").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadAnalysisResult","SampleManage")'+ "?time=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileToUpload',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if(data.fileId) InsertAttachmentToList(file, data);
+                else $.messager.show({ title: '提示', msg: data, showType: 'show' });
+            }
+        })
+        return false;
+    }
+</script>

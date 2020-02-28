@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JTreeGrid("tbTrainningTypeList")
+       .SetTreeGrid("Id", "Name", Url.Action("GetUseAutherizeTreeGridTrainningTypeList", "TrainningType"), "", false)
+       .SetHeight(550)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetPagination(false)
+       .SetOnSelect("doOnTrainningTypeSelected(rowData);")
+       //.SetOnLoadSuccess("setTimeout('doTrainningTypeLoadSuccess();', 500);")
+       .SetShowAddButton(false)
+       .SetShowDeleteButton(false)
+       .SetShowPrintButton(false)
+       .SetShowEditButton(false);
+       
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否综合类型", "IsGeneralStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())
+<script type="text/javascript">
+    function doTrainningTypeLoadSuccess() {
+        var root = $('#tbTrainningTypeList').treegrid('getRoot');
+        if (root) {
+            $('#tbTrainningTypeList').treegrid('select', root.Id);
+        }
+    } 
+</script>

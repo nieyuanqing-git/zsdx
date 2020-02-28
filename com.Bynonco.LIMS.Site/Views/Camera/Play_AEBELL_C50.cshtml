@@ -1,0 +1,187 @@
+﻿@model com.Bynonco.LIMS.Model.Camera
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Layout = null;
+    var videoWidth = ViewData["VideoWidth"] == null || string.IsNullOrWhiteSpace(ViewData["VideoWidth"].ToString()) ? 640 : Int32.Parse(ViewData["VideoWidth"].ToString().Trim());
+    var videoHeight = ViewData["VideoHeight"] == null || string.IsNullOrWhiteSpace(ViewData["VideoHeight"].ToString()) ? 350 : Int32.Parse(ViewData["VideoHeight"].ToString().Trim());
+    var cameraUrl = "http://" + Model.IP + (Model.Port.HasValue ? ":" + Model.Port.Value : "")+ "/";
+}
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="pragma" content="no-cache"  />
+    <script src="@Url.Content("~/Scripts/AEBELL_C50.js?v=1.4.0.9")" type="text/javascript"  charset="utf-8"  ></script>
+    <title id="windowstitlelab"></title>
+    <style  type="text/css">
+        body{	padding:0px;	margin:0px;}
+        a:link{    margin: 0px;    color: #0000FF;    text-decoration: none;    word-spacing: 0;    text-indent: 0; }
+        a{	vertical-align:middle; }
+        a:visited{    margin: 0;    color: #0000FF;    text-decoration: none;    word-spacing: 0;    text-indent: 0; }
+        a:hover{	margin: 0px;	color: #ed6c00;	word-spacing: 0;	text-indent: 0; }
+    </style>
+    <script type="text/javascript">
+        var szHostname = '@(Model.IP)';
+        var szPort = '@(Model.Port)';
+        
+    </script>
+</head>
+
+<body  border="0" style="margin:0px; text-align:center;">
+    <table width="99%" height="99%"  id="ctrltable" >
+        <tr>
+            <td align="center" valign="middle" >
+                <div  style="display:none;" id="downloaddiv">
+                    <a href="@(cameraUrl)/IPCConfig.exe?version=1.4.0.9.exe" style="text-decoration:none;" id="showinnertext" ></a>
+                </div>
+                <object ID="IPCConfigCtrl"  codebase="@(cameraUrl)/IPCConfig.exe#version=1,4,0,9"  CLASSID="CLSID:F0C2A0FA-C11A-4B67-84ED-D62E9500BD11" width="@(videoWidth)px" height="@(videoHeight)px" ></object>
+            </td>
+        </tr>
+    </table>
+    <script type="text/javascript"  for="IPCConfigCtrl"  event="OnCtrlEvent(data,nType,nSubType);"  >
+    //  OnCtrlEvent
+    try
+    {debugger;
+        if(nType==10 && nSubType==10)
+        {//change title info
+            var langtype=data;
+            WriteBody(langtype);
+        }
+    }
+    catch(eevv)
+    {
+    }
+    try
+    {
+        if(nType==0 && nSubType==0)
+        {//redirect page 
+            var newurl=data;
+            try
+            {
+                if(window && window.location)
+                {
+                    window.location=newurl;
+                    return true;
+                }
+                else if(document && document.location)
+                {
+                    window.location=newurl;
+                    return true;
+                }                
+            }
+            catch(eevv)
+            {
+            }
+        }
+    }
+    catch(eev)
+    {
+        var errormsg="redirect error";
+    }
+    </script> 
+    <script type="text/javascript" >
+
+
+
+    var bHaveInitOk = false;
+    function GetDefaultInstallLangTip() {
+        var msgInfo = "Please install the plug!";
+        try {
+            var language = SetDefaultLangName();
+            if (language == "zh-cn") {
+                msgInfo = "请先安装插件！";
+            }
+            else if (language == "zh-tw") {
+                msgInfo = "請先安裝插件!";
+            }
+            else if (language == "en-us") {
+                msgInfo = "Please install the plug!"
+            }
+            else {
+                msgInfo = "Please install the plug!";
+            }
+        } catch (eevv) { }
+        return msgInfo;
+    }
+    function OnInit() {
+        var obj = document.getElementById("IPCConfigCtrl");
+        var vret;
+        var ptzport = g_ptz_port;
+        var language = "";
+        var msgInfo = GetDefaultInstallLangTip();
+        try {
+            language = SetDefaultLangName();
+        }
+        catch (eevv) {
+
+        }
+        try {
+            var autologindata = "";
+            var urlinfo = "" + window.location + "";
+            var spls = urlinfo.split("&sid=");
+            if (spls.length > 2) {
+                autologindata = unescape(spls[1]);
+                var b = new Base64();
+                var upstr = b.decode(autologindata);
+                if (upstr.split(":").length == 2 && upstr.split("@@").length == 2) {
+                    autologindata = upstr;
+                }
+                else {
+                    autologindata = "";
+                }
+            }
+            try {
+                if (autologindata != "") {
+                    ret = obj.SetBufferTickV2(800, 100); //set video buffer timer and max frames
+                }
+                else {
+                    ret = obj.SetBufferTickV2(200, 60); //set video buffer timer and max frames
+                }
+            }
+            catch (eevv) { }
+            var auloginurl = "192.168.66.23";
+            if (autologindata != "") {
+                auloginurl = autologindata;
+            }
+            debugger;
+            var ret = obj.InitCtrl(window.location, auloginurl, ptzport); //124-126
+            alert(obj.InitCtrl);
+            if (ret != 0) {
+                alert(msgInfo);
+            }
+        }
+        catch (eee) {
+            //if(!bHaveInitOk)
+            //{
+            //    window.location="IPCConfig.exe?version=1.4.0.9.exe";
+            //}
+            //else
+            {
+                bHaveInitOk = true;
+                alert(msgInfo);
+                try {
+                    var docitem = document.getElementById("downloaddiv");
+                    docitem.style.display = "";
+                }
+                catch (eee) {
+                    ShowError(eee);
+                }
+                try {
+                    var docitem = document.getElementById("showinnertext");
+                    docitem.innerHTML = msgInfo;
+                }
+                catch (eee) {
+                    ShowError(eee);
+                }
+            }
+        }
+    }
+    //SetCookie('language', "en-us");//如果每次都要指定语言，则这里设置默认语言
+    OnInit();
+    </script>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>北京大学医学部大型仪器共享平台</title>
+    <link href="resources/plugins/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link href="resources/css/style.css" rel="stylesheet">
+    <link href="resources/images/imagesUrl.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="resources/plugins/bootstrap-3.3.5/js/html5shiv.min.js"></script>
+      <script src="resources/plugins/bootstrap-3.3.5/js/respond.min.js"></script>
+    <![endif]-->
+    <script src="resources/js/jquery-1.11.3.js"></script>
+    <script src="resources/plugins/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+	$(function(){
+		$(window).on('load', function(){
+			$('#intro').load('/Home/ArticleFrame?type=4');
+			$('#notice').load('/Home/ArticleFrame?type=2');
+		});
+	});
+	</script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo"></div>
+        <div class="themeTitle">北京大学医学部大型仪器共享平台</div>
+      </div>
+    </header>
+    <div class="banner"></div>
+    <div class="container mainContent">
+      <div class="row">
+        <div class="col-md-3 navLink">
+          <ul class="linkUl">
+            <li>
+              <div class="row">
+                <div class="col-md-4 text-center">
+                  <div class="linkLogo link1"></div>
+                </div>
+                <div class="col-md-8 text-center">
+                  <a href="/?XPath=000000">医药卫生分析中心<br />子平台</a>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="row">
+                <div class="col-md-4 text-center">
+                  <div class="linkLogo link2"></div>
+                </div>
+                <div class="col-md-8 text-center">
+                  <a href="#">天然药物及仿生药物国家重点实验子平台</a>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-9 contents">
+          <h3>平台介绍</h3>
+          <div class="row">
+            <div class="col-md-5">
+              <img src="../resources/images/img-ind.png" width="100%">
+            </div>
+            <div class="col-md-7 ind" id="intro">
+              <!--<div class="text">
+                北京大学医学部大型仪器共享平台是北京大学医学部下属的统一仪器预约共享管理平台，目前正在建设实施当中。平台初期下设两个子平台，分别为医药卫生分析中心和天然药物及仿生药物国家重点实验室，后续将涵盖医学部基础医学院、公卫学院等所有二级学院的40万以上大型仪器。初期入网仪器已达72台，预计实施完毕后.....
+              </div>
+              <div class="more">
+                <a class="btn btn-primary btn-sm" href="#" role="button">查看全文</a>
+              </div>-->
+            </div>
+          </div>
+          <h3>公告通知</h3>
+          <div class="row">
+            <div class="col-md-5">
+              <img src="../resources/images/img-ntc.png" width="100%">
+            </div>
+            <div class="col-md-7 ntc" id="notice">
+              <!--<ul>
+                <li><a href="#">平台已开放预约的仪器及检测项目 </a><span>2015.11.05</span></li>
+                <li><a href="#">关于学校网络设备维护期间...  </a><span>2015.10.21</span></li>
+                <li><a href="#">平台预约使用须知 </a><span>2015.08.31</span></li>
+                <li><a href="#">校内学生及导师用户登录须知2</a><span>2015.08.28</span></li>
+                <li><a href="#">校内学生及导师用户登录须知1</a><span>2015.08.21</span></li>
+              </ul>
+              <div class="more">
+                <a class="btn btn-primary btn-sm" href="#" role="button">更多</a>
+              </div>-->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-10 col-md-offset-1 text-center copy">程序版本号：3.2.3.*（版本授权号：4.9.0.0）Copyright&copy;2015广州佰能信息科技有限公司</div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

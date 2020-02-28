@@ -1,0 +1,39 @@
+﻿ <div class="search-grid hide">
+    <div class="search-inner-box" >
+        @Html.Partial("../NMPUsedConfirm/UnDeductNMPUsedConfirmSearch")
+    </div>
+</div>
+<div>@Html.Partial("../NMPUsedConfirm/UnDeductNMPUsedConfirmList")</div>
+<div>@Html.Partial("../NMPUsedConfirm/ScriptContainer")</div>
+
+<script type="text/javascript">
+    function doSaveNMPUsedConfirmCallBack(nmpEditDialog) {
+        doUnDeductNMPUsedConfirmSearch(true);
+        nmpEditDialog.dialog('close');
+    }
+    function doChargeNMPUsedConfirmCallBack(nmpEditDialog) {
+        doUnDeductNMPUsedConfirmSearch(true);
+        nmpEditDialog.dialog('close');
+    }
+    function doDeleteNMPUsedConfirmCallBack() {
+        doUnDeductNMPUsedConfirmSearch(true);
+    }
+    function doSaveNMPUsedConfirmFeedBackCallBack() {
+        doUnDeductNMPUsedConfirmSearch(true);
+    }
+    function doUnDeductNMPUsedConfirmSearch(isPosCurPage) {
+        var queryExpression = generateUnDeductNMPUsedConfirmQueryExpression();
+        if (isPosCurPage) {
+            $("#tbUnDedcutViewNMPUsedConfirmList").datagrid("reload", { "queryExpression": queryExpression.trim() });
+        }
+        else {
+            $("#tbUnDedcutViewNMPUsedConfirmList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbUnDedcutViewNMPUsedConfirmList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        }
+    }
+    function doExportUnDeductNMPUsedConfirmList() {
+        var newQueryExpression = generateUnDeductNMPUsedConfirmQueryExpression();
+        var url = '@Url.Action("ExportUnDeductNMPUsedConfirmList", "NMPUsedConfirm")' + "?userId=" + '@(ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "")' + "&queryExpression=" + newQueryExpression.trim() + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+</script>

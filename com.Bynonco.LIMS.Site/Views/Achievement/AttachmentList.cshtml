@@ -1,0 +1,119 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core
+@{
+    Guid? ParentId = null;
+    var attchmentParentId = ViewData["AttchmentParentId"] == null ? "" : ViewData["AttchmentParentId"].ToString().Trim();
+    if(!string.IsNullOrEmpty(attchmentParentId))
+    {
+        ParentId = new Guid(attchmentParentId);
+    }
+    var dataGrid = Html.JDataGrid("tbAttchmentList")
+    .SetUrl(Url.Action("GetAchievementAttchmentList", "Achievement", new { ParentId = ParentId }))
+    .SetWidth(550)
+    .SetHeight(150)
+    .SetShowDeleteButton(true)
+    .SetDeleteScript("doDeleteAttachment();")
+    .SetShowRefreshButton(false)
+    .SetShowPrintButton(false)
+    .SetSortName("FileName")
+    .SetPagination(false)
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件名", "AttachmentName").SetWidth(290).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "AttachmentType").SetWidth(50).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("大小", "AttachmentSize").SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("下载", "DownloadOperate").SetWidth(50).SetAlign(Align.center));
+}
+@(dataGrid.ToMvcString())
+
+
+<script type="text/javascript">
+    function generateAttachmentFiles() {
+        var rows = $('#tbAttchmentList').datagrid("getRows");
+        if (!rows || rows == "") return "";
+        var files = new Array();
+        for (var i = 0; i < rows.length; i++) {
+            files.push(rows[i].Id + "*" + rows[i].AttachmentName + "*" + rows[i].AttachmentType + "*" + rows[i].AttachmentSize);
+        }
+        return files;
+    }
+
+    function ajaxFileUpload() {
+        var file = $("#fileToUpload").val();
+        if (!doValidates(file)) return false;
+        $("#fileToUpload").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadAttachmentResult","Achievement")',
+            secureuri: false,
+            fileElementId: 'fileToUpload',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.fileId) InsertAttachmentToList(file, data);
+                else $.messager.alert('提示', data, 'warning');
+            }
+        })
+        return false;
+    }
+
+    function doValidates(file) {
+        if (file == "") {
+            $.messager.alert('提示', "请选择要上传的文件", 'warning');
+            return false;
+        }
+        var fileName = file.getFileName().trim();
+        var rows = $("#tbAttchmentList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].AttachmentName.trim() == fileName) {
+                    $.messager.alert('提示', "文件名" + fileName + "已经存在", 'warning');
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    function InsertAttachmentToList(file, data) {
+        $('#tbAttchmentList').datagrid('appendRow', {
+            Id: data.fileId,
+            AttachmentName: file.getFileName().trim(),
+            AttachmentType: data.fileType,
+            AttachmentSize: data.fileSize
+        });
+    }
+
+    function doDeleteAttachment() {
+        var rows = $('#tbAttchmentList').datagrid("getSelections");
+        if (!rows || rows == "") {
+            $.messager.alert('提示', "请选择要删除的附件", 'warning');
+            return false;
+        }
+        var fileIds = "";
+        for (var i = 0; i < rows.length; i++) {
+            fileIds += i == 0 ? rows[i].Id : "," + rows[i].Id;
+        }
+        $.messager.progress({ title: '提示', msg: '正在删除附件,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteAttachmentResult", "Achievement")',
+            data: { "fileIds": fileIds },
+            complete: function (data, status) {
+                $.messager.progress('close');
+                var selectedRows = $('#tbAttchmentList').datagrid('getSelections');
+                if (selectedRows) {
+                    for (var j = 0; j < selectedRows.length; j++) {
+                        var index = $('#tbAttchmentList').datagrid('getRowIndex', selectedRows[j]);
+                        $('#tbAttchmentList').datagrid('deleteRow', index);
+                    }
+                }
+                var deletedFileIds = data.responseText;
+                if (deletedFileIds && deletedFileIds != "") {
+
+                    return true;
+                }
+                $.messager.alert('提示', "找不到要删除的文件信息", 'warning');
+                return false;
+            }
+        });
+    }
+</script>

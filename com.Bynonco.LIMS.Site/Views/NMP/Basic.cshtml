@@ -1,0 +1,130 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core;
+<form id="frmSubjectEdit" action="#">
+    <p><span class="icon icon-calendar"></span>基本信息</p>
+    @Html.Hidden("NMPId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-info">
+        <tr>
+            <th><span class="required">*</span>工位名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(300).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>IP地址</th>
+            <td>
+                @Html.JValidateBox("IP").SetWidth(300).SetValue(Model == null ?"" : Model.IP).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>所在单位</th>
+            <td id="tdOrgId">
+                @Html.DropDownList("OrganizationId", ViewData["OrganizationSelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["OrganizationSelectListItem"], new { style = "width:305px", onchange = "doOnOranizationChanged(this);" })
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>所在房间</th>
+            <td id="tdRoomId">
+                @Html.DropDownList("RoomId", ViewData["LabRoomSelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["LabRoomSelectListItem"], new { style = "width:305px", onchange = "doOnRoomChanged(this);" })
+                @Html.TextBox("OtherRoomName", "", new { style = "display:none;width:108px" })
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>门禁</th>
+            <td id="tdDoorId">
+                @Html.DropDownList("DoorId", ViewData["DoorSelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["DoorSelectListItem"], new { style = "width:305px" })
+            </td>
+       </tr>
+       <tr>
+            <th><span class="required">*</span>Get共同体</th>
+            <td>
+                @Html.JValidateBox("GetCommunity").SetWidth(300).SetValue(Model == null ?"" : Model.GetCommunity).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>Set共同体</th>
+            <td>
+                @Html.JValidateBox("SetCommunity").SetWidth(300).SetValue(Model == null ?"" : Model.SetCommunity).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>Trap共同体</th>
+            <td>
+                @Html.JValidateBox("TrapCommunity").SetWidth(300).SetValue(Model == null ?"" : Model.TrapCommunity).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>联系人</th>
+            <td>
+                @Html.JValidateBox("ContactPersonName").SetWidth(300).SetValue(Model == null ?"" : Model.ContactPersonName).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>联系电话</th>
+            <td>
+                @Html.JValidateBox("ContactTelPhoneNo").SetWidth(300).SetValue(Model == null ?"" : Model.ContactTelPhoneNo).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>联系邮箱</th>
+            <td>
+                @Html.JValidateBox("ContactEmail").SetWidth(300).SetValue(Model == null ?"" : Model.ContactEmail).ToMvcString()
+            </td>
+        </tr>
+          <tr>
+            <th>负责人</th>
+            <td id="tdDirectors">
+                @(Html.TokenInput("Directors")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["DirectorsJson"] == null || string.IsNullOrWhiteSpace(ViewData["DirectorsJson"].ToString()) ? null : ViewData["DirectorsJson"].ToString())
+                .SetSingle(false).SetWidth(239)
+                .SetSingle(false)
+                .SetWidth(239)
+                .ToMvcString())
+            </td>
+        </tr>
+       <tr>
+            <th>说明</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:300px;height:100px;font-size:12px;font-weight:normal" })
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#tdDirectors ul.token-input-list-facebook").css("width", "300px");
+    });
+    function doOnRoomChanged(element) {
+        var roomId = element.value;
+        document.getElementById("OtherRoomName").style.display = roomId != "OtherRoomName" ? "none" : "";
+    }
+    function doOnOranizationChanged(element) {
+        var orgId = element.value;
+        var roomElement = document.getElementById("RoomId");
+        roomElement.options.length = 0;
+        if (orgId != '@Guid.Empty.ToString()') {
+            document.getElementById("OtherRoomName").style.display = "none";
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetLabRoomListByOrgId", "LabOrganization")',
+            data: { "orgId": orgId, "time": new Date().getMilliseconds() },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg != "") {
+                    var rooms = eval(msg);
+                    if (rooms.length == 0) return;
+                    for (var i = 0; i < rooms.length; i++) {
+                        var option = document.createElement("OPTION");
+                        roomElement.options.add(option);
+                        option.text = rooms[i].Text;
+                        option.value = rooms[i].Value;
+                    }
+                }
+            }
+        });
+        return false;
+    }
+</script>

@@ -1,0 +1,125 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSubject
+@using com.Bynonco.JqueryEasyUI.Core;
+@{ var subjectPrivilige  = Model == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name, Model.Id, Convert.ToBoolean(ViewData["IsCooperative"]));}
+<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryImgAreaSelect/css/imgareaselect-default.css")" type="text/css" media="screen" />
+<script src="@Url.Content("~/JqueryPlugin/JqueryImgAreaSelect/scripts/jquery.imgareaselect.min.js")" type="text/javascript"></script>
+
+<div class="layout-center-full">
+    <div class="edit-box">
+        <form id="frmSubjectPhotoEdit" action="#">
+            @Html.Hidden("SubjectId", Model == null ? "" : Model.Id.ToString())
+            <p><span class="icon icon-userphoto"></span>头像</p>
+            <div class="crop-box-largar">
+                <img id="imgSubjectPhoto" title="" alt="头像" src='@(Model == null ? "" : Model.RelativePic + "?date" + DateTime.Now.Millisecond.ToString()) ' />
+            </div>
+            <div class="crop-box-small">
+                <img id="imgSubjectPhotoCrop" src="@(Model == null ? "" : Model.RelativePic + "?date=" + DateTime.Now.Millisecond.ToString())" />
+            </div>
+            <div class="clear-both"></div>
+            <a class="upload-bg" href="javascript:;">
+                <input id="fileToUpload" type="file" name="fileToUpload" class="addfile" onchange="ajaxFileUpload();return false;"/>
+            </a>
+            <a class="upload-submit" href="javascript:;" onclick="@(subjectPrivilige.IsEnableUploadSubjectPhoto ? "doUploadSubmit();return false;" : "return false;")">保存</a>
+            <div class="clear-both"></div>
+            <input type="hidden" name="x1" value="" />
+            <input type="hidden" name="y1" value="" />
+            <input type="hidden" name="x2" value="" />
+            <input type="hidden" name="y2" value="" />
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    function ajaxFileUpload() {
+        var file = $("#fileToUpload").val();
+        if (!doValidates(file)) return false;
+        $("#fileToUpload").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传课题组图标,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadSubjectPhoto", "Subject")' + "?SubjectId=" + $("#SubjectId").val() + "&date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileToUpload',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.filePath) {
+                    var src = data.filePath + "?date=" + new Date().getMilliseconds()
+                    $("#imgSubjectPhoto").attr("src", src);
+                    $("#imgSubjectPhotoCrop").attr("src", src);
+                    iniview();
+                }
+                else if (data && (data.indexOf("出错") != -1)) {
+                    $("#imgSubjectPhoto").attr("src", "");
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+            }
+        })
+        return false;
+    }
+    function doValidates(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    $(document).ready(function () {
+        iniview();
+    });
+
+    function iniview() {
+        $('#imgSubjectPhoto').imgAreaSelect({ aspectRatio: '1:1', handles: true, onSelectChange: preview, onSelectEnd: endview, x1: 0, y1: 0, x2: 300, y2: 300 });
+        $('#imgSubjectPhotoCrop').css({
+            width: '150px',
+            height: '150px',
+            marginLeft: '0px',
+            marginTop: '0px'
+        });
+        $('input[name="x1"]').val(0);
+        $('input[name="y1"]').val(0);
+        $('input[name="x2"]').val(300);
+        $('input[name="y2"]').val(300);
+    }
+    function preview(img, selection) {
+        var scaleX = 150 / (selection.width || 1);
+        var scaleY = 150 / (selection.height || 1);
+
+        $('#imgSubjectPhotoCrop').css({
+            width: Math.round(scaleX * 300) + 'px',
+            height: Math.round(scaleY * 300) + 'px',
+            marginLeft: '-' + Math.round(scaleX * selection.x1) + 'px',
+            marginTop: '-' + Math.round(scaleY * selection.y1) + 'px'
+        });
+    }
+    function endview(img, selection) {
+        $('input[name="x1"]').val(selection.x1);
+        $('input[name="y1"]').val(selection.y1);
+        $('input[name="x2"]').val(selection.x2);
+        $('input[name="y2"]').val(selection.y2);
+    }
+    function doUploadSubmit() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveSubjectPhoto", "Subject")',
+            data: $("#frmSubjectPhotoEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                else {
+                    $("#imgSubjectPhoto").attr("src", msg);
+                    $("#imgSubjectPhotoCrop").attr("src", msg);
+                    iniview();
+                    $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                }
+            }
+        });
+        return false;
+    }
+</script>

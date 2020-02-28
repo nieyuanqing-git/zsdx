@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var semesterPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSemesterPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSemesterList")
+       .SetUrl(Url.Action("GetGridSemesterList", "Semester"))
+       .SetHeight(650)
+       .SetSortName("XPath")
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(false);
+    dataGrid.SetShowAddButton(semesterPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(semesterPrivilige.IsEnableEdit);
+    if (semesterPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddSemester('');");
+       dataGrid.SetEditScript("doEditSemester('');");
+       dataGrid.SetOnDblClickRow("doEditSemester(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(semesterPrivilige.IsEnableDelete);
+    if (semesterPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteSemester('');");
+    }
+    if (semesterPrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("简称", "Name").SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("XPath", "XPath").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopNickName").SetWidth(80).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

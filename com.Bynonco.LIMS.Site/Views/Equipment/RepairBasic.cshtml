@@ -1,0 +1,197 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentRepair
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsLoadRepariUnit = customer.GetIsLoadRepariUnit();
+ }
+<style type="text/css">
+    #tbRepairEdit{background-color:#F8F8F8;border-top:1px solid #CCC;border-left:1px solid #CCC;margin-bottom:5px;}
+    #tbRepairEdit th{width:80px; text-align:right; padding:2px;border-bottom:1px solid #CCC;border-right:1px solid #CCC;}
+    #tbRepairEdit td{text-align:left;padding:2px;border-bottom:1px solid #CCC;border-right:1px solid #CCC;}
+    #tbRepairEdit td input,#tbRepairEdit td textarea,#tbRepairEdit td span.datebox{border:0;background-color:#F8F8F8}
+</style>
+@{
+    var beforeRepairStatusName = Model == null ? "" : Model.BeforeRepairStatusName;
+    var beforeRepairUsableStatusName = Model == null ? "" : Model.BeforeRepairUsableStatusName;
+    var afterRepairStatusName = Model == null ? "" : Model.AfterRepairStatusName;
+    var afterRepairUsableStatusName = Model == null ? "" : Model.AfterRepairUsableStatusName;
+ }
+<div>
+    <form id="frmRepairEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("EquipmentId", Model == null ? "" : Model.EquipmentId.ToString())
+    @Html.Hidden("RepairId", Model == null ? "" : Model.RepairId.ToString())
+    <table id="tbRepairEdit" class="edit-info" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <th colspan="4" style="text-align:center; font-size:14px;font-weight:bold">
+                @(Model == null ? "" : Model.EquipmentName)(维修记录单)
+            </th>
+        </tr>
+        <tr>
+            <th colspan="2" style="text-align:center;font-weight:bold">损坏或者故障情况记录</th>
+            <th colspan="2" style="text-align:center;font-weight:bold">维修记录</th>
+        </tr>
+        <tr>
+            <th>发生日期</th>
+            <td>
+                @Html.JDateTimePicker("HappendTime").SetValue(Model == null || Model.Id == Guid.Empty ? DateTime.Now.ToString("yyyy-MM-dd") : Model.HappendTime.HasValue ? Model.HappendTime.Value.ToString("yyyy-MM-dd") : "").SetWidth(155).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+            <th>修理时间 </th>
+            <td>
+                @Html.JDateTimePicker("RepairTime").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.RepairTime.HasValue ? Model.RepairTime.Value.ToString("yyyy-MM-dd") : "").SetWidth(155).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>主要负责人</th>
+            <td>
+                @Html.JValidateBox("ResponsiblePerson").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.ResponsiblePerson).SetWidth(150).ToMvcString()
+            </td>
+            @if (customerIsLoadRepariUnit)
+            {
+                <th>维修单位</th>
+                <td>
+                     @(Html.JComboBox("RepariUnit")
+                    .SetData(ViewData["RepariUnitJson"])
+                    .SetOnChange("getRepair(newValue)")
+                    .SetWidth(205).ToMvcString())
+                </td>
+            }
+            else
+            { 
+                <th>维修单位</th>
+                <td>
+                    @Html.JValidateBox("RepariUnit").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.RepariUnit).SetWidth(150).ToMvcString()
+                </td>
+            }
+        </tr>
+        <tr>
+            <th colspan="2" style="text-align:center;">损坏或故障情况描述</th>
+            <th>维修人员</th>
+            <td>
+                @Html.JValidateBox("RepairPenson").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.RepairPenson).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                @Html.JValidateBox("Description").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.Description).SetWidth(350).ToMvcString()
+            </td>
+            <th>联系方式</th>
+            <td>
+                @Html.JValidateBox("ContactMethod").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.ContactMethod).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2" style="text-align:center;">原因分析</th>
+            <th colspan="2" style="text-align:center;">修理内容</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                @Html.TextArea("AnalysisReason", Model == null || Model.Id == Guid.Empty ? "" : Model.AnalysisReason, new { style = "font-size:12px;font-height:normal;width:350px;height:100px" })
+            </td>
+            <td colspan="2">
+                @Html.TextArea("RepairContent", Model == null || Model.Id == Guid.Empty ? "" : Model.RepairContent, new { style = "font-size:12px;font-height:normal;width:350px;height:100px" })
+            </td>
+        </tr>  
+        <tr>
+            <th colspan="2" style="text-align:center;">处理情况</th>
+            <th colspan="2" style="text-align:center;">验收</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                @Html.TextArea("HandleCondition", Model == null || Model.Id == Guid.Empty ? "" : Model.HandleCondition, new { style = "font-size:12px;font-height:normal;width:350px;height:100px" })
+            </td>
+            <td colspan="2">
+                @Html.TextArea("AcceptanceCheck", Model == null || Model.Id == Guid.Empty ? "" : Model.AcceptanceCheck, new { style = "font-size:12px;font-height:normal;width:350px;height:100px" })
+            </td>
+        </tr>  
+        <tr>
+            <th>仪器操作人员</th>
+            <td>
+                @Html.JValidateBox("EquipmentOperator").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.EquipmentOperator).SetWidth(150).ToMvcString()
+            </td>
+            <th>验收人</th>
+            <td>
+                @Html.JValidateBox("AcceptanceCheckPerson").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.AcceptanceCheckPerson).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>期间工作情况</th>
+            <td>
+                @Html.JComboBox("BeforeRepairStatusId").SetData(ViewData["BeforeRepairStatusJson"]).SetWidth(75).ToMvcString()
+                @Html.JComboBox("BeforeRepairUsableStatusId").SetData(ViewData["BeforeRepairUsableStatusJson"]).SetWidth(75).ToMvcString()
+            </td>
+            <th>维修后仪器工作情况</th>
+            <td>
+                @Html.JComboBox("AfterRepairStatusId").SetData(ViewData["AfterRepairStatusJson"]).SetWidth(75).ToMvcString()
+                @Html.JComboBox("AfterRepairUsableStatusId").SetData(ViewData["AfterRepairUsableStatusJson"]).SetWidth(75).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>开始日期</th>
+            <td>
+                @Html.JDateTimePicker("RepairBeginTime").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.RepairBeginTime.HasValue ? Model.RepairBeginTime.Value.ToString("yyyy-MM-dd") : "").SetWidth(155).ToMvcString()
+            </td>
+            <th>创建日期</th>
+            <td>
+                @Html.JDateTimePicker("CreateTime").SetValue(Model == null || Model.Id == Guid.Empty ? DateTime.Now.ToString("yyyy-MM-dd") : Model.CreateTime.ToString("yyyy-MM-dd")).SetWidth(155).SetDisabled(true).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>结束日期</th>
+            <td>
+                @Html.JDateTimePicker("RepairEndTime").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.RepairEndTime.HasValue ? Model.RepairEndTime.Value.ToString("yyyy-MM-dd") : "").SetWidth(155).ToMvcString()
+            </td>
+            <th>维护费用</th>
+            <td>
+                @Html.JValidateBox("Fee").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.Fee.HasValue ? Model.Fee.Value.ToString() : "").SetWidth(150).ToMvcString()
+                (元)
+            </td>
+        </tr>
+        @if (customerIsLoadRepariUnit)
+        {
+            <tr>
+                <th></th>
+                <td>
+                </td>
+                <th>评价</th>
+                <td>
+                    @Html.JValidateBox("Appraise").SetValue(Model == null || Model.Id == Guid.Empty ? "" : Model.Appraise.HasValue ? Model.Appraise.Value.ToString() : "").SetWidth(150).ToMvcString()
+                </td>
+            </tr>
+        }
+    </table>
+    </form>
+</div>
+ <script type="text/ecmascript">
+     var beforeRepairStatusName = "@beforeRepairStatusName";
+     var beforeRepairUsableStatusName = "@beforeRepairUsableStatusName";
+     var afterRepairStatusName = "@afterRepairStatusName";
+     var afterRepairUsableStatusName = "@afterRepairUsableStatusName";
+     $(function () {
+         $("#BeforeRepairStatusId").combobox("setText", beforeRepairStatusName);
+         $("#BeforeRepairUsableStatusId").combobox("setText", beforeRepairUsableStatusName);
+         $("#AfterRepairStatusId").combobox("setText", afterRepairStatusName);
+         $("#AfterRepairUsableStatusId").combobox("setText", afterRepairUsableStatusName);
+     });
+     function getRepair(RepariUnit) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetRepari", "Equipment")',  
+            //dataType: 'json',          
+            data: "repariUnit=" + RepariUnit + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                if (msg && msg.indexOf("出错") != -1) {
+                    return false;
+                }
+                else {
+                    var repari =eval(msg);
+                    $("#ContactMethod").val(repari[0].PhoneNumber);
+                    $("#ContactMethod").SetReadOnly(true);
+                }
+            }
+        });
+        //         $("#Appraise").val("22");
+     }
+ </script>

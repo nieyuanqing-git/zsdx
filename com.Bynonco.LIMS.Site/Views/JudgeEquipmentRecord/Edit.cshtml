@@ -1,0 +1,165 @@
+﻿@model com.Bynonco.LIMS.Model.Business.JudgeEquipmentRecordStatistics
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var isReadonly = ViewData["IsReadOnly"] == null ? false : Model.JudgeEquipmentRecordId.HasValue && bool.Parse(ViewData["IsReadOnly"].ToString());
+}
+<div id="divJudgeEquipmentRecordEdit">
+ <form id="frmJudgeEquipmentRecordEdit" action="#">
+    @Html.Hidden("Id", Model == null || !Model.JudgeEquipmentRecordId.HasValue ? "" : Model.JudgeEquipmentRecordId.ToString())
+    <table id="tdJudgeEquipmentRecordEdit" class="edit-table"  style="width:730px;">
+        <tr>
+            <td colspan='9'>
+                <table border='0' cellpadding='0' cellspacing='0'>
+                    <tr style='border:0;'>
+                    <th style='border:0;'><span class="required">* </span>仪器设备</th>
+                    @if (Model == null || !Model.EquipmentId.HasValue)
+                    {
+                        <td id="tdEquipment" style='width:250px;border:0;'>
+                            <div style='float:left;'>
+                            @(Html.TokenInput("EquipmentId")
+                                .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                                .SetSingle(true)
+                                .SetWidth(400)
+                                .ToMvcString())
+                            </div>
+                            <div style='float:right;'>
+                                @Html.JLinkButton("btnClearEquipmentId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#EquipmentId').tokenInput('clear');;return false;").ToMvcString()
+                            </div>
+                            <div class='clear-both'></div>
+                        </td>
+                    }
+                    else
+                    {
+                        <td style='width:200px;border:0;'>
+                            @Html.Hidden("EquipmentId", Model.EquipmentId.Value)
+                            @Model.EquipmentNameStr
+                        </td>
+                    }
+                    <th style='border:0;'><span class="required">* </span>流水号</th>
+                    <td style='width:120px;border:0;'>
+                        @Html.JValidateBox("RecordNum").SetDisabled(isReadonly).SetValue(Model == null || string.IsNullOrWhiteSpace(Model.RecordNum) ? (ViewData["RecordNumSerilaNo"] == null ? "" : ViewData["RecordNumSerilaNo"].ToString()) : Model.RecordNum).SetWidth(100).ToMvcString()
+                    </td>
+                    <th style='border:0;'><span class="required">* </span>评价时间</th>
+                    <td  style='width:120px;border:0;'>
+                        @Html.JDateTimePicker("JudgeTime").SetDisabled(isReadonly).SetValue(Model == null || !Model.JudgeTime.HasValue ? DateTime.Now.ToString("yyyy-MM-dd") : Model.JudgeTime.Value.ToString("yyyy-MM-dd")).SetWidth(105).ToMvcString()
+                    </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+         @if (Model != null && Model.JudgeProjectRecordStatisticsList != null && Model.JudgeProjectRecordStatisticsList.Count() > 0)
+         {
+        <tr>
+            <th style='width:30px'>序号</th>
+            <th>项目</th>
+            <th>权重</th>
+            <th>内容</th>
+            <th>记录</th>
+            <th style='width:30px'>满分</th>
+            <th>评分标准</th>
+            <th style='width:50px'><span class="required">* </span>分项分</th>
+            <th style='width:50px'><span class="required">* </span>小计</th>
+        </tr>
+             for (int i = 0; i < Model.JudgeProjectRecordStatisticsList.Count(); i++)
+             {
+                 var item = Model.JudgeProjectRecordStatisticsList[i];
+                 var judgeProjectId = item.JudgeProjectId;
+                 var contentCount = item.JudgeProjectContentRecordStatisticsList == null ? 0 : item.JudgeProjectContentRecordStatisticsList.Count();
+                 if (contentCount == 0)
+                 {
+                     contentCount = 1;
+                 }
+                 <tr>
+                    <th rowspan='@contentCount' style='width:30px'>@(i + 1)</th>
+                    <th rowspan='@contentCount'>@item.JudgeProjectName</th>
+                    <th rowspan='@contentCount'>@(item.JudgeProjectWeight + "%")</th>
+                    @if (item.JudgeProjectContentRecordStatisticsList != null && item.JudgeProjectContentRecordStatisticsList.Count() > 0)
+                    {
+                        for (int j = 0; j < item.JudgeProjectContentRecordStatisticsList.Count(); j++)
+                        {
+                            if (j > 0)
+                            {
+                                @:<tr>
+                            }
+                            var contentItem = item.JudgeProjectContentRecordStatisticsList[j];
+                            var judgeProjectContentId = contentItem.JudgeProjectContentId;
+                            <th>@contentItem.ContentName</th>
+                            <td style='text-align:center;'>
+                                @Html.JValidateBox("ContentRemark_" + judgeProjectContentId).SetDisabled(isReadonly).SetValue(contentItem.Remark).SetWidth(80).ToMvcString()
+                                @Html.Hidden("JudgeProjectContentId_" + judgeProjectContentId, judgeProjectContentId)
+                                @Html.Hidden("JudgeProjectContentId_" + judgeProjectContentId, contentItem.JudgeProjectContentRecordId.HasValue ? contentItem.JudgeProjectContentRecordId.Value.ToString() : "")
+                            </td>
+                           if (j == 0)
+                           {
+                                <td rowspan='@contentCount' style='text-align:center;background-color:#F7F7F7;'>@item.JudgeProjectProjectCent</td>
+                           }
+                            <td style='width:200px;background-color:#F7F7F7;'>@contentItem.JudgeStandard</td>
+                            <td style='width:50px;text-align:center;' class='@judgeProjectId'>
+                                @Html.JValidateBox("ContentCent_" + judgeProjectContentId).SetDisabled(isReadonly).AddClass("ContentCent").SetValue(contentItem.ContentCent.HasValue ? contentItem.ContentCent.Value.ToString() : "").SetRequired(true).SetValidateType(ValidateType.positiveIntNumber).SetWidth(30).ToMvcString()
+                            </td>
+                           if (j == 0)
+                           {
+                                <td rowspan='@contentCount' style='width:50px;text-align:center;'>
+                                    @Html.JValidateBox("ItemCent_" + judgeProjectId).SetDisabled(isReadonly).AddClass("ItemCent").SetValue(item.ItemCent.HasValue ? item.ItemCent.Value.ToString() : "").SetRequired(true).SetValidateType(ValidateType.positiveIntNumber).SetWidth(30).ToMvcString()
+                                    @Html.Hidden("JudgeProjectId_" + judgeProjectId, judgeProjectId)
+                                    @Html.Hidden("JudgeProjectRecordId_" + judgeProjectId, item.JudgeProjectRecordId.HasValue ? item.JudgeProjectRecordId.Value.ToString() : "")
+                                </td>
+                           }
+                           if (j > 0)
+                           {
+                                @:</tr>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <th></th>
+                        <td></td>
+                        <td rowspan='@contentCount'>@item.JudgeProjectProjectCent</td>
+                        <td></td>
+                        <td></td>
+                        <td rowspan='@contentCount'  style='width:50px;text-align:center;'>
+                            @Html.JValidateBox("ItemCent_" + judgeProjectId).SetDisabled(isReadonly).AddClass("ItemCent").SetValue(item.ItemCent.HasValue ? item.ItemCent.Value.ToString() : "").SetRequired(true).SetValidateType(ValidateType.positiveIntNumber).SetWidth(30).ToMvcString()
+                            @Html.Hidden("JudgeProjectId_" + judgeProjectId, judgeProjectId)
+                            @Html.Hidden("JudgeProjectRecordId_" + judgeProjectId, item.JudgeProjectRecordId.HasValue ? item.JudgeProjectRecordId.Value.ToString() : "")
+                        </td>
+                    }
+                 </tr>
+             }
+         }
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdEquipment ul.token-input-list-facebook").css("width", "205px");
+        $(".ItemCent").change(function () {
+            if ($(this).val().trim() != '0' && ($(this).val().trim() == "" || !$(this).validatebox("isValid") || !$(this).val().trim().isPositiveInt())) {
+                $(this).addClass("redborder");
+            }
+            else
+                $(this).removeClass("redborder");
+        });
+        $(".ContentCent").change(function () {
+            if ($(this).val().trim() != '0' && ($(this).val().trim() == "" || !$(this).validatebox("isValid") || !$(this).val().trim().isPositiveInt())) {
+                $(this).addClass("redborder");
+                isCentOk = false;
+            }
+            else
+                $(this).removeClass("redborder");
+            var judgeProjectId = $(this).parent().attr("class");
+            if (judgeProjectId && judgeProjectId != "" && $("#ItemCent_" + judgeProjectId).length > 0) {
+                $("#ItemCent_" + judgeProjectId).val("");
+                var itemCent = 0;
+                $("." + judgeProjectId).each(function () {
+                    var contentCent = $(this).find("input").val();
+                    if(contentCent && contentCent != "" && (contentCent.isPositiveInt() || contentCent == "0"))
+                        itemCent += parseInt(contentCent);
+                    $("#ItemCent_" + judgeProjectId).val(itemCent);
+                });
+
+            }
+        });
+    });
+
+</script>

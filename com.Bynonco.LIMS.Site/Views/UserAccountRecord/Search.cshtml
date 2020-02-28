@@ -1,0 +1,28 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+<script type="text/javascript">
+    function doResetUserAccountRecord() {
+        $("#SearchStartAt").datebox("setValue", "");
+        $("#SearchEndAt").datebox("setValue", "");
+        return false;
+    }
+    
+</script>
+<ul class="search">
+    <li>
+        <label>开始时间</label>
+        @Html.JDateTimePicker("SearchStartAt").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchEndAt").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearchUserAccountRecord", "查询").SetOnclick("doSearchUserAccountRecord();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnResetUserAccountRecord", "清空").SetOnclick("doResetUserAccountRecord();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

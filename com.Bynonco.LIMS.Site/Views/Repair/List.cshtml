@@ -1,0 +1,32 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var RepairPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetRepairPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbRepairList")
+       .SetUrl(Url.Action("GetGridRepairList", "Repair"))
+       .SetHeight(650)
+       .SetSortName("RepairName")
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.SetShowAddButton(RepairPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(RepairPrivilige.IsEnableEdit);
+    if (RepairPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddRepair('');");
+       dataGrid.SetEditScript("doEditRepair('');");
+       dataGrid.SetOnDblClickRow("doEditRepair(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(RepairPrivilige.IsEnableDelete);
+    if (RepairPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteRepair('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "RepairName").SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "PhoneNumber").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("评价", "Appraise").SetWidth(120).SetAlign(Align.left));    
+    }
+    @(dataGrid.ToMvcString())

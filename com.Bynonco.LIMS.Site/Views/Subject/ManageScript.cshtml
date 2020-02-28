@@ -1,0 +1,54 @@
+﻿<script type="text/javascript">
+    function doAddorEditSubject(id, isCooperative) {
+        var url = '@Url.Action("Edit", "Subject")' + "?id=" + id + "&time=" + new Date().getMilliseconds() + "&isCooperative=" + isCooperative;
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doSearch() {
+        var queryExpression = generateSubjectQueryExpression();
+        $("#tbSubjectList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSubjectList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doBack() {
+        var url = '@Url.Action("Index", "Subject")' + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doReload(id, isCooperative) {
+        var url = '@Url.Action("Edit", "Subject")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds() + "&isCooperative=" + isCooperative; ;
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doDelete(id, isCooperate) {
+        if (id == null || id.trim() == "") {
+            var selectedUsers = $("#tbSubjectList").datagrid("getSelections");
+            if (!selectedUsers || selectedUsers.length == 0) {
+                $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+                return false;
+            }
+            id = selectedUsers[0].Id;
+        }
+        $.messager.confirm('提示', '确认删除该课题组信息?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Subject")' + "?Id=" + id + "&time=" + new Date().getMilliseconds() + "&isCooperative=" + isCooperate,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    doBack();
+                }
+            });
+        });
+        return false;
+    }
+    function doExportExcel() {
+        var url = '@Url.Action("ExportExcel","Subject")';
+        window.open(url, '_blank');
+    }
+</script>

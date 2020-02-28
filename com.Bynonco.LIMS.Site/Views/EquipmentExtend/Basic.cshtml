@@ -1,0 +1,270 @@
+﻿@model com.Bynonco.LIMS.Model.Equipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsBindEquipmentAdminUser = customer == null ? true : customer.GetIsBindEquipmentAdminUser();
+    var customerIsBindEquipmentLinkUser = customer == null ? true : customer.GetIsBindEquipmentLinkUser();
+}
+<p><span class="icon icon-setting-1"></span>大型仪器设备和机组共享信息设置</p>
+<form id="frmEquipmentExtendEdit" action="#">
+     @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    
+    <table class="edit-info">
+        <tr>
+            <th><span class="required">*</span>校内仪器编号</th>
+            <td>
+                @Html.JValidateBox("InnerID").SetValue(Model == null ? "" : Model.Label).SetWidth(240).ToMvcString()               
+            </td>
+        </tr>
+      
+      
+        <tr>
+            <th><span class="required">*</span>仪器固定资产分类编码</th>
+            <td id="tdCategory">
+                @*@(Html.TokenInput("Categories")
+                .SetUrl(Url.Action("GetEquipmentCategoryListByKeyWord", "EquipmentCategory"))
+                .SetPrePopulate(ViewData["CategoriesJson"] == null || string.IsNullOrWhiteSpace(ViewData["CategoriesJson"].ToString()) ? null : ViewData["CategoriesJson"].ToString())
+                .SetSingle(false).SetWidth(20)
+                .ToMvcString())*@
+                @Html.JValidateBox("AssetsCode").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].AssetsCode).SetWidth(240).ToMvcString()  
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器共享分类编码</th>
+                @*<td id="tdClassificationCode">*@
+
+                @*@(Html.TokenInput("ClassificationCode")
+                .SetUrl(Url.Action("GetEquipmentCategoryShareListByKeyWord", "EquipmentExtend"))
+                .SetPrePopulate(ViewData["EquipmentCategoryShareJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentCategoryShareJson"].ToString()) ? null : ViewData["EquipmentCategoryShareJson"].ToString())
+                .SetTokenValue("text")
+                .SetSingle(true)
+                .SetWidth(240)
+                .ToMvcString())*@
+                <td>
+                @Html.JValidateBox("ClassificationCode").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ClassificationCode).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器中文名称</th>
+            <td>
+                @Html.JValidateBox("CHNName").SetValue(Model == null ? "" : Model.Name).SetWidth(240).ToMvcString()             
+            </td>
+        </tr>
+        <tr>
+            <th>仪器英文名称</th>
+            <td>
+                @Html.JValidateBox("ENGName").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ENGName).SetWidth(240).ToMvcString()
+             
+            </td>
+        </tr>
+        <tr>
+            <th>仪器别名</th>
+            <td>
+                @Html.JValidateBox("Alias").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].Alias).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器型号规格</th>
+            <td>
+                @Html.JValidateBox("Model").SetValue(Model == null ? "" : Model.Model).SetWidth(240).ToMvcString() 
+                &nbsp;<span class="icon icon-info-blue" title="按照仪器设备的资料和标示牌进行填写"></span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>主要技术指标</th>
+            <td>
+                @Html.JValidateBox("QualificationNoHTML").SetValue(Model == null ? "" : Model.QualificationNoHTML).SetWidth(240).ToMvcString()
+                &nbsp;<span class="icon icon-info-blue" title="验收达到的、能代表仪器设备主要技术性能的指标参数，不能超过400字"></span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>主要测试和研究领域</th>
+            <td>
+                @Html.JValidateBox("ApplicationArea").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ApplicationArea).SetWidth(240).ToMvcString()
+                &nbsp;<span class="icon icon-info-blue" title="说明仪器的认证或计量检验情况说明仪器的认证或计量检验情况"></span>
+               
+            </td>
+        </tr>
+        <tr>
+            <th>主要测试研究领域代码</th>
+            <td>
+                @Html.JValidateBox("ApplicationCode").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ApplicationCode).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>主要附件及功能</th>
+            <td>
+                @Html.JValidateBox("Accessory").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].Accessory).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器认证情况</th>
+            <td>
+                @Html.JValidateBox("Certification").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].Certification).SetWidth(240).ToMvcString()
+                &nbsp;<span class="icon icon-info-blue" title="说明仪器的认证或计量检验情况"></span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>生产厂商</th>
+            <td>
+                @Html.JValidateBox("Manufacturer").SetValue(Model == null ? "" : Model.Factory).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>生产厂商资质</th>
+            <td>
+                @Html.JValidateBox("ManuCertification").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ManuCertification).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+
+        <tr>
+            <th><span class="required">*</span>产地国别</th>
+            <td id="tdProductionArea">
+                @(Html.TokenInput("ProductionArea")
+                .SetUrl(Url.Action("GetCountryListByKeyWord", "Country"))
+                .SetPrePopulate(ViewData["CountryJson"] == null || string.IsNullOrWhiteSpace(ViewData["CountryJson"].ToString()) ? null : ViewData["CountryJson"].ToString())
+                .SetTokenValue("text")
+                .SetSingle(false)
+                .SetWidth(300)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器原值</th>
+            <td>
+                @Html.JValidateBox("PriceRMB").SetValue(Model == null ? "0" : Model.UnitPrice.HasValue ? Model.UnitPrice.Value.ToString("0.00") : "").SetWidth(240).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的价格").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>外币币种</th>
+            <td>
+                @Html.JValidateBox("PriceUnit").SetValue(Model == null ? "" : Model.CurrencyType).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>外币原值</th>
+            <td>
+                @Html.JValidateBox("Price").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].Price.HasValue ? Model.EquipmentExtend[0].Price.Value.ToString("0.00") : "").SetWidth(240).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的价格").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>仪器介绍图片URL</th>
+            <td>
+                @Html.JValidateBox("ImageURL").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ImageURL).SetWidth(240).ToMvcString()
+                &nbsp;<span class="icon icon-info-blue" title="仪器介绍图片的URL，建议图片为JPG等常用格式，图片大小为320(W)*240(H)像素。以http://开始"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>生产日期</th>
+            <td>
+                @Html.JDateTimePicker("ProductionDate").SetValue(Model == null ? "" : Model.ProductionDate.HasValue ? Model.ProductionDate.Value.ToString("yyyy-MM-dd") : "").SetWidth(245).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>购置日期</th>
+            <td>
+                @Html.JDateTimePicker("PurchaseDate").SetValue(Model == null ? "" : Model.BuyDate.HasValue ? Model.BuyDate.Value.ToString("yyyy-MM-dd") : "").SetWidth(245).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>启用日期</th>
+            <td>
+                @Html.JDateTimePicker("ServiceDate").SetValue(Model.EquipmentExtend == null ? null : Model.EquipmentExtend[0].ServiceDate.HasValue ? Model.EquipmentExtend[0].ServiceDate.Value.ToString("yyyy-MM-dd") : "").SetWidth(245).ToMvcString()
+            </td>
+        </tr>      
+        <tr>
+            <th>邮政编码</th>
+            <td>
+                @Html.JValidateBox("ZIPCode").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ZIPCode).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>仪器联系人</th>
+            <td id="tdLinkmen">
+                @if (customerIsBindEquipmentLinkUser)
+                {
+                @(Html.TokenInput("Linkmen")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["LinkmenJson"] == null || string.IsNullOrWhiteSpace(ViewData["LinkmenJson"].ToString()) ? null : ViewData["LinkmenJson"].ToString())
+                .SetSingle(false)
+                .SetWidth(239)
+                .ToMvcString())
+                }
+                else
+                {
+                @Html.JValidateBox("LinkUserName").SetValue(Model == null ? "" : Model.LinkUserName).SetWidth(300).ToMvcString()
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>电话</th>
+            <td>
+                @Html.JValidateBox("Telephone").SetValue(Model == null ? "" : Model.LinkTelNo).SetValidateType(ValidateType.none).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>电子邮件</th>
+            <td>
+                @Html.JValidateBox("Email").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].Email).SetValidateType(ValidateType.email).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器共享特色代码</th>
+            <td>  @*id="tdShareLevel"*@
+                @* @(Html.JComboBox("ShareLevel")
+                    .SetData(ViewData["SearchEquipmentExtendShareLevelJson"])
+                            .SetWidth(245)
+                    .ToMvcString())*@
+                    @Html.JValidateBox("ShareLevel").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ShareLevel).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>开放机时安排</th>
+            <td>
+                @Html.JValidateBox("OpenCalendar").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].OpenCalendar).SetWidth(240).ToMvcString()
+                &nbsp;<span class="icon icon-info-blue" title="介绍仪器设备开放机时的相关规定"></span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>参考收费标准</th>
+            <td>
+                @Html.JValidateBox("ServiceCharge").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ServiceCharge).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>知名用户</th>
+            <td>
+                @Html.JValidateBox("ServiceUsers").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ServiceUsers).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>应用成果</th>
+            <td>
+                @Html.JValidateBox("ServiceAchievements").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].ServiceAchievements).SetWidth(240).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器本地url</th>
+            <td>
+                @Html.JValidateBox("URL").SetValue(Model.EquipmentExtend == null ? "" : Model.EquipmentExtend[0].URL).SetWidth(240).ToMvcString()
+                &nbsp;<span class="icon icon-info-blue" title="该URL为该单台仪器页面所在子平台的URL，通过该URL可以在子平台查看该仪器的详细信息。以http://开始"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("OtherInfo", Model == null ? "" : Model.Remark, new { style = "width:430px;height:60px;" })
+            </td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#tdProductionArea ul.token-input-list-facebook").css("width", "245");
+        $("#tdLinkmen ul.token-input-list-facebook").css("width", "245");
+        $("#tdCategory ul.token-input-list-facebook").css("width", "245");
+       // $("#tdClassificationCode ul.token-input-list-facebook").css("width", "245");
+       // $("#tdShareLevel ul.token-input-list-facebook").css("width", "245"); 
+    });
+</script>

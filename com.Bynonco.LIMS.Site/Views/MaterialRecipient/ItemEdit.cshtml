@@ -1,0 +1,28 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewMaterialRecipientItem
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+@if (Model != null)
+{
+    var infoId = Model.MaterialInfoId;
+    <tr id='tr_@(infoId)'>
+        <td>
+            @Html.Hidden("Id_" + infoId, Model == null ? "" : Model.Id.ToString())
+            @Html.JLinkButton("btnRemoveMaterialRecipientItem_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveMaterialRecipientItem('" + infoId + "');return false;").ToMvcString()
+        </td>
+        <td>@(Model.Name)</td>
+        <td>@(Model.StockValueStr)</td>
+        <td>@(Model.WarningValueStr)</td>
+        <td>
+            @Html.JValidateBox("UnitPrice_" + infoId).SetValue(Model == null ? "" : Math.Round(Model.UnitPrice,2).ToString()).SetOnChange("doChangeMaterialRecipientItemAmount('" + infoId + "');return false;").SetWidth(50).ToMvcString()
+            @(Model.PriceTypeValue)
+        </td>
+        <td>
+            @Html.JValidateBox("RecipientValue_" + infoId).SetValue(Model == null ? "" : Model.RecipientValue.ToString()).SetOnChange("doChangeMaterialRecipientItemAmount('" + infoId + "');return false;").SetWidth(50).ToMvcString()
+             @(Model.UnitValue)
+        </td>
+        <td>
+            @Html.JValidateBox("Amount_" + infoId).SetValue(Model == null ? "" : Math.Round(Model.Amount,2).ToString()).SetWidth(50).ToMvcString()
+            @(Model.PriceTypeValue)
+        </td>
+    </tr>
+}

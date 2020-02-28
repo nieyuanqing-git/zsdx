@@ -1,0 +1,109 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentPart
+@using com.Bynonco.JqueryEasyUI.Core;
+@{var equipmentPrivilige = Model == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.EquipmentId);}
+<div id="divEquipmentPartEdit">
+<form id="frmEquipmentPartEdit" action="#">
+    @Html.Hidden("EquipmentPartId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style="width:470px">
+        <tr>
+            <th>
+                名称
+            </th>
+            <td>
+               @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(280).ToMvcString()
+               <span>必填</span>
+            </td>
+        </tr>
+        <tr style="display:none;">
+            <th>
+                计费方式
+            </th>
+            <td>
+               @Html.JComboBox("ChargeType").SetData(ViewData["ChargeTypeJson"]).SetWidth(285).ToMvcString()
+               <span>必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                序号
+            </th>
+            <td>
+               @Html.JValidateBox("OrderNo").SetValue(Model == null ? "" : Model.OrderNo.ToString()).SetWidth(280).ToMvcString()
+               <span>必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                开始时间
+            </th>
+            <td>
+               @Html.JComboBox("BeginHour").SetData(ViewData["BeginHourJson"]).SetWidth(285).ToMvcString()
+            </td>
+        </tr>
+         <tr>
+            <th>
+                结束时间
+            </th>
+            <td>
+               @Html.JComboBox("EndHour").SetData(ViewData["EndHourJson"]).SetWidth(285).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>型号</th>
+            <td>
+                @Html.JValidateBox("Model").SetValue(Model == null ? "" : Model.Model).SetWidth(280).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>厂商</th>
+            <td>
+                @Html.JValidateBox("Manufacturer").SetValue(Model == null ? "" : Model.Manufacturer).SetWidth(280).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>计费价格</th>
+            <td>
+                @Html.JValidateBox("Price").SetValue(Model == null || !Model.Price.HasValue ? "" : Model.Price.ToString()).SetWidth(280).SetValidateType(ValidateType.positiveIntNumber).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>是否使用折扣</th>
+            <td>@Html.CheckBox("IsUseDiscount")</td>
+        </tr>
+        <tr>
+            <th>计费是否乘以机时</th>
+            <td>@Html.CheckBox("IsMutiplyByDuration")</td>
+        </tr>
+        <tr>
+            <th>币种</th>
+            <td>
+                @Html.JComboBox("CurrencyType").SetData(ViewData["CurrencyTypeJson"]).SetWidth(285).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>人民币价值</th>
+            <td>
+                @Html.JValidateBox("RMBAgiotageTotalPrice").SetValue(Model == null || !Model.RMBAgiotageTotalPrice.HasValue ? "" : Model.RMBAgiotageTotalPrice.ToString()).SetWidth(280).SetValidateType(ValidateType.positiveIntNumber).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>编号</th>
+            <td>
+                @Html.JValidateBox("IdentityNo").SetValue(Model == null ? "" : Model.IdentityNo).SetWidth(280).ToMvcString()
+            </td>
+        </tr>
+         <tr>
+            <th>预约是否可选</th>
+            <td>
+                @Html.CheckBox("IsEanbleSelectedWhenAppointment")
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td> @(Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;height:60px;font-weight:normal;width:372px" }))</td>
+        </tr>
+    </table>
+ </form>
+</div>

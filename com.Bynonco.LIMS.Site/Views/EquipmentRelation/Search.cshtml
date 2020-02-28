@@ -1,0 +1,65 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentRelationQueryExpress() {
+        var queryExpression = "";
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression = "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+        var equipmentModel = $("#SearchEquipmentModel").val().trim();
+        if (equipmentModel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentModel∽\"" + equipmentModel.trim() + "\"";
+        }
+        var equipmentLabel = $("#SearchEquipmentLabel").val().trim();
+        if (equipmentLabel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentLabel∽\"" + equipmentLabel.trim() + "\"";
+        }
+        var originalOrgName = $("#SearchOriginalOrgName").val().trim();
+        if (originalOrgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OriginalOrgName∽\"" + originalOrgName.trim() + "\"";
+        }
+        var relationOrgName = $("#SearchRelationOrgName").val().trim();
+        if (relationOrgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RelationOrgName∽\"" + relationOrgName.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doResetEquipmentRelation() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchEquipmentModel").val("");
+        $("#SearchEquipmentLabel").val("");
+        $("#SearchOriginalOrgName").val("");
+        $("#SearchRelationOrgName").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>设备型号</label>
+        @Html.JValidateBox("SearchEquipmentModel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>资产编号</label>
+        @Html.JValidateBox("SearchEquipmentLabel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>所属机构</label>
+        @Html.JValidateBox("SearchOriginalOrgName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>管理机构</label>
+        @Html.JValidateBox("SearchRelationOrgName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentRelationSearch", "查询").SetOnclick("doSearchEquipmentRelation();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentRelationReset", "清空").SetOnclick("doResetEquipmentRelation();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentRelationClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

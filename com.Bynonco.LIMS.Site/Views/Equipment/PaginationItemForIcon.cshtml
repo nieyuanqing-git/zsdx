@@ -1,0 +1,174 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using System.Text;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerDirectorName = customer == null ? "负责人" : customer.GetEquipmentDirectorName();
+    var customerLinkMenName = customer == null ? "联系人" : customer.GetEquipmentLinkMenName();
+    var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var IsShowUnitPrice = ViewData["IsShowUnitPrice"] == null || ViewData["IsShowUnitPrice"].ToString().Trim() == "1" ? true : false;
+    var IsShowIp = ViewData["IsShowIp"] == null || ViewData["IsShowIp"].ToString().Trim() == "1" ? true : false;
+    var isShowEquipmentPriceUnit = customer == null ? true : customer.GetIsShowEquipmentPriceUnit();
+    var isShowDutyFree = customer == null ? false : customer.GetIsShowDutyFreeEquipment();
+    var isShowEquipmentNameCss = customer.GetIsShowEquipmentNameCss();
+    var DiffYear = "--";
+    if (Model.BuyDate.HasValue && Model.DutyFreeYear>0)
+    {
+        DiffYear = ((Model.DutyFreeYear - (DateTime.Now.Year - Model.BuyDate.Value.Year)) > 0 ? (Model.DutyFreeYear - (DateTime.Now.Year - Model.BuyDate.Value.Year)) : 0).ToString();
+    }
+    else
+    {
+        DiffYear = "--";            
+    }
+    StringBuilder sbOperate = new StringBuilder();
+    if (!string.IsNullOrWhiteSpace(Model.ModifyOperate)) { sbOperate.Append(Model.ModifyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.TranningApplyOperate)) { sbOperate.Append(Model.TranningApplyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ReportBrokenOperate)) { sbOperate.Append(Model.ReportBrokenOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.MarkingOperate)) { sbOperate.Append(Model.MarkingOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.FocusOperate)) { sbOperate.Append(Model.FocusOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CancelFocusOperate)) { sbOperate.Append(Model.CancelFocusOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ExaminationManageOperate)) { sbOperate.Append(Model.ExaminationManageOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ApplyOperate)) { sbOperate.Append(Model.ApplyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CancelApplyOperate)) { sbOperate.Append(Model.CancelApplyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CameraPlayOperate)) { sbOperate.Append(Model.CameraPlayOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CameraPlayRecordOperate)) { sbOperate.Append(Model.CameraPlayRecordOperate); }
+    if (string.IsNullOrWhiteSpace(Model.UserExaminationOperate) && !string.IsNullOrWhiteSpace(Model.UserReadingMaterialOperate)) { sbOperate.Append(Model.UserReadingMaterialOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.UserExaminationOperate)) { sbOperate.Append(Model.UserExaminationOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ExportDocOperate)) { sbOperate.Append(Model.ExportDocOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.OpenOperate)) { sbOperate.Append(Model.OpenOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CloseOperate)) { sbOperate.Append(Model.CloseOperate); }
+    var directorNamesWithPhone = (Model == null || Model.Equipment == null ? "" : Model.Equipment.DirectorNamesWithPhone);
+    directorNamesWithPhone = ShortcutStringUtility.GetSubString(directorNamesWithPhone, 30, "...");
+} 
+<div class='detail-pannel'>
+    <div class='list-left'>
+        <div class="img-box">
+            <img alt="@(Model == null ? "" : Model.Name)" src='@(Model == null ? "" : Model.IconPath)' style='width:146px;height:126px;cursor:pointer;' onclick="doShowDetailInfo('@(Model == null ? "" : Model.Id.ToString())','@(Model == null ? "" : Model.Name)');"/>
+        </div>
+    </div>
+    <div class='list-right'>
+        @{
+            var name = Model == null ? "" : Model.Name;
+            name += Model == null || string.IsNullOrWhiteSpace(Model.Model) ? "" : " (" + Model.Model + ")";
+            var cutName = ShortcutStringUtility.GetSubString(name, 55, "..");
+            Guid? Id = null;
+            if (Model != null)
+            {
+                Id = Model.Id;
+            }
+            var url = Url.Action("Show", "Equipment", new { Id = Id });
+            var equipmentOrgName = Model == null || string.IsNullOrWhiteSpace(Model.OrgName) ? "" : Model.OrgName;
+            var roomName = Model == null ? "" : Model.RoomName;
+            if (!string.IsNullOrWhiteSpace(equipmentOrgName) && !string.IsNullOrWhiteSpace(roomName) && (!string.IsNullOrWhiteSpace(orgName) && orgName != equipmentOrgName))
+            {
+                roomName = equipmentOrgName + " > " + roomName;
+            }
+            else if (string.IsNullOrWhiteSpace(roomName))
+            {
+                roomName = equipmentOrgName + roomName;
+            }
+        }
+        <div class="inner-left">
+            <p class="@(isShowEquipmentNameCss ? "title" : "")">
+                <a href="javascript:;" id="EquipmentName" useType='@(Model == null || !Model.UseType.HasValue ? "" : Model.UseType.Value.ToString())' title='@name' onclick="doShowDetailInfo('@(Model == null ? "" : Model.Id.ToString())','@(Model == null ? "" : Model.Name)');return false;">@cutName</a>
+                @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+            </p>
+            <ul>
+                <li><span class='title'>状态:</span>
+                    @if (Model.StatusEnum == EquipmentStatus.Normal)
+                    {
+                    @System.Web.Mvc.MvcHtmlString.Create(Model == null || string.IsNullOrWhiteSpace(Model.RemoteStatusNickName) ? "" : Model.RemoteStatusNickName + " | ")
+                    <span><img id="imgLodingIcon@(Model == null ? "" : Model.Id.ToString())" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" class="hide" /></span>
+                    <span><img id="imgLodingUserIcon@(Model == null ? "" : Model.Id.ToString())" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" class="hide" /></span>
+                    }
+                    else if (Model.StatusEnum == EquipmentStatus.TemporarilyBroken)
+                    {
+                        <a href="#" onclick="doViewLastRepairByEquipmentId('@(Model.Id)');return false;" style='text-decoration:underline;'>@Model.StatusEnum.ToCnName()</a>
+                    }
+                    else
+                    {
+                        <span>@Model.StatusEnum.ToCnName()</span>
+                    }
+                </li>
+                @if (IsShowIp)
+                {
+                    <li>
+                        <span class='title'>IP地址:</span>@(Model != null && !string.IsNullOrWhiteSpace(Model.IP) ? Model.IP : "--")
+                    </li>
+                }
+                @if (IsShowUnitPrice)
+                {
+                    <li>
+                        <span class='title'>仪器价格:</span>@(Model != null && !string.IsNullOrWhiteSpace(Model.UnitPrice.ToString()) ? Model.UnitPrice.ToString() : "--")
+                        @if (isShowEquipmentPriceUnit && Model != null && !string.IsNullOrWhiteSpace(Model.UnitPrice.ToString()))
+                        {
+                            <span>@Model.PriceUnit.ToCnName()</span>}
+                    </li>
+                }
+                @if (isShowDutyFree && Model.IsDutyFree)
+                {
+                    <li>
+                        <span class='title' style='color:Red;'>免税剩余年限:</span><span style='color:Red;'>@(DiffYear)</span>                     
+                    </li>
+                }
+
+                @if (customer.GetSchoolName() == "扬州大学")
+                {
+                    if (Model.IsShowAppointmentUserContactInfo)
+                    {
+                         <li>
+                            <span class='title'>联系人:</span>@(Model == null || Model.Equipment == null ? "" : Model.Equipment.LinkManNames)
+                        </li>
+                        <li>
+                            <span class='title'>电话:</span>@(Model == null || Model.Equipment == null ? "" : Model.Equipment.LinkTelNo)
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li>
+                        <span class='title'>@(customerDirectorName):</span>@(directorNamesWithPhone)
+                    </li>
+                    <li>
+                        <span class='title'>@(customerLinkMenName):</span>@(Model == null || Model.Equipment == null ? "" : Model.Equipment.LinkManNames + " " + Model.Equipment.LinkTelNo)
+                    </li>
+                }
+
+                 <li><span class='title'>所在地点:</span>@roomName</li>
+                @if (!isHome)
+                {
+                    <li class='button-box'>@System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())</li>
+                }
+            </ul>
+        </div>
+        <div class="inner-right hide">
+            @{
+                StringBuilder sbOperateL = new StringBuilder();
+                if (!string.IsNullOrWhiteSpace(Model.DetailOperate)) { sbOperateL.Append(Model.DetailOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.AppointmentNoneOperate)) { sbOperateL.Append(Model.AppointmentNoneOperate); }
+                if (isHome && !Request.IsAuthenticated)
+                {
+                    if (!string.IsNullOrWhiteSpace(Model.AppointmentWithoutLoginOperate)) { sbOperateL.Append(Model.AppointmentWithoutLoginOperate); }
+                    if (!string.IsNullOrWhiteSpace(Model.SampleApplyWithoutLoginOperate)) { sbOperateL.Append(Model.SampleApplyWithoutLoginOperate); }
+                }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(Model.AppointmentOperate)) { sbOperateL.Append(Model.AppointmentOperate); }
+                    if (!string.IsNullOrWhiteSpace(Model.SampleApplyOperate)) { sbOperateL.Append(Model.SampleApplyOperate); }
+                }
+                @System.Web.Mvc.MvcHtmlString.Create(sbOperateL.ToString())
+            }
+        </div>
+        <div class="clear-both"></div>
+        @if (isHome)
+        {
+            <div style='display:none;' class='button-box'>@System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())</div>
+        }
+    </div>
+    <div class="clear-both"></div>
+</div>

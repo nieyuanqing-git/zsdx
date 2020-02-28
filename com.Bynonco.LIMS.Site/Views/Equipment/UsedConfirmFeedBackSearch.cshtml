@@ -1,0 +1,64 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var equipmentId = $("#EquipmentId").val();
+        var queryExpression = "EquipmentId=\"" + equipmentId + "\"";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+        var beginTime = $("#SearchBeginTime").datebox("getValue").trim();
+        if (beginTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt>\"" + beginTime + " 00:00:00" + "\"";
+        }
+        var endTime = $("#SearchEndTime").datebox("getValue").trim();
+        if (endTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EndAt<\"" + endTime + " 23:59:59" + "\"";
+        }
+        var status = $("#SearchStatus").combobox("getValue").trim();
+        if (status != "-1" && status != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#SearchUserName").val("");
+        $("#SearchBeginTime").datebox("setValue", "");
+        $("#SearchEndTime").datebox("setValue", "");
+        $("#SearchStatus").combobox("setValue", "-1");
+        return false;
+    }
+    
+</script>
+<ul class="search">
+    <li>
+        <label style="width:80px">使用者</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label style="width:80px">使用开始时间</label>
+        @Html.JDateTimePicker("SearchBeginTime").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:80px">使用结束时间</label>
+        @Html.JDateTimePicker("SearchEndTime").SetWidth(155).ToMvcString()
+    </li>
+     
+    <li>
+        <label style="width:80px">类型</label>
+        @(Html.JComboBox("SearchStatus")
+            .SetEditable(false)
+            .SetData(ViewData["SearchStatusJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li>
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doUsedConfirmFeedBackSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

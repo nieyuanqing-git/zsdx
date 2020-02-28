@@ -1,0 +1,53 @@
+﻿@{
+    var listType = ViewData["ListType"] == null ? "" : ViewData["ListType"].ToString().Trim().ToLower();
+}
+<script type="text/javascript">
+    function doShowPersonalAppointment() {
+        $(".panel-header .icon-user").removeClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action("AppointmentSchedule", "Appointment")' + "?date= " + new Date().getMilliseconds();
+        doLoadAppointmentRecordList(url);
+    }
+    function doShowTurtorAppointment() {
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").removeClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action("AppointmentSchedule", "Appointment")' + "?ListType=Subject&date= " + new Date().getMilliseconds();
+        doLoadAppointmentRecordList(url);
+    }
+    function doShowEquipmentAppointment() {
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").removeClass("icon-globe-unselect");
+        var url = '@Url.Action("AppointmentSchedule", "Appointment")' + "?ListType=Equipment&date= " + new Date().getMilliseconds();
+        doLoadAppointmentRecordList(url);
+    }
+    
+    function doLoadAppointmentRecordList(url) {
+        ajaxloadbegin();
+        $("#divAppointmentSchedule").empty();
+        $.ajax({
+            type: "Post",
+            url: url,
+            success: function (data) {
+                $("#divAppointmentSchedule").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        switch ('@listType') {
+            case 'subject':
+                doShowTurtorAppointment();
+                break;
+            case 'equipment':
+                doShowEquipmentAppointment();
+                break;
+            default:
+                doShowPersonalAppointment();
+                break;
+        }
+    });
+</script>

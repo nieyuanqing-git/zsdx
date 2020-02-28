@@ -1,0 +1,111 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divUserExaminationDialog" style="display:none"></div>
+<div id="divUserExaminationViewDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearchUserExamination() {
+        var queryExpression = generateQueryExpress();
+        $("#tbUserExaminationList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUserExaminationList").datagrid("load",{ "queryExpression": queryExpression.trim()});
+        return false;
+    }
+
+    var userExaminationViewDialog;
+    function doUserExaminationViewDialog() {
+        if (userExaminationViewDialog) {
+            userExaminationViewDialog.dialog("destroy");
+        }
+        userExaminationViewDialog =  @Html.JDialog("divUserExaminationView").SetTitle("查看考试记录").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("userExaminationViewDialog.dialog('close');return false;").SetModal(true).SetOkScript("userExaminationViewDialog.dialog('close');return false;").ToMvcString();
+    }
+    function doViewUserEquipmentExamination(id) {
+        if(!id || id.trim()==""){
+           var selectedUserExamination = $("#tbUserExaminationList").datagrid("getSelected");
+           if(!selectedUserExamination || selectedUserExamination.Id=="" || selectedUserExamination.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择考试记录", showType: 'show' });
+              return false;
+           }
+           id = selectedUserExamination.Id;
+        }
+        var url = '@Url.Action("ViewUserExamination","UserExamination")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divUserExaminationViewDialog").load(url,function(){
+            doUserExaminationViewDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    var userExaminationDialog;
+    function doUserExaminationDialog() {
+        if (userExaminationDialog) {
+            userExaminationDialog.dialog("destroy");
+        }
+        userExaminationDialog =  @Html.JDialog("divUserExaminationEdit").SetTitle("考试记录信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("userExaminationDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveUserExamination();").ToMvcString();
+    }
+    function doEditUserExamination(id) {
+       if(!id || id.trim()==""){
+           var selectedUserExamination = $("#tbUserExaminationList").datagrid("getSelected");
+           if(!selectedUserExamination || selectedUserExamination.Id=="" || selectedUserExamination.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择考试记录", showType: 'show' });
+              return false;
+           }
+           id = selectedUserExamination.Id;
+       }
+       var url = '@Url.Action("Edit","UserExamination")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divUserExaminationDialog").load(url,function(){
+            doUserExaminationDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    function doSaveUserExamination(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("Save","UserExamination")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmUserExaminationEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                userExaminationDialog.dialog('close');
+                doSearchUserExamination();
+            }
+        });
+   }
+   function doDeleteUserExamination(id){
+        if(!id || id.trim() == ""){
+              var selectedUserExamination = $("#tbUserExaminationList").datagrid("getSelected");
+                if(!selectedUserExamination || selectedUserExamination.Id.trim() == "" || selectedUserExamination.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedUserExamination.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "UserExamination")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchUserExamination();
+                }
+            });
+        });
+        return false;
+   }
+    function doPrintUserExamination(id){
+        window.open('@Url.Action("PrintUserExamination","UserExamination")' + "?id=" + id + "&time=" + new Date().getMilliseconds(), "_blank");
+        return false;
+    }
+</script>

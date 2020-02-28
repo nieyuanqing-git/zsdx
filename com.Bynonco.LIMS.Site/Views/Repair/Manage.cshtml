@@ -1,0 +1,100 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Repair/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../Repair/List")
+</div>
+<div id="divRepairDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateRepairQueryExpress();
+        $("#tbRepairList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbRepairList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var RepairDialog;
+    function doRepairDialog() {
+        if (RepairDialog) {
+            RepairDialog.dialog("destroy");
+        }
+        RepairDialog =  @Html.JDialog("divRepairEdit").SetTitle("维修厂家信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("RepairDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveRepair();").ToMvcString();
+    }
+    function doAddRepair(id) {
+       doAddOrEditRepair(id);
+    }
+    function doEditRepair(id) {
+       if(!id || id.trim()==""){
+           var selectedRepair = $("#tbRepairList").datagrid("getSelected");
+           if(!selectedRepair || selectedRepair.Id=="" || selectedRepair.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择维修厂家", showType: 'show' });
+              return false;
+           }
+           id = selectedRepair.Id;
+       }
+       doAddOrEditRepair(id);
+    }
+    function doAddOrEditRepair(id){
+        var url = '@Url.Action("Edit","Repair")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divRepairDialog").load(url,function(){
+            doRepairDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveRepair(){
+        if($("#RepairName").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","Repair")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmRepairEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                RepairDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteRepair(id){
+        if(!id || id.trim() == ""){
+              var selectedRepair = $("#tbRepairList").datagrid("getSelected");
+                if(!selectedRepair || selectedRepair.Id.trim() == "" || selectedRepair.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedRepair.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Repair")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+</script>

@@ -1,0 +1,47 @@
+﻿@model IList<com.Bynonco.LIMS.Model.View.ViewEquipment>
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    DataGridSettings dataGridSettings = (DataGridSettings)ViewData["DataGridSettings"];
+    if (Model != null && Model.Count() > 0)
+    {
+        <ul class='Icon-EquipmentList'>
+        @for (int i=0; i < Model.Count() ; i++)
+        {
+            var item = Model[i];
+            <li class='@(i % 2 == 0 ? "" : "alt-row") @(i==0? "first-row" : "") border-b'>
+                @Html.Partial("../Equipment/PaginationItemForIcon", item)
+            </li>
+        }
+        </ul>
+    }
+    else
+    {
+        <p>没有相关设备信息</p>
+    }
+}
+<script type="text/javascript">
+    $(function () {
+        $(".detail-pannel").mouseover(function () {
+            $(this).find(".list-right .inner-left li.button-box").css("display", "block");
+        });
+        $(".detail-pannel").mouseout(function () {
+            $(this).find(".list-right .inner-left li.button-box").css("display", "none");
+        });
+        $(".detail-pannel").find("#EquipmentName").each(function () {
+            var id = $(this).next().val();
+            Tipped.create($(this), '@Url.Action("Tip","Equipment")' + "?time" + new Date().getMilliseconds(), { ajax: { data: { id: id }, type: 'get' }, skin: 'light', hook: 'topleft' });
+        });
+
+        $(".detail-pannel-list").mouseover(function () {
+            $(this).find(".button-box").css("display", "block");
+        });
+        $(".detail-pannel-list").mouseout(function () {
+            $(this).find(".button-box").css("display", "none");
+        });
+        $(".detail-pannel-list").find("#EquipmentName").each(function () {
+            var id = $(this).next().val();
+            Tipped.create($(this), '@Url.Action("Tip","Equipment")' + "?time" + new Date().getMilliseconds(), { ajax: { data: { id: id }, type: 'get' }, skin: 'light', hook: 'topleft' });
+        });
+    });
+  
+</script>

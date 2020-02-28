@@ -1,0 +1,46 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../SubjectProjectImcome/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../SubjectProjectImcome/List")
+</div>
+<div id="divSubjectProjectImcomeDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateSubjectProjectImcomeQueryExpress();
+        $("#tbSubjectProjectImcomeList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSubjectProjectImcomeList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    var subjectProjectImcomeDialog;
+    function doSubjectProjectImcomeDialog() {
+        if (subjectProjectImcomeDialog) {
+            subjectProjectImcomeDialog.dialog("destroy");
+        }
+        subjectProjectImcomeDialog =  @Html.JDialog("divSubjectProjectImcomeView").SetTitle("科研项目对接成功数据").SetIconCls("icon-eyes").SetAutoDialog(false).SetCancelScript("subjectProjectImcomeDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+
+    function doViewSubjectProjectImcome(id) {
+       if(!id || id.trim()==""){
+           var selectedSubjectProjectImcome = $("#tbSubjectProjectImcomeList").datagrid("getSelected");
+           if(!selectedSubjectProjectImcome || selectedSubjectProjectImcome.Id=="" || selectedSubjectProjectImcome.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择查看项", showType: 'show' });
+              return false;
+           }
+           id = selectedSubjectProjectImcome.Id;
+       }
+       var url = '@Url.Action("ViewLog","SubjectProjectImcome")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSubjectProjectImcomeDialog").load(url,function(){
+            doSubjectProjectImcomeDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+</script>

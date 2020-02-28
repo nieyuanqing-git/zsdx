@@ -1,0 +1,52 @@
+﻿ @using com.Bynonco.JqueryEasyUI.Core;
+ <script type="text/javascript">
+     function generateQueryExpress() {
+         var queryExpression = "";
+         var thesistitle = $("#SearchThesisTitle").val();
+         if (thesistitle.trim() != "") {
+             queryExpression = "Title∽\"" + thesistitle.trim() + "\"";
+         }
+         var journalname = $("#SearchJournalName").val();
+         if (journalname.trim() != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "JournalName∽\"" + journalname.trim() + "\"";
+         }
+         var journalTypeId = $("#SearchJournalTypeId").combobox("getValue");
+         if (journalTypeId != "" && !journalTypeId.isDefaultGuid()) {
+             queryExpression += (queryExpression == "" ? "" : "*") + "JournalTypeId=\"" + journalTypeId + "\"";
+         }
+         return queryExpression;
+     }
+
+     function doReset() {
+         $("#SearchThesisTitle").val("");
+         $("#SearchJournalName").val("");
+         $("#SearchJournalTypeId").combobox("setValue", "");
+     }
+</script>
+<ul class="search">
+    <li>
+        <label>标题</label>
+        @Html.JValidateBox("SearchThesisTitle").SetWidth(150).ToMvcString()
+    </li>
+     <li>
+        <label>刊物名称</label>
+        @Html.JValidateBox("SearchJournalName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>期刊类别</label>
+        @(Html.JComboBox("SearchJournalTypeId")
+                .SetData(ViewData["JournalTypeJson"])
+                .SetWidth(155)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

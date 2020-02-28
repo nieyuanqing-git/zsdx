@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+    var powerOperationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetPowerOperationPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbPowerOperationList")
+        .SetUrl(Url.Action("GetGridViewPowerOperationList", "PowerOperation"))
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetHeight(650)
+        .SetPageSize(20)
+        .SetSortName("OperationTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(powerOperationPrivilige.IsEnableEdit);
+    if (powerOperationPrivilige.IsEnableEdit)
+    {
+        dataGrid.SetEditScript("doEditPowerOperation('');");
+        dataGrid.SetOnDblClickRow("doEditPowerOperation(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(powerOperationPrivilige.IsEnableDelete);
+    if (powerOperationPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeletePowerOperation('');");
+    }
+    dataGrid.SetShowExpertButton(powerOperationPrivilige.IsEnableExportExcel);
+    if (powerOperationPrivilige.IsEnableExportExcel)
+    {
+        dataGrid.SetExpertScript("doPowerOperationExportExcel();");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备", "EquipmentName").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerOrgName, "EquipmentOrgName").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户", "UserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("卡号", "CardStr").SetWidth(110).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "TutorName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "PowerStatusStr").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("特权卡", "IsRegistryCardStr").SetHidden(true).SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作时间", "OperationTimeStr").SetWidth(110).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("OpenID", "OpenID").SetWidth(60).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

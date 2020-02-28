@@ -1,0 +1,125 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbSampleApplyList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleApplyList").datagrid("load", { "queryExpression": queryExpression.trim() ,"time":new Date().getMilliseconds()});
+        return false;
+    }
+    function doPrint(id) {
+        if (id.trim() == "") return false;
+        window.open('@Url.Action("PintSampleApply")' + "?id=" + id + "&time=" + new Date().getMilliseconds(), "_blank");
+        return false;
+    }
+    function doCopy(id) {
+        if (id.trim() == "") return false;
+        ajaxActionLink('@Url.Action("CopySampleApply","SampleManage")' + "?id=" + id +  "&time=" + new Date().getMilliseconds(), "Loading", "divMainContentBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doEdit(id) {
+        if (id.trim() == "") return false;
+        ajaxActionLink('@Url.Action("SampleApplyInner","SampleManage")'+ "?id=" + id  + "&time=" + new Date().getMilliseconds(), "Loading", "divMainContentBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doAdd() {
+        ajaxActionLink('@Url.Action("SampleApplyInner","SampleManage")' + "?time=" + new Date().getMilliseconds(), "Loading", "divMainContentBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    var cancelDialog;
+    var cancelSelectedIds ="";
+    function doCancel(id) {
+        if (id.trim() == "") return false;
+        cancelSelectedIds = id;
+        if (doCancelReset()) {
+            cancelDialog = @(Html.JDialog("divSampleApplyCancel").SetTitle("申请撤销确认").SetIconCls("icon-undo").SetAutoDialog(false).SetModal(true).SetOkScript("doCancelConfirm();").SetCancelScript("cancelDialog.dialog('close');return false;").ToMvcString());
+        }     
+    }
+    function doBatchCancel(){
+        var rows = $("#tbSampleApplyList").datagrid("getSelections");
+        var ids ="";
+        if(!rows || rows.length==0){
+            $.messager.show({ title: '提示', msg: "请选择要撤销的记录", showType: 'show' });
+            return false;
+        }
+       for(var i =0; i < rows.length;i++){
+            if(rows[i].Status != 0){
+                $.messager.show({ title: '提示', msg: "申请单【"+ rows[i].SampleNo + "】序号【" + rows[i].RowNo + "】当前状态【" + rows[i].StatusName + "】下不可撤销", showType: 'show' });
+                return false;
+            }
+            ids += i == 0 ? rows[i].Id : "," + rows[i].Id;
+        }
+        cancelSelectedIds = ids;
+        if (doCancelReset()) {
+            cancelDialog = @(Html.JDialog("divSampleApplyCancel").SetTitle("申请撤销确认").SetIconCls("icon-undo").SetAutoDialog(false).SetModal(true).SetOkScript("doCancelConfirm();").SetCancelScript("cancelDialog.dialog('close');return false;").ToMvcString());
+        }
+        return false;
+    }
+    function doCancelConfirm() {
+       $.messager.progress({title: '提示',msg:  '正在提交请求,请稍候……'});
+       var remark = doGetCancelRemark();
+       $.ajax({
+            type: "POST",
+            url: '@Url.Action("CancelSampleApply","SampleManage")',
+            data:{"ids":cancelSelectedIds,"remark":remark,"time":new Date().getMilliseconds()},
+            success: function (msg) {
+                $.messager.progress('close');
+                if(msg.indexOf("出错") != -1 ){
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+                cancelDialog.dialog('close');  
+            }
+        });
+        return false;
+    }
+    function doDownLoad(id){
+        if (id.trim() == "") return false;
+        window.open('@Url.Action("SampleResultDownLoad")' + "?id=" + id + "&time=" + new Date().getMilliseconds(), "_blank");
+        doSearch();
+        return false;
+    }
+    var doubtsDialog;
+    var doubtsSelectedId ="";
+    function doDoubts(id){
+        doubtsSelectedId = id;
+        if(doubtsDialog){
+            doubtsDialog.dialog("destroy");
+        }
+        doubtsDialog = @(Html.JDialog("divSampleApplyDoubts").SetTitle("申请结果质疑确认").SetIconCls("icon-help").SetAutoDialog(false).SetModal(true).SetOkScript("doDoubtsConfirm();").SetCancelScript("doubtsDialog.dialog('close');return false;").ToMvcString());
+    }
+    function doDoubtsConfirm() {
+       $.messager.progress({title: '提示',msg: '正在提交请求,请稍候……'});
+       var remark = doGetDoubtsRemark();
+       var param = "?id=" + doubtsSelectedId + "&remark=" + remark + "&time=" + new Date().getMilliseconds();
+       $.ajax({
+            type: "POST",
+            url: '@Url.Action("DoubtsSampleApply","SampleManage")',
+            data:{"id":doubtsSelectedId,"remark":remark,"time":new Date().getMilliseconds()},
+            success: function (msg) {
+                $.messager.progress('close');
+                doubtsDialog.dialog('close');
+                if(msg.indexOf("出错") != -1 ){
+                    $.messager.show({ title: '提示', msg: "msg", showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false;
+    }
+    function generateSelectedSampleApplyIds() {
+        return generateSelectedSampleApplyIdsByDataGridId("tbSampleApplyList");
+    }
+</script>
+@Html.Partial("../SampleManage/SampleApplyPersonalListHeader")
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../SampleManage/SampleApplySearchInner")</div>
+</div>
+<div>@Html.Partial("../SampleManage/SampleApplyPersonalListInner")</div>
+<div style="display:none">@Html.Partial("SampleApplyCancelInner")</div>
+<div style="display:none">@Html.Partial("SampleApplyScriptContainer")</div>
+<div style="display:none">@Html.Partial("SampleApplyDoubtsInner")</div>

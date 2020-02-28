@@ -1,0 +1,64 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divEditUsedConfirmEquipmentAdditionChargeItemDiaglog">
+    <table class="edit-table" style="width:100%;">
+        <tr>
+            <th><span class="required">*</span>数量</th>
+            <td>@Html.JValidateBox("txtUsedConfirmEquipmentAdditionChargeItemAmount").ToMvcString()</td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>价格(元)</th>
+            <td>@Html.JValidateBox("txtUsedConfirmEquipmentAdditionChargeItemPrice").ToMvcString()</td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    var editUsedConfirmEquipmentAdditionChargeItemDiaglog;
+    function doEditUsedConfirmEquipmentAdditionChargeItem(equipmentAdditionChargeItemId) {
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        var amount = $("#hidUsedConfirmEquipmentAddtionChargeItemAmount" + equipmentAdditionChargeItemId).val();
+        var price = $("#hidUsedConfirmEquipmentAddtionChargeItemPrice" + equipmentAdditionChargeItemId).val();
+        $("#txtUsedConfirmEquipmentAdditionChargeItemAmount").val(amount);
+        $("#txtUsedConfirmEquipmentAdditionChargeItemPrice").val(price);
+        editUsedConfirmEquipmentAdditionChargeItemDiaglog = @Html.JDialog("divEditUsedConfirmEquipmentAdditionChargeItemDiaglog").SetTitle("编辑附加费用").SetIconCls("icon-Edit").SetAutoDialog(false).SetOkScript("doAcceptUsedConfirmEquipmentAdditionChargeItem(equipmentAdditionChargeItemId);").SetCancelScript("editUsedConfirmEquipmentAdditionChargeItemDiaglog.dialog('close');return false;").SetModal(true).ToMvcString();
+        $.messager.progress("close");
+    }
+    function doAcceptUsedConfirmEquipmentAdditionChargeItem(equipmentAdditionChargeItemId){
+        var amount = $("#txtUsedConfirmEquipmentAdditionChargeItemAmount").val();
+        var price = $("#txtUsedConfirmEquipmentAdditionChargeItemPrice").val();
+        var originalAmout= $("#hidOriginalUsedConfirmEquipmentAddtionChargeItemAmount" + equipmentAdditionChargeItemId).val();
+        var originalPrice = $("#hidOriginalUsedConfirmEquipmentAddtionChargeItemPrice" + equipmentAdditionChargeItemId).val();
+        if(amount.trim() == ""){
+            $.messager.show({ title: '提示', msg: "数量为空", showType: 'show' });
+            return false;
+        }
+        if(!amount.isPositiveInt()){
+            $.messager.show({ title: '提示', msg: "数量非法", showType: 'show' });
+            return false;
+        }
+        if(price.trim() == ""){
+            $.messager.show({ title: '提示', msg: "价格为空", showType: 'show' });
+            return false;
+        }
+        if(!price.isPositiveFloat()){
+            $.messager.show({ title: '提示', msg: "价格非法", showType: 'show' });
+            return false;
+        }
+        var isUsedConfirmEquipmentAdditionChargeItemAmountChanged = originalAmout!= amount && parseInt(originalAmout)!= parseInt(amount);
+        var isUsedConfirmEquipmentAdditionChargeItemPriceChanged = originalPrice != price  && parseFloat(originalPrice)!= parseInt(price);
+        $("#hidUsedConfirmEquipmentAddtionChargeItemAmountChanged" + equipmentAdditionChargeItemId).val(isUsedConfirmEquipmentAdditionChargeItemAmountChanged);
+        $("#hidUsedConfirmEquipmentAddtionChargeItemPriceChanged" + equipmentAdditionChargeItemId).val(isUsedConfirmEquipmentAdditionChargeItemPriceChanged);
+        $("#hidUsedConfirmEquipmentAddtionChargeItemAmount" + equipmentAdditionChargeItemId).val(amount);
+        $("#hidUsedConfirmEquipmentAddtionChargeItemPrice" + equipmentAdditionChargeItemId).val(price);
+        $("#spanUsedConfirmEquipmenAddtionChargeItemAmount" + equipmentAdditionChargeItemId).html(amount);
+        $("#spanUsedConfirmEquipmentAddtionChargeItemPrice" + equipmentAdditionChargeItemId).html(price);
+        editUsedConfirmEquipmentAdditionChargeItemDiaglog.dialog("close");
+        if(isUsedConfirmEquipmentAdditionChargeItemAmountChanged || isUsedConfirmEquipmentAdditionChargeItemPriceChanged){
+            if(typeof(doOnUsedConfirmEquipmentAdditionChargeItemDataChanged)=='function'){
+                doOnUsedConfirmEquipmentAdditionChargeItemDataChanged();
+            }
+        }
+    }
+</script>

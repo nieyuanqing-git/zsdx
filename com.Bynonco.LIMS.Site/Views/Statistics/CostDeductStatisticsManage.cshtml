@@ -1,0 +1,22 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+<div class='layout-center-full'> 
+    <div style="border:1px solid #D3D3D3;padding:10px 20px;_padding:10px 20px 0;"> 
+        @Html.Partial("../Statistics/CostDeductSearch")
+    </div>
+    <div style="height:10px;background-color:#ECEDF1;"></div>
+    <div>
+         <ul class="tabs" style="border-bottom:0;">
+            <li class="tabs-selected"><a class="tabs-inner" href="javascript:void(0)" onclick="doLoadCostDeductPayer(this);" id="lnkCostDeductPayer"><span class="tabs-title">付费人汇总表</span><span class="tabs-icon"></span></a></li>
+            <li><a class="tabs-inner" href="javascript:void(0)" onclick="doLoadCostDeductEquipment(this);"><span class="tabs-title">设备汇总表</span><span class="tabs-icon"></span></a></li>
+            <li><a class="tabs-inner" href="javascript:void(0)" onclick="doLoadCostDeductDetail(this);"><span class="tabs-title">使用明细列表</span><span class="tabs-icon"></span></a></li>
+        </ul>
+        <div id="divCostDeductStatisticsContainer">
+        </div>
+    </div>
+</div>
+<div style="display:none">@Html.Partial("../UsedConfirm/ScriptContainer")</div>
+<div style="display:none">@Html.Partial("../CostDeduct/ManualCostDeductScriptContainer")</div>
+<div style="display:none">@Html.Partial("../Statistics/CostDeductStatisticsScriptContainer")</div>
+<div style="display:none">@Html.Partial("../Appointment/ViewAppointmentInfoScript")</div>
+<div style="display:none">@Html.Partial("../MaterialOutput/ScriptContainer")</div>

@@ -1,0 +1,79 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsRegistryCard = customer == null ? false : customer.GetIsRegistryCard();
+    var url = ViewData["Url"] == null ? Url.Action("GetGridViewUserList", "User") : ViewData["Url"].ToString();
+    var userStatus = ViewData["UserStatus"] == null ? "" : ViewData["UserStatus"].ToString().ToLower().Trim();
+    var queryExpression = "";
+    if (userStatus != "")
+    {
+        queryExpression = "UserStatus=" + userStatus;
+    }
+    var userPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbUserList")
+       .SetIconCls("icon-list-menu-current")
+       .SetUrl(url)
+       .AddQueryParam("queryExpression", queryExpression)
+       .SetHeight(550)
+       .SetSortName("UserName")
+       .SetPageSize(10)
+       .SetMutiSelect(true)
+       .SetSingleSelect(false)
+       .SetShowAddButton(false)
+       .SetShowEditButton(false)
+       .SetShowDeleteButton(false)
+       .SetShowRefreshButton(false)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+
+    if (userPrivilige.IsEnableAdd)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAddUser();", IconCls = "icon-add", Id = "btnAddUser", Text = "新增" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearch();", IconCls = "icon-reload", Id = "btnReload", Text = "刷新" });
+    if (userPrivilige.IsEnableExportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportExcel();", IconCls = "icon-export", Id = "btnExportExcel", Text = "导出" });
+    }
+    if (userPrivilige.IsEnableImportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doImportExcel();", IconCls = "icon-import", Id = "btnImportExcel", Text = "导入" });
+    }
+    if (userPrivilige.IsEnableDelete)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doBatchDelete();", IconCls = "icon-delete", Id = "btnBatchDelete", Text = "批量删除" });
+    }
+    if (userPrivilige.IsEnableAuthorizationExportSlwUser)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportSlwUser();", IconCls = "icon-import", Id = "btnExportSlwUser", Text = "同步水控系统用户" });
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(45).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("姓名", "UserNameStr").SetWidth(280).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("登陆号", "Label").SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("卡号", "CardStr").SetWidth(100).SetAlign(Align.left));
+    if(customerIsRegistryCard)
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("特权卡", "IsRegistryCardStr").SetWidth(50).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("授权管理员", "IsAdminStr").SetWidth(80).SetAlign(Align.center));
+    }
+    else
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("特权卡", "IsAdminStr").SetWidth(50).SetAlign(Align.center));
+    }
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "UserStatusStr").SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("身份", "UserTypeName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "TutorName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "TagName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("单位", "OrganizationNameStr").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("邮箱", "Email").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("电话", "PhoneNumber").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("注册时间", "RegisterTimeStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("账户余额", "CurrencyStr").SetWidth(100).SetAlign(Align.right));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师账户余额", "TutorBalanceAcocuntStr").SetWidth(100).SetAlign(Align.right));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(300).SetAlign(Align.left));
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchZPanel();", IconCls = "icon-users", Id = "btnGridSearchZPanel", Text = "批量审核" });
+}
+@(dataGrid.ToMvcString())

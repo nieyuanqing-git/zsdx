@@ -1,0 +1,50 @@
+﻿<link rel="stylesheet" href="@Url.Content("~/Content/home/themes/orange/css.css")" type="text/css" media="screen" title='orange' disabled='true' />
+<script src="@Url.Content("~/Scripts/styleswitch.js")" type="text/javascript"></script>
+@{ var homeSkinName = ViewData["HomeSkinName"] == null ? "" : ViewData["HomeSkinName"].ToString();}
+<ul class="boderbox ">
+    <li>
+        <a href="javascript:;" rel="blue" class='styleswitch'><img src="@Url.Content("~/Content/Home/images/color-blue.gif")" /></a>
+    </li>
+    <li>
+        <a href="javascript:;" rel="purple" class='styleswitch'><img src="@Url.Content("~/Content/Home/images/color-purple.gif")" /></a>
+    </li>
+    <li>
+        <a href="javascript:;" rel="orange" class='styleswitch'><img src="@Url.Content("~/Content/Home/images/color-orange.gif")" /></a>
+    </li>
+</ul>
+<div style="clear:both;"></div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.styleswitch').click(function () {
+            SaveCurrentHomeSkinName(this);
+            switchStylestyle(this.getAttribute("rel"));
+            return false;
+        });
+        var c = "@homeSkinName";
+        if (c == "")
+            c = readCookie('style');
+        if (!c || c == "") c = 'orange'
+        switchStylestyle(c);
+        $('.styleswitch').each(function () {
+            if ($(this).attr("rel") == c)
+                $(this).parent().addClass("current");
+        });
+    });
+
+    function SaveCurrentHomeSkinName(obj) {
+        $(obj).parent().siblings().removeClass("current");
+        $(obj).parent().addClass("current");
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUserSystemSetting", "User")',
+            data: "HomeSkinName=" + $(obj).attr("rel") + "&time=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+            }
+        });
+    }
+</script>

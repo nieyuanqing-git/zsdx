@@ -1,0 +1,83 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewShareFundApply
+
+<div id="divShareFundApplyView">
+@if (Model != null)
+{
+    <table  class="edit-table"  style="width:530px;height:auto">
+        <tr>
+            <th>申请人</th>
+            <td>@Model.ApplyUserName</td>
+            <th>联系电话</th>
+            <td>@Model.PhoneNumber</td>
+        </tr>
+        <tr>
+            <th>单位</th>
+            <td>@Model.ApplyUserOrgName</td>
+            <th>职务</th>
+            <td>@Model.Jobtitle</td>
+        </tr>
+        <tr>
+            <th>项目名称</th>
+            <td colspan='3'>@Model.ProjectName</td>
+        </tr>
+        <tr>
+            <th>项目类别</th>
+            <td>@Model.ProjectType</td>
+            <th>项目时间</th>
+            <td>@(Model.StartTimeStr + "至" + Model.EndTimeStr)</td>
+        </tr>
+        <tr>
+            <th>申请设备机时</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.ItemDetail)</td>
+        </tr>
+        <tr>
+            <th>申请理由</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.Reason)</td>
+        </tr>
+        <tr>
+            <th>申请基金比例</th>
+            <td>@Model.ApplyProportion</td>
+            <th>批准基金比例</th>
+            <td>@(Model.AuditProportion + "%")</td>
+        </tr>
+        <tr>
+            <th>负责人</th>
+            <td colspan='3'>@Model.AdminUserName</td>
+        </tr>
+        <tr>
+            <th>主管院长意见</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.CollegeAuditRemark.Replace("\r\n","<br />"))</td>
+        </tr>
+        <tr>
+            <th>专家小组意见</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.GroupAdminAuditRemark.Replace("\r\n", "<br />"))</td>
+        </tr>
+        <tr>
+            <th>管理处意见</th>
+            <td colspan='3'>@System.Web.Mvc.MvcHtmlString.Create(Model.LabAdminAuditRemark.Replace("\r\n", "<br />"))</td>
+        </tr>
+        <tr>
+            <th>创建人</th>
+            <td>@Model.CreaterName</td>
+            <th>创建时间</th>
+            <td>@Model.CreateTimeStr</td>
+        </tr>
+        <tr>
+            <th>修改人</th>
+            <td>@Model.UpdateUserName</td>
+            <th>修改时间</th>
+            <td>@Model.UpdateTimeStr</td>
+        </tr>
+        <tr>
+            <th>审核人</th>
+            <td>@Model.AuditUserName</td>
+            <th>审核时间</th>
+            <td>@Model.AuditTimeStr</td>
+        </tr>
+    </table>
+}
+else
+{
+    @:无效信息
+}
+</div> 

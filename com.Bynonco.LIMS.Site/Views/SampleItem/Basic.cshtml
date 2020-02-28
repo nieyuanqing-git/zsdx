@@ -1,0 +1,120 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleItem
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    Layout = ViewBag.Layout;
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsSampleItemUnitUsedHourRequired = customer.GetIsSampleItemUnitUsedHourRequired();
+}
+<div id="divSampleItemBasic"  style="height:100%">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tbSampleItemBasic" class="edit-table" style="height:100%">
+        <tr>
+            <th><span class="required">*</span>项目名称</th>
+            <td>
+                @(Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name)
+                .SetValidateType(ValidateType.required)
+                .SetWidth(250).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>样品形态</th>
+            <td id="tdSampleStatuses" style="padding-left:3px">
+                 @(Html.TokenInput("SampleStatusIds")
+                .SetUrl(Url.Action("GetSampleStatusByKeyWord", "SampleStatus", new { time = DateTime.Now.Millisecond.ToString() }))
+                .SetPrePopulate(ViewData["SampleStatusesJson"] == null ? null : ViewData["SampleStatusesJson"].ToString())
+                .SetSingle(false).SetWidth(255).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>收费方式</th>
+            <td>
+                @Html.JComboBox("ChargeCategory").SetData(ViewData["ChargeCategoryJson"]).SetWidth(255).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th ><span class="required">*</span>所属设备</th>
+            <td id="tdEquipmentId" style="padding-left:3px">
+                 @(Html.TokenInput("EquipmentIds")
+                .SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment", new { time = DateTime.Now.Millisecond.ToString() }))
+                .SetPrePopulate(ViewData["EquipmentsJson"] == null ? null : ViewData["EquipmentsJson"].ToString())
+                .SetSingle(false).SetWidth(250).ToMvcString())
+            </td>
+        </tr>
+         <tr>
+            <th><span class="required @(customerIsSampleItemUnitUsedHourRequired ? "" : "hide")">*</span>预计机时</th>
+            <td>
+                @(Html.JValidateBox("UnitUsedHour")
+                .SetValue(Model == null || !Model.UnitUsedHour.HasValue ? "" : Model.UnitUsedHour.Value.ToString())
+                .SetValidateType(ValidateType.number)
+                .SetWidth(250)
+                .SetInvalidMessage("请输入大于或者等于0的价格").ToMvcString())
+                (小时)
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>价格</th>
+            <td>
+                @(Html.JValidateBox("UnitPrice")
+                .SetValue(Model == null ? "0" : Model.UnitPrice.ToString())
+                .SetValidateType(ValidateType.number)
+                .SetWidth(250)
+                .SetInvalidMessage("请输入大于或者等于0的价格").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>小数位</th>
+            <td>
+                @(Html.JValidateBox("RoundDigits")
+                .SetValue(Model == null ? "2" : Model.RoundDigits.ToString())
+                .SetValidateType(ValidateType.number)
+                .SetWidth(250)
+                .SetInvalidMessage("请输入大于或者等于0数字").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>排序号</th>
+            <td>
+                @(Html.JValidateBox("OrderNo")
+                .SetValue(Model == null ? "" : Model.OrderNo.ToString())
+                .SetValidateType(ValidateType.intNumber)
+                .SetWidth(250).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>助记符</th>
+            <td>
+                @(Html.JValidateBox("InputStr")
+                .SetValue(Model == null ? "" : Model.InputStr)
+                .SetValidateType(ValidateType.none)
+                .SetWidth(250).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+        <th><span class="required">*</span>是否停用</th>
+        <td>
+            @Html.JComboBox("IsStop").SetWidth(255).SetData(ViewData["IsStopJson"]).ToMvcString()
+        </td>
+        </tr>
+        <tr>
+            <th>检测条件及<br />要求填写说明</th>
+            <td>
+                @Html.TextArea("Directions", Model == null ? "" : Model.Directions, new { style = "font-size:12px;text-decoration:none;height:30px;width:350px" })
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:30px;width:350px" })
+            </td>
+        </tr>
+    </table>
+ </div> 
+ <script type="text/javascript">
+     $(function () {
+         $("#tdSampleStatuses ul.token-input-list-facebook").css("width", "253px");
+         $("#tdEquipmentId ul.token-input-list-facebook").css("width", "253px");
+     });
+ </script>
+
+

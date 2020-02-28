@@ -1,0 +1,49 @@
+﻿ @using com.Bynonco.JqueryEasyUI.Core;
+ <script type="text/javascript">
+     function generateQueryExpress() {
+         var queryExpression = "";
+         var subjectnum = $("#txtSearchSubjectNum").val();
+         if (subjectnum.trim() != "") {
+             queryExpression = "SubjectNum∽\"" + subjectnum.trim() + "\"";
+         }
+         var subjectname = $("#txtSearchSubjectName").val();
+         if (subjectname.trim() != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "SubjectName∽\"" + subjectname.trim() + "\"";
+         }
+         var subjecchief = $("#txtSearchSubjectChief").val();
+         if (subjecchief.trim() != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "SubjectChief∽\"" + subjecchief.trim() + "\"";
+         }
+         return queryExpression;
+     }
+
+     function doReset() {
+         $("#txtSearchSubjectNum").val("");
+         $("#txtSearchSubjectName").val("");
+         $("#txtSearchSubjectChief").val("");
+     }
+</script>
+<ul class="search">
+    <li>
+        <label>项目编号</label>
+        @Html.JValidateBox("txtSearchSubjectNum").SetWidth(150).ToMvcString()
+    </li>
+     <li>
+        <label>项目名称</label>
+        @Html.JValidateBox("txtSearchSubjectName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>负责人</label>
+        @Html.JValidateBox("txtSearchSubjectChief").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+
+

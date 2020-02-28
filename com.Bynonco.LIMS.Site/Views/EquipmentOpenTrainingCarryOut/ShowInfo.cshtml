@@ -1,0 +1,103 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenTrainingCarryOut
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    ViewBag.Title = "实施培训计划";
+    Layout = "~/Views/Shared/_OneColumnLayout.cshtml";
+    bool isLogin = Request.IsAuthenticated && ViewData["LoginUser"] != null;
+}
+@section ImportCssAndJs
+{
+<style type="text/css">
+a.l-btn-color{display: inline-block;margin-bottom: 5px;}
+.info-pannel .info-box p span.icon-span span{width:auto;margin-right:5px;}
+.info-pannel .info-box p span.icon-span span.tree-folder{width:16px;}
+</style>
+<script type="text/javascript">
+    function doSignUpEquipmentOpenTrainingCarryOut(id)
+    {
+        if (id == null || id == "") {
+            $.messager.show({ title: '提示', msg: "请选择要报名的培训实施计划", showType: 'show' });
+            return false;
+        }
+        if('@isLogin.ToString().ToLower()' == 'true') {
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SignUp", "EquipmentOpenTrainingCarryOutSignUp")',
+                data: { "equipmentOpenTrainingCarryOutId": id, "date": new Date().getMilliseconds() },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                }
+            });
+        }
+        else {
+            backToLogin();
+        }
+        return false;
+    }
+    </script>
+}
+@section MainFull
+{
+    @if (Model != null)
+    {
+        var name = Model.Name;
+        if (!name.Trim().EndsWith("实施培训计划")){ name += "实施培训计划";}
+        
+    <div class="topTitle clearfix">
+        <h2 title="@name" style='float: left;font-weight: normal;width: 850px;'>
+            @name
+            <a href='#' onclick="doSignUpEquipmentOpenTrainingCarryOut('@Model.Id');return false;" class='l-btn-color l-btn-color-yellow' style='font-size:15px;margin-left: 10px; line-height: 30px; padding: 0px 10px; font-weight: bold;'> 报 名 </a>
+        </h2>
+        <div class="TopOperate" style='margin:1.1em 0 0.5em;float:right;'>
+            <a href='@Url.Action("Show", "EquipmentOpenTrainingCarryOut")' class='l-btn-color l-btn-color-grey' style='margin-right: 10px; line-height: 30px; padding: 0px 10px; font-weight: bold;'>返 回 列 表</a>
+        </div>
+    </div>
+    <div class="content-box" style='padding-top:0;'>
+        <p style='font-size:14px;font-weight:bold;'>大型精密仪器设备名称：&nbsp;&nbsp;@(Model.EquipmentOpenTraining != null && Model.EquipmentOpenTraining.Equipment != null ? Model.EquipmentOpenTraining.Equipment.Name : "")</p>
+         <div style='float:left;width:50%;'>
+            <p style='font-size:14px;font-weight:bold;'>报名注意事项</p>
+            <p style='font-size:14px;'>报名时间：@(Model.ApplyStratTime.ToString("yyyy-MM-dd") + " 至 " + Model.ApplyEndTime.ToString("yyyy-MM-dd"))</p>
+            <p style='font-size:14px;'>报名条件：@Model.ApplyCondition</p>
+            <p style='font-size:14px;'>报名地点：@Model.ApplyPlace</p>
+            <p style='font-size:14px;'>报名联系人：@(Model.ApplyLinkman + " " + Model.ApplyLinkPhone)</p>
+            <p style='font-size:14px;' class='@(string.IsNullOrWhiteSpace(Model.Remark)? "hide" : "")'>其他说明：@Model.Remark</p>
+        </div>
+        <div style='float:right;width:50%;'>
+            <p style='font-size:14px;font-weight:bold;'>考核安排</p>
+            <p style='font-size:14px;'>考试方式：@Model.ExamineType</p>
+            <p style='font-size:14px;'>考试时间：@(Model.ExamineTime.HasValue ? Model.ExamineTime.Value.ToString("yyyy-MM-dd") : "")</p>
+            <p style='font-size:14px;'>考核地点：@Model.ExaminePlace</p>
+        </div>
+        <div class='clear-both'></div>
+        <p style='font-size:14px;font-weight:bold;'>培训安排</p>
+        @{
+        var dataGrid = Html.JDataGrid("tbEquipmentOpenTrainingCarryOutPlanList")
+        .SetUrl(Url.Action("GetViewEquipmentOpenTrainingCarryOutPlanList", "EquipmentOpenTrainingCarryOut", new {id = Model.Id}))
+        .SetSortName("ClassDate A,ClassTime")
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(false)
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowRefreshButton(false)
+        .SetMutiSelect(false)
+        .SetSingleSelect(false)
+        .SetPagination(false);
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("日期", "ClassDateStr").SetWidth(80).SetAlign(Align.center))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("起止时间", "ClassTime").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("培训地点", "ClassPlace").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("培训内容(方式)", "ClassContent").SetWidth(560).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("授课教师", "Teacher").SetWidth(70).SetAlign(Align.center));
+      }
+      @(dataGrid.ToMvcString())
+       
+    </div>
+    }
+}

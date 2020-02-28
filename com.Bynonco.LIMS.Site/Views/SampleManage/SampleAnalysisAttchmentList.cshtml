@@ -1,0 +1,16 @@
+﻿ @using com.Bynonco.JqueryEasyUI.Core;
+@{
+    
+    var dataGrid = Html.JDataGrid("tbAnalysisAttchmentList")
+        .SetHeight(150)
+        .SetShowDeleteButton(true)
+        .SetDeleteScript("doDeleteAttachment();")
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false)
+        .SetSortName("FileName")
+        .SetPagination(false)
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件名", "FileNameStr").SetWidth(450).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("大小", "FileSizeStr").SetWidth(298).SetAlign(Align.center));
+}
+@(dataGrid.ToMvcString())

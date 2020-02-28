@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbEquipmentNoticeList")
+    .SetUrl(Url.Action("GetGridEquipmentNoticeList", "Equipment"))
+    .AddQueryParam("queryExpression", string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("标题", "Title").SetWidth(220).SetAlign(Align.left).SetSortable(false))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("内容", "Content").SetWidth(300).SetAlign(Align.left).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(130).SetAlign(Align.left).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreatorName").SetWidth(80).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否置顶", "IsTopStr").SetWidth(80).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("完成阅读才可预约", "IsMustReadBeforeAppointmentStr").SetWidth(150).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left).SetSortable(false));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddNotice);
+    if (equipmentPrivilige.IsEnableAddNotice)
+    {
+        dataGrid.SetAddScript("doAddOrEditEquipmentNotice('');");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditNotice);
+    if (equipmentPrivilige.IsEnableEditNotice)
+    {
+        dataGrid.SetEditScript("doEditEquipmenNotice();");
+        dataGrid.SetOnDblClickRow("doAddOrEditEquipmentNotice(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteNotice);
+    if (equipmentPrivilige.IsEnableDeleteNotice)
+    {
+        dataGrid.SetDeleteScript("doDeleteEquipmentNotice();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

@@ -1,0 +1,84 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isShowSearchActivityApplyStatus = ViewData["IsShowSearchActivityApplyStatus"] == null ? false : (bool)ViewData["IsShowSearchActivityApplyStatus"];
+}
+<script type="text/javascript">
+    function generateActivityApplyQueryExpress() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val();
+        if (userName.trim() != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName.trim() + "\"";
+        }
+        var equipmentGroupName = $("#SearchEquipmentGroupName").val();
+        if (equipmentGroupName.trim() != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentGroupName∽\"" + equipmentGroupName.trim() + "\"";
+        }
+        var activityTypeId = $("#SearchActivityTypeId").combobox("getValue");
+        if (activityTypeId.trim() != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ActivityTypeId=\"" + activityTypeId + "\"";
+        }
+        if ($("#SearchActivityApplyStatus").length > 0) {
+            var status = $("#SearchActivityApplyStatus").combobox("getValue");
+            if (status.trim() != "" && status.trim() != "-1") {
+                queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+            }
+        }
+        var activityTimeStart = $("#SearchActivityTimeStart").datebox("getValue").trim();
+        if (activityTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ActivityTime>\"" + activityTimeStart + "\"";
+        }
+        var activityTimeEnd = $("#SearchActivityTimeEnd").datebox("getValue").trim();
+        if (activityTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ActivityTime<\"" + activityTimeEnd + " 23:59:59\"";
+        }
+        return queryExpression;
+    }
+
+    function doResetActivityApply() {
+        $("#SearchUserName").val("");
+        $("#SearchEquipmentGroupName").val("");
+        $("#SearchActivityTypeId").combobox('setValue', '');
+        if ($("#SearchActivityApplyStatus").length > 0) {
+            $("#SearchActivityApplyStatus").combobox('setValue', '-1');
+        }
+        $("#SearchActivityTimeStart").datebox("setValue", "");
+        $("#SearchActivityTimeEnd").datebox("setValue", "");
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>申请人</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>仪器组群</label>
+        @Html.JValidateBox("SearchEquipmentGroupName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>费用范围</label>
+        @Html.JComboBox("SearchActivityTypeId").SetEditable(false).SetWidth(155).SetData(ViewData["ActivityTypeJson"]).ToMvcString()
+    </li>
+    @if (isShowSearchActivityApplyStatus)
+    {
+        <li>
+            <label>状态</label>
+            @Html.JComboBox("SearchActivityApplyStatus").SetEditable(false).SetWidth(155).SetData(ViewData["ActivityApplyStatusJson"]).ToMvcString()
+        </li>
+    }
+    <li>
+        <label>活动时间</label>
+        @Html.JDateTimePicker("SearchActivityTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchActivityTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearchActivityApply", "查询").SetOnclick("doSearchActivityApply();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnResetActivityApply", "清空").SetOnclick("doResetActivityApply();").ToMvcString()
+        @Html.JLinkButton("btnCloseActivityApply", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

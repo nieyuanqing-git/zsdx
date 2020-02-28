@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var semesterPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSemesterPrivilige(User.Identity.Name);
+}
+<span class="span-title">学期: </span>
+@(Html.JComboBox("SelectSemesterId")
+    .SetUrl(Url.Action("GetSemesterList", "Semester"))
+    .SetEditable(false)
+    .SetWidth(155)
+    .SetOnLoadSuccess("setTimeout('doSelectSemesterOnLoadSuccess();', 500);")
+    .SetOnSelect("doSemesterOnSelect(record);")
+    .ToMvcString())
+@if (semesterPrivilige.IsEnableAdd)
+{
+    @Html.JLinkButton("btnAddSelectSemester", "新增").SetIconCls("icon-Add").SetPlain(true).SetOnclick("doAddSelectSemester('');return false;").ToMvcString()
+}
+@if (semesterPrivilige.IsEnableEdit)
+{
+    @Html.JLinkButton("btnEditSelectSemester", "编辑").SetIconCls("icon-Edit").SetPlain(true).SetOnclick("doEditSelectSemester('');return false;").ToMvcString()
+}
+@if (semesterPrivilige.IsEnableDelete)
+{
+    @Html.JLinkButton("btnDeleteSelectSemester", "删除").SetIconCls("icon-Cancel").SetPlain(true).SetOnclick("doDeleteSelectSemester('');return false;").ToMvcString()
+}
+@Html.Partial("../Semester/ScriptContainer")
+@Html.Partial("../Semester/SelectScriptContainer")

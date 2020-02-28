@@ -1,0 +1,9 @@
+﻿@{
+    var LimitEquipmentId = ViewData["LimitEquipmentId"] == null ? "" : ViewData["LimitEquipmentId"].ToString();
+}
+<div class="layout-center-full" id="divViewCostDeductDetail" style='@(LimitEquipmentId == "" ? "" : "width:800px;overflow-x:auto;")'>
+    @Html.Hidden("LimitEquipmentId", LimitEquipmentId)
+    @Html.Partial("../Statistics/CostDeductDetailList")
+</div>
+<div style="display:none">@Html.Partial("../UsedConfirm/ScriptContainer")</div>
+<div style="display:none">@Html.Partial("../Appointment/ViewAppointmentInfoScript")</div>

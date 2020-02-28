@@ -1,0 +1,263 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isManageList = ViewData["IsManageList"] == null ? true : bool.Parse(ViewData["IsManageList"].ToString());
+}
+<div id="divViewCostDeductEquipmentListDialog" style="display:none"></div>
+<div id="divViewCostDeductDetailListDialog" style="display:none"></div>
+<div id="divViewCostDeductPayerChartColumnDialog" style="display:none;"></div>
+<div id="divViewCostDeductEquipmentChartColumnDialog" style="display:none;"></div>
+<div id="divViewCostDeductPayerChartPieDialog" style="display:none;"></div>
+<div id="divViewCostDeductEquipmentChartPieDialog" style="display:none;"></div>
+<script type="text/javascript">
+    function doSearch() {
+        $(".tabs-selected a").click();
+    }
+    function doLoadCostDeductPayer(obj) {
+        var url = '@Url.Action("CostDeductPayerContainer", "Statistics")';
+        doLoadCostDeductStatistics(obj, url);
+        return false;
+    }
+    function doLoadCostDeductEquipment(obj) {
+        var url = '@Url.Action("CostDeductEquipmentContainer", "Statistics")';
+        doLoadCostDeductStatistics(obj, url);
+        return false;
+    }
+    function doLoadCostDeductDetail(obj) {
+        var url = '@Url.Action("CostDeductDetailContainer", "Statistics")';
+        doLoadCostDeductStatistics(obj, url);
+        return false;
+    }
+    function doLoadCostDeductStatistics(obj, url) {
+        $(obj).parent().addClass("tabs-selected");
+        $(obj).parent().siblings().removeClass("tabs-selected");
+        $("#divCostDeductStatisticsContainer").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: $("#frmCostDeductSearch").serialize() + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds(),
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divCostDeductStatisticsContainer").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        if($("#lnkCostDeductPayer").length > 0) doLoadCostDeductPayer($("#lnkCostDeductPayer"));
+    });
+
+    function doShowViewCostDeductEquipmentList(payerId)
+    {
+        if(!payerId || payerId == "") return false;
+        var url = '@Url.Action("CostDeductEquipmentContainer","Statistics")';
+        var queryData = $("#frmCostDeductSearch").serialize() + "&LimitPayerId=" + payerId  + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        $("#divViewCostDeductDetailListDialog").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divViewCostDeductEquipmentListDialog").html(data);
+                ShowViewCostDeductEquipmentListDialog();
+                return false;
+            }
+        });
+    }
+    var viewCostDeductEquipmentListDialog;
+    function ShowViewCostDeductEquipmentListDialog()
+    {
+        if(viewCostDeductEquipmentListDialog)
+            viewCostDeductEquipmentListDialog.dialog("destroy");
+        viewCostDeductEquipmentListDialog = @(Html.JDialog("divViewCostDeductEquipment").SetTitle("详情").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewCostDeductEquipmentListDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("viewCostDeductEquipmentListDialog.dialog('destroy');return false;").ToMvcString());
+    }
+    
+    function doShowViewCostDeductDetailList(equipmentId) 
+    {
+        if(!equipmentId || equipmentId == "" ) return false;
+        var url = '@Url.Action("CostDeductDetailContainer","Statistics")';
+        var queryData = $("#frmCostDeductSearch").serialize()  + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        if($("#LimitPayerId").length > 0  && $("#LimitPayerId").val() != "") { queryData += "&LimitPayerId=" + $("#LimitPayerId").val(); }
+        if(equipmentId && equipmentId != "") queryData += "&LimitEquipmentId=" + equipmentId;
+        $("#divViewCostDeductDetailListDialog").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divViewCostDeductDetailListDialog").html(data);
+                ShowViewCostDeductDetailListDialog();
+                return false;
+            }
+        });
+    } 
+    var viewCostDeductDetailListDialog;
+    function ShowViewCostDeductDetailListDialog()
+    {
+        if(viewCostDeductDetailListDialog)
+            viewCostDeductDetailListDialog.dialog("destroy");
+        viewCostDeductDetailListDialog = @(Html.JDialog("divViewCostDeductDetail").SetTitle("详情").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewCostDeductDetailListDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("viewCostDeductDetailListDialog.dialog('destroy');return false;").ToMvcString());
+    }
+
+    var viewCostDeductPayerChartColumnDialog;
+    function doShowViewCostDeductPayerChartColumn(equipmentId)
+    {
+        var url = '@Url.Action("GetCostDeductPayerChartColumn","Statistics")';
+        var queryData = $("#frmCostDeductSearch").serialize()  + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        if(equipmentId && equipmentId != "")
+        {
+            queryData += "&LimitEquipmentId=" + equipmentId;
+            if($("#LimitPayerId").length > 0  && $("#LimitPayerId").val() != "") queryData += "&LimitPayerId=" + $("#LimitPayerId").val();
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divViewCostDeductPayerChartColumnDialog").html(data);
+                ShowViewCostDeductPayerChartColumnDialog();
+                return false;
+            }
+        });
+    }
+    function ShowViewCostDeductPayerChartColumnDialog()
+    {
+        if(viewCostDeductPayerChartColumnDialog)
+            viewCostDeductPayerChartColumnDialog.dialog("destroy");
+        viewCostDeductPayerChartColumnDialog = @(Html.JDialog("divChartFlashBox").SetTitle("付费人扣费情况柱图").SetIconCls("icon-statistics").SetAutoDialog(false).SetCancelScript("viewCostDeductPayerChartColumnDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString())
+    }
+
+    var viewCostDeductEquipmentChartColumnDialog;
+    function doShowViewCostDeductEquipmentChartColumn(payerId)
+    {
+        var url = '@Url.Action("GetCostDeductEquipmentChartColumn","Statistics")';
+        var queryData = $("#frmCostDeductSearch").serialize()  + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        if(payerId && payerId != "") queryData += "&LimitPayerId=" + payerId;
+        else if($("#LimitPayerId").length > 0  && $("#LimitPayerId").val() != "") queryData += "&LimitPayerId=" + $("#LimitPayerId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divViewCostDeductEquipmentChartColumnDialog").html(data);
+                ShowViewCostDeductEquipmentChartColumnDialog();
+                return false;
+            }
+        });
+    }
+    function ShowViewCostDeductEquipmentChartColumnDialog()
+    {
+        if(viewCostDeductEquipmentChartColumnDialog)
+            viewCostDeductEquipmentChartColumnDialog.dialog("destroy");
+        viewCostDeductEquipmentChartColumnDialog = @(Html.JDialog("divChartFlashBox").SetTitle("设备扣费情况柱图").SetIconCls("icon-statistics").SetAutoDialog(false).SetCancelScript("viewCostDeductEquipmentChartColumnDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString())
+    }
+
+    var viewCostDeductPayerChartPieDialog;
+    function doShowViewCostDeductPayerChartPie(equipmentId)
+    {
+        var url = '@Url.Action("GetCostDeductPayerChartPie","Statistics")';
+        var queryData = $("#frmCostDeductSearch").serialize()  + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        if(equipmentId && equipmentId != "")
+        {
+            queryData += "&LimitEquipmentId=" + equipmentId;
+            if($("#LimitPayerId").length > 0  && $("#LimitPayerId").val() != "") queryData += "&LimitPayerId=" + $("#LimitPayerId").val();
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divViewCostDeductPayerChartPieDialog").html(data);
+                ShowViewCostDeductPayerChartPieDialog();
+                return false;
+            }
+        });
+    }
+    function ShowViewCostDeductPayerChartPieDialog()
+    {
+        if(viewCostDeductPayerChartPieDialog)
+            viewCostDeductPayerChartPieDialog.dialog("destroy");
+        viewCostDeductPayerChartPieDialog = @(Html.JDialog("divChartFlashBox").SetTitle("付费人扣费情况饼图").SetIconCls("icon-statistics").SetAutoDialog(false).SetCancelScript("viewCostDeductPayerChartPieDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString())
+    }
+
+    var viewCostDeductEquipmentChartPieDialog;
+    function doShowViewCostDeductEquipmentChartPie(payerId)
+    {
+        var url = '@Url.Action("GetCostDeductEquipmentChartPie","Statistics")';
+        var queryData = $("#frmCostDeductSearch").serialize()  + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        if(payerId && payerId != "") queryData += "&LimitPayerId=" + payerId;
+        else if($("#LimitPayerId").length > 0  && $("#LimitPayerId").val() != "") queryData += "&LimitPayerId=" + $("#LimitPayerId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divViewCostDeductEquipmentChartPieDialog").html(data);
+                ShowViewCostDeductEquipmentChartPieDialog();
+                return false;
+            }
+        });
+    }
+    function ShowViewCostDeductEquipmentChartPieDialog()
+    {
+        if(viewCostDeductEquipmentChartPieDialog)
+            viewCostDeductEquipmentChartPieDialog.dialog("destroy");
+        viewCostDeductEquipmentChartPieDialog = @(Html.JDialog("divChartFlashBox").SetTitle("设备扣费情况饼图").SetIconCls("icon-statistics").SetAutoDialog(false).SetCancelScript("viewCostDeductEquipmentChartPieDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString())
+    }
+    function doCostDeductPayerExportExcel() 
+    {
+        var queryData = $("#frmCostDeductSearch").serialize()  + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        var url = '@Url.Action("CostDeductPayerExportExcel","Statistics")' + '?' + queryData
+        window.open(url, '_blank');
+    }
+    function doCostDeductEquipmentExportExcel() 
+    {
+        var queryData = $("#frmCostDeductSearch").serialize()  + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        if($("#LimitPayerId").length > 0  && $("#LimitPayerId").val() != "") queryData += "&LimitPayerId=" + $("#LimitPayerId").val();
+        var url = '@Url.Action("CostDeductEquipmentExportExcel","Statistics")' + '?' + queryData
+        window.open(url, '_blank');
+    }
+    function doCostDeductDetailExportExcel() 
+    {
+        var queryData = $("#frmCostDeductSearch").serialize()  + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        if($("#LimitPayerId").length > 0  && $("#LimitPayerId").val() != "") queryData += "&LimitPayerId=" + $("#LimitPayerId").val();
+        if($("#LimitEquipmentId").length > 0  && $("#LimitEquipmentId").val() != "") queryData += "&LimitEquipmentId=" + $("#LimitEquipmentId").val();
+        var url = '@Url.Action("CostDeductDetailExportExcel","Statistics")' + '?' + queryData
+        window.open(url, '_blank');
+    }
+    function doCostDeductGroupDetailExportExcel() 
+    {
+        var queryData = $("#frmCostDeductSearch").serialize()  + "&IsManageList=" + "@(isManageList.ToString().ToLower())" + "&date=" + new Date().getMilliseconds();
+        if($("#LimitPayerId").length > 0  && $("#LimitPayerId").val() != "") queryData += "&LimitPayerId=" + $("#LimitPayerId").val();
+        if($("#LimitEquipmentId").length > 0  && $("#LimitEquipmentId").val() != "") queryData += "&LimitEquipmentId=" + $("#LimitEquipmentId").val();
+        var url = '@Url.Action("CostDeductGroupDetailExportExcel","Statistics")' + '?' + queryData
+        window.open(url, '_blank');
+    }
+    function doSaveUsedConfirmCallBack()
+    {
+        doSearch();
+        editUsedConfirmDialog.dialog('destroy');
+    }
+    function doChargeUsedConfirmCallBack()
+    {
+        doSearch();
+        editUsedConfirmDialog.dialog('destroy');
+    }
+</script>
+
+
+
+

@@ -1,0 +1,41 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<p style='font-weight: bold; line-height: 30px; font-size: 14px; margin: 0px; padding-left: 10px; border: 1px solid #ccc;border-bottom:0;'>实验室基本情况表(SJ6)</p>
+<div class="x-panel-grid hide"  style='width:150px;'>
+    <div class="search-inner-box">
+        @Html.Partial("../Statistics/SJ6StatisticsAudit")
+    </div>
+</div>
+<div class="y-panel-grid hide"  style='width:140px;'>
+    <div class="search-inner-box">
+        @Html.Partial("../Statistics/SJ6StatisticsExport")
+    </div>
+</div>
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Statistics/SJ6Search")
+    </div>
+</div>
+<div class="layout-center-left">
+    @Html.Partial("../Statistics/SJ6StatisticsList")
+</div>
+<div class="layout-center-right">
+    <div class="layout-center-full">
+        @Html.Partial("../Statistics/SJ6List")
+    </div>
+</div>
+<div class="clear-both"></div>
+@Html.Partial("../Statistics/SJ6StatisticsScriptContainer")
+@Html.Partial("../Statistics/SJ6ScriptContainer")
+<script type="text/javascript">
+    $(function () {
+        if ($.browser.msie) {
+            $(".layout-center-left").css("top", "auto")
+        }
+        else {
+            $(".layout-center-left").css("top", "auto")
+        }
+    });
+</script>

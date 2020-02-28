@@ -1,0 +1,42 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Guid? euqipmentId = null;
+    if(ViewData["EquipmentId"] != null){euqipmentId = new Guid(ViewData["EquipmentId"].ToString());}
+    var equipmentPrivilige = !euqipmentId.HasValue ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, euqipmentId.Value);
+    var dataGrid = Html.JDataGrid("tbEquipmentBrokenReportList")
+     .SetUrl(Url.Action("GetGridBrokenReportList", "Equipment"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("CreateTime")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowPrintButton(false)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "Name").SetWidth(150).SetAlign(Align.left).SetHidden(euqipmentId.HasValue))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(80).SetAlign(Align.center).SetHidden(euqipmentId.HasValue))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("资产编号", "Label").SetWidth(80).SetAlign(Align.center).SetHidden(euqipmentId.HasValue))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("报告人", "CreatorName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(130).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("内容", "Description").SetWidth(500).SetAlign(Align.left));
+    if (euqipmentId.HasValue){ dataGrid.AddQueryParam("EquipmentId", euqipmentId.Value.ToString());}
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddBrokenReport);
+    if (equipmentPrivilige.IsEnableAddBrokenReport)
+    {
+        dataGrid.SetAddScript("doAddOrEditEquipmentBrokenReport('');");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditBrokenReport);
+    if (equipmentPrivilige.IsEnableEditBrokenReport)
+    {
+        dataGrid.SetEditScript("doEditEquipmentBrokenReport();");
+        dataGrid.SetOnDblClickRow("doAddOrEditEquipmentBrokenReport(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteBrokenReport);
+    if (equipmentPrivilige.IsEnableDeleteBrokenReport)
+    {
+        dataGrid.SetDeleteScript("doDeleteEquipmentBrokenReport();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

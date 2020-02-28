@@ -1,0 +1,24 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var costDeductPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCostDeductPrivilige(User.Identity.Name);
+    var isManageList = ViewData["IsManageList"] == null ? true : bool.Parse(ViewData["IsManageList"].ToString());
+    var dataGrid = Html.JDataGrid("tbEquipmentUseConditionSumTotal")
+        .SetUrl(Url.Action("GetEquipmentUseConditionSumTotal", "Statistics"))
+        .AddQueryParam("queryExpression", ViewData["queryExpression"] == null ? "" : ViewData["queryExpression"].ToString().Trim())
+        .AddQueryParam("IsManageList", isManageList.ToString().ToLower())
+        .SetMutiSelect(false)
+        .SetShowFooter(true)
+        .SetSortName("EquipmentName")
+        .SetSortOrder( SortOrder.asc)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch()")
+        .SetPagination(false);
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器名称", "EquipmentNameStr").SetWidth(200).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师数", "TotalPayerCount").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用人次", "TotalUsedCount").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("计费时长", "TotalCalcDuration").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总收费数", "TotalCurrency").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+    .AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doEquipmentUseConditionSumTotalExportExcel();", IconCls = "icon-export", Id = "btnEquipmentUseConditionSumTotalExportExcel", Text = "导出" });
+}
+@(dataGrid.ToMvcString())

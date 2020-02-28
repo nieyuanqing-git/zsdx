@@ -1,0 +1,202 @@
+﻿@model com.Bynonco.LIMS.Model.Article
+@using com.Bynonco.JqueryEasyUI.Core;
+
+<script type="text/javascript">
+    function doOnArticleCategoryLoadSuccess() {
+        $("#tdArticleCategoryId span input.combo-text.validatebox-text").val('@(Model != null && Model.ArticleCategory != null ? "【" + Model.ArticleCategory.LabOrganization.Name + "】" + Model.ArticleCategory.Name : "")');
+    }
+    function doOnFileTypeLoadSuccess() {
+        $("#tdFileType span input.combo-text.validatebox-text").val("－－请选择上传类型－－");
+    }
+    function doFileTypeChange() {
+        var fileTypeValue = $("#FileType").combobox("getValue");
+        if (fileTypeValue && fileTypeValue != "") {
+            $.ajax({
+                url: '@Url.Action("GetUploadFileMaxInfo", "Article")',
+                cache: false,
+                data: { "fileTypeValue": fileTypeValue },
+                success: function (data) {
+                    $("#uploadDescription").text(data);
+                },
+                error: function () {
+                    $.messager.alert('提示', '请求出错', 'warning');
+                }
+            });
+        }
+        else {
+            $("#uploadDescription").text("");
+        }
+    }
+    function doSaveArticle() {
+        if ($("#Title").val().trim() == "") {
+            $.messager.alert('提示', '标题为空', 'warning');
+            return false;
+        }
+        if ($("#tdArticleCategoryId span input.combo-text.validatebox-text").val().trim() == "") {
+            $.messager.alert('提示', '文章分类为空', 'warning');
+            return false;
+        }
+        var articleCategoryId = $("#EditArticleCategoryId").combotree("getValue");
+        if (!$("#IsHomeShowContent").attr("checked")) { 
+            doSaveArticleData();
+        }
+        else {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("CheckHomeLocation","Article")',
+                data: {"ArticleCategoryId": articleCategoryId, "Id": $("#Id").val() },
+                success: function (data) {
+                    if (data.IsUnique) {
+                        $.messager.confirm('信息', data.Infor, function (r) {
+                            if (r) {
+                                doSaveArticleData();
+                            }
+                        });
+                    }
+                    else
+                        doSaveArticleData();
+                }
+            });
+        }
+    }
+    function doSaveArticleData() {
+        var contentHTML = CKEDITOR.instances.ContentHTML.getData();
+        var contentNotHTML = CKEDITOR.instances.ContentHTML.document.getBody().getText();
+        $("#ContentHTML").val(contentHTML);
+        if($("#ContentNotHTML").val() == "") $("#ContentNotHTML").val(contentNotHTML);
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("Save", "Article", new { date = DateTime.Now.Millisecond })',
+            data: $("#frmArticleEdit").serialize() + "&fileNameTypes=" + generateFileNameTypes(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                doBack();
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+    }
+    function doBack() {
+        var url = '@Url.Action("Index", "ArticleCategory")' + "?TagAction=Manage&TagController=Article&date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>
+<div class="edit-box">
+    <form id="frmArticleEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <p><span class="icon icon-doc"></span>文章信息</p>
+    <table class="edit-info">
+         <tr>
+            <th>标题</th>
+            <td>
+                @Html.JValidateBox("Title").SetValue(Model == null ? "" : Model.Title).SetWidth(400).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>文章分类</th>
+            <td id="tdArticleCategoryId">
+                @(Html.JComboTree("EditArticleCategoryId")
+                .SetData(ViewData["ArticleCategoryJson"])
+                .SetValue(Model == null ? "" : Model.ArticleCategoryId.ToString())
+                .SetOnLoadSuccess("setTimeout('doOnArticleCategoryLoadSuccess();', 500);")
+                .SetMultiple(false)
+                .SetWidth(405).SetExpandAll(true).ToMvcString())
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>关联分类</th>
+            <td id="tdRelationArticleCategoryId">
+                 @(Html.TokenInput("RelationArticleCategoryId")
+                    .SetUrl(Url.Action("GetArticleCategoryListByKeyWord", "ArticleCategory"))
+                    .SetWidth(405)
+                    .SetSingle(false)
+                    .SetPrePopulate(ViewData["RelationArticleCategoryJson"] == null || string.IsNullOrWhiteSpace(ViewData["RelationArticleCategoryJson"].ToString()) ? null : ViewData["RelationArticleCategoryJson"].ToString())
+                    .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>作者</th>
+            <td>@Html.JValidateBox("EditAuthor").SetValue(Model == null ? "" : Model.Author).SetWidth(400).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>发布时间</th>
+            <td>
+                @Html.JDateTimePicker("PublishAt").SetMode(DateTimePickerMode.dateTime).SetShowSeconds(false).SetValue(Model == null || !Model.PublishAt.HasValue ? DateTime.Now.ToString("yyyy-MM-dd HH:mm") : Model.PublishAt.Value.ToString("yyyy-MM-dd HH:mm")).SetWidth(180).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>是否首页展示内容</th>
+            <td>
+                @Html.CheckBox("IsHomeShowContent", Model == null ? false : Model.IsHomeShowContent)
+            </td>
+        </tr>
+        <tr>
+            <th>登录阅读</th>
+            <td>
+                @Html.CheckBox("IsEnableReadBeforeLogin", Model == null ? false : Model.IsEnableReadBeforeLogin)
+            </td>
+       </tr>
+       <tr>
+            <th>是否置顶</th>
+            <td>
+                @Html.CheckBox("IsTop", Model == null ? false : Model.IsTop)
+            </td>
+        </tr>
+    </table>
+    <p><span class="icon icon-upload"></span>文件上传</p>
+    <div>
+       <table class="edit-info">
+           <tr>
+                <th>上传类型</th>
+                <td id="tdFileType">
+                     @(Html.JComboBox("FileType")
+                        .SetEditable(false)
+                        .SetData(ViewData["FileTypeJson"])
+                        .SetWidth(215)
+                        .SetOnLoadSuccess("setTimeout('doOnFileTypeLoadSuccess();', 500);")
+                        .SetOnChange("doFileTypeChange();")
+                        .ToMvcString())
+                </td>
+           </tr>
+           <tr>
+                <th>上传附件</th>
+                <td>
+                    <input id="fileToUpload" type="file" name="fileToUpload" style="width:230px"/>
+                    @Html.JLinkButton("btnUpLoad", "上传附件").SetPlain(true).SetIconCls("icon-upload").SetOnclick("ajaxFileUpload();return false;").ToMvcString()
+                    <span id="uploadDescription"></span>
+                </td>
+            </tr>
+        </table>
+        <div style="position:relative;height:180px;">
+            <div style="position:absolute; margin:0;padding:0; margin-left:28px">@Html.Partial("UploadFileList", Model)</div>
+        </div>
+    </div>
+    <p><span class="icon icon-note"></span>内容信息</p>
+    <table class="edit-info">
+        <tr>
+            <td>
+                @Html.EditorFor(m => m.ContentHTML)
+            </td>
+        </tr>
+    </table>
+    <p><span class="icon icon-notesearch"></span>概要描述&nbsp;&nbsp;&nbsp;&nbsp;(注:概要描述为空时,由内容信息自动生成)</p>
+    <table class="edit-info">
+        <tr>
+            <td>
+                @Html.TextArea("ContentNotHTML", Model != null ? Model.ContentNoHTML : "", new { style = "font-size:12px;text-decoration:none;height:80px;width:610px;margin-right:5px;" })
+            </td>
+       </tr>
+    </table>
+  </form>
+  <div class="edit-operate">
+       @Html.JLinkButton("btnSaveArticle", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveArticle();return false;").ToMvcString()
+        @Html.JLinkButton("btnBackBasic", "返回列表").SetIconCls("icon-back").SetPlain(true).SetOnclick("doBack();return false;").ToMvcString()
+  </div>
+</div>

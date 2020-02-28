@@ -1,0 +1,69 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentAttachment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Utility;
+@{
+    var documentUpploadFileTip = ViewData["DocumentUploadFileTip"].ToString();
+    var courseUpploadFileTip = ViewData["CourseUploadFileTip"].ToString();
+    var videoUploadFileTip = ViewData["VideoUploadFileTip"].ToString();
+ }
+
+ <script type= "text/javascript">
+     function doOnAttachmentTypeChanged(newValue, oldValue) {
+         var documentUpploadFileTip = "@documentUpploadFileTip";
+         var courseUpploadFileTip = "@courseUpploadFileTip";
+         var videoUploadFileTip = "@videoUploadFileTip";
+         switch (newValue.toString()) {
+            case "0":
+                $("#spanUploadTip").text(documentUpploadFileTip);
+                break;
+            case "1":
+                $("#spanUploadTip").text(courseUpploadFileTip);
+                break;
+            case "2":
+                $("#spanUploadTip").text(videoUploadFileTip);
+                break;
+         }
+     }
+ </script>
+<div id="divEquipmentAttachmentlEdit">
+    <form id="frmEquipmentAttachmentEdit" action="#">
+    @Html.Hidden("EquipmentAttachmentId", Model == null ? "" : Model.Id.ToString())
+    <table id="tdEquipmentLabelEdit" class="edit-table"  style="width:600px;">
+            <tr>
+            <th>附件名称</th>
+            <td>
+                @Html.JValidateBox("FileName").SetValue(Model == null ? "" : Model.FileName).SetWidth(300).SetValidateType(ValidateType.required).ToMvcString()
+                <span class="">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>附件类型</th>
+            <td> @(Html.JComboBox("FileCategory")
+                   .SetData(ViewData["AttachmentTypeJson"])
+                   .SetOnChange("doOnAttachmentTypeChanged(newValue,oldValue);")
+                   .SetWidth(307).ToMvcString())
+                <span class="">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                附件浏览
+            </th>
+            <td>
+                <input id="fileToUpload" type="file" name="fileToUpload" style="width:300px" />
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @(Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;height:100px;font-weight:normal;width:98%" }))
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">
+                <span id="spanUploadTip" style="font-weight:bold"></span>
+            </td>
+        </tr>
+    </table>
+    </form>
+</div> 

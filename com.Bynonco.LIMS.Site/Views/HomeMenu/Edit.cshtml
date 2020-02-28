@@ -1,0 +1,121 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewHomeMenu
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{var customer = com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer();}
+<script type="text/javascript">
+    $(function () {
+        var orgIdValue = $("#OrgIdSelect").val();
+        var orgIdText = $("#OrgIdSelect option:selected").text();
+        $("#divHomeMenuEdit #tdOrganizationId #LabOrganizationId").val(orgIdValue);
+        $("#divHomeMenuEdit #tdOrganizationId #LabOrganizationName").val(orgIdText);
+    });
+    function doOnNameChanged() {
+        $("#InputStr").val("");
+    }
+    function doOnParentLoadSuccess() {
+        if ($("#Id").val().trim() == "") {
+            var selectedHomeMenu = $("#tbHomeMenuList").treegrid("getSelected");
+            if (selectedHomeMenu && selectedHomeMenu.Id && !selectedHomeMenu.Id.trim() == "" && !selectedHomeMenu.Id.isDefaultGuid()) {
+                var parentId = selectedHomeMenu.Id;
+                var parentName = selectedHomeMenu.Name;
+                $("#ParentId").combotree("setValue", parentId);
+                $("#tdHomeMenuEdit #tdParentId span input.combo-text.validatebox-text").val(parentName);
+            }
+        }
+        else $("#tdHomeMenuEdit #tdParentId span input.combo-text.validatebox-text").val('@(Model != null ? Model.ParentName : "")');
+    }
+    function doOnArticleCategoryChange() {
+        var articleCategoryId = $("#ArticleCategoryId").combotree("getValue");
+        if (!articleCategoryId || articleCategoryId == "" || articleCategoryId.isDefaultGuid()) {
+            $("#Url").val("");
+        }
+        else {
+            $("#Url").val("/Article/ShowList?ArticleCategoryId=" + articleCategoryId);
+        }
+
+    }
+</script>
+
+<div id="divHomeMenuEdit">
+ <form id="frmHomeMenuEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdHomeMenuEdit" class="edit-table"  style="width:535px;">
+         <tr>
+            <th>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>文章分类</th>
+            <td>
+                @(Html.JComboTree("ArticleCategoryId")
+                .SetData(ViewData["ArticleCategoryJson"])
+                .SetMultiple(false)
+                .SetOnChange("doOnArticleCategoryChange();")
+                .SetWidth(205).SetRequired(false).SetExpandAll(true).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>链接</th>
+            <td>
+                @Html.JValidateBox("Url").SetValue(Model == null ? "" : Model.Url).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>助记符</th>
+            <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(200).ToMvcString()</td>
+        </tr>
+         <tr>
+            <th>组织机构</th>
+            <td id="tdOrganizationId">
+                @Html.Hidden("LabOrganizationId", Model == null ? "" : Model.LabOrganizationId.ToString())
+                @Html.JValidateBox("LabOrganizationName").SetValue(Model == null ? "" : Model.OrganizationName.ToString()).SetWidth(200).SetDisabled(true).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>父级分类</th>
+            <td id="tdParentId">
+                @(Html.JComboTree("ParentId")
+                .SetData(ViewData["ParentJson"])
+                .SetValue(Model == null || !Model.ParentId.HasValue ? "" : Model.ParentId.Value.ToString())
+                .SetOnLoadSuccess("setTimeout('doOnParentLoadSuccess();', 500);")
+                .SetMultiple(false)
+                .SetDisabled(Model != null)
+                .SetWidth(205).SetRequired(false).SetExpandAll(true).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>文章列表显示</th>
+            <td>
+                @(Html.JComboBox("ShowType")
+                .SetData(ViewData["ArticleListShowTypeJson"])
+                .SetValue(Model == null ? "0" : Model.ShowType.ToString())
+                .SetDisabled(Model != null)
+                .SetWidth(205).SetRequired(false).ToMvcString())
+            </td>
+        </tr>
+        <tr style='display:@(customer.GetIsShowExaminationSystemSpecialRelativeInfo()?"":"none")'>
+            <th>只在考试系统显示</th>
+            <td>@Html.CheckBox("IsForExamination")</td>
+        </tr>
+        <tr>
+            <th>帮助</th>
+            <td>
+                <ol style="margin-left:5px;">
+                    <li>首页: /Home/Index</li>
+                    <li>设备分类：/EquipmentCategory/ShowList</li>
+                    <li>设备: /Equipment/ShowList</li>
+                    <li>电子地图: /SiteMap/Index</li>
+                    <li>交流园地: /ExchangeFairyland/Original</li>
+                    <li>问与答: /QA/Show</li>
+                    <li>在线考试: /LabOrganization/ExaminationListForHome</li>
+                    <li>文章分类: /Article/ShowList?ArticleCategoryId=  (直接选择文章分类)</li>
+                    <li>楼宇地图: /Building/Show</li>
+                </ol>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

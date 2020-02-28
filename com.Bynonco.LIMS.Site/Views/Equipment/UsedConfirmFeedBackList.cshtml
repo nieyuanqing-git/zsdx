@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var usedConfirmPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUsedConfirmPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUsedConfirmPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbUsedConfirmFeedBackList")
+    .SetUrl(Url.Action("GetGridEquipmentUsedConfirmFeedBackList", "UsedConfirm"))
+    .AddQueryParam("queryExpression", string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("CreateTime")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用记录编码", "UsedConfirmId").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用人", "UserName").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用开始时间", "BeginAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用结束时间", "EndAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否送样", "IsSampleStr").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("样品数", "SampleNum").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("描述", "Remark").SetWidth(350).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreatorName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(130).SetAlign(Align.center));
+    dataGrid.SetShowEditButton(usedConfirmPrivilige.IsEnableEditFeedBack);
+    if (usedConfirmPrivilige.IsEnableEditFeedBack)
+    {
+        dataGrid.SetEditScript("doEditUsedConfirmFeedBack();");
+        dataGrid.SetOnDblClickRow("doAddUsedConfirmFeedBack(rowData.UsedConfirmId);");
+    }
+    dataGrid.SetShowDeleteButton(usedConfirmPrivilige.IsEnableDeleteFeedBack);
+    if (usedConfirmPrivilige.IsEnableDeleteFeedBack)
+    {
+        dataGrid.SetDeleteScript("doDeleteUsedConfirmFeedBack();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

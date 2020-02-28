@@ -1,0 +1,111 @@
+﻿@model com.Bynonco.LIMS.Model.UserAccount
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var totalInfo = "";
+    if (Model != null)
+    {
+        totalInfo = string.Format("真实币: {0},  虚拟币: {1},  预警值: {2},  不可预约值: {3},  不可使用值: {2}",
+            Math.Round(Model.RealCurrency,2).ToString(),
+            Math.Round(Model.VirtualCurrency,2).ToString(),
+            Model.CreditLimit != null && Model.CreditLimit.PreAlert.HasValue ? Math.Round(Model.CreditLimit.PreAlert.Value,2).ToString() : "--",
+            Model.CreditLimit != null && Model.CreditLimit.UnAppointment.HasValue ? Math.Round(Model.CreditLimit.UnAppointment.Value,2).ToString() : "--"
+        );
+    }
+    int totalDepositCount = 8;
+    
+    bool isMaterial = ViewData["IsMaterial"] == null ? false : bool.Parse(ViewData["IsMaterial"].ToString());
+    bool isOpenFundApply = ViewData["IsOpenFundApply"] == null ? false : bool.Parse(ViewData["IsOpenFundApply"].ToString());
+    if (!isMaterial) { totalDepositCount -= 1;}
+    if (!isOpenFundApply) { totalDepositCount -= 3; }
+    Guid userAccountId = Model == null ? Guid.Empty : Model.Id;
+    <script type="text/javascript">
+    $(function () {
+        $('#tbUserAccountRecordTotal').datagrid({
+            columns: [[
+            { title: '存款明细', colspan: @(totalDepositCount), align: 'center' },
+            { title: '余额明细', colspan: @(isOpenFundApply ? 4 : 3), align: 'center' },
+            { title: '校级余额明细', colspan: 2, align: 'center' }
+            ], [
+            { title: '普通存款', colspan: 2, align: 'center' },
+            { title: '开放基金存款', colspan: 2, align: 'center', hidden: @((!isOpenFundApply).ToString().ToLower()) },
+            { title: '耗材存款', align: 'center', hidden: @((!isMaterial).ToString().ToLower())},
+            { title: '总计', colspan: @(isOpenFundApply ? 3 : 2), align: 'center' },
+            { title: '普通币', field: 'RealCurrencyStr', width: 70, rowspan: 2, sortable: false, align: 'center' },
+            { title: '奖励币', field: 'VirtualCurrencyStr', width: 70, rowspan: 2, sortable: false, align: 'center' },
+            { title: '补贴币', field: 'SubsidyCurrencyStr', width: 70, rowspan: 2, sortable: false, align: 'center' , hidden: @((!isOpenFundApply).ToString().ToLower())},
+            { title: '小计', field: 'TotalCurrencyStr', width: 70, rowspan: 2,  sortable: false, align: 'center' },
+            { title: '余额', field: 'XjCurrencyStr', width: 70, rowspan: 2, sortable: false, align: 'center'},
+            { title: '欠款', field: 'XjDebtStr', width: 70, rowspan: 2,  sortable: false, align: 'center' }
+            ], [
+            { title: '普通币', field: 'DepositRecordRealCurrencyStr', width: 70, sortable: false, align: 'center' },
+            { title: '奖励币', field: 'DepositRecordVirtualCurrencyStr', width: 70, sortable: false, align: 'center' },
+            { title: '普通币', field: 'OpenFundRealCurrencyStr', width: 70, sortable: false, align: 'center', hidden: @((!isOpenFundApply).ToString().ToLower())},
+            { title: '补贴币', field: 'OpenFundSubsidyCurrencyStr', width: 70, sortable: false, align: 'center', hidden: @((!isOpenFundApply).ToString().ToLower()) },
+            { title: '普通币', field: 'MaterialRealCurrencyStr', width: 70, sortable: false, align: 'center' ,  hidden: @((!isMaterial).ToString().ToLower())},
+            { title: '普通币', field: 'TotalDepositRealCurrencyStr', width: 70, sortable: false, align: 'center' },
+            { title: '奖励币', field: 'TotalDepositVirtualCurrencyStr', width: 70, sortable: false, align: 'center' },
+            { title: '补贴币', field: 'TotalDepositSubsidyCurrencyStr', width: 70, sortable: false, align: 'center' , hidden: @((!isOpenFundApply).ToString().ToLower())}
+            ]],
+            frozenColumns: [[
+                { title: '总数', field: 'TitleName', width: 30, rowspan: 3, sortable: false, align: 'center' }
+                ]],
+            url: '@Url.Action("GetUserAccountRecordTotal", "UserAccountRecord", new { userAccountId = userAccountId })',
+            loadMsg: '数据加载中,请稍候……',
+            pagination: false,
+            height: 150,
+            iconCls: 'icon-save',
+            collapsed: false,
+            collapsible: true,
+            remoteSort: true,
+            singleSelect: true,
+            rownumbers: true,
+            fitColumns: false,
+            striped: true,
+            nowrap: true,
+            method: 'post',
+            pagePosition: 'bottom', 
+            toolbar: [
+            {
+                id: 'btnGridSearchZPanel',
+                text: '搜索',
+                disabled: false,
+                iconCls: 'icon-search',
+                handler: function () {
+                    $('#btnGridSearchZPanel').linkbutton('enable');
+                    doShowSearchZPanel();
+                }
+            }
+            @System.Web.Mvc.MvcHtmlString.Create(",{id: 'btnUserAccountListExport',text: '导出',disabled: false,iconCls: 'icon-export',handler: function () { $('#btnUserAccountListExport').linkbutton('enable'); doUserAccountRecordExportExcel();}}")
+            @System.Web.Mvc.MvcHtmlString.Create(",{id: 'btnUserAccountTotalInfo',text: '" + totalInfo +"',disabled: false,iconCls: 'icon-yen',handler: function () { javascript:;}}")
+            ],
+            showFooter: false
+        });
+    });
+</script>
+    <table id="tbUserAccountRecordTotal"></table>
+    
+    var dataGrid = Html.JDataGrid("tbUserAccountRecordList")
+        .SetUrl(Url.Action("GetGridUserAccountRecordList", "UserAccountRecord", new { userAccountId = userAccountId }))
+        .SetHeight(530)
+        .SetSortName("OperateTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(15)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(false)
+        .SetShowRefreshButton(false)
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作", "ViewInfoOperate").SetWidth(50).SetAlign(Align.center).SetSortable(false))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("日期", "OperateTimeStr").SetWidth(70).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("事项", "TitleName").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("普通币", "RealCurrencyStr").SetWidth(100).SetAlign(Align.center).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("补贴币", "SubsidyCurrencyStr").SetWidth(100).SetAlign(Align.center).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("奖励币", "VirtualCurrencyStr").SetWidth(100).SetAlign(Align.center).SetSortable(false).SetHidden(!isOpenFundApply))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("小计", "TotalCurrencyStr").SetWidth(100).SetAlign(Align.center).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "UserAccountRecordTypeStr").SetWidth(100).SetAlign(Align.center));
+}
+@(dataGrid.ToMvcString())

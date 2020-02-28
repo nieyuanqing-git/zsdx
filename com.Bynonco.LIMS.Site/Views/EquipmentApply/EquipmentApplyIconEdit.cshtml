@@ -1,0 +1,19 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{var equipmentApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentApplyPrivilige(User.Identity.Name);}
+<div style="margin-left:35px">
+    <span>
+        图片文件
+        <input id="fileToUpload" type="file" name="fileToUpload" />
+        </span>
+    <span style="padding-left:15px">
+        是否默认
+        @Html.CheckBox("IsDefault")
+    </span>
+    <span style="padding-left:15px">
+        @Html.JLinkButton("btnUpLoad", "上传图片").SetPlain(true).SetDisabled(!equipmentApplyPrivilige.IsEnableSaveIcon).SetIconCls("icon-upload").SetOnclick("ajaxFileUpload();return false;").ToMvcString()
+    </span>
+   <br />
+   <span style="padding-left:45px;font-weight:bold">@ViewData["UpploadFileTip"]</span>
+   <br />
+</div>

@@ -1,0 +1,73 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentCustomsQueryExpress() {
+        var queryExpression = "";
+        var taxProveID = $("#txtQueryTaxProveID").val();
+        if (taxProveID.trim() != "") {
+            queryExpression = "TaxProveID∽\"" + taxProveID.trim() + "\"";
+        }
+
+
+        var ImportOrderID = $("#txtQueryImportOrderID").val();
+        if (ImportOrderID.trim() != "") {
+            queryExpression += (queryExpression == "" ? "ImportOrderID∽\"" + ImportOrderID.trim() + "\"" : "*ImportOrderID∽\"" + ImportOrderID.trim() + "\"");
+        }
+        return queryExpression;
+
+        var ContractID = $("#txtQueryContractID").val();
+        if (ContractID.trim() != "") {
+            queryExpression += (queryExpression == "" ? "ContractID∽\"" + ContractID.trim() + "\"" : "*ContractID∽\"" + ContractID.trim() + "\"");
+        }
+        return queryExpression;
+
+        var ImportPort = $("#txtQueryImportPort").val();
+        if (ImportPort.trim() != "") {
+            queryExpression += (queryExpression == "" ? "ImportPort∽\"" + ImportPort.trim() + "\"" : "*ImportPort∽\"" + ImportPort.trim() + "\"");
+        }
+        return queryExpression;
+
+        var InChargeCustoms = $("#txtQueryInChargeCustoms").val();
+        if (InChargeCustoms.trim() != "") {
+            queryExpression += (queryExpression == "" ? "InChargeCustoms∽\"" + InChargeCustoms.trim() + "\"" : "*InChargeCustoms∽\"" + InChargeCustoms.trim() + "\"");
+        }
+        return queryExpression;
+    }
+
+    function doResetEquipmentCustoms() {
+        $("#txtQueryTaxProveID").val("");
+        $("#txtQueryImportOrderID").val("");
+        $("#txtQueryContractID").val("");
+        $("#txtQueryImportPort").val("");
+        $("#txtQueryInChargeCustoms").val("");        
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>征免税证明编号</label>
+        @Html.JValidateBox("txtQueryTaxProveID").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+     <li>
+        <label>进口报关单编号</label>
+        @Html.JValidateBox("txtQueryImportOrderID").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>    
+    <li>
+        <label>合同号</label>
+        @Html.JValidateBox("txtQueryContractID").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>  
+    <li>
+        <label>进口口岸</label>
+        @Html.JValidateBox("txtQueryImportPort").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>  
+    <li>
+        <label>主管海关</label>
+        @Html.JValidateBox("txtQueryInChargeCustoms").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>    
+    <li class="button">
+        @Html.JLinkButton("btnSearchEquipmentExtend", "查询").SetOnclick("doSearchEquipmentCustoms();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnResetEquipmentExtend", "清空").SetOnclick("doResetEquipmentCustoms();").ToMvcString()
+        @Html.JLinkButton("btnCloseEquipmentExtend", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

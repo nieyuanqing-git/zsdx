@@ -1,0 +1,18 @@
+﻿<script type="text/javascript">
+    function doNMPReset() {
+        $("#SearchNMPName").val("");
+        $("#SearchContactPersonName").val("");
+        $("#SearchContactTelPhoneNo").val("");
+        $("#SearchContactEmail").val("");
+        $("#SearchOrgId").val('@Guid.Empty.ToString()');
+        $("#SearchLabRoomId").val('@Guid.Empty.ToString()');
+        $("#SearchDoorId").val('@Guid.Empty.ToString()');
+        return false;
+    }
+    function doNMPSearch() {
+        if (perPageSize)
+            doLoadNMPList(1, perPageSize);
+        else
+            doLoadNMPList(1, 10);
+    }
+</script>

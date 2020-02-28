@@ -1,0 +1,41 @@
+﻿@{
+    var casLoginMode = ViewData["CasLoginMode"] != null ? (com.Bynonco.LIMS.Utility.CasLoginMode)ViewData["CasLoginMode"] : com.Bynonco.LIMS.Utility.CasLoginMode.ShowLocalLogin;
+    var casVisitedURL = ViewData["CasVisitedURL"] != null ? ViewData["CasVisitedURL"].ToString() : "#";
+ }
+<script type="text/javascript">
+    function showLocalLoginWhenCasServerDown(lnkElementId) {
+        if ('@((casLoginMode == com.Bynonco.LIMS.Utility.CasLoginMode.ShowLocalLogin).ToString().ToLower())' == "true") {
+            window.location.href = '@casVisitedURL';
+        }
+        $.ajax({
+            url: '@Url.Action("CheckCasServerStatus", "Account")',
+            timeout: 3000,
+            type: 'post',
+            data: {},
+            dataType: 'json',
+            success: function(data) {
+                if (data.Status != "ok") {
+                    $.messager.show({ title: '提示', msg: "单点服务器连接失败,请用本地账户进行登录", showType: 'show' });
+                    $("#" + lnkElementId).css("display", "block");
+                    $('.innerlogin').hide();
+                    if (typeof (showTopOuterLogin) == "function") {
+                        showTopOuterLogin();
+                    }
+                } else {
+                    window.location.href = '@casVisitedURL';
+                }
+            },
+            complete : function(XMLHttpRequest,status){ //请求完成后最终执行参数
+                if(status=='timeout'){//超时,status还有success,error等值的情况
+                    $.messager.show({ title: '提示', msg: "单点服务器连接失败,请用本地账户进行登录", showType: 'show' });
+                    $("#" + lnkElementId).css("display", "block");
+                    $('.innerlogin').hide();
+                    if (typeof (showTopOuterLogin) == "function") {
+                        showTopOuterLogin();
+                    }
+                }
+            }
+        });
+        return false;
+    }
+</script>

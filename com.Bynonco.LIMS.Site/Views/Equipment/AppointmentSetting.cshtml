@@ -1,0 +1,482 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+<form id="frmEquipmentEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <p><span class="icon icon-phone"></span>预约设置</p>
+    <table id="tbAppointmentSetting" class="edit-info">
+        <tr>
+            <th>设备使用方式</th>
+            <td>
+                @Html.JComboBox("UseType").SetData(ViewData["UseTypeJson"]).SetWidth(85).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>下周截至开放日</th>
+            <td>
+                @Html.JComboBox("WhichWeekDayStopBookOfNextWeek").SetData(ViewData["WhichWeekDayStopBookOfNextWeekJson"]).SetWidth(85).ToMvcString()
+                  &nbsp;&nbsp;<span class="icon icon-info-blue" title="只能预约下周本开放日之前的时间段"></span>
+           </td>
+        </tr>
+        <tr>
+            <th>预约账户最小额度</th>
+            <td>
+                @Html.JValidateBox("AppointmentMinAccountBalance").SetValue(Model.AppointmentMinAccountBalance.HasValue ? Model.AppointmentMinAccountBalance.Value.ToString() : "").SetWidth(80).ToMvcString()
+                <span>(元)</span>
+                &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果该值不为空，则当用户的账户余额低于该值时不可以预约"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否作为虚拟空间预约</th>
+             <td class="clear-both">
+                <div>
+                     @Html.CheckBox("IsAppointmentAsVirtualSpace")
+                      &nbsp;&nbsp;<span class="icon icon-info-blue" title="以设备所在的房间作为虚拟空间进行预约，主要是在自定义预约规则时用"></span>
+                </div>              
+            </td>
+        </tr>
+        <tr>
+            <th>最大可预约天数</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultAppointmentDays", new { onclick = "doUseDefaultAppointmentDaysChanged();" }))<label for="UseDefaultAppointmentDays">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divAppointmentDays" style='display: @(Model.UseDefaultAppointmentDays.HasValue && Model.UseDefaultAppointmentDays.Value ? "none" : "block")'>
+                    @(Html.JValidateBox("AppointmentDays").SetWidth(80).SetValidateType(ValidateType.intNumber).SetValue(Model == null || !Model.AppointmentDays.HasValue ? "" : Model.AppointmentDays.Value.ToString()).ToMvcString())
+                    <span>(天)</span>
+                    <span class="required">必填</span>
+                </div>
+             </td>
+        </tr>
+        <tr>
+            <th>最小提前预约时间</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultMaxAppointmentAdvanceTime", new { onclick = "doUseDefaultMaxAppointmentAdvanceTimeChanged();" }))<label for="UseDefaultMaxAppointmentAdvanceTime">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divMaxAppointmentAdvanceTime" style='display: @(Model.UseDefaultMaxAppointmentAdvanceTime.HasValue && Model.UseDefaultMaxAppointmentAdvanceTime.Value ? "none" : "block")'>
+                    @(Html.JValidateBox("MaxAppointmentAdvanceTime").SetWidth(80).SetValidateType(ValidateType.intNumber).SetValue(Model == null || !Model.MaxAppointmentAdvanceTime.HasValue ? "" : Model.MaxAppointmentAdvanceTime.Value.ToString()).ToMvcString())
+                    <span>(分钟)</span>
+                    <span class="required">必填</span>
+                </div>
+             </td>
+        </tr>
+        <tr>
+            <th>提前开放预约时间</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultOpenAdvanceTime", new { onclick = "doUseDefaultOpenAdvanceTimeChanged();" }))<label for="UseDefaultOpenAdvanceTime">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divOpenAdvanceTime" style='display: @(Model.UseDefaultOpenAdvanceTime ? "none" : "block")'>
+                    @(Html.JValidateBox("OpenAdvanceTime").SetWidth(80).SetValidateType(ValidateType.intNumber).SetValue(Model == null ? "" : Model.OpenAdvanceTime.ToString()).ToMvcString())
+                    <span>(分钟)</span>
+                    <span class="required">必填</span>
+                </div>
+             </td>
+        </tr>
+        <tr style="display:none;">
+            <th>是否可以取消<span style="color:Red;font-weight:bold;">已结束</span>的预约</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsEnableCancelOverAppointment", new { onclick = "doUseDefaultIsEnableCancelOverAppointmentChanged();" }))<label for="UseDefaultIsEnableCancelOverAppointment">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsEnableCancelOverAppointment" style='display: @(Model.UseDefaultIsEnableCancelOverAppointment  ? "none" : "block")'>
+                     @Html.CheckBox("IsEnableCancelOverAppointment",new { onclick = "doOnCancelAppointmentSettingChanged();" })
+                     <label for="IsEnableCancelOverAppointment">是否可取消</label>
+                </div>
+            </td>
+        </tr>
+        <tr id="trIsEnableCancelNotOverAppointment">
+            <th>是否可以取消<span style="color:Red;font-weight:bold;">未结束</span>的预约</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsEnableCancelNotOverAppointment", new { onclick = "doUseDefaultIsEnableCancelNotOverAppointmentChanged();" }))<label for="UseDefaultIsEnableCancelNotOverAppointment">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsEnableCancelNotOverAppointment" style='display: @(Model.UseDefaultIsEnableCancelNotOverAppointment ? "none" : "block")'>
+                     @Html.CheckBox("IsEnableCancelNotOverAppointment", new { onclick = "doOnCancelAppointmentSettingChanged();" })
+                     <label for="IsEnableCancelNotOverAppointment">是否可取消</label>
+                </div>
+            </td>
+        </tr>
+         <tr>
+            <th>是否可以取消<span style="color:Red;font-weight:bold;">已审核</span>的预约</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsEnableCancelCheckedAppointment", Model.UseDefaultIsEnableCancelCheckedAppointment, new { onclick = "doUseDefaultIsEnableCancelCheckedAppointmentChanged();" }))<label for="UseDefaultIsEnableCancelCheckedAppointment">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsEnableCancelCheckedAppointment" style='display: @(Model.UseDefaultIsEnableCancelCheckedAppointment ? "none" : "block")'>
+                     @Html.CheckBox("IsEnableCancelCheckedAppointment",new { onclick = "doOnCancelAppointmentSettingChanged();" })
+                     <label for="IsEnableCancelCheckedAppointment">是否可取消</label>
+                </div>
+            </td>
+        </tr>
+        <tr id="trMinAppointmentCancelTime">
+            <th>最大提前改约时间</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultMinAppointmentCancelTime", new { onclick = "doUseDefaultMinAppointmentCancelTimeChanged();" }))<label for="UseDefaultMinAppointmentCancelTime">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divMinAppointmentCancelTime" style='display: @(Model.UseDefaultMinAppointmentCancelTime.HasValue && Model.UseDefaultMinAppointmentCancelTime.Value ? "none" : "block")'>
+                    @(Html.JValidateBox("MinAppointmentCancelTime").SetWidth(80).SetValidateType(ValidateType.intNumber).SetValue(Model == null || !Model.MinAppointmentCancelTime.HasValue ? "" : Model.MinAppointmentCancelTime.Value.ToString()).ToMvcString())
+                    <span>(分钟)</span>
+                    <span class="required">必填</span>
+                </div>
+             </td>
+        </tr>
+        <tr>
+            <th>预约是否需要审核生效</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsAppointmentNeedAudit", new { onclick = "doUseDefaultIsAppointmentNeedAuditChanged();" }))<label for="UseDefaultIsAppointmentNeedAudit">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsAppointmentNeedAudit" style='display: @(Model.UseDefaultIsAppointmentNeedAudit.HasValue && Model.UseDefaultIsAppointmentNeedAudit.Value ? "none" : "block")'>
+                     @Html.CheckBox("IsAppointmentNeedAudit")是否需审核
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>预约是否需要导师审核生效</th>
+            <td class="clear-both">
+               
+                <div class="float_l" id="IsAppointmentNeedTutorAudit">
+                     @Html.CheckBox("IsAppointmentNeedTutorAudit")
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>未审核是否可被其他人预约</th>
+            <td>
+                 <div>
+                     @Html.CheckBox("IsEnableAppointmentBeforeAdminAudit")
+                      &nbsp;&nbsp;<span class="icon icon-info-blue" title="勾选则已经被预约的资源，在未审核之前别人看到是不可预约，否则可以继续预约，但是审核的时候只有一个用户的预约可以审核通过"></span>
+                </div>      
+            </td>
+        </tr>
+        <tr>
+            <th>导师未审核是否可被其他人预约</th>
+            <td>
+                 <div>
+                     @Html.CheckBox("IsEnableAppointmentBeforeTutorAudit")
+                      &nbsp;&nbsp;<span class="icon icon-info-blue" title="勾选则已经被预约的资源，在导师未审核之前别人看到是不可预约，否则可以继续预约，但是导师审核的时候只有一个用户的预约可以审核通过"></span>
+                </div>      
+            </td>
+        </tr>
+        <tr>
+            <th>是否需要培训完成才可预约</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsNeedTranningBeforeAppointment", new { onclick = "doUseDefaultIsNeedTranningBeforeAppointmentChanged();" }))<label for="UseDefaultIsNeedTranningBeforeAppointment">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsNeedTranningBeforeAppointment" style='display: @(Model.UseDefaultIsNeedTranningBeforeAppointment.HasValue && Model.UseDefaultIsNeedTranningBeforeAppointment.Value ? "none" : "block")'>
+                     @Html.CheckBox("IsNeedTranningBeforeAppointment")
+                     <label for="IsNeedTranningBeforeAppointment">是否需培训完成</label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>是否需要填写使用反馈才可进行预约</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsEnableAppoitmentWithFeedBack", new { onclick = "doUseDefaultIsEnableAppoitmentWithFeedBackChanged();" }))<label for="UseDefaultIsEnableAppoitmentWithFeedBack">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsEnableAppoitmentWithFeedBack" style='display: @(Model.UseDefaultIsEnableAppoitmentWithFeedBack.HasValue && Model.UseDefaultIsEnableAppoitmentWithFeedBack.Value ? "none" : "block")'>
+                     @Html.CheckBox("IsEnableAppoitmentWithFeedBack")
+                     <label for="IsEnableAppoitmentWithFeedBack">填写使用反馈</label> 
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果有未填写使用反馈的使用记录则不能预约该设备"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否需要在线考试才可进行预约</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsNeedExaminationBeforeAppointment", new { onclick = "doUseDefaultIsNeedExaminationBeforeAppointmentChanged();" }))<label for="UseDefaultIsNeedExaminationBeforeAppointment">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsNeedExaminationBeforeAppointment" style='display: @(Model.UseDefaultIsNeedExaminationBeforeAppointment.HasValue && Model.UseDefaultIsNeedExaminationBeforeAppointment.Value ? "none" : "block")'>
+                     @Html.CheckBox("IsNeedExaminationBeforeAppointment")
+                     <label for="IsNeedExaminationBeforeAppointment">需要在线考试</label> 
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="如果有未填写使用反馈的使用记录则不能预约该设备"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>最大在线考试次数</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultMaxExaminationTime", new { onclick = "doUseDefaultMaxExaminationTimeChanged();" }))<label for="UseDefaultMaxExaminationTime">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divMaxExaminationTime" style='display: @(Model.UseDefaultMaxExaminationTime.HasValue && Model.UseDefaultMaxExaminationTime.Value ? "none" : "block")'>
+                    @(Html.JValidateBox("MaxExaminationTime").SetWidth(80).SetValidateType(ValidateType.intNumber).SetValue(Model == null || !Model.MaxExaminationTime.HasValue ? "" : Model.MaxExaminationTime.Value.ToString()).ToMvcString())
+                    <span>(次)</span>
+                    <span class="required">必填</span>
+                </div>
+                  &nbsp;&nbsp;<span class="icon icon-info-blue" title="最大在线考试次数"></span>
+             </td>
+        </tr>
+         <tr>
+            <th>是否进行设备绑定</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("IsVirtualEquipmentBind", new { onclick = "doIsVirtualEquipmentBindChanged();" }))<label style='display: @(Model.IsVirtualEquipmentBind ? "" : "none")' id="lblIsVirtualEquipmentBind" for="IsVirtualEquipmentBind">请选择设备</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsVirtualEquipmentBind" style='display: @(Model.IsVirtualEquipmentBind ? "block" : "none")'>
+                     <div style="float:left;"> 
+                         @(Html.TokenInput("VirtualEquipmentBindId")
+                        .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment", new { time = DateTime.Now.Millisecond.ToString() }))
+                        .SetPrePopulate(ViewData["VirtualBindEquipmentJson"] == null ? null : ViewData["VirtualBindEquipmentJson"].ToString())
+                        .SetSingle(true).SetWidth(250).ToMvcString())
+                     </div>
+                    <div style="float:left;">@Html.JLinkButton("btnClearVirtualEquipmentBindId", "").SetIconCls("icon-remove").SetPlain(true).SetOnclick("$('#VirtualEquipmentBindId').tokenInput('clear');").ToMvcString()</div>
+                    <div style="clear:both;"></div>
+                </div>
+               
+             </td>
+        </tr>
+        <tr>
+            <th>是否预约只能选择一个部件</th>
+            <td>
+                 <div>
+                     @Html.CheckBox("IsEquipmentPartSingleSelect")
+                      &nbsp;&nbsp;<span class="icon icon-info-blue" title="勾选则预约设备的时候只能选择一个部件，否则设备部件可以多选"></span>
+                </div>      
+            </td>
+        </tr>
+        <tr>
+            <th>是否自动取消预约</th>
+            <td>
+                <div class="float_l">
+                        @(Html.CheckBox("IsAutoCancelAppoinment", new { onclick = "doIsAutoCancelAppoinmentChanged();" }))
+                        <label style='display: @(Model.IsAutoCancelAppoinment ? "" : "none")' id="lblIsAutoCancelAppoinment" for="IsAutoCancelAppoinment">预约开始时间距当前时间过时</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsAutoCancelAppoinment" style='display: @(Model.IsAutoCancelAppoinment ? "block" : "none")'>
+                    @(Html.JValidateBox("AutoCancelAppoinmentMinutes").SetWidth(80).SetValidateType(ValidateType.intNumber).SetValue(Model == null || !Model.IsAutoCancelAppoinment ? "" : Model.AutoCancelAppoinmentMinutes.ToString()).ToMvcString())
+                    分钟自动取消
+                </div>
+            </td> 
+        </tr>
+        <tr>
+            <th>是否显示预约人联系信息</th>
+            <td>@(Html.CheckBox("IsShowAppointmentUserContactInfo", Model.Equipment.IsShowAppointmentUserContactInfo))</td>
+        </tr>
+        <tr>
+            <th>是否预约提示</th>
+            <td>
+                <div id="divIsAppointmentShowMessageOp" class="float_l">
+                    @(Html.CheckBox("IsAppointmentShowMessage", new { onclick = "doIsAppointmentShowMessageChanged();" }))
+                </div>
+                <div class="float_l margin-l-10" id="divIsAppointmentShowMessage" style='display: @(Model.IsAppointmentShowMessage.HasValue && Model.IsAppointmentShowMessage.Value ? "block" : "none")'>
+                    @(Html.TextArea("ShowMessageContent", Model == null || Model.ShowMessageContent == null ? "" : Model.ShowMessageContent.Replace("<br/>", "\r\n"), new { style = "width:300px;height:60px" }))
+                </div>
+            </td> 
+        </tr>       
+        <tr>
+            <th>每周工作日</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefualWorkDays", new { onclick = "doUseDefualWorkDaysChanged();" }))<label for="UseDefualWorkDays">按默认设置</label>
+                </div>
+            </td>
+        </tr>
+        <tr id="divWorkDays" style='@(Model.UseDefualWorkDays.HasValue && Model.UseDefualWorkDays.Value ? "display: none" : "")'>
+            <th>&nbsp;</th>
+            <td>
+                @Html.Partial("WorkDays")
+            </td>
+        </tr>
+        <tr>
+            <th>预约时间单位</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultAppointmentTimeStep", new { onclick = "doUseDefaultAppointmentTimeStepChanged();" }))<label for="UseDefaultAppointmentTimeStep">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divAppointmentTimeStep" style='display: @(Model.UseDefaultAppointmentTimeStep.HasValue && Model.UseDefaultAppointmentTimeStep.Value ? "none" : "block"); line-height:20px;'>
+                    @(Html.JValidateBox("AppointmentTimeStep").SetWidth(80).SetOnChange("doAppointmentTimeStepChanged('AppointmentTimeStep','divWorkHours');").SetValidateType(ValidateType.intNumber).SetValue(Model == null || !Model.AppointmentTimeStep.HasValue ? "" : Model.AppointmentTimeStep.Value.ToString()).ToMvcString())
+                    <span>(分钟)</span>
+                    <span class="required">必填</span>
+                </div>
+                  &nbsp;&nbsp;<span class="icon icon-info-blue" title="((1440 / 时间间隔) % 4)= 0 or 时间间隔=720 or 时间间隔=1440"></span>
+             </td>
+        </tr>
+        <tr>
+            <th>预约时间段</th>
+            <td>
+                @(Html.CheckBox("UseDefualtWorkHours", new { onclick = "doUseDefualWorkHoursChanged();" }))<label for="UseDefualtWorkHours">按默认设置</label>
+            </td>
+        </tr>
+        <tr>
+            <th>预约提示内容</th>
+            <td>
+                @Html.TextArea("AppointmentNote", Model == null ? "" : Model.AppointmentNote, new { style = "width:430px;height:60px;" })
+            </td>
+        </tr>
+    </table>
+    <div id="divWorkHours"  style='@(Model.UseDefualtWorkHours.HasValue && Model.UseDefualtWorkHours.Value ? "display: none" : "")'>
+        <p><span class="icon icon-calendar"></span>自定义预约时间段</p>
+        <div class="edit-info">
+            <div style="padding:5px;">
+                <div id="divWorkTimes">@Html.Partial("AppointmentTimesOfDay")</div>
+            </div>
+        </div>        
+    </div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#divIsVirtualEquipmentBind ul.token-input-list-facebook").css("width", "200px").css("padding", "0").css("marggin", "0").css("border-color", "#D3D3D3");
+    });
+    function doUseDefualWorkDaysChanged() {
+        var useDefualWorkDays = $("#UseDefualWorkDays").attr("checked");
+        var isUseDefualWorkDays = useDefualWorkDays ? true : false;
+        if (isUseDefualWorkDays) $("#divWorkDays").fadeOut(500);
+        else $("#divWorkDays").fadeIn(500);
+    }
+
+    function doUseDefaultAppointmentDaysChanged() {
+        var useDefaultAppointmentDays = $("#UseDefaultAppointmentDays").attr("checked");
+        var isUseDefaultAppointmentDays = useDefaultAppointmentDays ? true : false;
+        if (isUseDefaultAppointmentDays) $("#divAppointmentDays").fadeOut(500);
+        else $("#divAppointmentDays").fadeIn(500);
+    }
+
+    function doUseDefaultMaxAppointmentAdvanceTimeChanged() {
+        var useDefaultMaxAppointmentAdvanceTime = $("#UseDefaultMaxAppointmentAdvanceTime").attr("checked");
+        var isUseDefaultMaxAppointmentAdvanceTime = useDefaultMaxAppointmentAdvanceTime ? true : false;
+        if (isUseDefaultMaxAppointmentAdvanceTime) $("#divMaxAppointmentAdvanceTime").fadeOut(500);
+        else $("#divMaxAppointmentAdvanceTime").fadeIn(500);
+    }
+
+    function doUseDefaultAppointmentTimeStepChanged() {
+        var useDefaultAppointmentTimeStep = $("#UseDefaultAppointmentTimeStep").attr("checked");
+        var isUseDefaultAppointmentTimeStep = useDefaultAppointmentTimeStep ? true : false;
+        if (isUseDefaultAppointmentTimeStep) {
+            $("#divAppointmentTimeStep").fadeOut(500);
+        }
+        else {
+            $("#divAppointmentTimeStep").fadeIn(500);
+            $("#UseDefualtWorkHours").removeAttr("checked");
+            doUseDefualWorkHoursChanged();
+        }
+    }
+
+    function doUseDefaultMinAppointmentCancelTimeChanged() {
+        var useDefaultMinAppointmentCancelTime = $("#UseDefaultMinAppointmentCancelTime").attr("checked");
+        var isUseDefaultMinAppointmentCancelTime = useDefaultMinAppointmentCancelTime ? true : false;
+        if (isUseDefaultMinAppointmentCancelTime) $("#divMinAppointmentCancelTime").fadeOut(500);
+        else $("#divMinAppointmentCancelTime").fadeIn(500);
+    }
+
+    function doUseDefualWorkHoursChanged() {
+        var useDefaultAppointmentTimeStep = $("#UseDefaultAppointmentTimeStep").attr("checked");
+        var useDefaultWorkHours = $("#UseDefualtWorkHours").attr("checked");
+        var isUseDefaultWorkHours = useDefaultWorkHours ? true : false;
+        if (!useDefaultAppointmentTimeStep && isUseDefaultWorkHours) {
+            $.messager.show({ title: '提示', msg: "预约时间单位不是按默认设置,预约时间段不能按默认设置", showType: 'show' });
+            doUseDefaultAppointmentTimeStepChanged();
+            return;
+        }
+        
+        if (isUseDefaultWorkHours) $("#divWorkHours").fadeOut(500);
+        else $("#divWorkHours").fadeIn(500);
+    }
+    function doUseDefaultIsAppointmentNeedAuditChanged() {
+        var useDefaultIsAppointmentNeedAudit = $("#UseDefaultIsAppointmentNeedAudit").attr("checked");
+        var isUseDefaultIsAppointmentNeedAudit = useDefaultIsAppointmentNeedAudit ? true : false;
+        if (isUseDefaultIsAppointmentNeedAudit) $("#divIsAppointmentNeedAudit").fadeOut(500);
+        else $("#divIsAppointmentNeedAudit").fadeIn(500);
+    }
+    function doUseDefaultIsNeedTranningBeforeAppointmentChanged() {
+        var useDefaultIsNeedTranningBeforeAppointment = $("#UseDefaultIsNeedTranningBeforeAppointment").attr("checked");
+        var isUseDefaultIsNeedTranningBeforeAppointment = useDefaultIsNeedTranningBeforeAppointment ? true : false;
+        if (isUseDefaultIsNeedTranningBeforeAppointment) $("#divIsNeedTranningBeforeAppointment").fadeOut(500);
+        else $("#divIsNeedTranningBeforeAppointment").fadeIn(500);
+    }
+    function doUseDefaultIsEnableAppoitmentWithFeedBackChanged() {
+        var useDefaultIsEnableAppoitmentWithFeedBack = $("#UseDefaultIsEnableAppoitmentWithFeedBack").attr("checked");
+        var isUseDefaultIsEnableAppoitmentWithFeedBack = useDefaultIsEnableAppoitmentWithFeedBack ? true : false;
+        if (isUseDefaultIsEnableAppoitmentWithFeedBack) $("#divIsEnableAppoitmentWithFeedBack").fadeOut(500);
+        else $("#divIsEnableAppoitmentWithFeedBack").fadeIn(500);
+    }
+    function doUseDefaultIsNeedExaminationBeforeAppointmentChanged() {
+        var useDefaultIsNeedExaminationBeforeAppointment = $("#UseDefaultIsNeedExaminationBeforeAppointment").attr("checked");
+        var isUseDefaultIsNeedExaminationBeforeAppointment = useDefaultIsNeedExaminationBeforeAppointment ? true : false;
+        if (isUseDefaultIsNeedExaminationBeforeAppointment) $("#divIsNeedExaminationBeforeAppointment").fadeOut(500);
+        else $("#divIsNeedExaminationBeforeAppointment").fadeIn(500);
+    }
+    function doUseDefaultMaxExaminationTimeChanged() {
+        var useDefaultMaxExaminationTime = $("#UseDefaultMaxExaminationTime").attr("checked");
+        var isUseDefaultMaxExaminationTime = useDefaultMaxExaminationTime ? true : false;
+        if (isUseDefaultMaxExaminationTime) $("#divMaxExaminationTime").fadeOut(500);
+        else $("#divMaxExaminationTime").fadeIn(500);
+    }
+
+    function doIsVirtualEquipmentBindChanged() {
+        var isVirtualEquipmentBind = $("#IsVirtualEquipmentBind").attr("checked");
+        if (!isVirtualEquipmentBind) {
+            $("#lblIsVirtualEquipmentBind").fadeOut(500);
+            $("#divIsVirtualEquipmentBind").fadeOut(500);
+        }
+        else {
+            $("#lblIsVirtualEquipmentBind").fadeIn(500);
+            $("#divIsVirtualEquipmentBind").fadeIn(500);
+        }
+    }
+    function doIsAutoCancelAppoinmentChanged() {
+        var isAutoCancelAppoinment = $("#IsAutoCancelAppoinment").attr("checked");
+        if (!isAutoCancelAppoinment) {
+            $("#lblIsAutoCancelAppoinment").fadeOut(500);
+            $("#divIsAutoCancelAppoinment").fadeOut(500);
+        }
+        else {
+            $("#lblIsAutoCancelAppoinment").fadeIn(500);
+            $("#divIsAutoCancelAppoinment").fadeIn(500);
+        }
+    }
+
+    function doIsAppointmentShowMessageChanged() {
+        var isAppointmentShowMessage = $("#IsAppointmentShowMessage").attr("checked");
+        if (!isAppointmentShowMessage) {
+            $("#divIsAppointmentShowMessage").fadeOut(500);
+        }
+        else {
+            $("#divIsAppointmentShowMessage").fadeIn(500);
+        }
+    }
+
+    function doUseDefaultOpenAdvanceTimeChanged() {
+        var useDefaultOpenAdvanceTime = $("#UseDefaultOpenAdvanceTime").attr("checked");
+        var isUseDefaultOpenAdvanceTime = useDefaultOpenAdvanceTime ? true : false;
+        if (isUseDefaultOpenAdvanceTime) $("#divOpenAdvanceTime").fadeOut(500);
+        else $("#divOpenAdvanceTime").fadeIn(500);
+
+    }
+    function doUseDefaultIsEnableCancelOverAppointmentChanged() {
+        var useDefaultIsEnableCancelOverAppointment = $("#UseDefaultIsEnableCancelOverAppointment").attr("checked");
+        var isUseDefaultIsEnableCancelOverAppointment = useDefaultIsEnableCancelOverAppointment ? true : false;
+        if (isUseDefaultIsEnableCancelOverAppointment) $("#divIsEnableCancelOverAppointment").fadeOut(500);
+        else $("#divIsEnableCancelOverAppointment").fadeIn(500);
+    }
+
+    function doUseDefaultIsEnableCancelNotOverAppointmentChanged() {
+        var useDefaultIsEnableCancelNotOverAppointment = $("#UseDefaultIsEnableCancelNotOverAppointment").attr("checked");
+        var isUseDefaultIsEnableCancelNotOverAppointment = useDefaultIsEnableCancelNotOverAppointment ? true : false;
+        if (isUseDefaultIsEnableCancelNotOverAppointment) $("#divIsEnableCancelNotOverAppointment").fadeOut(500);
+        else $("#divIsEnableCancelNotOverAppointment").fadeIn(500);
+    }
+    function doUseDefaultIsEnableCancelCheckedAppointmentChanged() {
+        var useDefaultIsEnableCancelCheckedAppointment = $("#UseDefaultIsEnableCancelCheckedAppointment").attr("checked");
+        var isUseDefaultIsEnableCancelCheckedAppointment = useDefaultIsEnableCancelCheckedAppointment ? true : false;
+        if (isUseDefaultIsEnableCancelCheckedAppointment) $("#divIsEnableCancelCheckedAppointment").fadeOut(500);
+        else $("#divIsEnableCancelCheckedAppointment").fadeIn(500);
+    }
+</script>
+<script type="text/javascript">
+    function doOnCancelAppointmentSettingChanged() {
+        var isEnableCancelOverAppointment = $("#IsEnableCancelOverAppointment").attr("checked");
+        var isEnableCancelNotOverAppointment = $("#IsEnableCancelNotOverAppointment").attr("checked");
+        $("#trIsEnableCancelNotOverAppointment").css("display", isEnableCancelOverAppointment ? "none" : "");
+        //$("#trMinAppointmentCancelTime").css("display", isEnableCancelOverAppointment || isEnableCancelNotOverAppointment ? "none" : "");
+    }
+    $(function () {
+        doOnCancelAppointmentSettingChanged();
+        doUseDefaultAppointmentTimeStepChanged();
+    });
+</script>

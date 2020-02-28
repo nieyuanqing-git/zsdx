@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var tagSampleItemDiscountPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetTagSampleItemDiscountPrivilige(User.Identity.Name);
+}
+<script type="text/javascript">
+    function doSave() {
+        var tds = $("#tbTagSampleItemDiscount td");
+        if (!tds || tds.length == 0) return false;
+        var isPassedValidate = true;
+        $.each(tds, function (i, n) {
+            var tagId = $(this).attr("id").toString().replace("td", "");
+            var tagName = $("#th" + tagId).text().replace(":", "");
+            var tagDiscount = $("#" + tagId).val();
+            if (tagDiscount.toString().trim() != "" && !Number(tagDiscount)) {
+                isPassedValidate = false;
+                $.messager.alert('提示', tagName + "的折扣比不是数字", 'warning');
+                return false;
+            }
+        });
+        if (!isPassedValidate) return false;
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveDefaultTagDiscount")' + "?time=" + new Date().getMilliseconds(),
+            data: $("form").serialize(),
+            success: function (msg) {
+                $.messager.progress("close");
+                if (msg && (msg.indexOf("出错") != -1) || msg.indexOf("成功") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                }
+            }
+        });
+        return false;
+    }
+</script>
+<form id="frmTagDiscount" action="#">
+ <div id="divTagDiscount">
+    <div style="height:800px;">
+        <div style="margin-left:280px; ">@Html.Partial("TagDiscount")</div>
+        <div style="margin-left:420px;">
+            @Html.JLinkButton("btnSave", "保存").SetIconCls("icon-save").SetOnclick("doSave();").SetVisible(tagSampleItemDiscountPrivilige.IsEnableSaveTagDiscount).ToMvcString()
+        </div>
+    </div>
+    
+</div>
+</form>

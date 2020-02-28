@@ -1,0 +1,206 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{ var ethicsApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEthicsApplyPrivilige(User.Identity.Name);}
+<div id="divEthicsApplyAnimalExperimenterEditDialog" style="display:none;"></div>
+<div id="divViewEthicsApplyDialog" style="display:none"></div>
+<div id="divAuditEthicsApplyDialog" style="display:none"></div>
+<script type="text/javascript">
+     var auditEthicsApplyDialog;
+     function doAuditEthicsApply(id,status) {
+        if (auditEthicsApplyDialog) {
+            auditEthicsApplyDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divAuditEthicsApplyDialog').load('@Url.Action("AuditInputContainer", "EthicsApply")',{ "id": id,"status":status,"time":new Date().getMilliseconds()},function(data){
+            $.messager.progress("close");
+            auditEthicsApplyDialog = @(Html.JDialog("divAuditEthicsApply").SetAutoDialog(false).SetModal(true).SetOkScript("execAuditEthicsApply(id,status);").SetCancelScript("auditEthicsApplyDialog.dialog('close');return false;").SetTitle("伦理申请单审核").SetIconCls("icon-ok").ToMvcString());
+        });  
+        return false;
+     }
+     function execAuditEthicsApply(id,status){
+         var url  = status=='@((int)com.Bynonco.LIMS.Model.Enum.EthicsApplyStatus.AuditedPass)'?'@Url.Action("AuditPass", "EthicsApply")':'@Url.Action("AuditNotPass", "EthicsApply")';
+         $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: url,
+                data:$("#frmAuditEthicsApply").serialize()+"&status=" + status + "&id=" + id + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress("close");
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    auditEthicsApplyDialog.dialog("close");
+                    doSearch();
+                }
+            });
+     }
+     function doCancelEthicsApply(id) {
+        $.messager.confirm('提示', '确认取消?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Cancel", "EthicsApply")',
+                data: { "id": id,"time":new Date().getMilliseconds() },
+                success: function (msg) {
+                    $.messager.progress("close");
+                    doSearch();
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    function doPrintEthicsApply(id) {
+        var id = id == "" ? $("#Id").val() : id;
+        if (id.trim() == "") return false;
+        window.open('@Url.Action("Print","EthicsApply")' + "?id=" + id + "&time=" + new Date().getMilliseconds(), "_blank");
+        return false;
+    }
+    function doAddOrEditEthicsApply(id) {
+        var url = '@Url.Action("ApplyIndex", "EthicsApply")' + "?id=" + id + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    var viewEthicsApplyDialog;
+    function doViewEthicsApply(id) {
+        if (viewEthicsApplyDialog) {
+            viewEthicsApplyDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $('#divViewEthicsApplyDialog').load('@Url.Action("View", "EthicsApply")',{ "id": id,"time":new Date().getMilliseconds()},function(){
+            $.messager.progress("close");
+            viewEthicsApplyDialog = @(Html.JDialog("divEthicsApplyDetail").SetAutoDialog(false).SetModal(true).SetOkScript("viewEthicsApplyDialog.dialog('close');return false;").SetCancelScript("viewEthicsApplyDialog.dialog('close');return false;").SetTitle("实验动物伦理申请信息").SetIconCls("icon-save").ToMvcString());
+        });  
+        return false;
+    }
+</script>
+<script type="text/javascript">
+    var editEthicsApplyAnimalExperimenterDialog;
+    function doAddOrEditEthicsApplyAnimalExperimenter(name,title,telNo,workContent,useAnimalTranningNo) {
+        if(editEthicsApplyAnimalExperimenterDialog) editEthicsApplyAnimalExperimenterDialog.dialog('destroy');
+        var url = (name != "" ? '@Url.Action("EditEthicsApplyAnimalExperimenter")' : '@Url.Action("AddEthicsApplyAnimalExperimenter")') +"?name=" + name + "&title=" + title +  "&telNo=" + telNo +  "&workContent=" + workContent + "&useAnimalTranningNo=" + useAnimalTranningNo +"&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEthicsApplyAnimalExperimenterEditDialog").load(url, function () {
+            $.messager.progress('close');
+            editEthicsApplyAnimalExperimenterDialog = @(Html.JDialog("divEditEthicsApplyAnimalExperimenter").SetTitle("实验动物人员信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("editEthicsApplyAnimalExperimenterDialog.dialog('close');return false;").SetModal(true).SetOkScript(ethicsApplyPrivilige.IsEnableSaveEthicsApplyAnimalExperimenter?"doSaveEthicsApplyAnimalExperimenter(name,title,telNo,workContent,useAnimalTranningNo);":"alert('无操作权限');").ToMvcString());
+        });
+    }
+   
+    function doSaveEthicsApplyAnimalExperimenter(name,title,telNo,workContent,useAnimalTranningNo) {
+       var experimenterName = $("#Name").val().trim();
+       var experimenterTitle = $("#Title").val().trim();
+       var experimenterTelNo = $("#TelNo").val().trim();
+       var experimenterWorkContent = $("#WorkContent").val().trim();
+       var experimenterUseAnimalTranningNo = $("#UseAnimalTranningNo").val().trim();
+       if(experimenterName==""){
+            $.messager.show({ title: '提示', msg: "请输入姓名", showType: 'show' });
+            return;
+       }
+       if(experimenterName.indexOf("~")!=-1 || experimenterName.indexOf("|")!=-1){
+            $.messager.show({ title: '提示', msg: "姓名包含【~|】字符", showType: 'show' });
+            return;
+       }
+       if(experimenterTitle==""){
+            $.messager.show({ title: '提示', msg: "请输入技术职称", showType: 'show' });
+            return;
+       }
+       if(experimenterTitle.indexOf("~")!=-1 || experimenterTitle.indexOf("|")!=-1){
+            $.messager.show({ title: '提示', msg: "技术职称包含【~|】字符", showType: 'show' });
+            return;
+      }
+       if(experimenterTelNo==""){
+            $.messager.show({ title: '提示', msg: "请输入电话", showType: 'show' });
+            return;
+       }
+       if(experimenterTelNo.indexOf("~")!=-1 || experimenterTelNo.indexOf("|")!=-1){
+            $.messager.show({ title: '提示', msg: "电话包含【~|】字符", showType: 'show' });
+            return;
+      }
+       if(experimenterWorkContent==""){
+            $.messager.show({ title: '提示', msg: "请输入工作内容", showType: 'show' });
+            return;
+       }
+       if(experimenterWorkContent.indexOf("~")!=-1 || experimenterWorkContent.indexOf("|")!=-1){
+            $.messager.show({ title: '提示', msg: "工作内容包含【~|】字符", showType: 'show' });
+            return;
+      }
+       if(experimenterUseAnimalTranningNo==""){
+            $.messager.show({ title: '提示', msg: "请输入动物使用培训证号", showType: 'show' });
+            return;
+       }
+       if(experimenterUseAnimalTranningNo.indexOf("~")!=-1 || experimenterUseAnimalTranningNo.indexOf("|")!=-1){
+            $.messager.show({ title: '提示', msg: "动物使用培训证号包含【~|】字符", showType: 'show' });
+            return;
+      }
+      var rows = $("#tbEthicsApplyAnimalExperimenterList").datagrid("getRows");
+      if (rows && rows.length > 0) {
+        for (var i = 0; i < rows.length; i++) {
+            if(experimenterName==rows[i].Name && (name == "" || name != rows[i].Name)){
+                $.messager.show({ title: '提示', msg: "姓名:【" + experimenterName +  "】已经存在", showType: 'show' });
+                return;
+            }
+        }
+      }
+      if(name == ""){
+            $("#tbEthicsApplyAnimalExperimenterList").datagrid("insertRow",{row:{Name:experimenterName,Title:experimenterTitle,TelNo:experimenterTelNo,WorkContent:experimenterWorkContent,UseAnimalTranningNo:experimenterUseAnimalTranningNo}});
+      }
+      else{
+            var rows = $("#tbEthicsApplyAnimalExperimenterList").datagrid("getRows");
+            for (var i = 0; i < rows.length; i++) {
+                 if(rows[i].Name==name){
+                    $("#tbEthicsApplyAnimalExperimenterList").datagrid("updateRow",{index:i,row:{Name:experimenterName,Title:experimenterTitle,TelNo:experimenterTelNo,WorkContent:experimenterWorkContent,UseAnimalTranningNo:experimenterUseAnimalTranningNo}});
+                 }
+            }
+       }
+       editEthicsApplyAnimalExperimenterDialog.dialog("close");
+    }
+    function generateEthicsApplyAnimalExperimenterNames() {
+        var names = [];
+        var rows = $("#tbEthicsApplyAnimalExperimenterList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                names.push(rows[i].Name);
+            }
+        }
+        return names.toString();
+    }
+    function doDeleteEthicsApplyAnimalExperimenter(){
+        var names  = generateEthicsApplyAnimalExperimenterNames();
+        if(names == ""){
+            $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            var rows = $("#tbEthicsApplyAnimalExperimenterList").datagrid("getRows");
+            if(rows.length > 0){
+                for(var i=rows.length-1;i>=0;i--){
+                    if(names.indexOf(rows[i].Name)!=-1){
+                        $("#tbEthicsApplyAnimalExperimenterList").datagrid("deleteRow",i);
+                    }
+                }
+            }
+        });
+    }
+    function doEditEthicsApplyAnimalExperimenter() {
+        var rows = $("#tbEthicsApplyAnimalExperimenterList").datagrid("getSelections");
+        if(rows.length > 0){
+           doAddOrEditEthicsApplyAnimalExperimenter(rows[0].Name,rows[0].Title,rows[0].TelNo,rows[0].WorkContent,rows[0].UseAnimalTranningNo);
+        }
+    }
+    function generateEthicsApplyAnimalExperimenters() {
+        var ethicsApplyAnimalExperimenteres = "";
+        var rows = $("#tbEthicsApplyAnimalExperimenterList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var ethicsApplyAnimalExperimenter = rows[i].Name + "~" + rows[i].Title + "~" + rows[i].TelNo + "~" + rows[i].WorkContent + "~" + rows[i].UseAnimalTranningNo;
+                ethicsApplyAnimalExperimenteres += (ethicsApplyAnimalExperimenter == "" ? ethicsApplyAnimalExperimenter : ("|" + ethicsApplyAnimalExperimenter));
+            }
+        }
+        return ethicsApplyAnimalExperimenteres;
+    }
+</script>

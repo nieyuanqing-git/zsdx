@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var costDeductPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCostDeductPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbPayerUseConditionSumTotal")
+        .SetMutiSelect(false)
+        .SetShowFooter(true)
+        .SetSortName("PayerName")
+        .SetSortOrder( SortOrder.asc)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch()")
+        .SetUrl(Url.Action("GetPayerUseConditionSumTotal", "CostDeduct"))
+        .SetPagination(false);
+    if (costDeductPrivilige.IsEnableExpertPayerUseConditionSumTotal)
+        {
+            dataGrid.AddToolBarButton(new ToolBarButton() { Handler = "doExpertPayerUseConditionSumTotal();", IconCls = "icon-export", Id = "btnExpertEquipmentRunConditionSumTotal", Text = "导出" });
+        }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师名", "PayerNameStr").SetWidth(100).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("单位", "PayerOrgName").SetWidth(180).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总存款(元)", "TotalCurrency").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("余额(元)", "OddCurrency").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("送样扣费总数(元)", "SampleApplyCostDeductTotalCurrencyStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("机时扣费总数(元)", "UsedConfirmCostDeductTotalCurrencyStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预约预扣费总数(元)", "AppointmentCostDeductTotalCurrencyStr").SetSortable(false).SetWidth(120).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("手工扣费(元)", "ManualCostDeductTotalCurrencyStr").SetSortable(false).SetWidth(100).SetAlign(Align.center));
+}
+@(dataGrid.ToMvcString())

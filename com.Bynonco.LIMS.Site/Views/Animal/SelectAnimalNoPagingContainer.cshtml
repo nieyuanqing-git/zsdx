@@ -1,0 +1,89 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSelectAnimalDialog" style="display:none"></div>
+<script type="text/javascript">
+    var selectAnimalDialog;
+    var curAnimalIdsElement;
+    var curQueryExpression = ""; 
+    function generateSelectedAnimalQueryExpression(){
+        var queryExpression = curQueryExpression;
+        var curAnimalIdsStr = $("#" + curAnimalIdsElement).val().trim();
+        if(curAnimalIdsStr != ""){
+            queryExpression += queryExpression.trim() == "" ? "(" : "*(";
+            var curAnimalIds = curAnimalIdsStr.split(',')
+            for(var i=0;i<curAnimalIds.length;i++){
+               queryExpression += i==0 ? ("Id=\"" + curAnimalIds[i] + "\"") : ("+Id=\"" + curAnimalIds[i]+"\"");
+            }
+            queryExpression+=")";
+        }
+        return queryExpression;
+    }
+    function generateSelectedAnimals() {
+        var queryExpression = generateSelectedAnimalQueryExpression();
+        $.post('@Url.Action("GetViewAnimalList", "Animal")' + "?time=" + new Date().getMilliseconds(), { queryExpression: queryExpression.trim() }, function (data) {
+            if (data == null) return;
+            var selectedAnimalIds = "";
+            var selectedAnimalNames = "";
+            for (var i = 0; i < data.length; i++) {
+                selectedAnimalIds += selectedAnimalIds == "" ? data[i].Id.toString() : "," + data[i].Id.toString();
+                selectedAnimalNames += selectedAnimalNames == "" ? data[i].Name.toString() : "," + data[i].Name.toString();
+            }
+            if (typeof(generateSelectedAnimalsCallBack)=='function') generateSelectedAnimalsCallBack(selectedAnimalNames,selectedAnimalIds);
+        }, 'json');
+    }
+    function doSelectAnimalDialog(animalIdsElement,queryExpression) {
+        if(!queryExpression) queryExpression = "";
+        curQueryExpression = queryExpression;
+        curAnimalIdsElement = animalIdsElement;
+        if(selectAnimalDialog) selectAnimalDialog.dialog("destroy");
+        var queryExpression = generateSelectedAnimalQueryExpression();
+        var url = '@Url.Action("SelectAnimalNoPaging","Animal")' + "?queryExpression=" + queryExpression+ "&time=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelectAnimalDialog").load(url, function (data) {
+            $.messager.progress('close');
+            selectAnimalDialog = @(Html.JDialog("divSelectAnimal").SetTitle("选择动物").SetAutoDialog(false).SetOkScript("getSelectedAnimals();").SetCancelScript("selectAnimalDialog.dialog('close');return false;").SetIconCls("icon-search").ToMvcString());
+        });
+        return false;
+    }
+    function doInitSelectedAnimals() {
+        var selectedAnimalIds ="";
+        var elements = document.getElementsByName(curAnimalIdsElement);
+        if(elements.length>0){
+            for(var i=0;i<elements.length;i++){
+                selectedAnimalIds += selectedAnimalIds == "" ? elements[i].value : "," + elements[i].value;
+            }
+        }
+        if (selectedAnimalIds.trim() == "") return;
+        var rows = $("#tbAnimalList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (selectedAnimalIds.indexOf(rows[i].Id) != -1)
+                    $("#tbAnimalList").datagrid("selectRow", i);
+            }
+        }
+    }
+     function getSelectedAnimals() {
+         var selectedAnimalIds = "";
+         var selectedAnimalNames = "";
+         var selectedAnimalSexes="";
+         var selectedAnimalsJsonArray = new Array();
+         var selectedAnimals = $("#tbAnimalList").datagrid("getSelections");
+         if (selectedAnimals && selectedAnimals.length > 0) {
+             for (var i = 0; i < selectedAnimals.length; i++) {
+                 var selectAnimalName = selectedAnimals[i].Name.toString();
+                 var selectAnimalPos = selectedAnimals[i].AnimalPos;
+                 var selectedSex = selectedAnimals[i].Sex;
+                
+                 if(!selectAnimalPos) selectAnimalPos = "";
+                 if(selectAnimalPos != ""){
+                    selectAnimalName += "[" + selectAnimalPos + "]";
+                 }
+                 selectedAnimalIds += selectedAnimalIds == "" ? selectedAnimals[i].Id.toString() : "," + selectedAnimals[i].Id.toString();
+                 selectedAnimalNames += selectedAnimalNames == "" ? selectAnimalName : "," + selectAnimalName;
+                 selectedAnimalSexes += selectedAnimalSexes == "" ? selectedSex : "," + selectedSex;
+//                 selectedItemsJsonArray[i] = {"Id":selectedAnimals[i].Id, "Name":selectedAnimals[i].Name};
+             }
+         }
+         if(selectAnimalDialog) selectAnimalDialog.dialog("close");
+         if(typeof(getSelectedAnimalCallBack)=='function') getSelectedAnimalCallBack(selectedAnimalNames,selectedAnimalIds,selectedAnimalSexes);
+    }
+</script>

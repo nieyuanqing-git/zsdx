@@ -1,0 +1,33 @@
+﻿@using com.Bynonco.LIMS.Model.Enum
+@model com.Bynonco.LIMS.Model.OpenFundDepositRecord
+@if (Model != null)
+{
+    var index = ViewData["Index"] == null ? 0 : int.Parse(ViewData["Index"].ToString());
+    var isManage = ViewData["IsManage"] != null && bool.Parse(ViewData["IsManage"].ToString());
+<tr>
+    <td style='text-align:center;background-color:White;'>
+        <a onclick="doShowOpenFundDepositRecordInfo('@Model.Id');return false;" href="#" title="查看" class="l-btn-color l-btn-color-yellow"><span class="tree-folder icon-eye-white"></span> 查看</a>
+        @if (!Model.HasChecked)
+        {
+        <a onclick="doEditOpenFundDepositRecord('@Model.Id','@(Model.HasChecked.ToString().ToLower())');$('#tbDepositRecordOpenFundList').datagrid('selectRow', @(index));return false;" href="#" title="编辑" class="l-btn-color l-btn-color-blue"><span class="tree-folder icon-edit-white"></span> 编辑</a>
+        <a onclick="doExportDoc('@(Model.Id)');return false;" href="#" title="打印缴款单" class="l-btn-color l-btn-color-green">
+            <span class="tree-folder icon-word"></span> 打印缴款单
+        </a>
+        }
+        @if (!Model.HasChecked && isManage)
+        {
+        <a onclick="doDeleteOpenFundDepositRecord('@Model.Id','@(Model.HasChecked.ToString().ToLower())');$('#tbDepositRecordOpenFundList').datagrid('selectRow', @(index));return false;" href="#" title="删除" class="l-btn-color l-btn-color-red"><span class="tree-folder icon-delete-white"></span> 删除</a>
+        <a onclick="doAuditOpenFundDepositRecord('@Model.Id','@(Model.HasChecked.ToString().ToLower())');$('#tbDepositRecordOpenFundList').datagrid('selectRow', @(index));return false;" href="#" title="审核确认" class="l-btn-color l-btn-color-green"><span class="tree-folder icon-pass-white"></span> 审核</a>
+        }
+    </td>
+    <td style='text-align:center;background-color:White;'>@Model.DepositSum</td>
+    <td style='text-align:center;background-color:White;'>@(Model.OpenFundSum - Model.DepositSum)</td>
+    <td style='text-align:center;background-color:White;'>@Model.OpenFundSum</td>
+    <td style='text-align:center;background-color:White;'>@Model.DepositDate.ToString("yyyy-MM-dd HH:mm")</td>
+    @*<td style='text-align:center;background-color:White;'>@(Model.StatusEnum== com.Bynonco.LIMS.Model.Enum.OpenFundDepositRecordStatus.AuditPass ? "审核通过" :Model.StatusEnum== com.Bynonco.LIMS.Model.Enum.OpenFundDepositRecordStatus.AuditReject ?"审核不通过":"等待审核")</td>*@
+    <td style='text-align:center;background-color:White;'>@Model.StatusEnum.ToCnName2()</td>
+    <td style='text-align:center;background-color:White;'>@Model.InvoiceNo</td>
+    <td style='text-align:center;background-color:White;'>@Model.CertificateNum</td>
+    <td style='background-color:White;'><a href='@Url.Content("~/" + Model.DepositRecordPhoto)' target="_blank" style='text-decoration:underline;'>@(Model != null && !string.IsNullOrWhiteSpace(Model.DepositRecordPhotoName) ? Model.DepositRecordPhotoName : "(点击查看存款验证图片/附件)")</a></td>
+</tr>
+}

@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+<script type="text/javascript">
+    var repealConfirmDialog;
+    function doShowRepealConfirmDialog() {
+        repealConfirmDialog = @(Html.JDialog("divRepealConfirmContainer").SetTitle("撤销爽约确认").SetAutoDialog(false).SetOkScript("doRepeal();return false;").SetCancelScript("doCancelRepeal();return false;").SetIconCls("icon-save").ToMvcString());
+    }
+    function doRepeal(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var content = $("#content").val();
+        $.ajax({
+            type: "Post",
+            url: '@ViewData["url"].ToString()',
+            data: {"delinquencyConfirmId":'@ViewData["id"].ToString()',"content":content},
+            success: function (msg) {
+                if(typeof(doRepealConfirmCallBack)=="function"){
+                   doRepealConfirmCallBack();
+                }
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                repealConfirmDialog.dialog('close');
+              }
+       });
+    }
+    function doCancelRepeal(){
+        if(typeof(doRepealConfirmCallBack)=="function"){
+              doRepealConfirmCallBack();
+        }
+        repealConfirmDialog.dialog('close');
+    }
+</script>
+<div id="divRepealConfirmContainer">
+    @Html.Hidden("id", ViewData["id"].ToString())
+    <p style="font-weight:bold">您确认要撤销这个不良行为吗?</p>
+    @if(ViewData["content"] != null && !string.IsNullOrEmpty(ViewData["content"].ToString()))
+    {
+       <p style="font-weight:bold">
+           请编辑撤销通知：<br />
+           @Html.TextArea("content", ViewData["content"] != null ? ViewData["content"].ToString() : "", 4, 50, new { style = "overflow-y:auto" })
+       </p>
+    }
+</div>
+

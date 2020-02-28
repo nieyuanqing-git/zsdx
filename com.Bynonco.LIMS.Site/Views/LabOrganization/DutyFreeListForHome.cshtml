@@ -1,0 +1,80 @@
+﻿@model List<com.Bynonco.LIMS.Model.LabOrganization>
+@using com.Bynonco.LIMS.Utility;
+@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    }
+    <script src="@Url.Content("~/JqueryPlugin/JqueryTreeView/jquery.cookie.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/JqueryPlugin/JqueryTreeView/jquery.treeview.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/JqueryPlugin/JqueryTreeView/jquery.treeview.async.js")" type="text/javascript"></script>
+<link href="../../JqueryPlugin/JqueryTreeView/jquery.treeview.css" rel="stylesheet"
+    type="text/css" />
+<script src="../../JqueryPlugin/JqueryTreeView/jquery.treeview.edit.js" type="text/javascript"></script>
+<script src="../../JqueryPlugin/JqueryTreeView/jquery.treeview.sortable.js" type="text/javascript"></script>
+@{
+    bool isShowZero = ViewData["IsShowZero"] == null || ViewData["IsShowZero"].ToString().Trim() == "1" ? true : false;
+    bool isShowChildEquipmentCategory = ViewData["IsShowChildEquipmentCategory"] == null || ViewData["IsShowChildEquipmentCategory"].ToString().Trim() == "1" ? true : false;
+    if (Model != null && Model.Count() > 0)
+    {
+        var parentId = Model[0].ParentId;
+        var topLabOrganization = Model.Where(p => p.ParentId == parentId);
+        if(topLabOrganization != null && topLabOrganization.Count() > 0)
+        {
+            foreach(var item in topLabOrganization)
+            {
+                if (!isShowZero && item.OrgEquipmentDutyFreeCount == 0) { continue; }
+                var cutName = ShortcutStringUtility.GetSubString(item.Name, 23, "..");
+                <p class="parent-item"><a href="#" xpath='@item.XPath' title='@item.Name' orgid='@item.Id'><strong>@(cutName + (item.OrgEquipmentDutyFreeCount > 0 ? " (" + item.OrgEquipmentDutyFreeCount + "台)" : ""))</strong></a></p>
+                var childLabOrganization = Model.Where(p => p.ParentId == item.Id);
+                if (childLabOrganization != null && childLabOrganization.Count() > 0)
+                {                    
+                    <ul class="news-list list-xs" style="padding-left:30px;">
+                    @foreach (var childItem in childLabOrganization)
+                    {if (!isShowZero && childItem.OrgEquipmentDutyFreeCount == 0) { continue; }
+                        var cutchildName = ShortcutStringUtility.GetSubString(childItem.Name, 18, "..");
+                        <li><a href="#" title='@childItem.Name' xpath='@childItem.XPath' orgid='@childItem.Id' >@(cutchildName + (childItem.OrgEquipmentDutyFreeCount > 0 ? " (" + childItem.OrgEquipmentDutyFreeCount + "台)" : ""))</a></li>
+                        var childLabOrganization2 = Model.Where(p => p.ParentId == childItem.Id);
+                        if (isShowChildEquipmentCategory)
+                        {
+                            <ul class="news-list list-xs" style="padding-left:10px;">
+                            @foreach (var childItem2 in childLabOrganization2)
+                            {
+                                if (childItem2.OrgEquipmentDutyFreeCount == 0) { continue; }
+                                var cutchildName2 = ShortcutStringUtility.GetSubString(childItem2.Name, 18, "..");
+                                <li><a href="#" title='@childItem2.Name' xpath='@childItem2.XPath' orgid='@childItem2.Id' >@(cutchildName2 + (childItem2.OrgEquipmentDutyFreeCount > 0 ? " (" + childItem2.OrgEquipmentDutyFreeCount + "台)" : ""))</a></li>
+                            }
+                            </ul>
+                        }
+                        
+                    }
+                    <div class="clear-both"></div>
+                    </ul>
+                }
+            }
+            <div class="clear-both"></div>
+        }
+    }
+    else
+    {
+        <p>没有组织机构信息</p>
+    }
+}
+@*<script type="text/javascript">
+function showtree() {
+        $("#ulSiteMapTree").treeview({
+            collapsed: true,
+            url: '@Url.Action("GetLabOrganizationTree", "SiteMap", new { XPath = orgXPath })'
+        });
+    }
+    $(function () {
+        showtree();
+        $("#ulSiteMapTree a").click(function () {
+            var value = $(this).attr("orgid");
+            var text = $(this).attr("title");
+            SetCondition($("#ConditionOrg"), text, value);
+            doLoadEquipmentList(1, perPageSize);
+            return false;
+        });
+        IniSubAccordion("divOrg");
+    });
+</script>
+<div id="ulSiteMapTree"></div>*@

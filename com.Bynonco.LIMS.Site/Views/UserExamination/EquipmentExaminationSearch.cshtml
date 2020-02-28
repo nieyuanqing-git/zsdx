@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var searchUserName =  $("#SearchUserName").val()
+        if (searchUserName != "")
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + searchUserName + "\"";
+        var searchEquipmentName = $("#SearchEquipmentName").val()
+        if (searchEquipmentName != "")
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentName∽\"" + searchEquipmentName + "\"";
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#SearchUserName").val("");
+        $("#SearchEquipmentName").val("");
+        $("#SearchStatus").combobox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>用户名称</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

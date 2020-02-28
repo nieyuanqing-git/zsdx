@@ -1,0 +1,19 @@
+﻿
+<div id="divBalanceAccountItemDetail" style="width:800px; height:640px">
+     <div class="search-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../CostDeduct/CostDeductSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("BalanceAccountItemDetailList")</div>
+</div>
+<div style="display:none">@Html.Partial("../CostDeduct/ManualCostDeductScriptContainer")</div>
+<div style="display:none">@Html.Partial("../UsedConfirm/ScriptContainer")</div>
+<div style="display:none">@Html.Partial("../Appointment/ViewAppointmentInfoScript")</div>
+<script type="text/javascript">
+    function doDeductSearch() {
+        var queryExpression = generateDeductQueryExpression();
+        $("#tbViewCostDeductList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbViewCostDeductList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+</script>

@@ -1,0 +1,166 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.View;
+<style type="text/css">
+    .rowno{width:80px}
+    .sampleno{width:230px}
+    .manaualsampleno{margin:5px; overflow:hidden; width:420px}
+    .delsampleno{ text-decoration:none; width:35px}
+    #divManaualSampleNoContainer a{text-decoration:none;}
+</style>
+@{
+    
+    var isEnbaleEditSampleAppyNumber = (bool)ViewData["IsEnbaleEditSampleAppyNumber"];
+    var sampleApplyNumbers = ViewData["SampleApplyNumbers"] != null ? (IList<com.Bynonco.LIMS.Model.SampleApplyNumber>)ViewData["SampleApplyNumbers"] : null;
+    var curSampleQuatity = Model == null ? "1" : Model.Quatity.ToString();
+ }
+<div id="divSampleNoMakingContainer" style="display:none">
+    <div id="divSampleMakingDiaglog">
+        @if (isEnbaleEditSampleAppyNumber)
+        {
+            <div>
+                @Html.JLinkButton("btnAddManualSampleNo", "新增").SetIconCls("icon-add").SetOnclick("doAddNewManualSampleNo(curSampleQuatity);return false;").SetPlain(true).ToMvcString()
+                @Html.JLinkButton("btnDelAllManualSampleNo", "清空").SetIconCls("icon-cancel").SetOnclick("doDelAllManualSampleNo();return false;").SetPlain(true).ToMvcString()
+            </div>
+        }
+        <div style="overflow-x:hidden;overflow-y:auto;height:300px" id="divManaualSampleNoContainer"> 
+            @if (sampleApplyNumbers != null && sampleApplyNumbers.Count > 0)
+            {
+                foreach (var sampleApplyNumber in sampleApplyNumbers)
+                {
+                    <div class='manaualsampleno'>
+                        序号<input type='text' class='rowno' @(!isEnbaleEditSampleAppyNumber ? "readonly=\"readonly\"" : "")  value="@sampleApplyNumber.RowNo" />
+                        编号<input type='text' class='sampleno' @(!isEnbaleEditSampleAppyNumber ? "readonly=\"readonly\"" : "") value="@sampleApplyNumber.SampleNo" />
+                        @if (isEnbaleEditSampleAppyNumber)
+                        {
+                            <a href='javascript:void(0)' onclick='doDeleteManaualSampleNo(this);return false;' class='icon-remove delsampleno'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var sampleNoDialog;
+    var curSampleQuatity =@curSampleQuatity;
+    function generateSampleApplyNumbers(sampleApplyNoEelementId,sampleApplyQuatityEelementId){
+        var sampleApplyNo = $("#" + sampleApplyNoEelementId).val().trim();
+        if(sampleApplyNo=="") return ;
+        var sampleApplyQuatity = $("#" + sampleApplyQuatityEelementId).val().trim();
+        var quatity = parseInt(sampleApplyQuatity);
+        if(!quatity || quatity <= 0)return;
+        $("#divManaualSampleNoContainer").html("");
+        for(var i=1;i<= quatity; i++){
+            var manualNo = i.toString();
+            for(var j=1;j<= 3 - i.toString().length;j++){
+                manualNo = "0" + manualNo;
+            }
+            doAddNewManualSampleNo(quatity,i,sampleApplyNo + "-" + manualNo);
+        }
+    }
+    function showSampleNoMakingDialog(sampleQuatity) {
+        var quatity = parseInt(sampleQuatity);
+        if(!quatity || quatity<=0){
+            $.messager.show({ title: '提示', msg: "样本数不是正整数", showType: 'show' });
+            return false;
+        }
+        curSampleQuatity = quatity;
+        if(quatity > 0 && $("#divManaualSampleNoContainer").html().trim()==""){
+            for(var i=1;i<= quatity; i++){
+               doAddNewManualSampleNo(curSampleQuatity,i,"");
+            }
+        }
+        sampleNoDialog = @Html.JDialog("divSampleMakingDiaglog").SetTitle("样品手动编码,假如说样品数为2,则序号1对应1号样品,依此类推").SetIconCls("icon-save").SetAutoDialog(false).SetOkScript("if(!validateManaualSampleNos())return false;sampleNoDialog.dialog('close');return false;").SetCancelScript("sampleNoDialog.dialog('close');return false;").SetModal(true).ToMvcString();
+    }
+    function getMaxSampleRowNo(){
+        var maxSampleRowNo = 1;
+        var elements = $("#divManaualSampleNoContainer div.manaualsampleno");
+        if(elements && elements.length>0){
+           elements.each(function(){
+                var rowNo = $(this).find("input.rowno").val().trim();
+                var rowNumTemp = parseInt(rowNo);
+                if(rowNumTemp && rowNumTemp >= 1 && rowNumTemp >= maxSampleRowNo) maxSampleRowNo = rowNumTemp + 1;
+           });
+        }
+        return maxSampleRowNo;    
+    }
+    function doAddNewManualSampleNo(quatity,i,manualNo){
+         curSampleQuatity = quatity;
+         if(!manualNo) manualNo = "";
+         if(!curSampleQuatity || curSampleQuatity <= 0){
+            $.messager.show({ title: '提示', msg: "样本数不是正整数", showType: 'show' });
+            return;
+         }
+         if(!i)i = getMaxSampleRowNo();
+         if(i > curSampleQuatity) i = "";
+
+         var element = "<div class='manaualsampleno'>" + 
+                           "序号<input type='text' class='rowno' @(!isEnbaleEditSampleAppyNumber ? "readonly='readonly'" : "")  value='" + i.toString() + "' />&nbsp;" +
+                           "编号<input type='text' class='sampleno' @(!isEnbaleEditSampleAppyNumber ? "readonly='readonly'" : "") value='" + manualNo  + "' />"; 
+         if('@(isEnbaleEditSampleAppyNumber.ToString().ToLower())'=="true"){
+                           element+="<a href='javascript:void(0)' style='width:35px' onclick='doDeleteManaualSampleNo(this);return false;' class='icon-remove delsampleno'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>"
+         }
+         element+="</div>";
+         $("#divManaualSampleNoContainer").append(element);
+    }
+    function doDelAllManualSampleNo(){
+        $("#divManaualSampleNoContainer").html("");
+    }
+    function doDeleteManaualSampleNo(element){
+       $(element).parent().remove();
+    }
+    function getManaualSampleNos(){
+        var manualSampleNos = "";
+        var elements = $("#divManaualSampleNoContainer div.manaualsampleno");
+        if(elements && elements.length>0){
+           elements.each(function(){
+              var rowNo = $(this).find("input.rowno").val();
+              var sampleNo = $(this).find("input.sampleno").val();
+              manualSampleNos += manualSampleNos == "" ? ( rowNo + "," + sampleNo):("#" +( rowNo + "," + sampleNo));
+           });
+        }
+        return manualSampleNos;
+    }
+    function validateManaualSampleNos(){
+        var elements = $("#divManaualSampleNoContainer div.manaualsampleno");
+        var isPass=true;
+        if(elements && elements.length>0){
+           var sampleNos = new Array(); 
+           var rowNos = new Array(); 
+           elements.each(function(){
+              var rowNo = $(this).find("input.rowno").val().trim();
+              if(rowNo == "" && isPass){
+                 $.messager.show({ title: '提示', msg: "手工编号存在序号为空", showType: 'show' });
+                 isPass = false;
+              }
+              if((!parseInt(rowNo) || parseInt(rowNo) > curSampleQuatity) && isPass){
+                $.messager.show({ title: '提示', msg: "手工编号【" + rowNo + "】不是小于或者等于样品数【" + curSampleQuatity.toString() +"】的正整数", showType: 'show' });
+                 isPass = false;
+              }
+              var sampleNo = $(this).find("input.sampleno").val().trim();
+              if(sampleNo == "" && isPass){
+                 $.messager.show({ title: '提示', msg: "手工编号存在编号为空", showType: 'show' });
+                 isPass = false;
+              }
+              
+              if(sampleNos.length > 0 && isPass){
+                  for(var j=0;j<sampleNos.length;j++){
+                     if(rowNos[j].trim()==rowNo){
+                        $.messager.show({ title: '提示', msg: "手工编号中序号【" + rowNo.toString() + "】已经存在", showType: 'show' });
+                        isPass = false;
+                     }
+                     if(sampleNos[j].trim() == sampleNo){
+                        $.messager.show({ title: '提示', msg: "手工编号中编号【" + sampleNo + "】已经存在", showType: 'show' });
+                        isPass = false;
+                     }
+                  }
+              }
+              sampleNos.push(sampleNo);
+              rowNos.push(rowNo);
+           });
+        }
+        return isPass;
+    }
+</script>
+

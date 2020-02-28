@@ -1,0 +1,92 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateApplyQueryExpress() {
+        var queryExpression = "";
+        var applyNum = $("#SearchApplyNum").val().trim();
+        if (applyNum != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyNum∽\"" + applyNum + "\"";
+        }
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentName∽\"" + equipmentName + "\"";
+        }
+        var equipmentOrgName = $("#SearchEquipmentOrgName").val().trim();
+        if (equipmentOrgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OrganizationName∽\"" + equipmentOrgName + "\"";
+        }
+        var directorName = $("#SearchDirectorName").val().trim();
+        if (directorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DirectorName∽\"" + directorName + "\"";
+        }
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+        var userOrgName = $("#SearchUserOrgName").val().trim();
+        if (userOrgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserOrgName∽\"" + userOrgName + "\"";
+        }
+        var applyTimeBegin = $("#SearchApplyTimeBegin").datebox("getValue").trim();
+        if (applyTimeBegin != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime>\"" + applyTimeBegin + " 00:00:00" + "\"";
+        }
+        var applyTimeEnd = $("#SearchApplyTimeEnd").datebox("getValue").trim();
+        if (applyTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime<\"" + applyTimeEnd + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+    function doApplyReset() {
+        $("#SearchUserName").val("");
+        $("#SearchApplyNum").val("");
+        $("#SearchEquipmentOrgName").val("");
+        $("#SearchDirectorName").val("");
+        $("#SearchEquipmentName").val("");
+        $("#SearchUserOrgName").val("");
+        $("#SearchApplyTimeBegin").datebox("setValue", "");
+        $("#SearchApplyTimeEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>申请单号</label>
+        @Html.JValidateBox("SearchApplyNum").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>仪器设备</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>管理员</label>
+        @Html.JValidateBox("SearchDirectorName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>仪器单位</label>
+        @Html.JValidateBox("SearchEquipmentOrgName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>申请人</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>申请单位</label>
+        @Html.JValidateBox("SearchUserOrgName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>申请时间</label>
+        @Html.JDateTimePicker("SearchApplyTimeBegin").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchApplyTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnApplySearch", "查询").SetOnclick("doApplySearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnApplyReset", "清空").SetOnclick("doApplyReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnApplyClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

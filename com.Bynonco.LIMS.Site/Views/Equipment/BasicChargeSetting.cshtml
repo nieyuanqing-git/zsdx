@@ -1,0 +1,173 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Business;
+@{var equipmentPrivilige =Model == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, Model.Id);
+  var standardPrice = Model != null && Model.Equipment.ChargeStandard != null ? Model.Equipment.ChargeStandard.StandardPrice.ToString() : "";
+}
+<style type="text/css">
+    table tr th{ min-width:120px; text-align:right}
+</style>
+<script type="text/javascript">
+    function doOnChargeTypeCharged(newValue, oldValue) {
+        $("#divSelfDefinedContainer").css("display", newValue != "3" ? "none" : "block");
+        $(".selfdefinedchargestandard-price").attr("style", newValue == "0" || newValue == "3" ? "display:none" : "");
+        if (newValue == "0") {
+            $("#StandardPrice").val("0");
+            $("#StandardPrice").attr("readonly", "readonly");
+            $(".additionChargeItem").val("0");
+        }
+        else {
+            $("#StandardPrice").removeAttr("readonly");
+            $("#StandardPrice").val("@standardPrice"); 
+        }
+    }
+</script>
+ <form id="frmBasicChargeSettingEdit" action="#">
+<div>
+    <p>设备收费标准</p>
+    <table class="edit-info">
+        <tr>
+            <th>计费中心</th>
+            <td>
+                @(Html.JComboTree("FinanceOrgId").SetWidth(305).SetMultiple(false).SetData(ViewData["FinanceOrgJson"]).SetValue(Model != null && Model.FinanceOrgId.HasValue ? Model.FinanceOrgId.Value.ToString() : null).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>计费方式</th>
+            <td>
+                @(Html.JComboBox("ChargeType")
+                .SetWidth(305)
+                .SetData(ViewData["ChargeTypeJson"])
+                .SetOnChange("doOnChargeTypeCharged(newValue, oldValue);")
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>计费价格</th>
+            <td>
+                @(Html.JValidateBox("StandardPrice")
+                .SetValue(Model != null && Model.Equipment.ChargeStandard != null ? Model.Equipment.ChargeStandard.StandardPrice.ToString() : "")
+                .SetWidth(300)
+                .SetValidateType(ValidateType.number)
+                .SetInvalidMessage("请输入有效的收费价格").ToMvcString())
+                <span>(元)</span>
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>小数位数</th>
+            <td>
+                @Html.JValidateBox("RoundDigits").SetWidth(300).SetValue(Model != null && Model.Equipment.ChargeStandard != null ? Model.Equipment.ChargeStandard.RoundDigits.ToString() : "2").ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否分段计费</th>
+            <td>
+                @Html.CheckBox("IsDurationPrice", Model == null || Model.Equipment == null || Model.Equipment.ChargeStandard == null ? false : Model.Equipment.ChargeStandard.IsDurationPrice)
+
+            </td>
+        </tr>
+        <tr>
+            <th>最小不扣费时间间隔</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultMinUnchangeMinutes", new { onchange = "doUseDefaultMinUnchangeMinutesChanged();" }))<label for="UseDefaultMinUnchangeMinutes">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divMinAppointmentCancelTime" style='display: @(Model.UseDefaultMinUnchangeMinutes.HasValue && Model.UseDefaultMinUnchangeMinutes.Value ? "none" : "block")'>
+                    @(Html.JValidateBox("MinUnchangeMinutes").SetValue(Model == null || !Model.MinUnchangeMinutes.HasValue ? "" : Model.MinUnchangeMinutes.Value.ToString()).SetWidth(80).SetValidateType(ValidateType.positiveIntNumber).ToMvcString())
+                    <span>(分钟)</span>
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="当设备的使用记录小于该时间间隔的时候不进行扣费"></span>
+             </td>
+        </tr>
+        <tr style="display:none">
+            <th>是否同一预约的不同使用记录分开扣费</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsPeriodCharge", new { onchange = "doUseDefaultIsPeriodChargeChanged();" }))<label for="UseDefaultIsPeriodCharge">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsPeriodCharge" style='display: @(Model.UseDefaultIsPeriodCharge.HasValue && Model.UseDefaultIsPeriodCharge.Value ? "none" : "block")'>
+                    @(Html.CheckBox("IsPeriodCharge"))
+                    <label for="IsPeriodCharge">分段计费</label>
+                </div>
+                &nbsp;&nbsp;<span class="icon icon-info-blue" title="赴约使用设备可能多次的刷卡上机下机, 如果是同一预约的不同使用记录分开扣费的话则每次使用记录都分开扣费"></span>
+             </td>
+        </tr>
+        <tr>
+            <th>是否预扣费模式</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsPredictCharge", new { onchange = "doUseDefaultIsPredictChargeChanged();" }))<label for="UseDefaultIsPredictCharge">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsPredictCharge" style='display: @(Model.UseDefaultIsPredictCharge.HasValue && Model.UseDefaultIsPredictCharge.Value ? "none" : "block")'>
+                    @(Html.CheckBox("IsPredictCharge"))
+                    <label for="IsPredictCharge">预扣费模式</label>  
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="预约设备成功后过了取消预约时间立即扣费"></span>
+             </td>
+        </tr>
+        <tr>
+            <th>是否允许对扣费记录进行申诉</th>
+            <td class="clear-both">
+                <div class="float_l">
+                     @(Html.CheckBox("UseDefaultIsAllowUserDoubt", new { onchange = "doUseDefaultIsAllowUserDoubtChanged();" }))<label for="UseDefaultIsAllowUserDoubt">按默认设置</label>
+                </div>
+                <div class="float_l margin-l-10" id="divIsAllowUserDoubt" style='display: @(Model.UseDefaultIsAllowUserDoubt.HasValue && Model.UseDefaultIsAllowUserDoubt.Value ? "none" : "block")'>
+                    @(Html.CheckBox("IsAllowUserDoubt"))
+                    <label for="IsAllowUserDoubt">对扣费记录进行申诉</label>  
+                </div>
+                 &nbsp;&nbsp;<span class="icon icon-info-blue" title="用户对扣费记录进行申诉"></span>
+             </td>
+        </tr>
+    </table>
+</div>
+@if (Model != null && Model.Equipment.AdditionChargeItems != null && Model.Equipment.AdditionChargeItems.Where(p => !p.IsStop).Count() > 0)
+{
+    <p>附加收费项目</p>
+    <div>@Html.Partial("AdditionChargeItems") </div>   
+}
+<div id="divLabelChargeStandsContainer">
+    <p>个别收费标准 @(Html.JLinkButton("btnAddLabelChargeStand", "新增").SetPlain(true).SetIconCls("icon-add").SetOnclick("doAddEquipmentLabelChargeStand();return false;").SetVisible(equipmentPrivilige.IsEnableAddEquipmentLabelChargeStand).ToMvcString())</p>
+    <div>@Html.Partial("LabelChargeStands")</div>
+</div>
+<div id="divSelfDefinedContainer" style="display:none">
+    <p>
+        自定义计费标准>>@(Html.JLinkButton("btnTestSelftDefineExpression", "点击进行表达式测试").SetPlain(true).SetOnclick("$('#divSelfDefinedChargeStandardTest').fadeIn(500);return false;").ToMvcString())
+    </p>
+    <div style="padding: 10px 0 10px 20px;">@Html.TextArea("SelfDefinedExpression", Model != null && Model.Equipment.ChargeStandard != null ? Model.Equipment.ChargeStandard.Expression : "", new { style = "width:600px;height:200px;font-size:12px;font-weight-normal;" })</div>
+    <div id="divSelfDefinedChargeStandardTest" style="display:none;padding: 10px 0 10px 20px;">@Html.Partial("SelfDefinedChargeStandardTest")</div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#btnAddLabelChargeStand").css("line-height","25px");
+    });
+    function doUseDefaultMinUnchangeMinutesChanged() {
+        var useDefaultMinUnchangeMinutes = $("#UseDefaultMinUnchangeMinutes").attr("checked");
+        var isUseDefaultMinUnchangeMinutes = useDefaultMinUnchangeMinutes ? true : false;
+        if (isUseDefaultMinUnchangeMinutes) $("#divMinAppointmentCancelTime").fadeOut(500);
+        else $("#divMinAppointmentCancelTime").fadeIn(500);
+    }
+    function doUseDefaultIsPeriodChargeChanged() {
+        var useDefaultIsPeriodCharge = $("#UseDefaultIsPeriodCharge").attr("checked");
+        var isUseDefaultIsPeriodCharge = useDefaultIsPeriodCharge ? true : false;
+        if (isUseDefaultIsPeriodCharge) $("#divIsPeriodCharge").fadeOut(500);
+        else $("#divIsPeriodCharge").fadeIn(500);
+    }
+    function doUseDefaultIsPredictChargeChanged() {
+        var useDefaultIsPredictCharge = $("#UseDefaultIsPredictCharge").attr("checked");
+        var isUseDefaultIsPredictCharge = useDefaultIsPredictCharge ? true : false;
+        if (isUseDefaultIsPredictCharge) $("#divIsPredictCharge").fadeOut(500);
+        else $("#divIsPredictCharge").fadeIn(500);
+    }
+    function doUseDefaultIsAllowUserDoubtChanged() {
+        var useDefaultIsAllowUserDoubt = $("#UseDefaultIsAllowUserDoubt").attr("checked");
+        var isUseDefaultIsAllowUserDoubt = useDefaultIsAllowUserDoubt ? true : false;
+        if (isUseDefaultIsAllowUserDoubt) $("#divIsAllowUserDoubt").fadeOut(500);
+        else $("#divIsAllowUserDoubt").fadeIn(500);
+    }
+
+</script>

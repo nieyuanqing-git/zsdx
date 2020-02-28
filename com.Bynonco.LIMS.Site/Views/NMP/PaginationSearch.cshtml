@@ -1,0 +1,49 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.LIMS.IBLL;
+@using com.Bynonco.LIMS.BLL;
+<style type="text/css">
+ul.search li {padding: 0;}
+ul.search li.token-input-input-token-facebook {padding: 0;}
+</style>
+<form id="frmNMPSearchCondition" action="#">
+  <ul class="search">
+        <li style="padding: 5px 0 5px 15px">
+            <label>工位名称</label>
+            @Html.JValidateBox("SearchNMPName").SetWidth(150).ToMvcString()
+        </li>
+        <li style="padding: 5px 0 5px 15px">
+            <label style="vertical-align:top;">组织机构</label>
+            @Html.DropDownList("SearchOrgId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:155px" })
+        </li>
+        <li style="padding: 5px 0 5px 15px">
+            <label style="vertical-align:top;">放置地点</label>
+            @Html.DropDownList("SearchRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px" })
+        </li>
+        <li style="padding: 5px 0 5px 15px">
+            <label style="vertical-align:top;">门禁</label>
+             @Html.DropDownList("SearchDoorId", (IEnumerable<SelectListItem>)ViewData["SearchDoorSelectListItem"], new { style = "width:155px;" })
+        </li>
+        <li style="padding: 5px 0 5px 15px">
+            <label>联系人</label>
+            @Html.JValidateBox("SearchContactPersonName").SetWidth(150).ToMvcString()
+        </li>
+        <li style="padding: 5px 0 5px 15px">
+            <label>联系电话</label>
+            @Html.JValidateBox("SearchContactTelPhoneNo").SetWidth(150).ToMvcString()
+        </li>
+        <li style="padding: 5px 0 5px 15px">
+            <label>联系邮箱</label>
+            @Html.JValidateBox("SearchContactEmail").SetWidth(150).ToMvcString()
+        </li>
+        <li class="button">
+            @Html.JLinkButton("btnNMPSearch", "查询").SetOnclick("doNMPSearch();doCloseSearch();return false;").ToMvcString()
+            @Html.JLinkButton("btnNMPReset", "清空").SetOnclick("doNMPReset();return false;").ToMvcString()
+            @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+            <div class="clear-both"></div>
+        </li>
+        <div class="clear-both"></div>
+    </ul>
+    <div class="clear-both"></div>
+</form>
+@Html.Partial("../NMP/PaginationSearchScripts")

@@ -1,0 +1,159 @@
+﻿@model com.Bynonco.LIMS.Model.ShareFundApply
+@using com.Bynonco.LIMS.Model.Enum; 
+@using com.Bynonco.LIMS.Model.View; 
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var shareFundApplyEquipmentList = ViewData["ViewShareFundApplyEquipmentList"] == null ? null : (List<ViewShareFundApplyEquipment>)ViewData["ViewShareFundApplyEquipmentList"];
+}
+<div id="divShareFundApplyEdit">
+ <form id="frmShareFundApplyEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdShareFundApplyEdit" class="edit-table"  style="width:730px;height:auto">
+        <tr>
+            <th><span class="required">* </span>项目名称</th>
+            <td>
+                @Html.JValidateBox("ProjectName").SetValue(Model == null ? "" : Model.ProjectName).SetWidth(200).ToMvcString()
+            </td>
+            <th><span class="required">* </span>项目类别</th>
+            <td  id="tdProjectType">
+                @(Html.TokenInput("ProjectType")
+                .SetUrl(Url.Action("GetProjectTypeListByKeyWord", "ShareFundApply"))
+                .SetPrePopulate(ViewData["ProjectTypeJson"] == null || string.IsNullOrWhiteSpace(ViewData["ProjectTypeJson"].ToString()) ? null : ViewData["ProjectTypeJson"].ToString())
+                .SetSingle(true)
+                .SetWidth(200)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>申请人</th>
+            <td id="tdApplyUser">
+                @(Html.TokenInput("ApplyUserId")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["ApplyUserJson"] == null || string.IsNullOrWhiteSpace(ViewData["ApplyUserJson"].ToString()) ? null : ViewData["ApplyUserJson"].ToString())
+                .SetSingle(true)
+                .SetWidth(200)
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>申请基金比例</th>
+            <td>
+                @Html.JValidateBox("ApplyProportion").SetValue(Model == null ? "" : Model.ApplyProportion).SetWidth(100).ToMvcString()
+                %
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>申请使用时间</th>
+            <td>
+                @Html.JDateTimePicker("StartTime").SetValue(Model == null || !Model.StartTime.HasValue? "" : Model.StartTime.Value.ToString("yyyy-MM-dd")).SetWidth(205).ToMvcString()
+            </td>
+            <th><span class="required">* </span>至</th>
+            <td>
+                @Html.JDateTimePicker("EndTime").SetValue(Model == null || !Model.EndTime.HasValue ? "" : Model.EndTime.Value.ToString("yyyy-MM-dd")).SetWidth(205).ToMvcString()
+            </td>
+        </tr>        
+        <tr>
+            <th>总测试费用</th>
+            <td>
+                @Html.JValidateBox("TestTotalMoney").SetValue(Model == null ? "" : Model.TestTotalMoney.ToString()).SetWidth(200).SetRequired(true).SetValidateType(ValidateType.number).ToMvcString()
+            </td>
+            <th>申请基金金额</th>
+            <td>
+                @Html.JValidateBox("ApplyMoney").SetValue(Model == null ? "" : Model.ApplyMoney.ToString()).SetWidth(200).SetRequired(true).SetValidateType(ValidateType.number).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>自筹经费科目</th>
+            <td>
+                @Html.JValidateBox("SelfAccount").SetValue(Model == null ? "" : Model.SelfAccount).SetWidth(200).ToMvcString()
+            </td>
+            <th>自筹测试经费金额</th>
+            <td>
+                @Html.JValidateBox("SelfMoney").SetValue(Model == null ? "" : Model.SelfMoney.ToString()).SetWidth(200).SetRequired(true).SetValidateType(ValidateType.number).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>项目负责人</th>
+            <td>
+                @Html.JValidateBox("DirectorName").SetValue(Model == null ? "" : Model.DirectorName).SetWidth(200).ToMvcString()
+            </td>            
+        </tr>
+        <tr>
+            <th>理由</th>
+            <td colspan='3'>@Html.TextArea("Reason", Model == null ? "" : Model.Reason, new { style = "width:96%;height:80px" })</td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>申请设备</th>
+            <td colspan="3">
+                <div>
+                    @Html.JLinkButton("btnSelectShareFundApply", "新增").SetIconCls("icon-add").SetPlain(true).SetOnclick("doSelectShareFundApplyEquipment();return false;").ToMvcString()
+                </div>
+                @Html.Hidden("EquipmentIds", Model == null ? (ViewData["ShareFundApplyEquipmentIds"] == null ? "" : ViewData["ShareFundApplyEquipmentIds"].ToString()) : Model.ShareFundApplyEquipmentIds)
+                <table id="tbShareFundApplyEquipmentList" cellpadding="0" cellspacing="0" border="0" class="edit-table">
+                    <tr>
+                        <th style='width:30px;'></th>
+                        <th >资产编号</th>
+                        <th >设备名称</th>
+                        <th >设备型号</th>
+                        <th >设备所属机构</th>
+                        <th style='width:150px;'>单位使用机时</th>
+                    </tr>
+                    @if (shareFundApplyEquipmentList != null && shareFundApplyEquipmentList.Count() > 0)
+                    {
+                        foreach (var item in shareFundApplyEquipmentList)
+                        {
+                            @Html.Partial("../ShareFundApply/ItemEdit", item)
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+
+
+<script type="text/javascript">
+    $(function () {
+        $("#tdApplyUser ul.token-input-list-facebook").css("width", "205px");
+        $("#tdProjectType ul.token-input-list-facebook").css("width", "205px");
+    });
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+        $("#ShareFundApplyIds").val('');
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                var equipmentIds = $("#EquipmentIds").val();
+                equipmentIds += (equipmentIds == "" ? "" : ",") + selectedEquipmentIdsArray[i];
+                $("#EquipmentIds").val(equipmentIds);
+                doAddShareFundApplyEquipment(selectedEquipmentIdsArray[i]);
+            }
+        }
+    }
+    function doSelectShareFundApplyEquipment() {
+        doSelectEquipmentDialog('EquipmentIds', {"SelectEquipmentMode": '@((int)SelectEquipmentMode.ManagementEquipment)' });
+        return false;
+    }
+    function doAddShareFundApplyEquipment(equipmentId) {
+        if (!equipmentId || equipmentId == "") return;
+        if ($("#Id_" + equipmentId).length > 0) return;
+
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("GetViewShareFundApplyEquipment","ShareFundApply")',
+            data: { "equipmentId": equipmentId, "shareFundApplyId": $("#Id").val() },
+            success: function (data) {
+                $("#tbShareFundApplyEquipmentList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemoveShareFundApplyEquipment(equipmentId) {
+        if (!equipmentId || equipmentId == "") return;
+        $("#tr_" + equipmentId).remove();
+        var equipmentIds = $("#EquipmentIds").val();
+        equipmentIds = equipmentIds.replace("," + equipmentId, "").replace(equipmentId + ",", "").replace(equipmentId, ",")
+        $("#EquipmentIds").val(equipmentIds);
+    }
+</script>

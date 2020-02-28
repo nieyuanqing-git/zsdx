@@ -1,0 +1,39 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function doTipGeneratePreviousWeekAppointmentTimes(id,tiptype) {
+        var weekIndex = $("#WeekIndex" + id + tiptype).val();
+        weekIndex = !weekIndex ? 0 : (parseInt(weekIndex) - 1);
+        $("#WeekIndex" + id + tiptype).val(weekIndex.toString());
+        loadTipEquipmentAppointmentTimes(id, tiptype);
+    }
+    function doTipGenerateCurWeekAppointmentTimes(id, tiptype) {
+        $("#WeekIndex" + id + tiptype).val("0");
+        loadTipEquipmentAppointmentTimes(id, tiptype);
+    }
+    function doTipGenerateNextWeekAppointmentTimes(id, tiptype) {
+        var weekIndex = $("#WeekIndex" + id + tiptype).val();
+        weekIndex = !weekIndex ? 0 : (parseInt(weekIndex) + 1);
+        $("#WeekIndex" + id + tiptype).val(weekIndex.toString());
+        loadTipEquipmentAppointmentTimes(id, tiptype);
+    }
+    function loadTipEquipmentAppointmentTimes(id, tiptype) {
+        var weekIndex = $("#WeekIndex" + id + tiptype).val();
+        var equipmentId = id;
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("TipAppointmentTimesContainer", "Equipment")',
+            data: { "EquipmentId": equipmentId, "WeekIndex": weekIndex ? weekIndex : "0", "TipType": tiptype, "date": new Date().getMilliseconds() },
+            success: function (data) {
+                if (data && data.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: "获取预约资源信息出错", showType: 'show' });
+                }
+                else {
+                    $("#divAppointmentTimesContainer" + id + tiptype).html(data);
+                }
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+</script>
+

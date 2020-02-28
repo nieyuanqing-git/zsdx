@@ -1,0 +1,95 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using System.Text;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.JqueryEasyUI.Core;
+ @{
+    var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    StringBuilder sbOperate = new StringBuilder();
+    if (!string.IsNullOrWhiteSpace(Model.ModifyOperate)) { sbOperate.Append(Model.ModifyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.TranningApplyOperate)) { sbOperate.Append(Model.TranningApplyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ReportBrokenOperate)) { sbOperate.Append(Model.ReportBrokenOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.MarkingOperate)) { sbOperate.Append(Model.MarkingOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.FocusOperate)) { sbOperate.Append(Model.FocusOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CancelFocusOperate)) { sbOperate.Append(Model.CancelFocusOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ExaminationManageOperate)) { sbOperate.Append(Model.ExaminationManageOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ApplyOperate)) { sbOperate.Append(Model.ApplyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CancelApplyOperate)) { sbOperate.Append(Model.CancelApplyOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CameraPlayOperate)) { sbOperate.Append(Model.CameraPlayOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.CameraPlayRecordOperate)) { sbOperate.Append(Model.CameraPlayRecordOperate); }
+    if (string.IsNullOrWhiteSpace(Model.UserExaminationOperate) && !string.IsNullOrWhiteSpace(Model.UserReadingMaterialOperate)) { sbOperate.Append(Model.UserReadingMaterialOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.UserExaminationOperate)) { sbOperate.Append(Model.UserExaminationOperate); }
+    if (!string.IsNullOrWhiteSpace(Model.ExportDocOperate)) { sbOperate.Append(Model.ExportDocOperate); }
+ } 
+<div class='detail-pannel'>
+    <div class='list-left'>
+        <div class="img-box">
+            <img alt="@(Model == null ? "" : Model.Name)" src='@(Model == null ? "" : Model.IconPath)' style='width:146px;height:126px;cursor:pointer;' onclick="doShowDetailInfo('@(Model == null ? "" : Model.Id.ToString())','@(Model == null ? "" : Model.Name)');"/>
+        </div>
+    </div>
+    <div class='list-right'>
+        @{
+            var name = Model == null ? "" : Model.Name;
+            name += Model == null || string.IsNullOrWhiteSpace(Model.Model) ? "" : " (" + Model.Model + ")";
+            var cutName = ShortcutStringUtility.GetSubString(name, 55, "..");
+            Guid? Id = null;
+            if (Model != null)
+            {
+                Id = Model.Id;
+            }
+            var url = Url.Action("Show", "Equipment", new { Id = Id});
+            var orgName = Model == null || string.IsNullOrWhiteSpace(Model.OrgName) ? "" : Model.OrgName;
+            var roomName = Model == null ? "" : Model.RoomName;
+            if(!string.IsNullOrWhiteSpace(orgName) && !string.IsNullOrWhiteSpace(roomName))
+            {
+                roomName = orgName + " > " + roomName;
+            }
+            else
+            {
+                roomName = orgName + roomName; ;
+            }
+        }
+        <div class="inner-left">
+            <p class="title">
+                <a href="javascript:;" id="EquipmentName" useType='@(Model == null || !Model.UseType.HasValue ? "" : Model.UseType.Value.ToString())' title='@name' onclick="doShowDetailInfo('@(Model == null ? "" : Model.Id.ToString())','@(Model == null ? "" : Model.Name)');return false;">@cutName</a>
+                @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+            </p>
+            <ul>
+                <li><span class='title'>当前状态:</span>
+                    <img id="imgLodingIcon@(Model == null ? "" : Model.Id.ToString())" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" class="hide" />
+                </li>
+                <li><span class='title'>联系人:</span>@(Model == null || Model.Equipment == null ? "" : Model.Equipment.LinkManNames)</li>
+                <li><span class='title'>所在地点:</span>@roomName</li>
+                <li><span class='title'>应用领域:</span>@(Model == null || Model.Remark == null ? "" : ShortcutStringUtility.GetSubString(Model.Remark, 50, ".."))</li>
+                @if (!isHome)
+                {
+                    <li class='button-box'>@System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())</li>
+                }
+            </ul>
+        </div>
+        <div class="inner-right hide">
+            @{
+                StringBuilder sbOperateL = new StringBuilder();
+                if (!string.IsNullOrWhiteSpace(Model.DetailOperate)) { sbOperateL.Append(Model.DetailOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.AppointmentNoneOperate)) { sbOperateL.Append(Model.AppointmentNoneOperate); }
+                if (isHome && !Request.IsAuthenticated)
+                {
+                    if (!string.IsNullOrWhiteSpace(Model.AppointmentWithoutLoginOperate)) { sbOperateL.Append(Model.AppointmentWithoutLoginOperate); }
+                    if (!string.IsNullOrWhiteSpace(Model.SampleApplyWithoutLoginOperate)) { sbOperateL.Append(Model.SampleApplyWithoutLoginOperate); }
+                }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(Model.AppointmentOperate)) { sbOperateL.Append(Model.AppointmentOperate); }
+                    if (!string.IsNullOrWhiteSpace(Model.SampleApplyOperate)) { sbOperateL.Append(Model.SampleApplyOperate); }
+                }
+                @System.Web.Mvc.MvcHtmlString.Create(sbOperateL.ToString())
+            }
+        </div>
+        <div class="clear-both"></div>
+        @if (isHome)
+        {
+            <div style='display:none;' class='button-box'>@System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())</div>
+        }
+    </div>
+    <div class="clear-both"></div>
+</div>

@@ -1,0 +1,139 @@
+﻿@model com.Bynonco.LIMS.Model.Publication
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var enableUploadFileType = "可上传的文件类型:" + ViewData["EnableUploadFileType"] + ".   ";
+    var enableUploadFileSize = "最大可上传" + ViewData["enableUploadFileSize"] + "的文件.";
+    var uploadTip = enableUploadFileType + "" + enableUploadFileSize;
+}
+<div id="divPublicationEdit">
+ <form id="frmPublicationEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdPublicationEdit" class="edit-table"  style="width:640px;">
+         <tr>
+            <th><span class="required">* </span>论著名称</th>
+            <td>
+                @(Html.JValidateBox("PublicationName").SetWidth(210).SetValue(Model == null ? "" : Model.PublicationName).ToMvcString())
+            </td>
+            <th><span class="required">* </span>论著类型</th>
+            <td>@(Html.JComboBox("PublicationType")
+                .SetData(ViewData["PublicationTypeJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>作者姓名</th>
+            <td id='tdUserName'>
+                 @(Html.TokenInput("UserName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(true)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doUserNameChange();")
+                    .SetOnDelete("doUserNameChange();")
+                    .SetPrePopulate(ViewData["UserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserJson"].ToString()) ? null : ViewData["UserJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("UserId", Model == null || !Model.UserId.HasValue ? "" : Model.UserId.Value.ToString())
+            </td>
+            <th><span class="required">* </span>单位</th>
+            <td id='tdDepartment'>
+                 @(Html.TokenInput("Department")
+                    .SetUrl(Url.Action("GetLabOrganizationWeakListByKeyWord", "LabOrganization"))
+                    .SetWidth(210)
+                    .SetSingle(true)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doDepartmentChange();")
+                    .SetOnDelete("doDepartmentChange();")
+                    .SetPrePopulate(ViewData["DepartmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["DepartmentJson"].ToString()) ? null : ViewData["DepartmentJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("DepartmentId", Model == null || !Model.DepartmentId.HasValue ? "" : Model.DepartmentId.Value.ToString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>角色</th>
+            <td>@(Html.JComboBox("PublicationRole")
+                .SetData(ViewData["PublicationRoleJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>作者序号</th>
+            <td>
+                @(Html.JValidateBox("AuthorNo").SetWidth(210).SetValue(Model == null || !Model.AuthorNo.HasValue ? "" : Model.AuthorNo.Value.ToString()).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>著作总字数</th>
+            <td>
+                @(Html.JValidateBox("TotalWords").SetWidth(210).SetValue(Model == null || !Model.TotalWords.HasValue ? "" : Model.TotalWords.Value.ToString()).ToMvcString())
+            </td>
+            <th><span class="required">* </span>撰写字数(千字)</th>
+            <td>
+                @(Html.JValidateBox("MyWords").SetWidth(210).SetValue(Model == null || !Model.MyWords.HasValue ? "" : Model.MyWords.Value.ToString()).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>出版单位</th>
+            <td>
+                @(Html.JValidateBox("PublishingHouse").SetWidth(210).SetValue(Model == null ? "" : Model.PublishingHouse).ToMvcString())
+            </td>
+            <th><span class="required">* </span>出版号</th>
+            <td>
+                @(Html.JValidateBox("PublishingNum").SetWidth(210).SetValue(Model == null ? "" : Model.PublishingNum).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>出版时间</th>
+            <td>@(Html.JDateTimePicker("PublishingTime").SetWidth(203).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.PublishingTime.Value.ToString("yyyy-MM-dd")).ToMvcString())</td>
+        </tr>
+        <tr>
+            <th rowspan="2">
+                 <span class="required">* </span>附件信息
+            </th>
+            <td colspan="3">
+                <input id="fileToUpload" type="file" name="fileToUpload" style="width:230px" title="@(uploadTip)" />
+                @(Html.JLinkButton("btnUpLoad", "上传").SetIconCls("icon-upload").SetPlain(true).SetOnclick("ajaxFileUpload();return false;").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3"  id="tdAttachment">
+                @Html.Partial("AttachmentList", "Achievement")
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdUserName ul.token-input-list-facebook").css("width", "215px");
+        $("#tdDepartment ul.token-input-list-facebook").css("width", "215px");
+     });
+
+    function doUserNameChange() {
+        $("#UserId").val("");
+        var userList = $("#UserName").tokenInput("get");
+        if (userList && userList.length > 0) {
+            var userIds = "";
+            for (var i = 0; i < userList.length; i++) {
+                if (userIds != "") userIds += ",";
+                userIds += userList[i].id;
+            }
+            $("#UserId").val(userIds);
+        }
+    }
+    function doDepartmentChange() {
+        $("#DepartmentId").val("");
+        var departmentList = $("#Department").tokenInput("get");
+        if (departmentList && departmentList.length > 0) {
+            var departmentIds = "";
+            for (var i = 0; i < departmentList.length; i++) {
+                if (departmentIds != "") departmentIds += ",";
+                departmentIds += departmentList[i].id;
+            }
+            $("#DepartmentId").val(departmentIds);
+        }
+    }
+</script>

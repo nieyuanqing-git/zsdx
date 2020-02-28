@@ -1,0 +1,48 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateDelinquencyConfirmQueryExpress() {
+        var queryExpression = "";
+        var Name = $("#SearchName").val().trim();
+        if (Name != "") {
+            queryExpression = "(CreatorName∽\"" + Name.trim() + "\")";
+        }
+        var PunisherName = $("#SearchPunisherName").val().trim();
+        if (PunisherName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(PunisherName∽\"" + PunisherName.trim() +"\")";
+        }
+        var DelinquencyName = $("#SearchDelinquencyName").val().trim();
+        if (DelinquencyName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DelinquencyName∽\"" + DelinquencyName.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doReset() {
+        $("#SearchName").val("");
+        $("#SearchPunisherName").val("");
+        $("#SearchDelinquencyName").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>创建人</label>
+        @Html.JValidateBox("SearchName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>姓名</label>
+        @Html.JValidateBox("SearchPunisherName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>行为种类</label>
+        @Html.JValidateBox("SearchDelinquencyName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

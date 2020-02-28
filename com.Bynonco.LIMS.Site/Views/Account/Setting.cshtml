@@ -1,0 +1,191 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUserSystemSetting
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var isTutor = (bool)ViewData["IsTutor"];
+}
+<form id="frmUserSystemSetting" action="#">
+<div class="layout-center-full">
+    <div class="edit-box">
+        <p><span class="icon icon-setting"></span>个性设置</p>
+        <div class="setting">
+            <ul class="boderbox clearfix">
+                <li class="title">角色选择</li>
+                @if (ViewData["UserWorkGroupList"] != null)
+                {
+                    IList<com.Bynonco.LIMS.Model.View.ViewUserWorkGroup> viewUserWorkGroupList = (IList<com.Bynonco.LIMS.Model.View.ViewUserWorkGroup>)ViewData["UserWorkGroupList"];
+                    if (viewUserWorkGroupList.Count > 0)
+                    {
+                        string workGroupId = Model == null || !Model.WorkGroupId.HasValue ? "" : Model.WorkGroupId.Value.ToString();
+                        if (viewUserWorkGroupList.Count > 1)
+                        {
+						    <li class='@(workGroupId == "" ? "current" : "")'><a class="reject" href="javascript:;" workgroupid="" onclick="SettingCurrentWorkGroup(this)"><span>(全部)</span></a></li>
+                        }
+                        foreach (var item in viewUserWorkGroupList)
+                        {
+						    <li class='@(workGroupId == item.WorkGroupId.ToString() ? "current" : "")'><a class="reject" href="javascript:;" workgroupid="@item.WorkGroupId.ToString()"  onclick="SettingCurrentWorkGroup(this)"><span>@item.Name</span></a></li>
+                        }
+                    }
+                }
+			</ul>
+            <div style="clear:both;padding-bottom:10px;"></div>
+            <ul class="boderbox">
+                <li class="title">皮肤选择</li>
+                @{
+                    string skinName = Model == null ? "" : Model.SkinName;
+                    <li class='@(skinName == "blue" ? "current" : "")'>
+                        <a class="reject" href="javascript:;" skinname="blue" onclick="SettingCurrentSkinName(this)"><img src="@Url.Content("~/Content/images/color-blue.png")" /></a>
+                    </li>
+                    <li class='@(skinName == "green" ? "current" : "")'>
+                        <a class="reject" href="javascript:;" skinname="green" onclick="SettingCurrentSkinName(this)"><img src="@Url.Content("~/Content/images/color-green.png")" /></a>
+                    </li>
+                    <li class='@(skinName == "cyan" ? "current" : "")'>
+                        <a class="reject" href="javascript:;" skinname="cyan" onclick="SettingCurrentSkinName(this)"><img src="@Url.Content("~/Content/images/color-cyan.png")" /></a>
+                    </li>
+                    <li class='@(skinName == "orange" ? "current" : "")'>
+                        <a class="reject" href="javascript:;" skinname="orange" onclick="SettingCurrentSkinName(this)"><img src="@Url.Content("~/Content/images/color-orange.png")" /></a>
+                    </li>
+                    <li class='@(skinName == "red" ? "current" : "")'>
+                        <a class="reject" href="javascript:;" skinname="red" onclick="SettingCurrentSkinName(this)"><img src="@Url.Content("~/Content/images/color-red.png")" /></a>
+                    </li>
+                    <li class='@(skinName == "light-blue" ? "current" : "")'>
+                        <a class="reject" href="javascript:;" skinname="light-blue" onclick="SettingCurrentSkinName(this)"><img src="@Url.Content("~/Content/images/color-light-blue.png")" /></a>
+                    </li>
+                }
+            </ul>
+            <div style="clear:both;padding-bottom:10px;"></div>
+            <ul class="boderbox setting-menu">
+                <li class="title">菜单浏览方式选择</li>
+                @{
+                    string menuType = Model == null || string.IsNullOrWhiteSpace(Model.MenuType) ? "List" : Model.MenuType.ToString();
+                    <li class='@(menuType == "Icon" ? "current" : "")'>
+                        <a class="reject" href="javascript:;" menutype="Icon" onclick="SettingCurrentMenuType(this)">
+                            <img class="current" src="@Url.Content("~/Content/images/pic-menu-current.png")" />
+                            <img src="@Url.Content("~/Content/images/pic-menu.png")" />
+                        </a>
+                    </li>
+                    <li class='@(menuType != "Icon" ? "current" : "")'>
+                        <a class="reject" href="javascript:;" menutype="List" onclick="SettingCurrentMenuType(this)">
+                            <img class="current" src="@Url.Content("~/Content/images/list-menu-current.png")" />
+                            <img src="@Url.Content("~/Content/images/list-menu.png")" />
+                        </a>
+                    </li>
+                }
+            </ul>
+            <div style="clear:both;padding-bottom:10px;"></div>
+            <ul class="boderbox setting-menu">
+                <li class="title">统计信息展示方式</li>
+                 @{
+                     bool isShowZeroStatisticsInfo = Model == null || !Model.IsShowZeroStatisticsInfo.HasValue ? false : Model.IsShowZeroStatisticsInfo.Value;
+                    <li class='@(isShowZeroStatisticsInfo ? "current" : "")'><a href="javascript:;" onclick="SettingShowZeroStatisticsInfo('true')"><span>全部</span></a></li>
+                    <li class='@(!isShowZeroStatisticsInfo ? "current" : "")'><a href="javascript:;" onclick="SettingShowZeroStatisticsInfo('false')"><span>隐藏 0 </span></a></li>
+                }
+            </ul>
+            <div style="clear:both;padding-bottom:10px;"></div>
+            @if (isTutor)
+            {
+                <ul class="boderbox setting-menu">
+                    <li class="title">预约审核</li>
+                     @{
+                        bool isAppoitmentAutoPassWhenNeedAudit = Model == null || !Model.IsAppoitmentAutoPassWhenNeedAudit ? false : Model.IsAppoitmentAutoPassWhenNeedAudit;
+                        bool isSampleApplyAutoPassWhenNeedAudit = Model == null || !Model.IsSampleApplyAutoPassWhenNeedAudit ? false : Model.IsSampleApplyAutoPassWhenNeedAudit;
+                        bool isNMPAppoitmentAutoPassWhenNeedAudit = Model == null || !Model.IsNMPAppoitmentAutoPassWhenNeedAudit ? false : Model.IsNMPAppoitmentAutoPassWhenNeedAudit;
+                        <li id="liIsAppoitmentAutoPassWhenNeedAudit" class='@(isAppoitmentAutoPassWhenNeedAudit ? "current" : "")'><a class="muti" href="javascript:;" onclick="SettingIsAppoitmentAutoPassWhenNeedAudit()"><span>机时预约自动审核通过</span></a></li>
+                        <li id="liIsSampleApplyAutoPassWhenNeedAudit" class='@(isSampleApplyAutoPassWhenNeedAudit ? "current" : "")'><a class="muti" href="javascript:;" onclick="SettingIsSampleApplyAutoPassWhenNeedAudit()"><span>送样预约自动审核通过</span></a></li>
+                        <li id="liIsNMPAppoitmentAutoPassWhenNeedAudit" class='@(isNMPAppoitmentAutoPassWhenNeedAudit ? "current" : "")'><a class="muti" href="javascript:;" onclick="SettingIsNMPAppoitmentAutoPassWhenNeedAudit()"><span>工位预约自动审核通过</span></a></li>
+                    }
+                </ul>
+                <div style="clear:both;padding-bottom:10px;"></div>
+                <ul class="boderbox setting-menu">
+                    <li class="title">学生注册审核</li>
+                     @{
+                         bool isStudentAutoPassWhenNeedAudit = Model == null || !Model.IsStudentAutoPassWhenNeedAudit ? false : Model.IsStudentAutoPassWhenNeedAudit;
+                         <li id="liIsStudentAutoPassWhenNeedAudit" class='@(isStudentAutoPassWhenNeedAudit ? "current" : "")'><a class="muti" href="javascript:;" onclick="SettingIsStudentAutoPassWhenNeedAudit()"><span>自动审核通过</span></a></li>
+                      }
+                </ul>
+                <div style="clear:both;padding-bottom:10px;"></div>
+            }
+        </div>
+        @Html.Hidden("WorkGroupId", Model == null || Model.WorkGroupId.HasValue ? "" : Model.WorkGroupId.ToString())
+        @Html.Hidden("WorkGroupName", Model == null ? "" : Model.WorkGroupName)
+        @Html.Hidden("SkinName", Model == null ? "" : Model.SkinName)
+        @Html.Hidden("MenuType", Model == null ? "" : Model.MenuType)
+        @Html.Hidden("IsShowZeroStatisticsInfo", Model == null || !Model.IsShowZeroStatisticsInfo.HasValue ? "false" : Model.IsShowZeroStatisticsInfo.Value.ToString().ToLower())
+        @Html.Hidden("IsAppoitmentAutoPassWhenNeedAudit", Model == null || !Model.IsAppoitmentAutoPassWhenNeedAudit ? "false" : Model.IsAppoitmentAutoPassWhenNeedAudit.ToString().ToLower())
+        @Html.Hidden("IsSampleApplyAutoPassWhenNeedAudit", Model == null || !Model.IsSampleApplyAutoPassWhenNeedAudit ? "false" : Model.IsSampleApplyAutoPassWhenNeedAudit.ToString().ToLower())
+        @Html.Hidden("IsStudentAutoPassWhenNeedAudit", Model == null || !Model.IsStudentAutoPassWhenNeedAudit ? "false" : Model.IsStudentAutoPassWhenNeedAudit.ToString().ToLower())
+        @Html.Hidden("IsNMPAppoitmentAutoPassWhenNeedAudit", Model == null || !Model.IsNMPAppoitmentAutoPassWhenNeedAudit ? "false" : Model.IsNMPAppoitmentAutoPassWhenNeedAudit.ToString().ToLower())
+        
+        <div class="edit-operate">
+            @Html.JLinkButton("btnSaveSetting", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSettingSave();return false;").ToMvcString()
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    function doSettingSave() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUserSystemSetting", "User")',
+            data: $("#frmUserSystemSetting").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                $(".role-submenu .submenu li a").removeClass("current");
+                $("#lbCurrentWorkGroup").empty();
+                var workGroupName = "(全部)";
+                if ($("#WorkGroupName").val() != "") workGroupName = $("#WorkGroupName").val();
+                $("#lbCurrentWorkGroup").append("角色-" + workGroupName);
+                IniUserSkin();
+                IniLeftMenu();
+                $.messager.show({ title: '提示', msg: '保存成功', showType: 'show' });
+            }
+        });
+    }
+    $(function () {
+        $(".setting li a.reject").click(function () {
+            $(this).parent().siblings().removeClass("current");
+            $(this).parent().addClass("current");
+            return false;
+        });
+    });
+    function SettingCurrentWorkGroup(obj) {
+        $("#WorkGroupId").val($(obj).attr("workgroupid"));
+        $("#WorkGroupName").val($(obj).find("span").html());
+    }
+    function SettingCurrentSkinName(obj) {
+        $("#SkinName").val($(obj).attr("skinname"));
+    }
+    function SettingCurrentMenuType(obj) {
+        $("#MenuType").val($(obj).attr("menutype"));
+    }
+    function SettingShowZeroStatisticsInfo(str) {
+        $("#IsShowZeroStatisticsInfo").val(str); 
+    }
+    function SettingIsAppoitmentAutoPassWhenNeedAudit() {
+        var className = $("#liIsAppoitmentAutoPassWhenNeedAudit").attr("class");
+        $("#liIsAppoitmentAutoPassWhenNeedAudit").removeClass("current");
+        $("#liIsAppoitmentAutoPassWhenNeedAudit").addClass(className == "current" ? "" : "current")
+        $("#IsAppoitmentAutoPassWhenNeedAudit").val(className == "current" ? "false" : "true");
+    }
+    function SettingIsSampleApplyAutoPassWhenNeedAudit() {
+        var className = $("#liIsSampleApplyAutoPassWhenNeedAudit").attr("class");
+        $("#liIsSampleApplyAutoPassWhenNeedAudit").removeClass("current");
+        $("#liIsSampleApplyAutoPassWhenNeedAudit").addClass(className == "current" ? "" : "current")
+        $("#IsSampleApplyAutoPassWhenNeedAudit").val(className == "current" ? "false" : "true");
+    }
+    function SettingIsStudentAutoPassWhenNeedAudit() {
+        var className = $("#liIsStudentAutoPassWhenNeedAudit").attr("class");
+        $("#liIsStudentAutoPassWhenNeedAudit").removeClass("current");
+        $("#liIsStudentAutoPassWhenNeedAudit").addClass(className == "current" ? "" : "current")
+        $("#IsStudentAutoPassWhenNeedAudit").val(className == "current" ? "false" : "true");
+    }
+    function SettingIsNMPAppoitmentAutoPassWhenNeedAudit() {
+        var className = $("#liIsNMPAppoitmentAutoPassWhenNeedAudit").attr("class");
+        $("#liIsNMPAppoitmentAutoPassWhenNeedAudit").removeClass("current");
+        $("#liIsNMPAppoitmentAutoPassWhenNeedAudit").addClass(className == "current" ? "" : "current")
+        $("#IsNMPAppoitmentAutoPassWhenNeedAudit").val(className == "current" ? "false" : "true");
+    }
+</script>

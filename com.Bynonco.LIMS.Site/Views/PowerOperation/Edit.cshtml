@@ -1,0 +1,60 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewPowerOperation
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+}
+<style type="text/css">
+    table.edit-table tr th{width:60px;}
+</style>
+<div id="divPowerOperationEdit">
+ <form id="frmPowerOperationEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tdPowerOperationEdit" class="edit-table"  style="width:380px;">
+         <tr>
+            <th>设备</th>
+            <td>
+                @(Model == null ? "" : Model.EquipmentName)
+            </td>
+        </tr>
+        <tr>
+            <th>@customerOrgName</th>
+            <td>
+                @(Model == null ? "" : Model.EquipmentOrgName)
+            </td>
+        </tr>
+        <tr>
+            <th>用户</th>
+            <td>
+                @(Model == null ? "" : Model.UserName)
+            </td>
+        </tr>
+        <tr>
+            <th>卡号</th>
+            <td>
+                @(Model == null ? "" : Model.CardStr)
+            </td>
+        </tr>
+        <tr>
+            <th>状态</th>
+            <td>
+                @(Model == null ? "" : Model.PowerStatusStr)
+            </td>
+        </tr>
+        <tr>
+            <th>OpenID</th>
+            <td>
+                @(Model == null || !Model.OpenID.HasValue ? "" : Model.OpenID.Value.ToString())
+            </td>
+        </tr>
+        <tr>
+            <th>操作时间</th>
+            <td>
+                @Html.JDateTimePicker("OperationTime").SetMode(DateTimePickerMode.dateTime).SetShowSeconds(false).SetValue(Model == null || !Model.OperationTime.HasValue ? "" : Model.OperationTime.Value.ToString("yyyy-MM-dd HH:mm")).SetWidth(155).ToMvcString()
+                <span class="">必填</span>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

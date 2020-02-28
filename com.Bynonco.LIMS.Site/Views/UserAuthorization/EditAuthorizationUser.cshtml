@@ -1,0 +1,220 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUser
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var isIE11Browser = Request.Browser.Type.ToString().ToLower().IndexOf("mozilla") >= 0;//处理兼容
+    var is360Browser = Request.Browser.Type.IndexOf("Chrome") >= 0;//处理兼容
+    var loginPattern = ViewData["LoginPattern"] == null ? "" : ViewData["LoginPattern"].ToString().Trim();
+    var loginPatternErrorMsg = ViewData["LoginPatternErrorMsg"] == null ? "" : ViewData["LoginPatternErrorMsg"].ToString().Trim();
+    var registerNotNull = "";
+ }
+<div id="divUserAuthorization">
+ <form id="frmUserAuthorization" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdCountryEdit" class="edit-table"  style="width:385px;">
+        <tr>
+            <th>中文简称</th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.UserName).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>卡号</th>
+            <td>
+                @(Html.JValidateBox("Card")
+                .SetValue(Model == null ? "" : Model.CardStr)
+                .SetWidth(200)
+                .SetValidateType(ValidateType.intNumber)
+                .ToMvcString())
+                <span class="required">必填</span>
+                @*@{
+                    if (Request.Browser.Type.StartsWith("Firefox"))
+                    {
+                        <embed type="application/BynonUsbICReader-plugin" width="27" height="25" pluginspage="@Url.Content("~/npBUICR.xpi")"></embed>
+                    }
+                    else
+                    {
+                        <object id="UsbICReader" classid="CLSID:AD2E79EA-80BC-4AFA-8DDA-DD7E5A1A48D7" style="width: 27px;height: 25px; display: inline;"></object>
+                    }
+                }*@
+            </td>
+        </tr>
+     @*   <tr>
+            <th>是否管理员</th>
+            <td>@Html.CheckBox("IsStranger")</td>
+        </tr>
+        <tr>
+            <th>账号</th>
+            <td>
+                @Html.JValidateBox("Password").SetValue(Model == null ? "" : Model.Password).SetWidth(200).ToMvcString()
+               <span id="lbCheckLoginName" class="required">@(Model == null ? "必填" : "")</span>
+            </td>
+        </tr>
+        <tr>*@
+            <th>账号</th>
+            <td>
+                @Html.JValidateBox("Label").SetValue(Model == null ? "" : Model.Label).SetWidth(200).SetOnChange("doCheckLoginName();").ToMvcString()
+               <span id="lbCheckLoginName" class="required">@(Model == null ? "必填" : "")</span>
+            </td>
+        </tr>
+        <tr>
+            <th>导师</th>
+            <td>
+                @Html.JValidateBox("Director").SetValue(Model == null ? "" : Model.Director).SetWidth(200).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>单位机构</th>
+            <td id="tdOrganization">
+                @Html.DropDownList("OrganizationId", (IEnumerable<SelectListItem>)ViewData["OrganizationSelectListItem"] , new { style = "width:210px;", onchange = "doOnOrganizationChange(this);" })
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>证件号码</th>
+            <td>
+                @Html.JValidateBox("IdentityCardNo").SetValue(Model == null ? "" : Model.IdentityCardNo).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        </tr>
+        <tr>
+            <th>手机</th>
+            <td>
+                @(Html.JValidateBox("PhoneNumber")
+                .SetValidateType(ValidateType.mobileTelephoneNo)
+                .SetValue(Model == null ? "" : Model.PhoneNumber)
+                .SetWidth(200)
+                .SetOnChange("doCheckPhoneNumber();doCheckColNameIsPass('PhoneNumber','手机');")
+                .ToMvcString())
+                <img class="hide" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" id="imgPhoneNumberChecking"/>
+                <img class="hide" src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-cancel.png" id="imgPhoneNumberCheckedError"/>
+                <img class='@(Model == null || string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "hide" : "")' src="/JqueryPlugin/JqueryEasyUI/themes/icons/icon-ok.png" id="imgPhoneNumberCheckedOK"/>
+                <span id="lbPhoneNumberCheck" class="required @(registerNotNull.Contains("手机") ? "" : "hide")">@(Model == null || string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "必填" : "")</span>
+            </td>
+        </tr>
+        <tr>
+            <th>电子邮箱</th>
+            <td>
+                @Html.JValidateBox("Email").SetValue(Model == null ? "" : Model.Email).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    function CardReaded(card) {
+        $("#Card").val("");
+        $("#Card").val(card);
+        if (typeof (doSearch) == 'function') doSearch();
+        return 1;
+    }
+
+    function DeviceChanged(isConnected) {
+        if (isConnected == 0) $.messager.show({ title: '提示', msg: '读卡器已拔出', showType: 'show' });
+        else $.messager.show({ title: '提示', msg: '读卡器已连接', showType: 'show' });
+        return 1;
+    }
+
+    $(function () {
+        if (document.UsbICReader != undefined) {
+            if ("@(isIE11Browser.ToString().ToLower())" == "true") {
+                $("#UsbICReader").bind("CardReaded", CardReaded); //支持ie11 mozilla
+                $("#UsbICReader").bind("DeviceChanged", DeviceChanged);
+            }
+            else if ("@(is360Browser.ToString().ToLower())" == "true") {
+                $("#UsbICReader").bind("CardReaded", CardReaded); //支持360
+                $("#UsbICReader").bind("DeviceChanged", DeviceChanged);
+            } else {
+                document.UsbICReader.attachEvent("CardReaded", CardReaded);
+                document.UsbICReader.attachEvent("DeviceChanged", DeviceChanged);
+            }
+
+        }
+    });
+    function doCheckLoginName() {
+        var loginName = $("#Label").val();
+        var id = $("#Id").val();
+        $("#lbCheckLoginName").empty();
+        var isCheckReg = '@(loginPattern)' != "";
+        var reg = /@(string.IsNullOrWhiteSpace(loginPattern) ? "\\w*" : loginPattern)/;
+        var errorMsg = '@(string.IsNullOrWhiteSpace(loginPatternErrorMsg) ? "登陆名格式错误" : loginPatternErrorMsg.Trim())';
+        if (loginName != "" && (!isCheckReg || reg.test(loginName))) {
+            $("#imgChecking").removeClass("hide");
+            var urlCheckLoginName = '@Url.Action("CheckLoginName", "User")';
+            $.post(urlCheckLoginName, { id: id, loginName: loginName }, function (data) {
+                $("#imgChecking").addClass("hide");
+                if (data == null) return;
+                else if (data == "False" || data == "false") {
+                    $("#lbCheckLoginName").append("登录名已存在");
+                    $("#imgCheckedError").removeClass("hide");
+                    $("#imgCheckedOK").addClass("hide");
+                }
+                else {
+                    $("#imgCheckedError").addClass("hide");
+                    $("#imgCheckedOK").removeClass("hide");
+                }
+            });
+        }
+        else if (loginName == "") {
+            $("#lbCheckLoginName").append("必填");
+            $("#imgCheckedError").addClass("hide");
+            $("#imgCheckedOK").addClass("hide");
+        }
+        else {
+            $("#lbCheckLoginName").append(errorMsg);
+            $("#imgCheckedError").removeClass("hide");
+            $("#imgCheckedOK").addClass("hide");
+        }
+    }
+    function doCheckPhoneNumber() {
+        var phoneNumber = $("#PhoneNumber").val();
+        var id = $("#Id").val();
+        $("#lbPhoneNumberCheck").empty();
+        if (phoneNumber == "") {
+            $("#lbPhoneNumberCheck").append("必填");
+            $("#imgPhoneNumberCheckedError").addClass("hide");
+            $("#imgPhoneNumberCheckedOK").addClass("hide");
+        }
+        else if (!$("#PhoneNumber").validatebox("isValid") || !phoneNumber.isMobile()) {
+            $("#lbPhoneNumberCheck").append("手机格式错误");
+            $("#imgPhoneNumberCheckedError").removeClass("hide");
+            $("#imgPhoneNumberCheckedOK").addClass("hide");
+        }
+        else {
+            $("#imgPhoneNumberChecking").removeClass("hide");
+            var urlCheckPhoneNumber = '@Url.Action("CheckPhoneNumber","User")';
+            $.post(urlCheckPhoneNumber, { id: id, PhoneNumber: phoneNumber }, function (data) {
+                $("#imgPhoneNumberChecking").addClass("hide");
+                if (data == null) return;
+                else if (data == "False" || data == "false") {
+                    $("#lbPhoneNumberCheck").append("手机已存在");
+                    $("#imgPhoneNumberCheckedError").removeClass("hide");
+                    $("#imgPhoneNumberCheckedOK").addClass("hide");
+                }
+                else {
+                    $("#imgPhoneNumberCheckedError").addClass("hide");
+                    $("#imgPhoneNumberCheckedOK").removeClass("hide");
+                }
+            });
+        }
+    }
+    function doCheckFixedPhone() {
+        var fixedPhone = $("#FixedPhone").val();
+        $("#lbFixedPhoneCheck").empty();
+        if (fixedPhone == "") {
+            $("#imgFixedPhoneCheckedError").addClass("hide");
+            $("#imgFixedPhoneCheckedOK").addClass("hide");
+        }
+        else if (!$("#FixedPhone").validatebox("isValid") || !fixedPhone.isFixTelephoneNo()) {
+            $("#lbFixedPhoneCheck").append("固话格式错误");
+            $("#imgFixedPhoneCheckedError").removeClass("hide");
+            $("#imgFixedPhoneCheckedOK").addClass("hide");
+        }
+        else {
+            $("#imgFixedPhoneCheckedError").addClass("hide");
+            $("#imgFixedPhoneCheckedOK").removeClass("hide");
+        }
+    }
+</script>

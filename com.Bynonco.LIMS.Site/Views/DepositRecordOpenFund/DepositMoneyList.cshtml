@@ -1,0 +1,47 @@
+﻿@model com.Bynonco.LIMS.Model.DepositRecordOpenFund
+@{
+    var index = ViewData["Index"] == null ? 0 : int.Parse(ViewData["Index"].ToString());
+}
+@if (Model != null && Model.StatusEnum == com.Bynonco.LIMS.Model.Enum.OpenFundDepositRecordStatus.AuditPass)
+{
+<table class="edit-table" style='margin-bottom:10px;'>
+    <tr>
+        <td>
+            <a onclick="doDepositAddByDepositRecordOpenFundId('@(Model.Id)');$('#tbDepositRecordOpenFundList').datagrid('selectRow', @(index));return false;" href="#" title="上传凭证" class="l-btn-color l-btn-color-green">
+                <span class="tree-folder icon-yen-white"></span> 上传凭证
+            </a>
+        </td>
+        <td>
+            <table class="edit-table">
+                <tr>
+                    <th style='width:60px;'>操作</th>
+                    <th>真实币</th>
+                    <th>补贴币</th>
+                    <th>总额</th>
+                    <th style='width:150px;'>存款日期</th>
+                    <th>状态</th>
+                    <th style='width:100px;'>发票号</th>
+                    <th style='width:100px;'>凭证号</th>
+                    <th style='width:300px;text-align:left;'>附件</th>
+                </tr>
+                @if (Model != null && Model.OpenFundDepositRecordList != null && Model.OpenFundDepositRecordList.Any())
+                {
+                    foreach (var item in Model.OpenFundDepositRecordList)
+                    {
+                        @Html.Partial("../DepositRecordOpenFund/DepositMoneyItem", item)
+                    }
+                }
+            </table>
+        </td>
+    </tr>  
+</table>    
+}
+else
+{
+<table border='0' cellpadding='0' cellspacing='0' style='margin-bottom:10px;'>
+    <tr>
+        <td>开放基金存款预审核未通过，无法上传凭证！</td>
+    </tr>
+</table>    
+
+}    

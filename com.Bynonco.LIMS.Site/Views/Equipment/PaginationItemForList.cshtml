@@ -1,0 +1,103 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using System.Text;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+ @{
+     var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+     var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+     var customer = CustomerFactory.GetCustomer();
+     var isShowEquipmentNameCss = customer.GetIsShowEquipmentNameCss();
+ }  
+<div class="detail-pannel-list">
+    <ul class="float-l">
+        <li class='Equipment-Pic align-c'>
+            <img alt="@(Model == null ? "" : Model.Name)" src='@(Model == null ? "" : Model.IconPath)' style="cursor:pointer;" onclick="doShowDetailInfo('@(Model == null ? "" : Model.Id.ToString())','@(Model == null ? "" : Model.Name)');"/>
+        </li>
+        <li class='Equipment-Name'>
+            @{
+                var name = Model == null ? "" : Model.Name;
+                name += Model == null || Model.Model == "" ? "" : "(" + Model.Model + ")";
+                Guid? Id = null;
+                if (Model != null)
+                {
+                    Id = Model.Id;
+                }
+                var cutName = ShortcutStringUtility.GetSubString(name, 32, "..");
+            }
+            <a href="javascript:;" id="EquipmentName"  useType='@(Model == null || !Model.UseType.HasValue ? "" : Model.UseType.Value.ToString())'  title='@name' style='font-weight:bold;' onclick="doShowDetailInfo('@(Model == null ? "" : Model.Id.ToString())','@(Model == null ? "" : Model.Name)');return false;">@cutName</a>
+            @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+        </li>
+        <li class='Equipment-CurrentStatus align-c'>
+            @if (Model.StatusEnum == EquipmentStatus.Normal)
+            {
+                <img id="imgLodingList@(Model == null ? "" : Model.Id.ToString())" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" class="hide" style='height:18px;width:18px;border:0;' />
+            }
+            else if (Model.StatusEnum == EquipmentStatus.TemporarilyBroken)
+            {
+                <a href="#" onclick="doViewLastRepairByEquipmentId('@(Model.Id)');return false;"  style='text-decoration:underline;'>@Model.StatusEnum.ToCnName()</a>
+            }
+            else
+            {
+                <span>@Model.StatusEnum.ToCnName()</span>
+            }
+        </li>
+        <li class='Equipment-CurUserName align-c'>
+            @if (Model.StatusEnum == EquipmentStatus.Normal)
+            {
+            <img id="imgLodingUserList@(Model == null ? "" : Model.Id.ToString())" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" class="hide" style='height:18px;width:18px;border:0;' />
+            }
+            else
+            {
+                @:--
+            }
+        </li>
+        <li class='Equipment-LinkManNames align-c'>@(Model == null || Model.Equipment == null ? " " : Model.Equipment.LinkManNames == "" ? " " : Model.Equipment.LinkManNames)</li>
+        <li class='Equipment-LinkTelNo align-c'>@(Model == null || Model.Equipment == null ? " " : Model.LinkTelNo == "" ? " " : Model.LinkTelNo)</li>
+        <li class='Equipment-RoomName' title='@(Model == null ? "" : Model.RoomName)'>@(Model == null || string.IsNullOrWhiteSpace(Model.RoomName) ? "--" : (isHome ? ShortcutStringUtility.GetSubString(Model.RoomName, 20, "..") : Model.RoomName))</li>
+        <li class='Equipment-OrgName'  title='@(Model == null ? "" : Model.OrgName)'>@(Model == null || string.IsNullOrWhiteSpace(Model.OrgName) ? "--" : ShortcutStringUtility.GetSubString(Model.OrgName, 12, ".."))</li>
+        @if (!isHome)
+        {
+        <li class='Equipment-IsOpen'  title='是否纳入共享管理系统'>@(Model == null || !Model.IsOpen ? "--" : "是")</li>
+        <li class='Equipment-IsCMACNAS'  title='是否CMA/CNAS'>@(Model == null || !Model.IsCMACNAS.HasValue || !Model.IsCMACNAS.Value ? "--" : "是")</li>
+        }
+        <li class='Equipment-Button'>
+            <div class="button-box" style="display:none;">
+            @{
+                StringBuilder sbOperate = new StringBuilder();
+                if (!string.IsNullOrWhiteSpace(Model.DetailOperate)) { sbOperate.Append(Model.DetailOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.AppointmentNoneOperate)) { sbOperate.Append(Model.AppointmentNoneOperate); }
+                if (isHome && !Request.IsAuthenticated)
+                {
+                    if (!string.IsNullOrWhiteSpace(Model.AppointmentWithoutLoginOperate)) { sbOperate.Append(Model.AppointmentWithoutLoginOperate); }
+                    if (!string.IsNullOrWhiteSpace(Model.SampleApplyWithoutLoginOperate)) { sbOperate.Append(Model.SampleApplyWithoutLoginOperate); }
+                }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(Model.AppointmentOperate)) { sbOperate.Append(Model.AppointmentOperate); }
+                    if (!string.IsNullOrWhiteSpace(Model.SampleApplyOperate)) { sbOperate.Append(Model.SampleApplyOperate); }
+                }
+                if (!string.IsNullOrWhiteSpace(Model.ModifyOperate)) { sbOperate.Append(Model.ModifyOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.TranningApplyOperate)) { sbOperate.Append(Model.TranningApplyOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.ReportBrokenOperate)) { sbOperate.Append(Model.ReportBrokenOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.MarkingOperate)) { sbOperate.Append(Model.MarkingOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.FocusOperate)) { sbOperate.Append(Model.FocusOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.CancelFocusOperate)) { sbOperate.Append(Model.CancelFocusOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.ExaminationManageOperate)) { sbOperate.Append(Model.ExaminationManageOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.ApplyOperate)) { sbOperate.Append(Model.ApplyOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.CancelApplyOperate)) { sbOperate.Append(Model.CancelApplyOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.CameraPlayOperate)) { sbOperate.Append(Model.CameraPlayOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.CameraPlayRecordOperate)) { sbOperate.Append(Model.CameraPlayRecordOperate); }
+                if (string.IsNullOrWhiteSpace(Model.UserExaminationOperate) && !string.IsNullOrWhiteSpace(Model.UserReadingMaterialOperate)) { sbOperate.Append(Model.UserReadingMaterialOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.UserExaminationOperate)) { sbOperate.Append(Model.UserExaminationOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.ExportDocOperate)) { sbOperate.Append(Model.ExportDocOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.OpenOperate)) { sbOperate.Append(Model.OpenOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.CloseOperate)) { sbOperate.Append(Model.CloseOperate); }
+            }
+            @System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())
+            </div>
+        </li>
+        <div class="clear-both"></div>
+    </ul>
+</div>

@@ -1,0 +1,27 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSettleRemarkDialog" style="display:none;">
+    <div id="divSettleRemarkInput"  style="overflow:hidden">
+        <table class="edit-table">
+            <tr>
+                <th style="width:60px">结算标题</th>
+                <td>@Html.TextArea("SettleRemark","", 3, 50, null)</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+    var settleRemarkDialog;
+    function showSettleRemarkDialog() {
+        $("#SettleRemark").val("");
+        settleRemarkDialog=@(Html.JDialog("divSettleRemarkInput").SetTitle("请输入结算标题").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("settleRemarkDialog.dialog('close');return false;").SetModal(true).SetOkScript("doValidateBeforeExecSettle();return false;").ToMvcString())
+    }
+    function doValidateBeforeExecSettle(){
+        var settleRemark = $("#SettleRemark").val().trim();
+        if(settleRemark == ""){
+            $.messager.show({ title: '提示', msg:"请输入结算标题" , showType: 'show' });
+             return;
+        }
+        settleRemarkDialog.dialog("close");
+        doExecSettle(settleRemark);
+    }
+</script>

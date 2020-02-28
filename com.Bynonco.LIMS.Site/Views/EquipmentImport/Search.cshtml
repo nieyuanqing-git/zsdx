@@ -1,0 +1,74 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentImportQueryExpress() {
+        var queryExpression = "";
+        var name = $("#SearchName").val().trim();
+        if (name != "") {
+            queryExpression = (queryExpression == "" ? "" : "*") + "Name=\"" + name.trim() + "\"";
+        }
+        var label = $("#SearchLabel").val().trim();
+        if (label != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Label=\"" + label.trim() + "\"";
+        }
+        var model = $("#SearchModel").val().trim();
+        if (model != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Model=\"" + model.trim() + "\"";
+        }
+        var orgName = $("#SearchOrgName").val().trim();
+        if (orgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OrgName=\"" + orgName.trim() + "\"";
+        }
+        var roomName = $("#SearchRoomName").val().trim();
+        if (roomName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RoomName=\"" + roomName.trim() + "\"";
+        }
+        var specifications = $("#SearchSpecifications").val().trim();
+        if (specifications != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Specifications=\"" + specifications.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doResetEquipmentImport() {
+        $("#SearchName").val("");
+        $("#SearchLabel").val("");
+        $("#SearchModel").val("");
+        $("#SearchOrgName").val("");
+        $("#SearchRoomName").val("");
+        $("#SearchSpecifications").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>资产编号</label>
+        @Html.JValidateBox("SearchLabel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>型号</label>
+        @Html.JValidateBox("SearchModel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>所属单位</label>
+        @Html.JValidateBox("SearchOrgName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>放置地点</label>
+        @Html.JValidateBox("SearchRoomName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>规格</label>
+        @Html.JValidateBox("SearchSpecifications").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentImportSearch", "查询").SetOnclick("doSearchEquipmentImport();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentImportReset", "清空").SetOnclick("doResetEquipmentImport();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentImportClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

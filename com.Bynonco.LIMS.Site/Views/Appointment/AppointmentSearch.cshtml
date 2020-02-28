@@ -1,0 +1,99 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.IBLL;
+@using com.Bynonco.LIMS.BLL;
+@{   
+    var isFuzzyQuery = ViewData["IsFuzzyQuery"] == null ? false : bool.Parse(ViewData["IsFuzzyQuery"].ToString());
+}
+<script type="text/javascript">
+    $(function () {        
+        if ('@(isFuzzyQuery.ToString().ToLower())' == 'true') {
+            $("#SearchEquipmentName").attr("placeholder", "仪器名称");
+        }
+    });
+    function generateAppointmentTotalQueryExpression() {
+        var queryExpression = "";
+        if ('@(isFuzzyQuery.ToString().ToLower())' == 'true') {
+            var equipmentName = $("#SearchEquipmentName").val().trim();
+            if (equipmentName != "") {
+                queryExpression = "EquipmentName∽\"" + equipmentName.trim() + "\"+RoomName∽\"" + equipmentName.trim() + "\"";
+            }
+        }
+        else {
+            var equipmentName = $("#SearchEquipmentName").val().trim();
+            if (equipmentName != "") {
+                queryExpression = "EquipmentName∽\"" + equipmentName.trim() + "\"";
+            }
+            var labRoomXPath = $("#SearchLabRoomXPath").val().trim();
+            if (labRoomXPath != "") {
+                queryExpression += (queryExpression == "" ? "" : "*") + "LabRoomXPath→\"" + labRoomXPath + "\"";
+            }
+        }
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+        var appointmentBeginTime = $("#SearchAppointmentBeginTime").datebox("getValue").trim();
+        if (appointmentBeginTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginTime>\"" + appointmentBeginTime + " 00:00:00" + "\"";
+        }
+        var appointmentEndTime = $("#SearchAppointmentEndTime").datebox("getValue").trim();
+        if (appointmentEndTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EndTime<\"" + appointmentEndTime + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+    function getAppointmentSearchLabRoomXPath(element) {
+        $("#SearchLabRoomXPath").val("");
+        var labRoomId = element.value;
+        if (labRoomId != "" && !labRoomId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById", "LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labRoomId }, function (data) {
+                if (data && data != "")
+                    $("#SearchLabRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    function doResetPopSearch() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchLabRoomId").val("@Guid.Empty.ToString()");
+        $("#SearchLabRoomXPath").val("");
+        $("#SearchUserName").val("");
+        $("#SearchAppointmentBeginTime").datebox("setValue", "");
+        $("#SearchAppointmentEndTime").datebox("setValue", "");
+        return false;
+    }
+</script>
+    <ul class="search">
+        <li>
+            <label style=" width:55px">@(isFuzzyQuery ? "模糊搜索" : "仪器名称")</label>
+            @Html.JValidateBox("SearchEquipmentName").SetWidth(150).ToMvcString()
+        </li>
+        @if (!isFuzzyQuery)
+        {
+            <li>
+                <label>放置地点</label>
+                @Html.DropDownList("SearchLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px;", onchange = "getAppointmentSearchLabRoomXPath(this);" })
+                @Html.Hidden("SearchLabRoomXPath")
+            </li>
+        }
+        <li>
+            <label>使用者</label>
+            @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+        </li>
+        <li>
+            <label>开始时间</label>
+            @Html.JDateTimePicker("SearchAppointmentBeginTime").SetValue(ViewData["BeginDate"] != null ? ViewData["BeginDate"].ToString() : "").SetWidth(155).ToMvcString()
+        </li>
+        <li>
+            <label>结束时间</label>
+            @Html.JDateTimePicker("SearchAppointmentEndTime").SetValue(ViewData["EndDate"] != null ? ViewData["EndDate"].ToString() : "").SetWidth(155).ToMvcString()
+        </li>
+        <li class="button">
+            @Html.JLinkButton("btnAppointmentTotalSearch", "查询").SetOnclick("doAppointmentSearch();doClosePopSearch();").ToMvcString()
+            @Html.JLinkButton("btnAppointmentTotalReset", "清空").SetOnclick("doResetPopSearch();").ToMvcString()
+            @Html.JLinkButton("btnAppointmentTotalClose", "关闭").SetOnclick("doClosePopSearch();").ToMvcString()
+            <div class="clear-both"></div>
+        </li>
+        <div class="clear-both"></div>
+    </ul>
+<div class="clear-both"></div>

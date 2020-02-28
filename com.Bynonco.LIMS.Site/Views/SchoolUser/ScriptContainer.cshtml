@@ -1,0 +1,43 @@
+﻿<script type="text/javascript">
+    function doSearchSchoolUser() {
+        var queryExpression = generateSchoolUserQueryExpress();
+        $("#tbSchoolUserList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSchoolUserList").datagrid("load", { "queryExpression": queryExpression });
+        return false;
+    }
+
+    function generateSelectedSchoolUserIds() {
+        var ids = [];
+        var rows = $("#tbSchoolUserList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].SchoolUserId);
+            }
+        }
+        return ids;
+    }
+    function doDealSchoolUser() {
+
+        var dealIds = generateSelectedSchoolUserIds().toString();
+        if (dealIds == null) {
+            $.messager.show({ title: '提示', msg: "请选择要同步的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认开始用户同步?', function (r) {
+            if (!r) return;
+            $.ajax({
+                url: '@Url.Action("DealSchoolUser", "SchoolUser")',
+                data: { "SchoolUserIds": dealIds, "date": new Date().getMilliseconds() },
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    doSearchSchoolUser();
+                }
+            });
+        });
+        return false;
+    }
+</script>

@@ -1,0 +1,10 @@
+﻿@model IList<com.Bynonco.LIMS.Model.UserExaminationQuestion>
+<div id="divUserExaminationView" style="width:700px;height:500px;padding:10px;">
+    @if (Model != null && Model.Count() > 0)
+    {
+        foreach(var item in Model)
+        {
+            @System.Web.Mvc.MvcHtmlString.Create(item.QuestionContent)
+        }
+    }
+</div> 

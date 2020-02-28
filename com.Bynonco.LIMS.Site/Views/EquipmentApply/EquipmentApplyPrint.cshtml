@@ -1,0 +1,435 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.LIMS.Utility;
+@{
+    Layout = null;
+    var icons = ViewData["Icons"] != null ? (IList<com.Bynonco.LIMS.Model.Business.EquipmentIcon>)ViewData["Icons"] : null;
+    var distributionAndRequirements = ViewData["DistributionAndRequirements"] != null ? (IList<DictCode>)ViewData["DistributionAndRequirements"] : null;
+    var openServiceConditions = ViewData["OpenServiceConditions"] != null ? (IList<DictCode>)ViewData["OpenServiceConditions"] : null;
+    var equipmentApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentApplyPrivilige(User.Identity.Name);
+}
+<!DOCTYPE html />
+<html>
+    <head>
+        <title>大型仪器设备开放共享申请表</title>
+        <style type="text/css">
+            #tbEquipmentApplyPrint tr th{ text-align:center;font-weight:bold; color:Black; font-size:14px; width:120px;border:1px solid black;}
+            #tbEquipmentApplyPrint table {margin:0px; padding:0px;border-collapse:collapse;width:100%; border:none;}
+            #tbEquipmentApplyPrint table tr th{padding:0px; margin:0px; width:101px}
+            #tbEquipmentApplyPrint tr td{ text-align:center;color:Black; font-size:13px;border:1px solid black;}
+        </style>
+        @Html.Partial("HomeJsCSS")
+        <script type="text/javascript">
+            function doPrintEquipmentApply() {
+                $.messager.confirm('提示', '确认打印?', function (r) {
+                    if (!r) return;
+                    $("#divOperate").css("display", "none");
+                    window.print();
+                    setTimeout(function () { $("#divOperate").css("display", ""); }, 1000);
+                });
+                
+            }
+        </script>
+    </head>
+    <body style="background:white; width:600px;margin:auto;">
+        @if (equipmentApplyPrivilige.IsEnableExpert)
+        {
+            <div style="width:100%">
+                <h2>大型仪器设备开放共享申请表</h2>
+                <table style="width:600px;border:1px solid black;border-collapse:collapse;" id="tbEquipmentApplyPrint">
+                    <tr>
+                        <th>
+                            单位名称
+                        </th>
+                        <td>
+                            @Model.LabRoomName
+                        </td>
+                        <th>
+                            校仪器编号
+                        </th>
+                        <td>
+                            @Model.EquipmentNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            仪器中文名称
+                        </th>
+                        <td>
+                            @Model.Name
+                        </td>
+                        <th>
+                            仪器英文名称
+                        </th>
+                        <td>
+                            @Model.EnName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            仪器别名
+                        </th>
+                        <td>
+                            @Model.NickName
+                        </td>
+                        <th>
+                            型号规格
+                        </th>
+                        <td>
+                            @Model.Model
+                        </td>
+                    </tr>  
+                    <tr>
+                        <th>
+                            生产厂商
+                        </th>
+                        <td>
+                            @Model.Manufacturer
+                        </td>
+                        <th>
+                            国别<br /><span style="font-weight:normal">（公司注册地）</span>
+                        </th>
+                        <td>
+                            @Model.Country
+                        </td>
+                    </tr>
+                    <tr>
+                       <th>
+                            仪器分类号<br /><span style="font-weight:normal">（教育部标准）</span>
+                       </th>
+                       <td>
+                            @Model.CategoryCode
+                        </td>
+                        <th>
+                            原值<br /><span style="font-weight:normal">（人民币元）</span>
+                        </th>
+                        <td>
+                            @(!Model.Worth.HasValue ? "" : Model.Worth.Value.ToString("0.00"))
+                        </td>
+                    </tr>
+                        <tr>
+                         <th>
+                            建帐日期
+                        </th>
+                        <td id="tdCountry">
+                            @(!Model.CreateAccountDate.HasValue ? "" : Model.CreateAccountDate.Value.ToString("yyyy-MM-dd"))
+                        </td>
+                        <th>
+                            启用日期
+                        </th>
+                        <td>
+                            @(!Model.StartDate.HasValue ? "" : Model.StartDate.Value.ToString("yyyy-MM-dd"))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            仪器检定情况
+                        </th>
+                        <td>
+                            @Model.TestCondition
+                        </td>
+                        <th>
+                            收费标准
+                        </th>
+                        <td>
+                            @Model.ChargeStandard
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            仪器所在实验室
+                        </th>
+                        <td>
+                            @Model.LocatedLabRoom
+                        </td>
+                        <th>
+                            仪器安放地址
+                        </th>
+                        <td>
+                            @Model.Location
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            仪器本地网址
+                        </th>
+                        <td colspan="3">
+                            @Model.WebSite
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            备注
+                        </th>
+                        <td colspan="3">
+                             @System.Web.Mvc.MvcHtmlString.Create(Model.Remark.ToHtmlBr())
+                        </td>
+                    </tr>
+                    @if (Model.EquipmentApply.EquipmentGroupServers != null && Model.EquipmentApply.EquipmentGroupServers.Count > 0)
+                    {
+                        var equipmentGroupServersGroups = Model.EquipmentApply.EquipmentGroupServers.GroupBy(p => new { TypeName = p.EquipmentGroupServerTypeStr });
+                        var equipmentGroupServersRowspan = Model.EquipmentApply.EquipmentGroupServers.Count + equipmentGroupServersGroups.Count() + 1;
+                        <tr>
+                            <td colspan="4">
+                                <table>
+                                    <tr>
+                                        <th style="border:none;border-right:1px solid black;" rowspan="@equipmentGroupServersRowspan">机组主要人<br />员（包括仪<br />器的学术负<br />责人、技术<br />队伍等）</th>
+                                        <td style="border:none;border-right:1px solid black;width:80px;height:51px;" ></td>
+                                        <td style="border:none;border-right:1px solid black;width:80px;height:51px;">姓名</td>
+                                        <td style="border:none;border-right:1px solid black;width:80px;height:51px;">职称</td>
+                                        <td style="border:none;border-right:1px solid black;width:80px;height:51px;">电话</td>
+                                        <td style="border:none;height:51px;">E-mail</td>
+                                    </tr>
+                                    @foreach (var equipmentGroupServersGroup in equipmentGroupServersGroups)
+                                    {
+                                        var equipmentGroupServers = Model.EquipmentApply.EquipmentGroupServers.Where(p => p.EquipmentGroupServerTypeStr == equipmentGroupServersGroup.Key.TypeName).ToList();
+                                        int index = -1;
+                                        <tr>
+                                            <td style="border-bottom:none" rowspan="@(equipmentGroupServers.Count() + 1)">
+                                                @equipmentGroupServersGroup.Key.TypeName
+                                            </td>   
+                                        </tr>
+                                           foreach (var equipmentGroupServer in equipmentGroupServers)
+                                           {
+                                               index++;
+                                               var noBottomBorde = index == equipmentGroupServers.Count() - 1 ? "border-bottom:none;" : "";
+                                                <tr>
+                                                    <td style="width:80px;@noBottomBorde;">@equipmentGroupServer.Name</td>
+                                                    <td style="width:80px;@noBottomBorde;">@equipmentGroupServer.Title</td>
+                                                    <td style="width:80px;@noBottomBorde;">@equipmentGroupServer.TelPhoneNo</td>
+                                                    <td style="border-right:none;@noBottomBorde;">@equipmentGroupServer.Email</td>
+                                                </tr>
+                                           }
+                                    }
+                                </table>
+                            </td>
+                        </tr>
+                    }
+                    @if (icons != null && icons.Count > 0)
+                    {
+                        var loopCount = icons.Count % 2 == 0 ? icons.Count / 2 : (icons.Count + 2 - icons.Count % 2) / 2;
+                        <tr>
+                            <td colspan="4">
+                                <table style="border:none">
+                                    @for (var i = 0; i < loopCount; i++)
+                                    {
+                                        var noBottomBorde = i == loopCount - 1 ? "border-bottom:none;" : "";
+                                        <tr>
+                                            @for (int j = 1; j <= 2; j++)
+                                            {
+                                                var index = i * 2 + j - 1;
+                                                var iconName = "设备图片" + (index + 1).ToString();
+                                                if (index < icons.Count())
+                                                {
+                                                    var icon = icons[index];
+                                                    <th style='width:300px; height:200px;border:none;@(j == 1 ? "border-right:1px solid black" : "");'>
+                                                        <p>@iconName</p>
+                                                        <p style="padding:5px;height:190px;">@System.Web.Mvc.MvcHtmlString.Create(icon.BigPic)</p>
+                                                    </th> 
+                                                }
+                                            }
+                                            @if (icons.Count % 2 != 0 && i == loopCount - 1)
+                                            {
+                                                var yNum = 2 - icons.Count % 3;
+                                                for (i = 1; i <= yNum; i++)
+                                                {
+                                                    <th style='width:300px; height:200px;border:none;'>
+                                                        <p>设备图片@(icons.Count + icons.Count % 2)</p>
+                                                        <p style="padding:5px;height:190px;"></p>
+                                                    </th> 
+                                                }
+                                            }
+                                        </tr>
+                                   
+                                    }
+                                </table>
+                            </td>
+                        </tr>
+                    }
+                    <tr>
+                        <th>仪器在本校<br />本地区分布<br />及需求状况</th>
+                        <td colspan="3" style="text-align:left">
+                            @if (distributionAndRequirements != null && distributionAndRequirements.Count > 0)
+                            {
+                                foreach (var distributionAndRequirement in distributionAndRequirements)
+                                {
+                                    <p style="line-height:20px">
+                                        <span style="font-size:20px">□</span>
+                                        <span style="font-size:20px"> @(Model.DistributionAndRequirement.HasValue && distributionAndRequirement.Id == Model.DistributionAndRequirement.Value ? "√" : "")</span>
+                                        @distributionAndRequirement.Name
+                                    </p>
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="text-align:left">
+                            <p><b>仪器的主要功能、技术指标、学术特色和应用范围：</b></p>
+                            <p>@System.Web.Mvc.MvcHtmlString.Create(Model.Introduce.ToHtmlBr())</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="text-align:left">
+                            <p><b>仪器开放服务情况:</b>（陈述仪器过去几年对校内、校外开放服务的情况，包括服务内容、成果等方面的特色）</p>
+                            @if (openServiceConditions != null && openServiceConditions.Count > 0)
+                            {
+                                foreach (var openServiceCondition in openServiceConditions)
+                                {
+                                    <p style="line-height:20px">
+                                        <span style="font-size:20px">□</span>
+                                        <span style="font-size:20px"> @(Model.OpenCondition.HasValue && openServiceCondition.Id == Model.OpenCondition.Value ? "√" : "")</span>
+                                        @openServiceCondition.Name
+                                    </p>
+                                }
+                            }
+                        </td>
+                    </tr>
+                   @* @if (Model.EquipmentApply.EquipmentServiceHoursStats != null && Model.EquipmentApply.EquipmentServiceHoursStats.Count > 0)
+                    {
+                        var yearGroups = Model.EquipmentApply.EquipmentServiceHoursStats.GroupBy(p => p.Year).OrderBy(p => p.Key);
+                        var loopCount = yearGroups.Count() % 2 == 0 ? yearGroups.Count() / 2 : (yearGroups.Count() + yearGroups.Count() % 2) / 2;
+                        var equipmentServiceHoursStats = Model.EquipmentApply.EquipmentServiceHoursStats.OrderBy(p => p.Year);
+                        <tr>
+                            <th colspan="4">开放服务机时统计（单位：小时）</th>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <table>
+                                    @for (var i = 0; i < loopCount; i++)
+                                    {
+                                        var noBottomBorde = i == loopCount - 1 ? "border-bottom:none;" : "";
+                                        <tr>
+                                            @for (int j = 1; j <= 2; j++)
+                                            {
+                                                var index = i * 2 + j - 1;
+                                                if (index < yearGroups.Count())
+                                                {
+                                                    <th colspan="4" style='width:300px;border:none;border-right:1px solid black;@(j == 2 ? "border-right:none" : "")'>@(yearGroups.ElementAt(index).Key)年</th>
+                                                }
+                                            }
+                                        </tr>
+                                        <tr>
+                                            @for (int j = 1; j <= 2; j++)
+                                            {
+                                                var index = i * 2 + j - 1;
+                                                if (index < yearGroups.Count())
+                                                {
+                                                     <td style="width:70px;border-left:none;@noBottomBorde">@EquipmentServiceHoursStatType.OuterServiceHours.ToCnName()</td>
+                                                     <td style="width:70px;@noBottomBorde">@EquipmentServiceHoursStatType.InnerServiceHours.ToCnName()</td>
+                                                     <td style="width:70px;@noBottomBorde">@EquipmentServiceHoursStatType.InnerScientificResearch.ToCnName()</td>
+                                                     <td style="@noBottomBorde;@(j == 2 ? "border-right:none" : "")">@EquipmentServiceHoursStatType.EducationOrOther.ToCnName()</td>
+                                                }                                                 
+                                            }
+                                            @if (loopCount == 1)
+                                            {
+                                                <td style="width:70px;border-right:none">@EquipmentServiceHoursStatType.OuterServiceHours.ToCnName()</td>
+                                                <td style="width:70px;border-right:none">@EquipmentServiceHoursStatType.InnerServiceHours.ToCnName()</td>
+                                                <td style="width:70px;border-right:none">@EquipmentServiceHoursStatType.InnerScientificResearch.ToCnName()</td>
+                                                <td style="border-right:none;border-right:none">@EquipmentServiceHoursStatType.EducationOrOther.ToCnName()</td>
+                                            }
+                                        </tr>
+                                        <tr>
+                                            @for (int j = 1; j <= 2; j++)
+                                            {
+                                                var index = i * 2 + j - 1;
+                                                if (index < yearGroups.Count())
+                                                {
+                                                    var year = yearGroups.ElementAt(index).Key;
+                                                    var yearEquipmentServiceHoursStats = equipmentServiceHoursStats.Where(p => p.Year == year);
+                                                    var outerEquipmentServiceHoursStat = yearEquipmentServiceHoursStats.FirstOrDefault(p => p.TypeEnum == EquipmentServiceHoursStatType.OuterServiceHours);
+                                                    var innerEquipmentServiceHoursStat = yearEquipmentServiceHoursStats.FirstOrDefault(p => p.TypeEnum == EquipmentServiceHoursStatType.InnerServiceHours);
+                                                    var innerScientEquipmentServiceHoursStat = yearEquipmentServiceHoursStats.FirstOrDefault(p => p.TypeEnum == EquipmentServiceHoursStatType.InnerScientificResearch);
+                                                    var educationEquipmentServiceHoursStat = yearEquipmentServiceHoursStats.FirstOrDefault(p => p.TypeEnum == EquipmentServiceHoursStatType.EducationOrOther);
+                                                    <td style="width:70px;border-left:none;@noBottomBorde">@(outerEquipmentServiceHoursStat != null ? outerEquipmentServiceHoursStat.Hours.ToString() : "")</td>
+                                                    <td style="width:70px;@noBottomBorde">@(innerEquipmentServiceHoursStat != null ? innerEquipmentServiceHoursStat.Hours.ToString() : "")</td>
+                                                    <td style="width:70px;@noBottomBorde">@(innerScientEquipmentServiceHoursStat != null ? innerScientEquipmentServiceHoursStat.Hours.ToString() : "")</td>
+                                                    <td style="@noBottomBorde;@(j == 2 ? "border-right:none" : "")">@(educationEquipmentServiceHoursStat != null ? educationEquipmentServiceHoursStat.Hours.ToString() : "")</td>
+                                                }
+                                            }
+                                            @if (loopCount == 1)
+                                            {
+                                                <td style="width:70px;border-left:none;border-bottom:none;"></td>
+                                                <td style="width:70px;border-bottom:none;"></td>
+                                                <td style="width:70px;border-bottom:none;"></td>
+                                                <td style="border-right:none;border-bottom:none;"></td>
+                                            }
+                                        </tr>
+                                    }
+                                </table>
+                            </td>
+                        </tr>
+                    }*@
+                    <tr>
+                        <td colspan="4" style="text-align:left">
+                            <p><b>仪器目前运行维护经费的主要来源：</b></p>
+                            <p>@System.Web.Mvc.MvcHtmlString.Create(Model.FundsSource.ToHtmlBr())</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="text-align:left">
+                            <p><b>仪器如加入共享，开展对校内外的开放服务，还存在哪些困难：</b></p>
+                            <p>@System.Web.Mvc.MvcHtmlString.Create(Model.Trouble.ToHtmlBr())</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="text-align:left">
+                            <p><b>仪器如能获得加入共享并获得补贴，拟开展以下方面的建设：</b></p>
+                            <p>@System.Web.Mvc.MvcHtmlString.Create(Model.Construct.ToHtmlBr())</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="text-align:left">
+                            <p><b>预期的建设成果及效益为：</b></p>
+                            <p>@System.Web.Mvc.MvcHtmlString.Create(Model.PredictEffectiveness.ToHtmlBr())</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="text-align:left">
+                            <p><b>重点实验室审查意见：</b></p>
+                            <p>@System.Web.Mvc.MvcHtmlString.Create(Model.LabRoomDirectorAuditRemark.ToHtmlBr())</p>
+                            <p style="padding-left:400px">负责人（签字）：@Model.LabRoomAuditDirectorName</p>
+                            <p style="padding-left:400px">@Model.LabRoomDirectorAuditTimeStr</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="text-align:left">
+                            <p><b>学校主管部门审核意见意见：</b></p>
+                            <p>@System.Web.Mvc.MvcHtmlString.Create(Model.SchoolDirectorAuditRemark.ToHtmlBr())</p>
+                            <p style="padding-left:400px">负责人（签字）：@Model.SchoolAuditDirectorName</p>
+                            <p style="padding-left:400px">@Model.SchoolDirectorAuditTimeStr</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="text-align:left">
+                            <p><b>学校实验室与大型科学仪器管理委员会审议意见：</b></p>
+                            <p>@System.Web.Mvc.MvcHtmlString.Create(Model.ShareEDirectorAuditRemark.ToHtmlBr())</p>
+                            <p style="padding-left:400px">负责人（签字）：@Model.ShareEAuditDirectorName</p>
+                            <p style="padding-left:400px">@Model.ShareEDirectorAuditTimeStr</p>
+                        </td>
+                    </tr>
+                </table>
+                <div>
+                    <table style="width:100%">
+                        <tr>
+                            <td style="width:60px; text-align:right">填表人:</td>
+                            <td style="width:100px; text-align:left">@Model.ApplicantName</td>
+                            <td style="text-align:right">填表日期:</td>
+                            <td style="width:150px; text-align:left">@Model.ApplyTimeStr</td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="divOperate" style="margin-top:5px">
+                    @Html.JLinkButton("btnPrintEquipmentApply", "打印").SetIconCls("icon-print").SetOnclick("doPrintEquipmentApply();").ToMvcString()
+                    @Html.JLinkButton("btnCloseWindow", "关闭").SetIconCls("icon-cancel").SetOnclick("window.close();").ToMvcString()
+                </div>
+            </div>
+        }
+        else
+        {
+             <h2>无操作权限</h2>
+        }
+    </body>
+</html>

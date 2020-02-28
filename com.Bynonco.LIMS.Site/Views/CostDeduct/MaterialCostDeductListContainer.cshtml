@@ -1,0 +1,15 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../CostDeduct/MaterialCostDeductSearch")
+    </div>
+</div>
+<div>@Html.Partial("../CostDeduct/MaterialCostDeductList")</div>
+<div style="display:none">@Html.Partial("../MaterialOutput/ScriptContainer")</div>
+<script type="text/javascript">
+    function doMaterialDeductSearch() {
+        var queryExpression = generateMaterialDeductQueryExpression();
+        $("#tbViewMaterialCostDeductList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbViewMaterialCostDeductList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+</script>

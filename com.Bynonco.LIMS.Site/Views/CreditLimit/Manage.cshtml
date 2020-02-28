@@ -1,0 +1,105 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    @Html.Partial("../CreditLimit/List")
+</div>
+<div id="divCreditLimitDialog" style="display:none"></div>
+
+<script type="text/javascript">
+    function doSearch() {
+        $("#tbCreditLimitList").datagrid("reload");
+    }  
+    var creditLimitDialog;
+    function doCreditLimitDialog() {
+        if (creditLimitDialog) {
+            creditLimitDialog.dialog("destroy");
+        }
+        creditLimitDialog =  @Html.JDialog("divCreditLimitEdit").SetTitle("个人信用额度信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("creditLimitDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveCreditLimit();").ToMvcString();
+    }
+    function doAddOrEditCreditLimit(id){
+        var url = '@Url.Action("Edit","CreditLimit")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divCreditLimitDialog").load(url,function(){
+            doCreditLimitDialog();
+        })
+        return false;
+    }
+    function doAddCreditLimit(id) {
+       doAddOrEditCreditLimit(id);
+    }
+    function doEditCreditLimit(id) {
+       if(!id || id.trim()==""){
+           var selectedCreditLimit = $("#tbCreditLimitList").datagrid("getSelected");
+           if(!selectedCreditLimit || selectedCreditLimit.Id=="" || selectedCreditLimit.Id.isDefaultGuid()) {
+              $.messager.alert('提示', '请选择个人信用额度', 'warning');
+              return false;
+           }
+           id = selectedCreditLimit.Id;
+       }
+       doAddOrEditCreditLimit(id);
+    }
+    function doSaveCreditLimit() {
+        if ($("#Name").val().trim() == "") {
+            $.messager.show({ title: '提示', msg: "请输入名称", showType: 'show' });
+            return false;
+        }
+        if ($("#PreAlert").val().trim() == "") {
+            $.messager.show({ title: '提示', msg: "请输入预警值", showType: 'show' });
+            return false;
+        }
+        if ($("#UnUseable").val().trim() == "") {
+            $.messager.show({ title: '提示', msg: "请输入不可使用值", showType: 'show' });
+            return false;
+        }
+        if ($("#UnAppointment").val().trim() == "") {
+            $.messager.show({ title: '提示', msg: "请输入不可预约值", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save", "CreditLimit")',
+            data: $("#frmCreditLimitEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                creditLimitDialog.dialog('close');
+                doSearch();
+            }
+        });
+        return false;
+    }
+    function doDeleteCreditLimit(id) {
+        if (id == null || id.trim() == "") {
+            var selectedCreditLimits = $("#tbCreditLimitList").datagrid("getSelections");
+            if(!selectedCreditLimits || selectedCreditLimits.length==0){
+                $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                return;
+            }
+            id = selectedCreditLimits[0].Id;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","CreditLimit")',
+                data: "id=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+
+</script>

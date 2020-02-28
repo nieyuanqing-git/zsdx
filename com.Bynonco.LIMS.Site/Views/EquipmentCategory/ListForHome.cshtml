@@ -1,0 +1,39 @@
+﻿@model List<com.Bynonco.LIMS.Model.EquipmentCategory>
+@using com.Bynonco.LIMS.Utility;
+@{
+    bool isShowZero = ViewData["IsShowZero"] == null || ViewData["IsShowZero"].ToString().Trim() == "1" ? true : false;
+    bool isShowChildEquipmentCategory = ViewData["IsShowChildEquipmentCategory"] == null || ViewData["IsShowChildEquipmentCategory"].ToString().Trim() == "1" ? true : false;
+    if (Model != null && Model.Count() > 0)
+    {
+        var parentId = Model[0].ParentId;
+        var topEquipmentCategory = Model.Where(p => p.ParentId == parentId);
+        if(topEquipmentCategory != null && topEquipmentCategory.Count() > 0)
+        {
+            foreach(var item in topEquipmentCategory)
+            {
+                if (!isShowZero && item.EquipmentCount == 0) { continue; }
+                var cutName = ShortcutStringUtility.GetSubString(item.Name, 23, "..");
+                <p class="parent-item"><a href="#" xpath='@item.XPath' title='@item.Name' equipmentcategoryid='@item.Id'><strong>@(cutName + (item.EquipmentCount > 0 ? " (" + item.EquipmentCount + "台)" : ""))</strong></a></p>
+                var childEquipmentCategory = Model.Where(p => p.ParentId == item.Id);
+                if (childEquipmentCategory != null && childEquipmentCategory.Count() > 0)
+                {
+                    if (!isShowChildEquipmentCategory) { continue; }
+                    <ul class="news-list list-xs" style="padding-left:30px;">
+                    @foreach (var childItem in childEquipmentCategory)
+                    {
+                        if (!isShowZero && childItem.EquipmentCount == 0) { continue; }
+                        var cutchildName = ShortcutStringUtility.GetSubString(childItem.Name, 18, "..");
+                        <li><a href="#" title='@childItem.Name' xpath='@childItem.XPath' equipmentcategoryid='@childItem.Id' >@(cutchildName + (childItem.EquipmentCount > 0 ? " (" + childItem.EquipmentCount + "台)" : ""))</a></li>
+                    }
+                    <div class="clear-both"></div>
+                    </ul>
+                }
+            }
+            <div class="clear-both"></div>
+        }
+    }
+    else
+    {
+        <p>没有设备分类信息</p>
+    }
+}

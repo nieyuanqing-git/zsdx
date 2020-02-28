@@ -1,0 +1,153 @@
+﻿@using com.Bynonco.LIMS.Model.Business;    
+<script src="@Url.Content("~/JqueryPlugin/JqueryFullCalendar/fullcalendar.js")" type="text/javascript"></script>
+@{
+    var equipmentAppointmentTimes = ViewData["EquipmentAppointmentTimes"] != null ? (EquipmentAppointmentTimes)ViewData["EquipmentAppointmentTimes"] : null;
+    var isSingleSelect = ViewData["IsSingleSelect"] == null ? "false" : Convert.ToBoolean(ViewData["IsSingleSelect"]).ToString().ToLower();
+    var appointmentStep = equipmentAppointmentTimes.AppointmentStep;
+    string beginTime = "00:00", endTime="23:59";
+    
+    if (equipmentAppointmentTimes != null && equipmentAppointmentTimes.AppoitmentTimes.Count>0)
+    {
+        beginTime = equipmentAppointmentTimes.AppoitmentTimes.First().BeginTime.ToString("HH:mm");
+        if (equipmentAppointmentTimes.AppoitmentTimes.Last().EndTime.ToString("HH:mm")!="00:00")
+        {
+            endTime = equipmentAppointmentTimes.AppoitmentTimes.Last().EndTime.ToString("HH:mm");
+        }
+    }
+}
+@Html.Hidden("AppointmentStep", appointmentStep)
+<script type="text/javascript">
+    var singleSelectAppointmentTimes = new Array();
+    var invalidAppointmentTimes = new Array();
+    var equipmentId = $("#EquipmentId").val();
+    var userId = $("#AppointmentUserId").val();
+    $(document).ready(function () {
+        var selectedEquipmentPartIds = getEquipmentPartIds();
+        var calendar = $('#calendar').fullCalendar({
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'agendaWeek,month,agendaDay'
+            },
+            monthNames: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+            monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+            dayNames: ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+            dayNamesShort: ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+            today: ["今天"],
+            firstDay: 1,
+            buttonText: {
+                today: '本周',
+                month: '月',
+                week: '周',
+                day: '日',
+                prev: '上一周',
+                next: '下一周'
+            },
+            timeFormat:{agenda: "H:mm{ - H:mm}"},
+            axisFormat:'H(:mm)tt',
+            selectable: true,
+            selectHelper: true,
+            select: function (start, end, allDay) {
+               if(doValidateSelectedTime(start,end,allDay)){
+                   var fstart = $.fullCalendar.formatDate(start, "yyyy-MM-dd HH:mm");
+                   //alert(fstart);
+                   var fend = $.fullCalendar.formatDate(end, "yyyy-MM-dd HH:mm");
+                   //alert(fend);
+                   doLoadUserRelativeInfoForCalendar(fstart,fend);
+               }
+            },
+            slotMinutes:@appointmentStep,
+            minTime:'@beginTime',
+            maxTime:'@endTime',
+            editable: true,
+            events:[],
+            loading: function (bool) {
+                if (bool) $('#loading').show();
+                else $('#loading').hide();
+            },
+            eventMouseover: function (calEvent, jsEvent, view) {
+                var fstart = $.fullCalendar.formatDate(calEvent.start, "yyyy-MM-dd HH:mm");
+                var fend = $.fullCalendar.formatDate(calEvent.end, calEvent.start.getDate() == calEvent.end.getDate()? "HH:mm" : "yyyy-MM-dd HH:mm");
+                if(calEvent.id && calEvent.id != ""){
+                    Tipped.create(this, '@Url.Action("AppointmentToolTip","Appointment")' + "?time" + new Date().getMilliseconds(), { ajax: { data: { id: calEvent.id }, type: 'get' }, skin: 'light', hook: 'topleft' });
+                }
+                else{
+                   $(this).attr('title',"时间段:" + fstart + " - " + fend + "   提示信息:" + calEvent.remark);
+                   $(this).css('font-weight', 'normal');
+                }
+            },
+            viewDisplay: function (view) {
+                var viewStart = $.fullCalendar.formatDate(view.start, "yyyy-MM-dd HH:mm:ss");
+                var viewEnd = $.fullCalendar.formatDate(view.end, "yyyy-MM-dd HH:mm:ss");
+                $("#calendar").fullCalendar('removeEvents');
+                $('#loading').show();
+                singleSelectAppointmentTimes = new Array();
+                invalidAppointmentTimes = new Array();
+                $.getJSON('@Url.Action("GetAppointmentTimesJsonData", "Equipment")', {userId:userId,equipmentId:equipmentId,equipmentPartIds:selectedEquipmentPartIds, start: viewStart, end: viewEnd,time:new Date().getMilliseconds() }, function (data) {
+                    $.each(data, function (index, term) {
+                        var dataItem = { title:term.title,start:new Date(term.start),end:new Date(term.end),backgroundColor:term.backgroundColor,allDay: false,editable:false,isSingleSelect:term.isSingleSelect,singleSelectTip:term.singleSelectTip,status:term.status,remark:term.remark,id:term.id};
+                        if(dataItem.status.toString()!='@((int)EquipmentAppointmentTimeStatus.Valid)'){
+                            invalidAppointmentTimes.push({start:dataItem.start,end:dataItem.end,remark:dataItem.remark}); 
+                            $("#calendar").fullCalendar('renderEvent',dataItem,true);                          
+                        }
+                        if(dataItem.isSingleSelect && dataItem.status.toString()=='@((int)EquipmentAppointmentTimeStatus.Valid)') {
+                            singleSelectAppointmentTimes.push({start:dataItem.start,end:dataItem.end,singleSelectTip:dataItem.singleSelectTip});
+                        }
+                    });
+                    $('#loading').hide();
+                }); 
+                
+            }
+        });
+        $('span.fc-button-prev').before('<span title="点击查看设备详细信息" onclick="doShowEquipmentInfo(equipmentId);return false;" class="fc-button fc-button-add fc-state-default fc-corner-left fc-corner-right">设备信息</span>');
+        $('span.fc-button-prev').before('<span title="点击返回设备列表" onclick="doBack();return false;" class="fc-button fc-button-add fc-state-default fc-corner-left fc-corner-right">返回列表</span>'); 
+    });
+    function doValidateSelectedTime(start, end, allDay){
+        var curStartTime =  $.fullCalendar.formatDate(start, "HH:mm");
+        var curEndTime =  $.fullCalendar.formatDate(end, "HH:mm");
+        if (start < new Date()) {
+            $('#calendar').fullCalendar('unselect');
+            $.messager.show({ title: '提示', msg: "时间已失效", showType: 'show' });
+            return false;
+        }
+        if(singleSelectAppointmentTimes.length > 0){
+            for(var i=0; i < singleSelectAppointmentTimes.length; i++){
+                var targetStart = singleSelectAppointmentTimes[i].start;
+                var targetEnd = singleSelectAppointmentTimes[i].end;
+                var targetStartTime =  $.fullCalendar.formatDate(targetStart, "HH:mm");
+                var targetEndTime =  $.fullCalendar.formatDate(targetEnd, "HH:mm");
+                if(!(curStartTime==targetStartTime &&  curEndTime== targetEndTime) && !(targetEnd <= start || end <= targetStart)){
+                    $.messager.show({title:'提示',msg:singleSelectAppointmentTimes[i].singleSelectTip,timeout:1500});
+                    $('#calendar').fullCalendar('unselect');
+                    return false;
+                }
+            }
+        }
+        if(invalidAppointmentTimes.length>0){
+                for(var i=0; i < invalidAppointmentTimes.length; i++){
+                var targetStart = invalidAppointmentTimes[i].start;
+                var targetEnd = invalidAppointmentTimes[i].end;
+                var targetStartTime =  $.fullCalendar.formatDate(targetStart, "yyyy-MM-dd HH:mm");
+                var targetEndTime =  $.fullCalendar.formatDate(targetEnd, "HH:mm");
+                if(!(targetEnd <= start || end <= targetStart)){
+                    $.messager.show({ title: '提示', msg:(targetStartTime + "-" + targetEndTime + "不可预约,原因:" + invalidAppointmentTimes[i].remark), showType: 'show' });
+                    $('#calendar').fullCalendar( 'unselect');
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+</script>
+<ul>
+    <li style="float:left;width:60px; text-align:center;color:white;line-height:20px; height:20px; background-color:#3A87AD">已选择</li>
+    <li style="float:left;width:60px; text-align:center;color:white;line-height:20px; height:20px; background-color:@EquipmentAppointmentTime.NEWBGCOLOR;">新预约</li>
+    <li style="float:left;width:60px; text-align:center;color:white;line-height:20px; height:20px; background-color:@EquipmentAppointmentTime.PASSBGCOLOR;">通过</li>
+    <li style="float:left;width:60px; text-align:center;color:white;line-height:20px; height:20px; background-color:@EquipmentAppointmentTime.FINISHBGCOLOR;">完成实验</li>
+    <li style="float:left;width:60px; text-align:center;color:white;line-height:20px; height:20px; background-color:@EquipmentAppointmentTime.REPAIRBGCOLOR;">平台维护</li>
+    <li style="float:left;width:60px; text-align:center;color:white;line-height:20px; height:20px; background-color:@EquipmentAppointmentTime.INVALIDEBGCOLOR;">不可预约</li>
+</ul>
+<div style="display:none;">@Html.Partial("../Equipment/ShowEquipmentInfoScript")</div>
+<div style="clear:both;"></div>
+<div id='calendar' style="margin-top:5px;"></div>
+<div style="margin-top:5px; padding-left:60px;">@Html.Partial("../Equipment/AppointmentTimesDescriptionExtend")</div>

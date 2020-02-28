@@ -1,0 +1,15 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewWaterControlCost
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divWaterControlCostDialogEdit">
+ <form id="frmWaterControlCost" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdCountryEdit" class="edit-table"  style="width:385px;">
+        <tr>
+            <th>名称</th>
+            <td>
+                @Html.JValidateBox("UserName").SetValue(Model == null ? "" : Model.UserName).SetWidth(200).ToMvcString()                
+            </td>
+        </tr>       
+    </table>
+  </form>
+</div> 

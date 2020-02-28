@@ -1,0 +1,54 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var isManageList = ViewData["IsManageList"] == null ? false : (bool)ViewData["IsManageList"];
+    var url = !isManageList ? Url.Action("GetMyGridViewOpenFundDepositRecordList", "OpenFundApply") : Url.Action("GetGridViewOpenFundDepositRecordList", "OpenFundApply");
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+    var customerIsDepositPhoto = customer == null ? false : customer.GetIsDepositPhoto();
+    //var depositRecordPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetOpenFundApplyPrivilige(User.Identity.Name);
+    //var isOpenFundDepositRecordNeedPreAudit = ViewData["IsOpenFundDepositRecordNeedPreAudit"] == null ? false : bool.Parse(ViewData["IsOpenFundDepositRecordNeedPreAudit"].ToString());
+    
+    var dataGrid = Html.JDataGrid("tbOpenFundDepositRecordList")
+       .SetUrl(url)
+       .SetHeight(500)
+       .SetSortName("HasChecked A,DepositDate")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(15)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowAddButton(false)
+       .SetShowEditButton(false)
+       .SetShowDeleteButton(false)
+       .SetShowRefreshButton(false)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowOpenFundDepositRecordInfo('');", IconCls = "icon-eye", Id = "btnShowOpenFundDepositRecordInfo", Text = "查看" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDepositSearch();", IconCls = "icon-reload", Id = "btnReload", Text = "刷新" });
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetHidden(!isManageList).SetWidth(45).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("存款人", "UserNameStr").SetHidden(!isManageList).SetWidth(250).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开放基金号", "ApplyNumStr").SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerOrgName, "UserOrgName").SetHidden(!isManageList).SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("自付金额", "DepositSumStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("补贴基金", "SubsidiesMoneyStr").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总额", "OpenFundSumStr").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("存款日期", "DepositDateStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "HasCheckedNickName").SetWidth(70).SetAlign(Align.center));
+    if (customerIsDepositPhoto)
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目符号和编号", "CertificateNum").SetWidth(120).SetAlign(Align.center));
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("附件", "DepositRecordPhotoStr").SetWidth(180).SetAlign(Align.center));
+    }
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreateName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "AuditUserName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核时间", "AuditTimeStr").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核备注", "AuditRemark").SetWidth(120).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(300).SetAlign(Align.left).SetSortable(false));
+}
+@(dataGrid.ToMvcString())

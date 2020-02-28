@@ -1,0 +1,15 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEquipmentSimpelInfoDialog" style="display:none"></div>
+<script type="text/javascript">
+    var equipmentInfoDialog;
+    function doShowEquipmentInfo(id) {
+        if(equipmentInfoDialog) {
+            equipmentInfoDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $("#divEquipmentSimpelInfoDialog").load('@Url.Action("EquipmentSimpleInfo","Equipment")',{"id":id,"time":new Date().getMilliseconds()},function(){
+            $.messager.progress("close");
+            equipmentInfoDialog = @(Html.JDialog("divEquipmentSimpleInfo").SetOkScript("equipmentInfoDialog.dialog('close');return false;").SetCancelScript("equipmentInfoDialog.dialog('close');return false;").SetAutoDialog(false).SetModal(true).SetTitle("仪器信息").SetIconCls("icon-save").ToMvcString());
+        });
+    }
+</script>

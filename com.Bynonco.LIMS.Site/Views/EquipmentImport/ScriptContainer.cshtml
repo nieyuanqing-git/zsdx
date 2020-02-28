@@ -1,0 +1,138 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentImportPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentImportPrivilige(User.Identity.Name);
+}
+<div id="divEquipmentImportEditDialog"></div>
+<script type="text/javascript">
+    function doSearchEquipmentImport() {
+        var queryExpression = generateEquipmentImportQueryExpress();
+        $("#tbEquipmentImport").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentImport").datagrid("load", { "queryExpression": queryExpression.trim()});
+    }    
+    var editEquipmentImportDialog;
+    function doAddOrEditEquipmentImport(id) {
+        if(editEquipmentImportDialog) editEquipmentImportDialog.dialog('destroy');
+        var url = (id != "" ? '@Url.Action("Edit","EquipmentImport")' : '@Url.Action("Add","EquipmentImport")') + "?id=" + id + "&time=" + new Date().getMilliseconds().toString();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentImportEditDialog").load(url, function () {
+            $.messager.progress('close');
+            editEquipmentImportDialog = @(Html.JDialog("divEquipmentImportEdit")
+                .SetTitle("仪器组信息")
+                .SetIconCls("icon-save")
+                .SetAutoDialog(false)
+                .SetOnClose("editEquipmentImportDialog.dialog('destroy');return false;")
+                .SetCancelScript("editEquipmentImportDialog.dialog('destroy');return false;")
+                .SetModal(true)
+                .SetShowOkButton(equipmentImportPrivilige.IsEnableSave)
+                .SetOkScript("doSaveEquipmentImport()")
+                .ToMvcString());
+        });
+    }
+    function doEditEquipmentImport(id) {
+       if(!id || id.trim()==""){
+           id=generateSelectedEquipmentImportIds();
+           if (!id || id.length == 0) {
+                $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+                return false;
+           }
+            if (id && id.length > 1) {
+                $.messager.show({ title: '提示', msg: "不能多项编辑", showType: 'show' });
+                return false;
+           }
+           id =id.toString();
+       }
+       doAddOrEditEquipmentImport(id);
+    }
+    function generateSelectedEquipmentImportIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentImport").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDeleteEquipmentImport(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedEquipmentImportIds().toString() : ids;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Deletes","EquipmentImport")',
+                data: "ids=" + delIds,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchEquipmentImport();
+                }
+            });
+        });
+        return false;
+    }
+    function doSaveEquipmentImport() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","EquipmentImport")',
+            data: $("#frmEquipmentImport").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearchEquipmentImport();
+                editEquipmentImportDialog.dialog('destroy'); 
+            }
+        });
+        return false;
+    }
+    
+    function ajaxFileUploadEquipmentExcel() {
+        var file = $("#fileEquipmentExcel").val();
+        if (!doValidatesEquipmentExcel(file)) return false;
+        $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadEquipmentImportExcel", "EquipmentImport")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            dataType: 'HTML',
+            fileElementId: 'fileEquipmentExcel',
+            success: function (data, status) {
+                $.messager.progress('close');
+                $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                doSearchEquipmentImport();
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+                $.messager.progress('close');
+                doSearchEquipmentImport();
+            }
+        });
+        return false;
+    }
+    function doValidatesEquipmentExcel(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    function doDealEquipmentImportExcel() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DealEquipmentImportExcel","EquipmentImport")',
+            data: { "date": new Date().getMilliseconds() },
+            success: function (msg) {
+                $.messager.progress('close');
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                doSearchEquipmentImport();
+            }
+        });
+    }
+</script>

@@ -1,0 +1,29 @@
+﻿@model com.Bynonco.LIMS.Model.Question
+           
+<div id="divQAAnswer" style="width:500px;">
+    @if (Model != null)
+    {
+        <form id="frmQAAnswer" action="#">
+            <div style="margin-top:10px;">
+                @Html.Hidden("QuestionId", Model.Id)
+                <span class="icon icon-Q" style="padding-left:20px;color:#B82E2E;">@Model.ContentNoHTML</span> 
+                <div style="padding-left:20px;color:#CCC;font-size:12px;">
+                    <span class="float_l">--</span>
+                    <span class="float_l">@Model.LabOrganizationName</span>
+                    <span class="float_l margin-l-10">@Model.CreatorName</span>
+                    <span class="float_l margin-l-10">@Model.CreateTime</span>
+                    <div class="clear-both"></div>
+                </div>
+            </div>
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td valign="top"><span class="icon icon-A" style="padding-left:20px;color:#B82E2E;">&nbsp;</span></td>
+                    <td>
+                        @Html.Hidden("AnswerId", Model.Answer != null ? Model.Answer.Id.ToString() : "")
+                        @Html.TextArea("Content", Model.Answer != null ? Model.Answer.ContentHTML : "", new { style = "font-size:12px;text-decoration:none;height:80px;width:400px;" })
+                    </td>
+                </tr>
+            </table>
+        </form>
+    }
+</div>

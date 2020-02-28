@@ -1,0 +1,84 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var equipmentPrivilige = Model == null ?
+    com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+    com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.Id);
+}
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+<div>@Html.Partial("LabelList")</div>    
+<div id="divEquipmentLabelDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditEquipmentLabel(){
+        var selectedRow = $("#tbEquipmentLabelList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditEquipmentLabel(selectedRow.Id);
+    }
+    function doAddOrEditEquipmentLabel(id) {
+        var url = '@Url.Action("EditLabel","Equipment")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divEquipmentLabelDialog").load(url, function (data) {
+            doEquipmentLabelDialog();
+        })
+        return false;
+    }
+    var equipmentLabelDialog;
+    function doEquipmentLabelDialog() {
+        if (equipmentLabelDialog) {
+            equipmentLabelDialog.dialog("destroy");
+        }
+        equipmentLabelDialog =  @Html.JDialog("divEquipmentLabelEdit").SetTitle("用户标签信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentLabelDialog.dialog('close');return false;").SetModal(true).SetOkScript( equipmentPrivilige.IsEnableSaveLabel ? "doSaveEuipmentLabel();return false;" : "").ToMvcString();
+    }
+    function doSaveEuipmentLabel() {
+        var equipmentId= $("#EquipmentId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveLabel","Equipment")',
+            data: $("#frmEquipmentLabelEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentLabelDialog.dialog('close');
+                doSearch();
+            }
+        });
+    }
+    function doDeleteLabel(){
+        var selectedRows = $('#tbEquipmentLabelList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteLabel","Equipment")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                             $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doSearch();
+                    }
+                });
+            });
+        }
+    }
+    function doSearch() {
+        $("#tbEquipmentLabelList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentLabelList").datagrid("reload");
+        return false;
+    }
+</script>

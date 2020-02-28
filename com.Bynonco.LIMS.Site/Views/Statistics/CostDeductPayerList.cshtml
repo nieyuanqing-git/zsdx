@@ -1,0 +1,87 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{  
+    var customer = CustomerFactory.GetCustomer();
+    var isCalcDuration = customer == null ? true : customer.GetIsShowCostDeductCalcDurationStatistics();
+    var isManageList = ViewData["IsManageList"] == null ? true : bool.Parse(ViewData["IsManageList"].ToString());
+    var isOpenFundDepositRecord = ViewData["IsOpenFundDepositRecord"] == null ? false : bool.Parse(ViewData["IsOpenFundDepositRecord"].ToString());
+    var isCostDeductOpenFund = ViewData["IsCostDeductOpenFund"] == null ? false : bool.Parse(ViewData["IsCostDeductOpenFund"].ToString());
+    var isOpenFundApply = ViewData["IsOpenFundApply"] == null ? false : bool.Parse(ViewData["IsOpenFundApply"].ToString());
+    var isMaterialDepositRecord = ViewData["IsMaterialDepositRecord"] == null ? false : bool.Parse(ViewData["IsMaterialDepositRecord"].ToString());
+
+    <script type="text/javascript">
+    $(function () {
+        $('#tbCostDeductPayerStatistics').datagrid({
+            columns: [[
+            { title: '付费人单位', field: 'PayerOrgName', width: 100, rowspan: 3, align: 'left', sortable: true },
+            { title: '使用汇总 (次、小时 )', colspan: @(isCalcDuration ? 3 : 2), align: 'center'},
+            { title: '总费用汇总  (元)', colspan: @(isCostDeductOpenFund ? 5 : 3), align: 'center' },
+            { title: '存款汇总  (元)', colspan: @(isOpenFundDepositRecord ? (isMaterialDepositRecord ? 6 : 5) : (isMaterialDepositRecord ? 4 : 3)), align: 'center' },
+            { title: '开放基金补贴币结算 (元)', colspan: 3, align: 'center', hidden: @((!isOpenFundApply).ToString().ToLower()) },
+            { title: '帐户余额  (元)', colspan: @(isOpenFundApply ? 4 : 3), align: 'center' }
+            ], [
+            { title: '使用次数', field: 'UsedCount', width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '实际用时', field: 'UsedHourStr', width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '计费时长', field: 'CalcDurationStr', hidden: @((!isCalcDuration).ToString().ToLower()), width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '普通扣费', colspan: 2, align: 'center' },
+            { title: '开放基金扣费', colspan: 2, align: 'center', hidden: @((!isCostDeductOpenFund).ToString().ToLower()) },
+            { title: '合  计', field: 'TotalCurrencyStr', width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '普通存款', colspan: 2, align: 'center' },
+            { title: '开放基金存款', colspan: 2, align: 'center', hidden: @((!isOpenFundDepositRecord).ToString().ToLower())  },           
+            { title: '耗材存款', field: 'MaterialDepositSumStr', width: 70, rowspan: 2, align: 'center', sortable: true, hidden: @((!isMaterialDepositRecord).ToString().ToLower()) },
+            { title: '合  计', field: 'DepositSumStr', width: 80, rowspan: 2, align: 'center', sortable: true },
+            { title: '待结算', field: 'OpenFundClosingSumStr', width: 70, rowspan: 2, align: 'center', sortable: true, hidden: @((!isOpenFundApply).ToString().ToLower()) },
+            { title: '已结算', field: 'OpenFundClosedSumStr', width: 70, rowspan: 2, align: 'center', sortable: true, hidden: @((!isOpenFundApply).ToString().ToLower()) },
+            { title: '合  计', field: 'OpenFundClosedAndClosingSumStr', width: 80, rowspan: 2, align: 'center', sortable: true, hidden: @((!isOpenFundApply).ToString().ToLower()) },
+            { title: '普通币', field: 'RealCurrencyStr', width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '奖励币', field: 'VirtualCurrencyStr', width: 70, rowspan: 2, align: 'center', sortable: true },
+            { title: '补贴币', field: 'BalanceMoneyCurrencyStr', width: 70, rowspan: 2, align: 'center', sortable: true, hidden: @((!isOpenFundApply).ToString().ToLower()) },
+            { title: '合  计', field: 'AccountCurrencySumStr', width: 80, rowspan: 2,  align: 'center', sortable: true }
+            ],
+            [
+            { title: '真实币', field: 'CostRealCurrencyStr', width: 70, align: 'center', sortable: true },
+            { title: '奖励币', field: 'CostVirtualCurrencyStr', width: 70, align: 'center', sortable: true },
+            { title: '真实币', field: 'CostOpenFundRealCurrencyStr', width: 70, align: 'center', sortable: true, hidden: @((!isCostDeductOpenFund).ToString().ToLower()) },
+            { title: '补贴币', field: 'CostSubsidiesCurrencyStr', width: 70, align: 'center', sortable: true, hidden: @((!isCostDeductOpenFund).ToString().ToLower()) },
+            { title: '真实币', field: 'DepositRealSumStr', width: 70, align: 'center', sortable: true },
+            { title: '奖励币', field: 'DepositVirtualSumStr', width: 70, align: 'center', sortable: true },
+            { title: '真实币', field: 'OpenFundDepositSumStr', width: 70, align: 'center', sortable: true, hidden: @((!isOpenFundDepositRecord).ToString().ToLower())  },
+            { title: '补贴币', field: 'OpenFundSubsidiesSumStr', width: 70, align: 'center', sortable: true, hidden: @((!isOpenFundDepositRecord).ToString().ToLower())  }
+            ]],
+            frozenColumns: [[
+                { title: '编码', field: 'PayerId', hidden: true, rowspan: 3 },
+                { title: '图片', field: 'PayerIcon',width: 45, rowspan: 3, align: 'center', sortable: false },
+                { title: '付费人', field: 'PayerNameStr',width:150, rowspan: 3, align: 'left', sortable: true }
+                ]],
+            url: '@Url.Action("GetGridCostDeductPayerStatistics", "Statistics")',
+            queryParams: {'queryExpression':'@(ViewData["queryExpression"] == null ? "" : ViewData["queryExpression"].ToString().Trim())','IsManageList':'@(isManageList.ToString().ToLower())'},
+            loadMsg: '数据加载中,请稍候……',
+            pageNumber: 1,
+            pageSize: 10,
+            pageList: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+            height: 550,
+            iconCls: 'icon-save',
+            collapsed: false,
+            collapsible: true,
+            remoteSort: true,
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            fitColumns: false,
+            striped: true,
+            nowrap: true,
+            method: 'post',
+            pagePosition: 'bottom', 
+            toolbar: [
+            @System.Web.Mvc.MvcHtmlString.Create("{id: 'btnShowViewCostDeductPayerChartColumn',text: '柱形图',disabled: false,iconCls: 'icon-chartbar',handler: function () { $('#btnShowViewCostDeductPayerChartColumn').linkbutton('enable'); doShowViewCostDeductPayerChartColumn();}}")
+            @System.Web.Mvc.MvcHtmlString.Create(",{id: 'btnShowViewCostDeductPayerChartPie',text: '饼形图',disabled: false,iconCls: 'icon-chartpie',handler: function () { $('#btnShowViewCostDeductPayerChartPie').linkbutton('enable'); doShowViewCostDeductPayerChartPie();}}")
+            @System.Web.Mvc.MvcHtmlString.Create(",{id: 'btnCostDeductPayerExportExcel',text: '导出',disabled: false,iconCls: 'icon-export',handler: function () { $('#btnCostDeductPayerExportExcel').linkbutton('enable'); doCostDeductPayerExportExcel();}}")
+            ],
+            showFooter: true
+        });
+    });
+</script>
+<table id="tbCostDeductPayerStatistics"></table>
+}
+  

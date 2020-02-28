@@ -1,0 +1,35 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentAuthorizationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentAuthorizationPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbUserEquipmentAuthorizationList")
+        .SetUrl(Url.Action("GetGridViewUserEquipmentAuthorizationList", "EquipmentAuthorization", new { EquipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString(), UserId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString() }))
+        .SetMutiSelect(true)
+        .SetSingleSelect(false)
+        .SetHeight(550)
+        .SetPageSize(15)
+        .SetShowPrintButton(false);
+    dataGrid.SetShowAddButton(equipmentAuthorizationPrivilige.IsEnableAuthorizationEdit);
+    dataGrid.SetShowEditButton(false);
+    if (equipmentAuthorizationPrivilige.IsEnableAuthorizationEdit)
+    {
+        dataGrid.SetAddScript("doAddUserEquipmentAuthorization('');");
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "ModifyOperate").SetSortable(false));
+    }
+    dataGrid.SetShowDeleteButton(equipmentAuthorizationPrivilige.IsEnableAuthorizationDelete);
+    if (equipmentAuthorizationPrivilige.IsEnableAuthorizationDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteUserEquipmentAuthorization('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentName").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户名称", "UserName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("卡号", "CardStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "TutorName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "StartDateStr").SetWidth(110).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndDateStr").SetWidth(110).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("授权人", "AuthorizerName").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("授权时间", "AuthorizationTimeStr").SetWidth(110).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "AuthorizationNote").SetWidth(300).SetAlign(Align.left).SetSortable(false));
+    
+ }
+@(dataGrid.ToMvcString())

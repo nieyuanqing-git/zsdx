@@ -1,0 +1,107 @@
+﻿@model com.Bynonco.LIMS.Model.SJ7
+@using com.Bynonco.JqueryEasyUI.Core; 
+<style type="text/css">
+.edit-table td {border: 0;}
+.edit-table td.tdInfo {width:30px;}
+.edit-table .icon {
+    height: 16px;
+    line-height: 16px;
+    margin-right: 5px;
+    padding-bottom: 2px;
+    padding-right: 16px;
+    width: 16px;
+}
+</style>
+<div id="divSJ7Edit">
+ <form id="frmSJ7Edit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("SJ7StatisticsId", Model == null ? "" : Model.SJ7StatisticsId.ToString())
+    <table id="tdSJ7Edit" class="edit-table"  style="width:585px;">
+        <tr>
+            <th>学校代码</th>
+            <td>
+                @Html.JValidateBox("SchoolCode").SetValue(Model == null ? (ViewData["SchoolCode"] == null ? "" : ViewData["SchoolCode"].ToString().Trim()) : Model.SchoolCode.Trim()).SetWidth(50).ToMvcString()
+                <span class="icon icon-info-blue" title="学校代码: 数据格式为字符型，长度为5"></span>
+            </td>
+        </tr>
+         <tr>
+            <th>实验室个数</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomCount").SetValue(Model == null ? "" : Model.ExperimentRoomCount.Trim()).SetWidth(60).ToMvcString()
+                <span class="icon icon-info-blue" title="实验室个数：数据格式为数值型，长度为6。学校实验室总数。"></span>
+            </td>
+            <th>实验室房屋使用面积</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomTotalArea").SetValue(Model == null ? "" : Model.ExperimentRoomTotalArea.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="实验室房屋使用面积：数据格式为数值型，长度为8。实验室房屋使用面积（按使用面积统计）,以平方米为单位，取整数。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th colspan='7'>经费投入（万元）</th>
+        </tr>
+        <tr>
+            <th>总计</th>
+            <td>
+                @Html.JValidateBox("ExperimentFundsTotal").SetValue(Model == null ? "" : Model.ExperimentFundsTotal.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="经费投入总计：数据格式为数值型，长度为10。指仪器设备购置经费、仪器设备维护经费、实验教学运行经费、实验室建设经费、实验教学研究与改革经费、其它经费的总计。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>仪器设备购置经费</th>
+            <th>小计</th>
+            <td>
+                @Html.JValidateBox("ExperimentFundsBuyEquipmentMoney").SetValue(Model == null ? "" : Model.ExperimentFundsBuyEquipmentMoney.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="经费投入中仪器设备购置经费小计：数据格式为数值型，长度为8。用于购置仪器设备的经费总额。"></span>
+            </td>
+            <th>其中教学仪器购置经费</th>
+            <td>
+                @Html.JValidateBox("ExperimentFundsBuyEquipmentMoneyEducation").SetValue(Model == null ? "" : Model.ExperimentFundsBuyEquipmentMoneyEducation.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="经费投入中仪器设备购置经费(其中教学仪器购置经费)：数据格式为数值型，长度为8。用于购置教学仪器设备的经费。"></span>
+            </td>
+        </tr>
+       <tr>
+            <th>仪器设备维护经费</th>
+            <th>小计</th>
+            <td>
+                @Html.JValidateBox("ExperimentFundsRepairEquipmentMoney").SetValue(Model == null ? "" : Model.ExperimentFundsRepairEquipmentMoney.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="经费投入中仪器设备维护经费小计：数据格式为数值型，长度为8。用于仪器设备运行、维修、维护的经费总额。"></span>
+            </td>
+            <th>其中教学仪器购置经费</th>
+            <td>
+                @Html.JValidateBox("ExperimentFundsRepairEquipmentMoneyEducation").SetValue(Model == null ? "" : Model.ExperimentFundsRepairEquipmentMoneyEducation.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="经费投入中仪器设备维护经费(其中教学仪器维护经费)：数据格式为数值型，长度为8。用于教学仪器设备运行、维修、维护的经费。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>仪器设备运行经费</th>
+            <th>小计</th>
+            <td>
+                @Html.JValidateBox("ExperimentFundsRunEquipmentMoney").SetValue(Model == null ? "" : Model.ExperimentFundsRunEquipmentMoney.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="经费投入中实验教学运行经费小计：数据格式为数值型，长度为8。指用于材料消耗、调研、新实验开发、水电等经费，不含仪器设备维护经费。"></span>
+            </td>
+            <th>其中教学仪器购置经费</th>
+            <td>
+                @Html.JValidateBox("ExperimentFundsRunEquipmentMoneyMaterial").SetValue(Model == null ? "" : Model.ExperimentFundsRunEquipmentMoneyMaterial.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="经费投入中实验教学运行经费(其中年材料消耗经费)：数据格式为数值型，长度为8。指用于教学实验中本学年材料消耗的经费。"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>实验室建设经费</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomMoneyBuild").SetValue(Model == null ? "" : Model.ExperimentRoomMoneyBuild.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="经费投入中实验室建设经费：数据格式为数值型，长度为8。用于实验室基建、修建和改建的经费。"></span>
+            </td>
+            <th>实验教学研究与改革经费</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomMoneyEducationResearch").SetValue(Model == null ? "" : Model.ExperimentRoomMoneyEducationResearch.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="经费投入中实验教学研究与改革经费：数据格式为数值型，长度为8。用于实验教学研究与改革的经费。"></span>
+            </td>
+            <th>其它</th>
+            <td>
+                @Html.JValidateBox("ExperimentRoomMoneyOther").SetValue(Model == null ? "" : Model.ExperimentRoomMoneyOther.Trim()).SetWidth(80).ToMvcString()
+                <span class="icon icon-info-blue" title="经费投入中其它：数据格式为数值型，长度为8。除以上5类以外的其它实验室和实验教学方面的经费投入额。"></span>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

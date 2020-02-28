@@ -1,0 +1,66 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+}
+<script type="text/javascript">
+    function generateSJ3StatisticsUsedHourQueryExpress() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+        var usedBeginTime = $("#SearchUsedBeginTime").datebox("getValue").trim();
+        if (usedBeginTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EndAt>\"" + usedBeginTime + " 00:00:00" + "\"";
+        }
+        var usedEndTime = $("#SearchUsedEndTime").datebox("getValue").trim();
+        if (usedEndTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt<\"" + usedEndTime + " 23:59:59" + "\"";
+        }
+        var usedHourType = $("#SearchSJ3UsedHourType").combobox("getValue").trim();
+        if (usedHourType != "-1" && usedHourType != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UseDirection=\"" + usedHourType + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#SearchUserName").val("");
+        $("#SearchUsedBeginTime").datebox("setValue", "");
+        $("#SearchUsedEndTime").datebox("setValue", "");
+        $("#SearchSJ3UsedHourType").combobox("setValue", "");
+        return false;
+    }
+    
+</script>
+<ul class="search">
+    <li>
+        <label style="width:80px">使用者</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+     <li>
+        <label style="width:80px">申请类型</label>
+         @(Html.JComboBox("SearchSJ3UsedHourType")
+            .SetEditable(false)
+            .SetData(ViewData["SearchSJ3UsedHourTypeJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li>
+        <label style="width:80px">开始时间</label>
+        @Html.JDateTimePicker("SearchUsedBeginTime").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:80px">结束时间</label>
+        @Html.JDateTimePicker("SearchUsedEndTime").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

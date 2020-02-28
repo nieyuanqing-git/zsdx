@@ -1,0 +1,306 @@
+﻿@model com.Bynonco.LIMS.Model.User
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@{
+    var subejctName = Model != null && Model.GetMySubject() != null ? Model.GetMySubject().Name : "";
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    var isCasLoginMode = Convert.ToBoolean(ViewData["IsCasLoginMode"]);
+    var isZjdxLogin = Convert.ToBoolean(ViewData["isZjdxLogin"]);
+    var isNeedChangePW = Model.IsMustModifyPwdWhenFirtLogin.HasValue && Model.IsMustModifyPwdWhenFirtLogin.Value;
+    var homeSkinName = ViewData["HomeSkinName"] == null ? "" : ViewData["HomeSkinName"].ToString();
+    var loginJumpTypeHref = ViewData["LoginJumpTypeHref"] == null ? "" : ViewData["LoginJumpTypeHref"].ToString().Trim();
+    var name = Model == null ? "" : Model.UserName;
+    var isRunAsTouchScreenMode = ViewData["IsRunAsTouchScreenMode"] == null ? false : bool.Parse(ViewData["IsRunAsTouchScreenMode"].ToString());
+    var isIE11Browser = Request.Browser.Type.IndexOf("IE11") >= 0;//处理兼容
+    var is360Browser = Request.Browser.Type.IndexOf("Chrome") >= 0;//处理兼容    
+    var oldShareEUrl = ViewData["OldShareEUrl"] == null ? "" : ViewData["OldShareEUrl"].ToString().Trim();
+    var systemType = ViewData["SystemType"] == null ? com.Bynonco.LIMS.Model.Enum.SystemType.ShareE: (com.Bynonco.LIMS.Model.Enum.SystemType)ViewData["SystemType"];
+}
+<div class='' style='position:relative;padding-top:3px;'>
+    <span style='padding:0 5px; border-right: 1px solid #ccc;'>欢迎您，<a href="#" onclick="doLoadMyInfo();return false;" style="font-weight: bold;" title='@name'>@name</a>!</span>
+    @if (Model.IsUserInfoComplete && !isNeedChangePW)
+    {
+        if(systemType== com.Bynonco.LIMS.Model.Enum.SystemType.ShareE )
+        {
+            <span style='padding:0 5px; border-right: 1px solid #ccc;'><a title="设备预约"  href="@Url.Action("ShowList", "Equipment", routeCurrentXPathValue)">设备预约</a></span>
+        } 
+        <span style='padding:0 5px; border-right: 1px solid #ccc;'><a title="个人中心"  href="@Url.Action("Index", "Admin")">个人中心</a></span>
+        if (Model.TutorId == null)
+        {
+            <span style='padding:0 5px; border-right: 1px solid #ccc;'>
+                <a title="账户信息" href="javascript:void(0)" onclick='showAccountInfo();return false;' id='lnkAccountInfo'>账户信息</a>
+            </span>
+        }
+        if (isRunAsTouchScreenMode)
+        {
+                <span style='padding:0 5px; border-right: 1px solid #ccc;'>
+                    <a title="IC卡号修改" href="javascript:void(0)" onclick='showUserCardEdit();return false;' id='lnkUserCardEdit'>IC卡号</a>
+                </span>
+        }
+    }
+            @if (!string.IsNullOrWhiteSpace(oldShareEUrl))
+            {
+                oldShareEUrl = oldShareEUrl.ToLower().StartsWith("http://") || oldShareEUrl.ToLower().StartsWith("https://") ? oldShareEUrl : "http://" + oldShareEUrl;
+            <span style='padding:0 5px; border-right: 1px solid #ccc;'>
+                <a title="旧版回顾" href="@oldShareEUrl">旧版回顾</a>
+            </span>
+
+            }
+    <span style='padding:0 5px; border-right: 1px solid #cc ; margin-right:10px;'>        
+        <a title="注销"  href="#" onclick="doTopLogOffSubmit();return false;">&nbsp;注&nbsp;销&nbsp;</a>            
+    </span>
+    <div class='pop-account-box hide'>
+        <p><span class='title'>真实币</span><span>@(Model.UserAccount != null ? Math.Round(Model.UserAccount.RealCurrency, 2).ToString() : "--")</span></p>
+        <p><span class='title'>虚拟币</span><span>@(Model.UserAccount != null ? Math.Round(Model.UserAccount.VirtualCurrency, 2).ToString() : "--")</span></p>
+        <p><span class='title'>预警值</span><span>@(Model.UserAccount != null && Model.UserAccount.CreditLimit != null && Model.UserAccount.CreditLimit.PreAlert.HasValue ? Math.Round(Model.UserAccount.CreditLimit.PreAlert.Value, 2).ToString() : "--")</span></p>
+        <p><span class='title'>不可预约值</span><span>@(Model.UserAccount != null && Model.UserAccount.CreditLimit != null && Model.UserAccount.CreditLimit.UnAppointment.HasValue ? Math.Round(Model.UserAccount.CreditLimit.UnAppointment.Value, 2).ToString() : "--")</span></p>
+        <p><span class='title'>不可使用值</span><span>@(Model.UserAccount != null && Model.UserAccount.CreditLimit != null && Model.UserAccount.CreditLimit.PreAlert.HasValue ? Math.Round(Model.UserAccount.CreditLimit.PreAlert.Value, 2).ToString() : "--")</span></p>
+    </div>
+    @if (isRunAsTouchScreenMode)
+    {
+        <div class='pop-usercard-box hide'>
+            <p><span class='title'>IC读卡器</span>
+                @{
+                    if (Request.Browser.Type.StartsWith("Firefox"))
+                    {
+                        <embed type="application/BynonUsbICReader-plugin" width="27" height="25" pluginspage="@Url.Content("~/npBUICR.xpi")"></embed>
+                    }
+                    else
+                    {
+                        <object id="UsbICReader" classid="CLSID:AD2E79EA-80BC-4AFA-8DDA-DD7E5A1A48D7" style="width: 27px;height: 25px; display: inline;"></object>
+                    }
+                }
+            </p>
+            <form id="frmUserInfoCardEdit" action="#">
+                
+                <p><span class='title'>卡号</span>
+                    @Html.JValidateBox("TopUserCard").SetWidth(100).SetValue(Model == null ? "" : Model.RealCard.ToString()).ToMvcString()    
+                </p>
+            </form>
+            <div class="notification error hide" id="errorUserInfoCard">
+	            <div></div>
+            </div>
+            <div class="notification pass hide" id="passUserInfoCard">
+	            <div></div>
+            </div>
+            <ul>
+                <li style="margin:0px;padding:0px;height:42px;line-height:42px;">
+                    <a title="保存" class='top-pop-button' onclick="doSaveUserInfoCardEdit();return false;" href="javascript:void(0)" style='padding:10px 40px;'><span style='display:inline-block; letter-spacing:35px;'>&nbsp;保存</span></a>
+                </li>
+                <li style="margin:5px 0 0;padding:0px;height:42px;line-height:42px;">
+                    <a title="关闭" class='top-pop-button' onclick="doHideUserInfoCardEdit();return false;" href="javascript:void(0)" style='padding:10px 40px;background-color:#CCC;'><span style='display:inline-block; letter-spacing:35px;'>&nbsp;关闭</span></a>
+                </li>
+            </ul>
+             
+        </div>
+    }
+    @if (!Model.IsUserInfoComplete || isNeedChangePW)
+    {
+    <div class='pop-userinfo-box' >
+        <form id="frmUserInfoCompleteEdit" action="#">
+        @if (!Model.IsUserInfoComplete)
+        {
+            <ul>
+                <li>
+                    <span style='color:#333;'>您的基本信息不完整，请完善以下信息:</span>
+                </li>
+            </ul>
+            <p><span class='title'>姓名</span>
+                @Html.JValidateBox("TopUserName").SetWidth(200).SetValue(Model == null ? "" : Model.UserName).ToMvcString()
+            </p>
+            <p><span class='title'>邮箱</span>
+                @Html.JValidateBox("TopUserEmail").SetWidth(200).SetValue(Model == null ? "" : Model.Email).ToMvcString()
+            </p>
+            <p><span class='title'>联系电话</span>
+                @Html.JValidateBox("TopUserPhoneNumber").SetWidth(200).SetValue(Model == null ? "" : Model.PhoneNumber).ToMvcString()
+            </p>
+           if (!Model.OrganizationId.HasValue)
+           {
+            <p><span class='title'>组织机构</span>
+                @Html.DropDownList("TopUserOrganizationId", new List<SelectListItem>(), new { style = "width:205px"})
+            </p>
+                <script type="text/javascript">
+                    $(function () {
+                        doIniTopUserOrganization();
+                    });
+                    function doIniTopUserOrganization() {
+                        var organizationElement = document.getElementById("TopUserOrganizationId");
+                        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("GetOrganizationList", "LabOrganization")',
+                            success: function (msg) {
+                                $.messager.progress('close');
+                                if (msg && msg != "") {
+                                    var orgs = eval(msg);
+                                    if (orgs.length == 0) return;
+                                    for (var i = 0; i < orgs.length; i++) {
+                                        var option = document.createElement("OPTION");
+                                        organizationElement.options.add(option);
+                                        option.text = orgs[i].Text;
+                                        option.value = orgs[i].Value;
+                                    }
+                                }
+                            }
+                        });
+                        return false;
+                    }
+                </script>
+           }
+        }
+        @if (isNeedChangePW)
+        {
+            <ul>
+                <li>
+                    <span style='color:#333;'>您的密码已过期, 请重置密码:</span>
+                </li>
+            </ul>
+            <p><span class='title'>新密码</span>
+                @Html.JValidateBox("TopUserLoginPassword").SetPasswordMode(true).SetWidth(200).ToMvcString()
+            </p>
+            <p><span class='title'>确认密码</span>
+                @Html.JValidateBox("TopUserLoginPasswordConfirm").SetPasswordMode(true).SetWidth(200).ToMvcString()
+            </p>
+        }
+        </form>
+        <div class="notification error hide" id="errorUserInfoComplete">
+	        <div></div>
+        </div>
+        <ul>
+            <li style="margin:0px;padding:0px;height:42px;line-height:42px;">
+                <a title="保存" class='top-pop-button' onclick="doSaveUserInfoComplete();return false;" href="javascript:void(0)"><span style='display:inline-block; letter-spacing:35px;'>&nbsp;保存</span></a>
+            </li>
+        </ul>
+    </div>
+    }
+</div>
+@Html.Partial("../Account/CasLogout")
+ <script type="text/javascript">
+    var isCasLoginMode = '@(isCasLoginMode.ToString().ToLower())' == "true";
+    function doLoadMySubject() {
+        var url = '@Url.Action("UserRelevantSubjectsManage", "Subject")' + "?time=" + new Date().getMilliseconds() + "&isCooperative=true";
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doLoadMyInfo() {
+        var url = '@Url.Action("Manage", "Account")' + "?date=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doTopLogOffSubmit() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("LogOff", "Account")',
+            data: "date=" + new Date(),
+            success: function (data) {
+                if (isCasLoginMode) {
+                    casLogout();
+                }
+                else {
+                    location.reload();
+                }
+            }
+        });
+        return false;
+    }
+    $(function () {
+        $("#lnkAccountInfo").mouseover(function () {
+            $(".pop-account-box").removeClass("hide");
+            $(".pop-usercard-box").addClass("hide");
+        });
+        $("#lnkUserCardEdit").mouseover(function () {
+            $(".pop-usercard-box").removeClass("hide");
+            $(".pop-account-box").addClass("hide");
+        });
+    });
+    function showAccountInfo() {
+        setTimeout('showTopAccountInfo();', 100);
+        return false;
+    }
+    function showTopAccountInfo() {
+        $(".pop-account-box").removeClass("hide");
+    }
+    function doSaveUserInfoComplete() {
+        $("#errorUserInfoComplete").addClass("hide");
+        $("#errorUserInfoComplete").find("div").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUserInfoComplete", "Account")' + "?date=" + new Date().getMilliseconds(),
+            data: $("#frmUserInfoCompleteEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $("#errorUserInfoComplete").removeClass("hide");
+                    $("#errorUserInfoComplete").find("div").append(msg);
+                    return false;
+                }
+                if ('@loginJumpTypeHref' == "") {
+                    location.reload();
+                }
+                else {
+                    window.location.href = '@loginJumpTypeHref'
+                }
+            }
+        });
+    }
+    function doSaveUserInfoCardEdit() {
+        $("#passUserInfoCard").addClass("hide");
+        $("#passUserInfoCard").find("div").empty();
+        $("#errorUserInfoCard").addClass("hide");
+        $("#errorUserInfoCard").find("div").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUserInfoCard", "Account")' + "?date=" + new Date().getMilliseconds(),
+            data: $("#frmUserInfoCardEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $("#errorUserInfoCard").removeClass("hide");
+                    $("#errorUserInfoCard").find("div").append(msg);
+                    return false;
+                }
+                else {
+                    $("#passUserInfoCard").removeClass("hide");
+                    $("#passUserInfoCard").find("div").append("卡号保存成功");
+                }
+            }
+        });
+    }
+    function doHideUserInfoCardEdit() {
+        $(".pop-usercard-box").addClass("hide");
+    }
+    function showUserCardEdit() {
+        setTimeout('showUserCardEditInfo();', 100);
+    }
+    function showUserCardEditInfo() {
+        $(".pop-usercard-box").removeClass("hide");
+    }
+
+    function CardReaded(card) {
+        $("#TopUserCard").val(card);
+        return 1;
+    }
+    function DeviceChanged(isConnected) {
+        if (isConnected == 0) $.messager.show({ title: '提示', msg: '读卡器已拔出', showType: 'show' });
+        else $.messager.show({ title: '提示', msg: '读卡器已连接', showType: 'show' });
+        return 1;
+    }
+    $(function () {
+        if (document.UsbICReader != undefined) {
+            if ("@(isIE11Browser.ToString().ToLower())" == "true") {
+                $("#UsbICReader").addeventlistener("CardReaded", CardReaded); //支持ie11
+                $("#UsbICReader").addeventlistener("DeviceChanged", DeviceChanged);
+            }
+            if ("@(is360Browser.ToString().ToLower())" == "true") {
+                $("#UsbICReader").bind("CardReaded", CardReaded); //支持360
+                $("#UsbICReader").bind("DeviceChanged", DeviceChanged);
+            } else {
+                document.UsbICReader.attachEvent("CardReaded", CardReaded);
+                document.UsbICReader.attachEvent("DeviceChanged", DeviceChanged);
+            }
+        }
+    });
+</script>

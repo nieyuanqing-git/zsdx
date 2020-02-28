@@ -1,0 +1,48 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentSemesterCostQueryExpress() {
+        var queryExpression = "";
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression = "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+        var equipmentModel = $("#SearchEquipmentModel").val().trim();
+        if (equipmentModel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentModel∽\"" + equipmentModel.trim() + "\"";
+        }
+        var equipmentLabel = $("#SearchEquipmentLabel").val().trim();
+        if (equipmentLabel != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentLabel∽\"" + equipmentLabel.trim() + "\"";
+        }
+       
+        return queryExpression;
+    }
+    function doResetEquipmentSemesterCost() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchEquipmentModel").val("");
+        $("#SearchEquipmentLabel").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>设备型号</label>
+        @Html.JValidateBox("SearchEquipmentModel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>资产编号</label>
+        @Html.JValidateBox("SearchEquipmentLabel").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentSemesterCostSearch", "查询").SetOnclick("doSearchEquipmentSemesterCost();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentSemesterCostReset", "清空").SetOnclick("doResetEquipmentSemesterCost();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentSemesterCostClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

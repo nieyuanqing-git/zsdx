@@ -1,0 +1,60 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    var selectEquipmentDialog;
+    function doSelectEquipmentDialog(equipmentIdsElement) {
+        var queryExpression = generateSelectedEquipmentQueryExpression(equipmentIdsElement);
+        var url = '@Url.Action("SelectSampleEquipmentNoPaging","Equipment")' + "?queryExpression=" + encodeURI(queryExpression);
+        if(selectEquipmentDialog) {
+            selectEquipmentDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelectEquipment").load(url, function (data) {
+            $.messager.progress('close'); 
+            selectEquipmentDialog = @(Html.JDialog("divSelectEquipmentDialog").SetTitle("选择设备").SetAutoDialog(false).SetOkScript("getSelectedEquipments();").SetCancelScript("selectEquipmentDialog.dialog('close');").SetIconCls("icon-search").ToMvcString()); 
+        });
+        return false;
+    }
+    function generateSelectedEquipmentQueryExpression(equipmentIdsElement) {
+        var selectedEquipmentIds = document.getElementById(equipmentIdsElement).value;
+        if (selectedEquipmentIds.trim() == "") return "";
+        var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+        if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0) return "";
+        var queryExpression = "(";
+        for (var i = 0; i < selectedEquipmentIdsArray.length; i++) {
+            queryExpression += queryExpression == "(" ? "Id=\"" + selectedEquipmentIdsArray[i] + "\"" : "+" + "Id=\"" + selectedEquipmentIdsArray[i] + "\"";
+        }
+        queryExpression += ")";
+        return queryExpression;
+    }
+    function getSelectedEquipments() {
+         var selectedEquipmentIds = "";
+         var selectedEquipmentNames = "";
+         var isEnableSelectSampleSendTime = "false";
+         var selectedEquipments = $("#tbSelectEquipmentList").datagrid("getSelections");
+         if (selectedEquipments && selectedEquipments!="" && selectedEquipments.length > 0) {
+             for (var i = 0; i < selectedEquipments.length; i++) {
+                 selectedEquipmentIds += selectedEquipmentIds == "" ? selectedEquipments[i].Id.toString() : "," + selectedEquipments[i].Id.toString();
+                 selectedEquipmentNames += selectedEquipmentNames == "" ? selectedEquipments[i].Name.toString() : "," + selectedEquipments[i].Name.toString();
+             }
+             if(selectedEquipments.length == 1){
+                isEnableSelectSampleSendTime = selectedEquipments[0].IsEnableSelectSampleSendTime.toString().toLowerCase();
+             }
+         }
+         if(selectEquipmentDialog)selectEquipmentDialog.dialog("close");
+         if(getSelectedSampleEquipmentsCallBack)getSelectedSampleEquipmentsCallBack(selectedEquipmentNames,selectedEquipmentIds,isEnableSelectSampleSendTime);
+    }
+   function doInitSelectedEquipments() {
+        var selectedEquipmentIds = $("#SelectedEquipmentIds").val();
+        if (selectedEquipmentIds.trim() == "") return;
+        var rows = $("#tbSelectEquipmentList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (selectedEquipmentIds.indexOf(rows[i].Id) != -1)
+                    $("#tbSelectEquipmentList").datagrid("selectRow", i);
+            }
+        }
+    }
+</script>
+<div id="divSelectEquipment" style="display:none"></div>
+
+

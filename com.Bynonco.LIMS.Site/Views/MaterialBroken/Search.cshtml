@@ -1,0 +1,30 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateMaterialBrokenQueryExpress() {
+        var queryExpression = "";
+        var brokenNum = $("#SearchBrokenNum").val().trim();
+        if (brokenNum != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BrokenNum∽\"" + brokenNum + "\"";
+        }
+        return queryExpression;
+    }
+    function doMaterialBrokenReset() {
+        $("#SearchBrokenNum").val("");
+      
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>报废单号</label>
+        @Html.JValidateBox("SearchBrokenNum").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnMaterialBrokenSearch", "查询").SetOnclick("doMaterialBrokenSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialBrokenReset", "清空").SetOnclick("doMaterialBrokenReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialBrokenClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

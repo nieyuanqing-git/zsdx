@@ -1,0 +1,152 @@
+﻿<!doctype html>
+<html> 
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title></title>
+        <style>
+            * {
+                border:0px;
+                padding:0px;
+                margin:0px;
+            }
+            body {
+                margin:0px auto;
+            }
+            table {
+                width:650px;
+                border-collapse:collapse;
+                font-size:13px;
+            }
+            table th {
+                text-align:center;
+                border:1px solid black;
+                padding:10px;
+                font-weight:normal;
+            }
+            table td {
+                text-align:left;
+                border:1px solid black;
+                padding:10px;
+                font-weight:normal;
+            }
+            p {
+                text-align:center;
+                font-size:14px;
+                font-weight:bold;
+            }
+            .sencondCol {
+                width:170px;
+            }
+            .firstCol,.thirdCol {
+                width:120px;
+            }
+            .secondColContent {
+                width:120px;
+            }
+        </style>
+        <!--DynamicTemplateRowSpanBegin
+            <tr>
+                <td class="firstCol">$equipmentName$</td>
+                <td rowspan="$depositRecordCount$" style="width:85px">$selfFee$</td>
+                <td rowspan="$depositRecordCount$" style="width:85px">$leftFee$</td>
+                <td colspan="2">单价________元×样品/机时数____个/小时=____元</td>
+            </tr> 
+         DynamicTemplateRowSpanEnd-->
+        <!--DynamicTemplateBegin
+            <tr>
+                <td class="firstCol">$equipmentName$</td>
+                <td colspan="2">单价________元×样品/机时数____个/小时=____元</td>
+            </tr> 
+         DynamicTemplateEnd-->
+    </head>
+    <body>
+        <p>仪器设备开放基金项目缴款单（有补贴）第一联<br />
+            (注意：所缴仪器测试费用仅供校内仪器测试使用，存入后不能退回）
+        </p>
+        <table>
+            <tr>
+               <th class="firstCol">项目书编号</th>
+               <td colspan="2" class="sencondCol ">$projectCode$</td>
+               <th class="thirdCol">项目所在单位<br /><b>(公章)</b></th>
+               <td>$projectOrgName$</td>
+            </tr>
+            <tr>
+               <th class="firstCol">项目申请人</th>
+               <td colspan="2" class="sencondCol">$applicantName$</td>
+               <th class="thirdCol">联系方式</th>
+               <td>$contactInfo$</td>
+            </tr>
+            <tr>
+               <th class="firstCol">仪器所在单位</th>
+               <td colspan="2" class="sencondCol">$eqOrgName$</td>
+               <th class="thirdCol">提供测试人员</th>
+               <td>$testerName$</td>
+            </tr>
+             <tr>
+               <th class="firstCol">申请使用<br />仪器</th>
+               <th style="width:85px" >测试总<br />金额</th>
+               <th style="width:85px" >自付金额<br />（50%）</th>
+               <th colspan="2">测试清单<br />（可另附详单）</th>
+            </tr>
+            <!--GenerateDynamicContent-->
+            <tr>
+                <td colspan="5">合计测试总金额 $openFundSum$ 元，自付50%共计 $depositSum$ 元，请存入43240018 开放仪器运用费账号。</td>
+            </tr>
+        </table>
+        <p style="font-weight:normal;">第一联存财务处</p>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+
+        <p>仪器设备开放基金项目缴款单（有补贴）第二联<br />
+            (注意：所缴仪器测试费用仅供校内仪器测试使用，存入后不能退回）
+        </p>
+        <table>
+            <tr>
+               <th class="firstCol">项目书编号</th>
+               <td colspan="2" class="sencondCol ">$projectCode$</td>
+               <th class="thirdCol">项目所在单位<br /><b>(公章)</b></th>
+               <td>$projectOrgName$</td>
+            </tr>
+            <tr>
+               <th class="firstCol">项目申请人</th>
+               <td colspan="2" class="sencondCol">$applicantName$</td>
+               <th class="thirdCol">联系方式</th>
+               <td>$contactInfo$</td>
+            </tr>
+            <tr>
+               <th class="firstCol">仪器所在单位</th>
+               <td colspan="2" class="sencondCol">$eqOrgName$</td>
+               <th class="thirdCol">提供测试人员</th>
+               <td>$testerName$</td>
+            </tr>
+             <tr>
+               <th class="firstCol">申请使用<br />仪器</th>
+               <th style="width:85px" >测试总<br />金额</th>
+               <th style="width:85px" >自付金额<br />（50%）</th>
+               <th colspan="2">测试清单<br />（可另附详单）</th>
+            </tr>
+            <!--GenerateDynamicContent-->
+            <tr>
+                <td colspan="5">合计测试总金额 $openFundSum$ 元，自付50%共计 $depositSum$ 元，请存入43240018 开放仪器运用费账号。</td>
+            </tr>
+        </table>
+        <p style="font-weight:normal;">        
+            第二联存机组（须附财务处IC卡结算清单）<br /> 
+            （机组凭此联和财务处IC卡结算清单统一至设备处结算）
+        </p>
+
+    </body>
+</html>

@@ -1,0 +1,41 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var usedConfirmPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUsedConfirmPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbUnDedcutViewUsedConfirmList")
+    .SetUrl(Url.Action("GetGridUnDedcutViewUsedConfirmList", "UsedConfirm", new { userId = ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "" }))
+    .SetHeight(550)
+    .SetPageSize(10)
+    .SetSortName("BeginAt")
+    .SetSortOrder(SortOrder.desc)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(52).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentNameStr").SetWidth(350).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("放置地点", "LabRoomName").SetWidth(150).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用者", "UserName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用者身份", "UserTypeName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "TutorName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "BeginAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("时长(分钟)", "Duration").SetWidth(70).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("样品数", "SampleCount").SetWidth(70).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("登记者", "CreaterNameStr").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("电话", "PhoneNumber").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("课题组", "SubjectName").SetWidth(300).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SubjectProjectName").SetWidth(300).SetAlign(Align.left))
+    .SetShowDeleteButton(usedConfirmPrivilige.IsEnableDeleteUsedConfirm)
+    .SetDeleteScript("doBatchDeleteUsedConfirm('tbUnDedcutViewUsedConfirmList');")
+    .SetShowAddButton(usedConfirmPrivilige.IsEnableAddUsedConfirm && ViewData["UserId"] == null)//个人中心不显示新增按钮
+    .SetAddScript("doEditUsedConfirm('');")
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+    if (usedConfirmPrivilige.IsEnableExportUnDeductUsedConfirmList)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportUnDeductUsedConfirmList();", IconCls = "icon-export", Id = "btnExportUnDeductUsedConfirmList", Text = "导出" });
+    }
+    if (usedConfirmPrivilige.IsEnableUsedConfirmUseConditionExportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportUsedConfirmUseConditionList(generateUnDeductUsedConfirmQueryExpression,false);", IconCls = "icon-export", Id = "btnExportUsedConfirmUseConditionList", Text = "导出运行参数" });
+    }
+}
+@(dataGrid.ToMvcString()) 

@@ -1,0 +1,9 @@
+﻿@{
+    var version = ViewData["FileVersion"] == null ? "" : ViewData["FileVersion"].ToString().Trim();
+    var dateTime = DateTime.Now;
+}
+<p id="p_cnzz" style='margin:0;'>
+    Copyright © @(dateTime.Year) <a href='http://www.bynonco.com' target="_blank">北京工业大学</a>.
+    <br />
+    <span style="margin-right:10px;">@(version)</span>
+</p>

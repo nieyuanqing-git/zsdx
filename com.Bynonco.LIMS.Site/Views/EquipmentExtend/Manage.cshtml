@@ -1,0 +1,62 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    <div>
+        <ul class="tabs" style="border-bottom:0;">
+            <li class="tabs-selected" id="liAllEQuipment"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">所有仪器</span><span class="tabs-icon"></span></a></li>
+            <li id="liSyncEQuipment"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">需要上传的仪器</span><span class="tabs-icon"></span></a></li>            
+        </ul>
+    </div>
+</div>
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../EquipmentExtend/Search")</div>
+</div>
+<div class="layout-center-full">
+        @Html.Partial("../EquipmentExtend/List")    
+</div>
+@Html.Partial("../EquipmentExtend/ScriptContainer")
+@Html.Partial("../EquipmentExtend/ImportExcelScriptContainer")
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {            
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            loadEquipmentList();
+        });
+        loadEquipmentList();
+    });
+    var url = "";
+    function loadEquipmentList() {
+        var queryExpression = "";
+        if ($(".tabs .tabs-selected")) {
+            var tabId = $(".tabs .tabs-selected").attr("id");
+            switch (tabId) {
+                case "liAllEQuipment":
+                    queryExpression = "";
+                    break;
+                case "liSyncEQuipment":
+                    queryExpression = " EquipmentExtendId=-null*IsUpload=true";
+                    break;                
+            }
+            $("#tbViewEquipmentExtendList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbViewEquipmentExtendList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        }
+    }
+
+    function loadList(url) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: url,
+            data: { "rows": 20 },
+            success: function (data) {
+                $('#tbViewEquipmentExtendList').datagrid('loadData', { total: 0, rows: [] });
+                $('#tbViewEquipmentExtendList').datagrid('loadData', data);
+                try { $.messager.progress('close'); } catch (e) { }
+            }
+        });
+    }
+</script>

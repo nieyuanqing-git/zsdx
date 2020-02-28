@@ -1,0 +1,39 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var userTypePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserTypePrivilige(User.Identity.Name);
+    var dataGrid = Html.JTreeGrid("tbUserTypeList")
+       .SetTreeGrid("Id", "Name", Url.Action("GetTreeGridUserTypeList", "UserType"), "", false)
+       .SetHeight(650)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetPagination(false)
+       .SetShowPrintButton(false);
+    if (userTypePrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+    }
+    dataGrid.SetShowAddButton(userTypePrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(userTypePrivilige.IsEnableEdit);
+    if (userTypePrivilige.IsEnableEdit)
+    {
+        dataGrid.SetAddScript("doAddUserType('');");
+       dataGrid.SetEditScript("doEditUserType('');");
+       dataGrid.SetOnDblClickRow("doEditUserType(row.Id);");
+    }
+    dataGrid.SetShowDeleteButton(userTypePrivilige.IsEnableDelete);
+    if (userTypePrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteUserType('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("父级用户身份编码", "ParentId").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetSortable(false).SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("XPath", "XPath").SetSortable(false).SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("助记符", "InputStr").SetSortable(false).SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("父级用户身份", "ParentName").SetSortable(false).SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否学生必须绑定导师", "IsStudentNeedTutorStr").SetSortable(false).SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("下级用户身份数", "ChildrenCount").SetSortable(false).SetWidth(150).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(400).SetSortable(false).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

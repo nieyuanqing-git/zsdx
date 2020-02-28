@@ -1,0 +1,164 @@
+﻿@model com.Bynonco.LIMS.Model.Camera
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+<div id="divCameraEdit">
+ <form id="frmCameraEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdCameraEdit" class="edit-table"   style="width:640px;">
+         <tr>
+            <th><span class="required">* </span>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(210).ToMvcString()
+            </td>
+            <th><span class="required">* </span>登录密码</th>
+            <td>
+                @Html.JValidateBox("AdminPassword").SetValue(Model == null ? "" : Model.AdminPassword).SetPasswordMode(true).SetWidth(210).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>型号</th>
+            <td>
+                @(Html.JComboBox("CameraType")
+                        .SetEditable(false)
+                        .SetData(ViewData["CameraTypeJson"])
+                        .SetWidth(215)
+                        .ToMvcString())
+            </td>
+            <th><span class="required">* </span>机身编码</th>
+            <td>@Html.JValidateBox("SN").SetValue(Model == null ? "" : Model.SN).SetWidth(210).ToMvcString()</td>
+        </tr>
+        <tr class='hide'>
+            <th>助记符</th>
+            <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(210).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>IP</th>
+            <td>@Html.JValidateBox("IP").SetWidth(150).SetValidateType(ValidateType.ip).SetValue(Model == null ? "" : Model.IP ).ToMvcString()
+            :@Html.JValidateBox("WebPort").SetValue(Model == null || !Model.WebPort.HasValue ? "80" : Model.WebPort.Value.ToString()).SetWidth(40).ToMvcString()</td>
+            <th><span class="required">* </span>云台端口</th>
+            <td>@Html.JValidateBox("Port").SetValue(Model == null || !Model.Port.HasValue ? "80" : Model.Port.Value.ToString()).SetWidth(210).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>所在房间</th>
+            <td id="tdRoomId">
+                @(Html.JComboTree("RoomId")
+                .SetValue(Model == null || !Model.RoomId.HasValue ? "" : Model.RoomId.Value.ToString())
+                .SetEditable(false)
+                .SetCheckBox(false)
+                .SetMultiple(false)
+                .SetExpandAll(true)
+                .SetData(ViewData["OranizationJson"])
+                .SetOnLoadSuccess("setTimeout('doOnCameraRoomLoadSuccess();', 500);")
+                .SetWidth(215).ToMvcString())
+            </td>
+            <th>超时时间(毫秒)</th>
+            <td>@Html.JValidateBox("LoginTimeOut").SetValue(Model == null || !Model.LoginTimeOut.HasValue ? "" : Model.LoginTimeOut.Value.ToString()).SetWidth(210).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>监控设备</th>
+            <td colspan="3" style="padding:0;border:0;">
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            @(Html.TokenInput("EquipmentId")
+                                .SetUrl(Url.Action("GetAuthorizationEquipmentListByKeyWord", "Equipment"))
+                                .SetSingle(false)
+                                .SetWidth(400)
+                                .SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString())
+                                .ToMvcString())
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectAuthorizationEquipment();return false;").ToMvcString()
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnCleanEquipment", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanEquipment();return false;").ToMvcString()
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>监控门禁</th>
+            <td colspan="3" style="padding:0;border:0;">
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            @(Html.TokenInput("DoorId")
+                                .SetUrl(Url.Action("GetManageDoorListByKeyWord", "Door"))
+                                .SetSingle(false)
+                                .SetWidth(400)
+                                .SetPrePopulate(ViewData["DoorJson"] == null || string.IsNullOrWhiteSpace(ViewData["DoorJson"].ToString()) ? null : ViewData["DoorJson"].ToString())
+                                .ToMvcString())
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnSelectDoor", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectDoorDialog('DoorId');return false;").ToMvcString()
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnCleanDoor", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanDoor();return false;").ToMvcString()
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        
+    </table>
+  </form>
+</div> 
+<div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>
+<div style="display:none">@Html.Partial("../Door/SelectDoorNoPagingContainer")</div>
+<script type="text/javascript">
+    function doOnNameChanged() {
+        $("#InputStr").val("");
+    }
+    function doOnCameraRoomLoadSuccess() {
+        if ('@(Model == null ? "true" : "false")' == "true") {
+            if ($("#tbLabOrganizationAdminList").length > 0) {
+                var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+                if (!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id == "" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+                    return;
+                }
+                else {
+                    var orgId = selectedLabOrganizationAdmin.Id;
+                    var orgIdName = selectedLabOrganizationAdmin.Name;
+                    $("#divCameraEdit #tdRoomId span input.combo-text.validatebox-text").val(orgIdName);
+                    $("#RoomId").combotree("setValue", orgId);
+                }
+            }
+        }
+        else $("#divCameraEdit #tdRoomId span input.combo-text.validatebox-text").val('@(ViewData["RoomName"] == null ? "" : ViewData["RoomName"].ToString().Trim())');
+    }
+    function doCleanEquipment() {
+        $("#EquipmentId").tokenInput("clear");
+    }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+
+        $("#EquipmentId").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#EquipmentId").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+    function doCleanDoor() {
+        $("#DoorId").tokenInput("clear");
+    }
+    function getSelectedDoorsCallBack(selectedDoorNames, selectedDoorIds, selectedDoorJsonArray) {
+
+        $("#DoorId").tokenInput("clear");
+        if (selectedDoorIds != "") {
+            var selectedDoorIdsArray = selectedDoorIds.split(",");
+            var selectedDoorNamesArray = selectedDoorNames.split(",");
+            if (!selectedDoorIdsArray || selectedDoorIdsArray.length == 0 || !selectedDoorNamesArray || selectedDoorNamesArray.length == 0) return;
+            for (var i = 0; i < selectedDoorIdsArray.length && i < selectedDoorNamesArray.length; i++) {
+                $("#DoorId").tokenInput("add", { id: selectedDoorIdsArray[i], text: selectedDoorNamesArray[i] });
+            }
+        }
+    }
+    function doSelectAuthorizationEquipment() {
+        doSelectEquipmentDialog('EquipmentId', { "SelectEquipmentMode": '@((int)com.Bynonco.LIMS.Model.Enum.SelectEquipmentMode.AuthorizationEquipment)' });
+        return false;
+    }
+</script>

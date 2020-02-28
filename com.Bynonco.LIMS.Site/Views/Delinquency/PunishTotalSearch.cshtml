@@ -1,0 +1,25 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function getUserName() {
+        var userName = $("#SearchUserName").val().trim();
+        return userName;
+    }
+    function doPunishTotalReset() {
+        $("#SearchUserName").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>用户名称</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnPunishTotalSearch", "查询").SetOnclick("doPunishTotalSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnPunishTotalSearchReset", "清空").SetOnclick("doPunishTotalReset();").ToMvcString()
+        @Html.JLinkButton("btnPunishTotalSearchClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

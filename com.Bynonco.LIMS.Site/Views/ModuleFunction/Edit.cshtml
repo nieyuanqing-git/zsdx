@@ -1,0 +1,196 @@
+﻿@model com.Bynonco.LIMS.Model.ModuleFunction
+@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+
+    function doOnTypeChange()
+    {
+        var type = $("#ModuleFunctionType").combobox("getValue").trim();
+        if(type == @(((int)com.Bynonco.LIMS.Model.Enum.ModuleFunctionType.Function).ToString()))
+        {
+            $("#IconCss").val("icon-function")
+            $("#IconCssMiddle").val("")
+            $("#IconCssLarge").val("")
+            $("#trIconCss").addClass("hide");
+            $("#trIconCssMiddle").addClass("hide");
+            $("#trIconCssLarge").addClass("hide");
+            $("#IsOnlyShowWithModel").removeAttr("checked");
+            $("#trIsOnlyShowWithModel").addClass("hide");
+        }
+        else
+        {
+            $("#trIconCss").removeClass("hide");
+            $("#trIconCssMiddle").removeClass("hide");
+            $("#trIconCssLarge").removeClass("hide");
+            if(type == @(((int)com.Bynonco.LIMS.Model.Enum.ModuleFunctionType.Tag).ToString()))
+            {
+                $("#trIsOnlyShowWithModel").removeClass("hide");
+            }
+            else
+            {
+                $("#IsOnlyShowWithModel").removeAttr("checked");
+                $("#trIsOnlyShowWithModel").addClass("hide");
+            }
+        }
+    }
+    function doOnParentLoadSuccess(){
+        if($("#Id").val().trim()=="")
+        {
+            var selectedModuleFunction = $("#tbModuleFunctionList").treegrid("getSelected");
+            if(selectedModuleFunction && selectedModuleFunction.Id && !selectedModuleFunction.Id.trim() == "" && !selectedModuleFunction.Id.isDefaultGuid()) 
+            {
+                  var parentId = selectedModuleFunction.Id;
+                  var parentName = selectedModuleFunction.Name;
+                  $("#ParentId").combotree("setValue",parentId);
+                  $("#tdModuleFunctionEdit #tdParentId span input.combo-text.validatebox-text").val(parentName);  
+            }
+        }
+        else {
+            $("#tdModuleFunctionEdit #tdParentId span input.combo-text.validatebox-text").val("@ViewData["ParentName"].ToString()");   
+        }  
+    }
+
+    function doOnNameChanged() {
+        $("#InputStr").val("");
+    }
+
+    function chgIco() {
+        $("#spIcon").removeAttr("class");
+        $("#spIconMiddle").removeAttr("class");
+        $("#spIconLarge").removeAttr("class");
+        if($("#IconCss").val() != "")
+            $("#spIcon").addClass("ico " + $("#IconCss").val());
+        if ($("#IconCssMiddle").val() != "")
+            $("#spIconMiddle").addClass("icoMiddle " + $("#IconCssMiddle").val());
+        if ($("#IconCssLarge").val() != "")
+            $("#spIconLarge").addClass("icoLargar " + $("#IconCssLarge").val());
+    }
+</script>
+
+<div id="divModuleFunctionEdit" style="width:412px; overflow:hidden"> 
+    <form id="frmModuleFunctionEdit" action="#">
+        @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+        <table id="tbModuleFunctionEdit" class="edit-table">
+            <tr>
+                <th>类型</th>
+                <td id="tdType">
+                    @(Html.JComboBox("ModuleFunctionType")
+                    .SetData(ViewData["TypesJson"])
+                    .SetOnChange("doOnTypeChange();")
+                    .SetWidth(205).SetRequired(false)
+                    .ToMvcString())
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>名称</th>
+                <td>
+                    @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetOnChange("doOnNameChanged();").SetWidth(200).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>Controller名称</th>
+                <td >
+                    @Html.JValidateBox("ControllerName").SetValue(Model == null ? "" : Model.ControllerName).SetWidth(200).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>Action名称</th>
+                <td >
+                    @Html.JValidateBox("ActionName").SetValue(Model == null ? "" : Model.ActionName).SetWidth(200).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>父模块</th>
+                <td id="tdParentId" >
+                    @(Html.JComboTree("ParentId")
+                    .SetData(ViewData["ParentJson"])
+                    .SetValue(Model == null || !Model.ParentId.HasValue ? "" : Model.ParentId.Value.ToString())
+                    .SetOnLoadSuccess("setTimeout('doOnParentLoadSuccess();', 500);")
+                    .SetExpandAll(true)
+                    .SetMultiple(false)
+                    .SetWidth(205)
+                    .ToMvcString())
+                </td>
+            </tr>
+        
+            <tr>
+                <th>助记符</th>
+                <td >
+                    @Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(200).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>XPath</th>
+                <td >
+                    @Html.JValidateBox("XPath").SetValue(Model == null ? "" : Model.XPath).SetWidth(200).SetDisabled(true).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>是否停用</th>
+                <td>
+                    @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+                </td>
+            </tr>
+            <tr id="trIconCss">
+                <th>小图标</th>
+                <td>
+                    @Html.JValidateBox("IconCss").SetValue(Model == null ? "" : Model.IconCss).SetWidth(200).SetOnChange("chgIco();").ToMvcString()
+                    <span id="spIcon"></span>
+                </td>
+            </tr>
+            <tr id="trIconCssMiddle">
+                <th>中图标</th>
+                <td>
+                    @Html.JValidateBox("IconCssMiddle").SetValue(Model == null ? "" : Model.IconCssMiddle).SetWidth(200).SetOnChange("chgIco();").ToMvcString()
+                    <span id="spIconMiddle"></span>
+                </td>
+            </tr>
+            <tr id="trIconCssLarge">    
+                <th>大图标</th>
+                <td>
+                    @Html.JValidateBox("IconCssLarge").SetValue(Model == null ? "" : Model.IconCssLarge).SetWidth(200).SetOnChange("chgIco();").ToMvcString()
+                    <span id="spIconLarge"></span>
+                </td>
+            </tr>
+            <tr id="trIsOnlyShowWithModel">
+                <th>Model控制显示</th>
+                <td>
+                    @Html.CheckBox("IsOnlyShowWithModel", Model == null ? false : Model.IsOnlyShowWithModel)
+                </td>
+            </tr>
+            <tr>
+                <th>允许强权限制</th>
+                <td>
+                    @Html.CheckBox("IsAllowRuleLimit", Model == null ? false : Model.IsAllowRuleLimit)
+                </td>
+            </tr>
+            <tr>
+                <th>允许用户机构限制</th>
+                <td>
+                    @Html.CheckBox("IsAllowUserOrgLimit", Model == null ? false : Model.IsAllowUserOrgLimit)
+                </td>
+            </tr>
+            <tr>
+                <th>允许设备机构限制</th>
+                <td>
+                    @Html.CheckBox("IsAllowEquipmentOrgLimit", Model == null ? false : Model.IsAllowEquipmentOrgLimit)
+                </td>
+            </tr>
+            <tr>
+                <th>允许工位机构限制</th>
+                <td>
+                    @Html.CheckBox("IsAllowNMPOrgLimit", Model == null ? false : Model.IsAllowNMPOrgLimit)
+                </td>
+            </tr>
+            <tr>
+                <th>备注</th>
+                <td >
+                    @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:60px;width:295px;margin-right:5px;" })
+                </td>
+            </tr>
+        </table>
+      </form>
+</div>

@@ -1,0 +1,29 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+}
+<style type="text/css">
+    #divSelectSemester{ padding:15px 20px; vertical-align:middle;}
+    #divSelectSemester span.span-title{ font-size:14px; padding-right:3px;vertical-align:middle;}
+</style>
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../EquipmentOpenTraining/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+    <div id="divSelectSemester" style="border:1px solid #D3D3D3;border-bottom:0;"> 
+        @Html.Partial("../Semester/SelectSemester")
+    </div>
+    <div>
+        <ul class="tabs" style="border-bottom:0;padding-top:10px;">
+            <li class="tabs-selected"  @*status='@((int)EquipmentOpenTrainingStatus.ManageAuditPass),@((int)EquipmentOpenTrainingStatus.DirectorAuditPass),@((int)EquipmentOpenTrainingStatus.DirectorAuditReject)'*@><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">全部</span><span class="tabs-icon"></span></a></li>
+            <li status='@((int)EquipmentOpenTrainingStatus.ManageAuditPass)'><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">等待审核</span><span class="tabs-icon"></span></a></li>
+            <li status='@((int)EquipmentOpenTrainingStatus.DirectorAuditPass)'><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">审核通过</span><span class="tabs-icon"></span></a></li>
+            <li status='@((int)EquipmentOpenTrainingStatus.DirectorAuditReject)'><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">审核不通过</span><span class="tabs-icon"></span></a></li>
+        </ul>
+        @Html.Partial("../EquipmentOpenTraining/List")
+    </div>
+</div>
+@Html.Partial("../EquipmentOpenTraining/ScriptContainer")

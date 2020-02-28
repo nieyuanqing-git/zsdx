@@ -1,0 +1,27 @@
+﻿@model com.Bynonco.LIMS.Model.PunishAction
+@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+    #tbResend{ border-collapse:collapse; border:1px solid Gray; padding:5px}
+    #tbResend tr th{border:1px solid Gray;width:80px;padding:2px; text-align:center}
+    #tbResend tr td{border:1px solid Gray;padding:2px; text-align:left}
+</style>
+<div id="divResend" style="height:500px;overflow:auto">
+    <table id="tbResend">
+        <tr>
+            <th>
+                姓名
+            </th>
+            <td colspan="2">
+                @Model.PunishRecord.Punisher.Name
+            </td>
+        </tr>
+        <tr>
+            <th>
+                发送信息
+            </th>
+            <td colspan="2">
+                @(System.Web.Mvc.MvcHtmlString.Create(Model.RepealDelinquency == null ? Model.ContentStr : Model.RepealDelinquency.Content))
+            </td>
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,421 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divOpenFundDepositRecordDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doDepositSearch() {
+        try {
+            if ($("#tbOpenFundDepositRecordList").length > 0) {
+                var queryExpression = generateQueryExpress();
+                $("#tbOpenFundDepositRecordList").datagrid('loadData', { total: 0, rows: [] });
+                $("#tbOpenFundDepositRecordList").datagrid("load", { "queryExpression": queryExpression.trim() });
+            } else if ($("#tbDepositRecordOpenFundList").length > 0) {
+                doSearchDepositRecordOpenFund();
+            }
+        } catch(e) {
+        }
+    }
+
+    var openFundDepositRecordDialog;
+
+    function doOpenFundDepositRecordDialog(isnew) {
+        if (openFundDepositRecordDialog) {
+            openFundDepositRecordDialog.dialog("destroy");
+        }
+        if (isnew) {
+            openFundDepositRecordDialog = @(Html.JDialog("divOpenFundDepositRecordEdit")
+                                                .SetTitle("开放基金存款信息").SetIconCls("icon-save").SetAutoDialog(false).SetModal(true)
+                                                .SetCancelScript("openFundDepositRecordDialog.dialog('close');return false;")
+                                                .SetOkScript("doSaveOpenFundDepositRecord();")
+                                                .ToMvcString());
+        } else {
+            @* 2015.10.28 添加提交申请按钮 *@
+            openFundDepositRecordDialog = @(Html.JDialog("divOpenFundDepositRecordEdit")
+                                                .SetTitle("开放基金存款信息").SetIconCls("icon-save").SetAutoDialog(false).SetModal(true)
+                                                .SetCancelScript("openFundDepositRecordDialog.dialog('close');return false;")
+                                                .SetOkScript("doSaveOpenFundDepositRecord();")
+                                                .AddButton(new ToolBarButton {Id = "btnSubmitAudit", Text = "提交审核", Handler = "doSaveOpenFundDepositRecord(true);"})
+                                                .ToMvcString());
+        }
+    }
+    function doDepositAddByDepositRecordOpenFundId(depositRecordOpenFundId)
+    {
+        var url = '@Url.Action("DepositAddByDepositRecordOpenFundId", "OpenFundApply")'+ "?depositRecordOpenFundId=" +depositRecordOpenFundId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divOpenFundDepositRecordDialog").load(url,function(){
+            doOpenFundDepositRecordDialog(true);
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doMyAddOpenFundDepositRecord()
+    {
+        var url = '@Url.Action("MyDepositAdd","OpenFundApply")'+ "?date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divOpenFundDepositRecordDialog").load(url,function(){
+            doOpenFundDepositRecordDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doMyEditOpenFundDepositRecord(id,hasChecked) {
+        if(checkHasChecked(id,hasChecked,false)) 
+        {
+            var url = '@Url.Action("MyDepositEdit","OpenFundApply")'+ "?date=" + new Date().getMilliseconds();
+            if(id && id.trim() != "") url += "&id=" + id;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divOpenFundDepositRecordDialog").load(url,function(){
+                doOpenFundDepositRecordDialog();
+                $.messager.progress('close');
+            })
+        }
+        return false;
+    }
+    
+    function doEditOpenFundDepositRecord(id,hasChecked) {
+        if(checkHasChecked(id,hasChecked,false)) doAddOrEditOpenFundDepositRecord(getSingleSelectId(id));
+        return false;
+    }
+    function doAddOrEditOpenFundDepositRecord(id){
+        var url = '@Url.Action("DepositEdit","OpenFundApply")' + "?date=" + new Date().getMilliseconds();
+        if (id && id.trim() != "") url += "&id=" + id;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divOpenFundDepositRecordDialog").load(url, function() {
+            doOpenFundDepositRecordDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+
+    function doSaveOpenFundDepositRecord(isSubmit) {
+        if ($("#OpenFundApplyId").val().trim() == "") {
+            $.messager.show({ title: '提示', msg: "开放基金申请单为空", showType: 'show' });
+            return false;
+        }
+        if (!$("#DepositSum").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg: "开放基金存款金额不正确", showType: 'show' });
+            return false;
+        }
+        if ($("#CertificateNum").attr('readonly') != 'readonly' && $("#CertificateNum").length > 0 && $("#CertificateNum").val() == "") {
+            $.messager.show({ title: '提示', msg: "凭证号为空", showType: 'show' });
+            return false;
+        }
+        //if($("#DepositRecordPhoto").length > 0 && $("#DepositRecordPhoto").val() == "")
+        //{
+        //    $.messager.show({ title: '提示', msg: "存款验证图为空", showType: 'show' });
+        //    return false;
+        //}
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var data;
+        if (isSubmit) {
+            var inputSubmit = $('<input type="hidden" name="IsSubmit" value="true" />');
+            $('#frmOpenFundDepositRecordEdit').append(inputSubmit);
+            data = $("#frmOpenFundDepositRecordEdit").serialize();
+            inputSubmit.remove();
+        } else {
+            data = $("#frmOpenFundDepositRecordEdit").serialize();
+        }
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DepositSave", "OpenFundApply")' +  "?date=" + new Date().getMilliseconds(),
+            data: data,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                openFundDepositRecordDialog.dialog('close');
+                doDepositSearch();
+            }
+        });
+    }
+
+    var openFundDepositRecordAuditDialog;
+    function doOpenFundDepositRecordAuditDialog() {
+        if (openFundDepositRecordAuditDialog) {
+            openFundDepositRecordAuditDialog.dialog("destroy");
+        }
+        openFundDepositRecordAuditDialog =  @(Html.JDialog("divOpenFundDepositRecordAudit")
+            .SetTitle("开放基金存款审核确认")
+            .SetIconCls("icon-save")
+            .SetAutoDialog(false)
+            .SetModal(true)
+            .SetShowOkButton(false)
+            .AddButton(new ToolBarButton(){ IconCls="icon-pass",Id= "btnAuditPassOpenFundDepositRecord",Text = "审核通过", Handler="doSaveAuditOpenFundDepositRecord(true);"})
+            .AddButton(new ToolBarButton(){ IconCls="icon-reject",Id= "btnAuditNotPassOpenFundDepositRecord",Text = "审核不通过", Handler="doSaveAuditOpenFundDepositRecord(false);"})
+            .SetCancelScript("openFundDepositRecordAuditDialog.dialog('close');return false;")
+            .ToMvcString());
+    }
+    function doShowAuditOpenFundDepositRecordDialog(id){
+        var url = '@Url.Action("DepositAudit","OpenFundApply")'+ "?date=" + new Date().getMilliseconds();
+        if(id && id.trim() != "") url += "&id=" + id;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divOpenFundDepositRecordDialog").load(url,function(){
+            doOpenFundDepositRecordAuditDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAuditOpenFundDepositRecord(id,hasChecked) {
+        if(checkHasChecked(id, hasChecked, false)) doShowAuditOpenFundDepositRecordDialog(getSingleSelectId(id));
+    }
+    function doSaveAuditOpenFundDepositRecord(isAuditPass) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DepositAuditPass", "OpenFundApply")',
+            data: $("#frmOpenFundDepositRecordAudit").serialize() + "&isAuditPass=" + isAuditPass +  "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                openFundDepositRecordAuditDialog.dialog('destroy');
+                doDepositSearch();
+            }
+        });
+    }
+    function doUnAuditOpenFundDepositRecord(id,hasChecked) {
+        if(checkHasChecked(id, hasChecked, true))
+        {
+             $.messager.confirm('提示', '是否确认重置该开放基金存款信息为未审核状态?', function (r) {
+                if (!r) return false;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DepositNoAudit", "OpenFundApply")',
+                    data: "id=" + getSingleSelectId(id) + "&date=" + new Date().getMilliseconds(),
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                            return false;
+                        }
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        doDepositSearch();
+                    }
+                });
+            });
+        }
+    }
+    function doDeleteOpenFundDepositRecord(id, hasChecked) {
+        if(checkHasChecked(id, hasChecked, false)) 
+        {
+            $.messager.confirm('提示', '是否确认删除该开放基金存款信息?', function (r) {
+                if (!r) return false;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DepositDelete", "OpenFundApply")',
+                    data: "id=" + getSingleSelectId(id) + "&date=" + new Date().getMilliseconds(),
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                            return false;
+                        }
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        doDepositSearch();
+                    }
+                });
+            });
+        }
+        return false;
+    }
+    function getSingleSelectId(id)
+    {
+        if(!id || id.trim()==""){
+            //var selectedOpenFundDepositRecord = $("#tbOpenFundDepositRecordList").datagrid("getSelected");
+            var selectedOpenFundDepositRecord;
+            if ($("#tbOpenFundDepositRecordList").length > 0) {
+                selectedOpenFundDepositRecord = $("#tbOpenFundDepositRecordList").datagrid("getSelected");
+            } else {
+                selectedOpenFundDepositRecord = $("#tbDepositRecordOpenFundList").datagrid("getSelected");
+            }
+            if(!selectedOpenFundDepositRecord || selectedOpenFundDepositRecord.Id=="" || selectedOpenFundDepositRecord.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择开放基金存款信息", showType: 'show' });
+                return false;
+            }
+            id = selectedOpenFundDepositRecord.Id;
+        }
+        return id;
+    }
+    function checkHasChecked(id, hasChecked, isCheckedTrue)
+    {
+        if(!id || id.trim()==""){
+            //var selectedOpenFundDepositRecord = $("#tbOpenFundDepositRecordList").datagrid("getSelected");
+            var selectedOpenFundDepositRecord;
+            if ($("#tbOpenFundDepositRecordList").length > 0) {
+                selectedOpenFundDepositRecord = $("#tbOpenFundDepositRecordList").datagrid("getSelected");
+            } else {
+                selectedOpenFundDepositRecord = $("#tbDepositRecordOpenFundList").datagrid("getSelected");
+            }
+            if(!selectedOpenFundDepositRecord || selectedOpenFundDepositRecord.Id=="" || selectedOpenFundDepositRecord.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择开放基金存款信息", showType: 'show' });
+                return false;
+            }
+            id = selectedOpenFundDepositRecord.Id;
+            hasChecked = selectedOpenFundDepositRecord.HasChecked;
+        }
+        if(hasChecked.toString() == 'true' && isCheckedTrue.toString() != hasChecked.toString())
+        {
+            $.messager.show({ title: '提示', msg: "该开放基金存款信息已审核，无法进行编辑/删除操作.", showType: 'show' });
+            return false;
+        }
+        if(hasChecked.toString() != 'true' && isCheckedTrue.toString() != hasChecked.toString())
+        {
+            $.messager.show({ title: '提示', msg: "该开放基金存款信息未审核，无法进行编辑/删除操作.", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    
+    function doAddSubjectProject() {
+        var tutorId = $("#TutorId").val();
+        if(tutorId == "")
+        {
+            $.messager.show({ title: '提示', msg:"请选择开放基金存款导师", showType: 'show' });
+            return false;
+        }
+        doShowAddSubjectProjectDialogByTutorId(tutorId);
+    }
+
+    function ajaxFileUploadDepositRecordPhoto() {
+        var file = $("#fileDepositRecordPhoto").val();
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        $("#fileDepositRecordPhoto").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在上传附件,请稍候……' });
+        });
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadDepositRecordPhoto", "OpenFundApply")' + "?date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            fileElementId: 'fileDepositRecordPhoto',
+            dataType: 'json',
+            success: function (data, status) {
+                $.messager.progress('close');
+                if (data.filePath) {
+                    $("#DepositRecordPhoto").val(data.filePath);
+                    $("#DepositRecordPhotoName").val(data.fileName);
+                    $("#fileDepositRecordPhotoPath").attr("href",'@Url.Content("~/")' + data.filePath);
+                    $("#fileDepositRecordPhotoPath").html(data.fileName);
+                    $("#fileDepositRecordPhotoPath").removeClass("hide");
+                }
+                else if (data && (data.indexOf("出错") != -1)) {
+                    $("#DepositRecordPhoto").val("");
+                    $("#DepositRecordPhotoName").val("");
+                    $("#fileDepositRecordPhotoPath").attr("href","javascript:;");
+                    $("#fileDepositRecordPhotoPath").html("");
+                    $("#fileDepositRecordPhotoPath").addClass("hide");
+                    $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                    return false;
+                }
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+
+    var openFundDepositRecordViewInfoDialog;
+    function doOpenFundDepositRecordViewInfoDialog() {
+        if (openFundDepositRecordViewInfoDialog) {
+            openFundDepositRecordViewInfoDialog.dialog("destroy");
+        }
+        openFundDepositRecordViewInfoDialog =  @Html.JDialog("divOpenFundDepositRecordViewInfo").SetTitle("查看开放基金存款").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("openFundDepositRecordViewInfoDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doShowOpenFundDepositRecordInfo(id){
+        if(!id || id.trim()==""){
+            //var selectedOpenFundDepositRecord = $("#tbOpenFundDepositRecordList").datagrid("getSelected");
+            var selectedOpenFundDepositRecord;
+            if ($("#tbOpenFundDepositRecordList").length > 0) {
+                selectedOpenFundDepositRecord = $("#tbOpenFundDepositRecordList").datagrid("getSelected");
+            } else {
+                selectedOpenFundDepositRecord = $("#tbDepositRecordOpenFundList").datagrid("getSelected");
+            }
+            if(!selectedOpenFundDepositRecord || selectedOpenFundDepositRecord.Id=="" || selectedOpenFundDepositRecord.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择开放基金存款信息", showType: 'show' });
+                return false;
+            }
+            id = selectedOpenFundDepositRecord.Id;
+        }
+        var url = '@Url.Action("DepositViewInfo", "OpenFundApply")'+ "?id=" + id;;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divOpenFundDepositRecordDialog").load(url,function(){
+            doOpenFundDepositRecordViewInfoDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    var openFundDepositRecordPreAuditDialog;
+    function doOpenFundDepositRecordPreAuditDialog() {
+        if (openFundDepositRecordPreAuditDialog) {
+            openFundDepositRecordPreAuditDialog.dialog("destroy");
+        }
+        openFundDepositRecordPreAuditDialog =  @(Html.JDialog("divOpenFundDepositRecordAudit")
+                    .SetTitle("存款预审核")
+                    .SetIconCls("icon-save")
+                    .SetAutoDialog(false)
+                    .SetModal(true)
+                    .SetCancelScript("openFundDepositRecordPreAuditDialog.dialog('destroy');return false;")
+                    .SetShowOkButton(false)
+                    .AddButton(new ToolBarButton() { Handler = "doOpenFundDepositRecordPreAuditPass(true);return false;", Id = "btnOpenFundDepositRecordPreAuditPass", Text = "预审通过", IconCls = "icon-ok"})
+                    .AddButton(new ToolBarButton() { Handler = "doOpenFundDepositRecordPreAuditReject(false);return false;", Id = "btnOpenFundDepositRecordPreAuditReject", Text = "预审不通过", IconCls = "icon-no"})
+                    .ToMvcString());
+    }
+    function doShowPreAuditOpenFundDepositRecordDialog(id){
+        var url = '@Url.Action("DepositPreAudit", "OpenFundApply")'+ "?date=" + new Date().getMilliseconds();
+        if(id && id.trim() != "") url += "&id=" + id;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divOpenFundDepositRecordDialog").load(url,function(){
+            doOpenFundDepositRecordPreAuditDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doPreAuditOpenFundDepositRecord(id) {
+        doShowPreAuditOpenFundDepositRecordDialog(getSingleSelectId(id));
+    }
+    function doOpenFundDepositRecordPreAuditPass(isAuditPass)
+    {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DepositPreAuditPass", "OpenFundApply")' +  "?date=" + new Date().getMilliseconds() + "&isAuditPass=" + isAuditPass ,
+            data: $("#frmOpenFundDepositRecordAudit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                openFundDepositRecordPreAuditDialog.dialog('destroy');
+                doDepositSearch();
+            }
+        });
+    }
+    function doOpenFundDepositRecordPreAuditReject()
+    {
+        $.ajax({
+            type: "POST",
+            @* 2015.10.28 错误请求，更改控制器 *@
+            url: '@Url.Action("DepositPreAuditReject", "OpenFundApply")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmOpenFundDepositRecordAudit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                openFundDepositRecordPreAuditDialog.dialog('destroy');
+                doDepositSearch();
+            }
+        });
+    }
+</script>
+@Html.Partial("../Subject/ProjectScriptContainer")
+

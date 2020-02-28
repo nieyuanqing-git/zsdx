@@ -1,0 +1,24 @@
+﻿D:\LIMS\Code\com.Bynonco.LIMS.Site\Views\Appointment\AppointmentTutorAuditResultContainer.cshtml@{
+    ViewBag.Title = "机时预约申请导师审核结果";
+    var url = Url.Action("Index","Home");
+ }
+ @Html.Partial("HomeJsCSS")
+ <style type="text/css">
+     body{ background:none;}
+ </style>
+ <div class="layout-center-full">
+    <div class="edit-box">
+         <div style="padding:10px;">
+             <div class="notification attention" style="margin:0; padding:0;">
+			    <div style="text-align:left;">
+                   @ViewData["Result"],5秒钟后将自动跳转,手动跳转请<a href="@url" target="_self" style="text-decoration:underline;">点击这里</a>
+                </div>
+		    </div>
+         </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        setTimeout("window.location.href='@url'", 5000);
+    });
+</script>

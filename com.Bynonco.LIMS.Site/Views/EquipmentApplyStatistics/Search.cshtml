@@ -1,0 +1,127 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+    #tbEquipmentApplySearch td{font-weight:normal;}
+    #tbEquipmentApplySearch th{font-weight:normal;text-align:right; width:100px; line-height:20px;background:url('../../JqueryEasyUI/themes/gray/images/datagrid_title_bg.gif') repeat;}
+</style>
+<script type="text/javascript">
+    function generateQueryExpression() {
+        var queryExpression = "";
+        var equipmentName = $("#SearchEqName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += "Name∽\"" + equipmentName + "\"";
+        }
+        var model = $("#SearchModel").val().trim();
+        if (model.trim() != "") {
+            queryExpression += (queryExpression == "" ? "Model∽\"" + model + "\"" : "*Model∽\"" + model + "\"");
+        }
+        var applicantName = $("#SearchApplicantName").val().trim();
+        if (applicantName != "") {
+            queryExpression += (queryExpression == "" ? "ApplicantName∽\"" + applicantName + "\"" : "*ApplicantName∽\"" + applicantName + "\"");
+        }
+        var applyTimeStart = $("#SearchApplyTimeStart").datebox("getValue").trim();
+        if (applyTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime>\"" + applyTimeStart + "\"";
+        }
+        var applyTimeEnd = $("#SearchApplyTimeEnd").datebox("getValue").trim();
+        if (applyTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime<\"" + applyTimeEnd + " 23:59:59\"";
+        }
+        var labRoomName = $("#SearchLabRoomName").val().trim();
+        if (labRoomName != "") {
+            queryExpression += (queryExpression == "" ? "LabRoomName∽\"" + labRoomName + "\"" : "*LabRoomName∽\"" + labRoomName + "\"");
+        }
+        var beginApplyYear = $("#SearchBeginApplyYear").combobox("getValue");
+        if (beginApplyYear.trim() != "" && beginApplyYear != "-1") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyYear>" + beginApplyYear;
+        }
+        var endApplyYear = $("#SearchEndApplyYear").combobox("getValue");
+        if (endApplyYear.trim() != "" && endApplyYear != "-1") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyYear<" + endApplyYear;
+        }
+
+        var selectedStatus = $("#SearchStatus").combobox("getValues");
+        var selectedStatusIds = selectedStatus.toString().split(",");
+        if (selectedStatusIds.length > 1 || (selectedStatusIds[0].trim() != "-1" && selectedStatusIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedStatusIds.length; i++) {
+                if (selectedStatusIds[i].trim() == "-1") { index++; continue; }
+                queryExpression += (i == index ? "Status=\"" + selectedStatusIds[i] + "\"" : "+Status=\"" + selectedStatusIds[i] + "\"");
+            }
+            queryExpression += ")";
+        }
+        return queryExpression;
+    }
+
+    function doQueryReset() {
+        $("#SearchApplicantName").val("");
+        $("#SearchEqName").val("");
+        $("#SearchModel").val("");
+        $("#SearchLabRoomName").val("");
+        $("#SearchApplyTimeStart").datebox("setValue", "");
+        $("#SearchApplyTimeEnd").datebox("setValue", "");
+        $("#SearchBeginApplyYear").combobox("clear");
+        $("#SearchEndApplyYear").combobox("clear");
+        $("#SearchStatus").combobox("setValue", "-1");
+        return false;
+    }
+    </script>
+<div class="panel-header">
+    <div class="menu-type">
+       <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnGridSearch" hidefocus="true" onclick="return false;">
+           <span class="l-btn-left">
+                <span class="l-btn-text icon-search" style="padding-left: 20px;">搜索</span>
+           </span>
+       </a>
+    </div>
+    <div style="padding-top:38px">
+        <table id="tbEquipmentApplySearch" style="border-collapse: collapse; margin-top:5px">
+            <tr>
+                <th >申请人</th>
+                <td>
+                   @Html.JValidateBox("SearchApplicantName").SetWidth(120).ToMvcString()
+                </td>
+                <th>设备名称</th>
+                <td>
+                    @Html.JValidateBox("SearchEqName").SetWidth(120).ToMvcString()
+                </td>
+                <th>设备型号</th>
+                <td>
+                  @Html.JValidateBox("SearchModel").SetWidth(120).ToMvcString()
+                </td>
+                <td rowspan="3" style="text-align:center; width:250px; vertical-align:middle">
+                    @Html.JLinkButton("btnSearch", "查询").SetOnclick("doEquipmentApplySummaryStaticsSearch();").ToMvcString()
+                    @Html.JLinkButton("btnReset", "清空").SetOnclick("doQueryReset();").ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>单位名称</th>
+                <td>
+                   @Html.JValidateBox("SearchLabRoomName").SetWidth(120).ToMvcString()
+                </td>
+                 <th>申请开始时间</th>
+                <td >
+                    @Html.JDateTimePicker("SearchApplyTimeStart").SetWidth(125).ToMvcString()
+                </td>
+                <th>申请结束时间</th>
+                <td>
+                    @Html.JDateTimePicker("SearchApplyTimeEnd").SetWidth(125).ToMvcString() 
+                </td>
+            </tr>
+            <tr>
+                <th>开始年份</th>
+                <td> 
+                    @Html.JComboBox("SearchBeginApplyYear").SetData(ViewData["BeginApplyYearJson"]).SetWidth(125).ToMvcString()
+                </td>
+                <th>结束年份</th>
+                <td> 
+                    @Html.JComboBox("SearchEndApplyYear").SetData(ViewData["EndApplyYearJson"]).SetWidth(125).ToMvcString()
+                </td>
+                <th>状态</th>
+                <td>
+                   @Html.JComboBox("SearchStatus").SetWidth(125).SetMutiSelect(true).SetData(ViewData["StatusJson"]).ToMvcString()
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

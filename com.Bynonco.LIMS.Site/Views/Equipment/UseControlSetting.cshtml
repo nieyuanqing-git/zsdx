@@ -1,0 +1,107 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@model com.Bynonco.LIMS.Model.View.ViewEquipment
+<script type="text/javascript">
+    function doControllerTypeChange() {
+        var controllerType = $("#ControllerType").combobox("getValue").trim();
+        if (controllerType == '@((int)EquipmentControllerType.PowerControl)'
+            || controllerType == '@((int)EquipmentControllerType.PowerControlWithScreen)') 
+        {
+            $("#trIsClosePower").removeClass("hide");
+        }
+        else {
+            $("#trIsClosePower").addClass("hide");
+        }
+    }
+</script>
+
+<p><span class="icon icon-powerconnect"></span>使用与控制</p>
+<form id="frmUseControlSettingEdit" action="#">
+@Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+<table id="tbUseControllSetting" class="edit-info">
+    <tr>
+        <th>培训才可使用</th>
+        <td>
+            @Html.RadioButton("UseDefaultIsNeedTranningBeforeUse", new { }, Model != null && Model.UseDefaultIsNeedTranningBeforeUse.HasValue && Model.UseDefaultIsNeedTranningBeforeUse.Value)
+            系统默认
+            @Html.RadioButton("UseDefaultIsNeedTranningBeforeUse", new { }, Model == null || !Model.UseDefaultIsNeedTranningBeforeUse.HasValue || !Model.UseDefaultIsNeedTranningBeforeUse.Value)
+            @(Html.JComboBox("IsNeedTranningBeforeUse")
+            .SetData(ViewData["IsNeedTranningBeforeUseJson"])
+            .SetEditable(false)
+            .SetValue(Model == null || !Model.IsNeedTranningBeforeUse.HasValue ? "0" : Model.IsNeedTranningBeforeUse.Value ? "1" : "0").SetWidth(50).ToMvcString())
+        </td>
+    </tr>
+    <tr>
+        <th>IP地址</th>
+        <td>@Html.JValidateBox("IP").SetWidth(252).SetValidateType(ValidateType.ip).SetValue(Model == null ? "" : Model.IP ).ToMvcString()</td>
+    </tr>
+    <tr>
+        <th>启用自动IP</th>
+        <td>
+            @Html.CheckBox("DHCP", Model == null ? false : Model.DHCP)
+        </td>
+    </tr>
+    <tr>
+        <th>唯一标识</th>
+        <td>
+            @Html.JValidateBox("DHCPCode").SetValue(Model == null || !Model.DHCP ? "" : Model.DHCPCode).SetWidth(200).ToMvcString()
+            &nbsp;&nbsp;<span class="icon icon-info-blue" title="启用自动IP生效,格式为3个数字或字母的字符,如[A00]"></span>
+        </td>
+    </tr>
+    <tr>
+        <th>控制方式</th>
+        <td> 
+            @(Html.JComboBox("ControllerType")
+            .SetData(ViewData["ControllerTypeJson"])
+            .SetOnChange("doControllerTypeChange();")
+            .SetEditable(false)
+            .SetValue(Model == null || !Model.ControllerType.HasValue ? "0" : Model.ControllerType.Value.ToString()).SetWidth(257).ToMvcString())
+            <span class="required">必填</span>
+        </td>
+    </tr>
+    <tr id="trIsClosePower" class='@(Model.ControllerType.HasValue && (Model.ControllerType.Value == (int)EquipmentControllerType.PowerControl || Model.ControllerType.Value == (int)EquipmentControllerType.PowerControlWithScreen) ? "" : "hide")'>
+        <th>自动断电</th>
+        <td>
+            @Html.CheckBox("IsClosePower", Model == null || !Model.IsClosePower.HasValue ? false : Model.IsClosePower.Value)
+            是否到时间自动关闭电源
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" align="center">
+            关闭电源后, 过
+            @Html.JValidateBox("Interval").SetValidateType(ValidateType.intNumber).SetWidth(30).SetValue(Model == null || !Model.Interval.HasValue ? "" : Model.Interval.Value.ToString()).ToMvcString()
+            (秒)才能打开电源
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" align="center">
+            打开电源后, 隔
+            @Html.JValidateBox("AutoOff").SetValidateType(ValidateType.intNumber).SetWidth(30).SetValue(Model == null || !Model.AutoOff.HasValue ? "" : Model.AutoOff.Value.ToString()).ToMvcString()
+            (秒)才能关闭电源
+        </td>
+    </tr>
+     <tr>
+        <td colspan="2" align="center">
+            使用完仪器后, 隔
+            @Html.JValidateBox("Duration").SetValidateType(ValidateType.intNumber).SetWidth(30).SetValue(Model == null || !Model.Duration.HasValue ? "" : Model.Duration.Value.ToString()).ToMvcString()
+            (秒)才能关闭电源, 并提前
+            @Html.JValidateBox("WarnOff").SetValidateType(ValidateType.intNumber).SetWidth(30).SetValue(Model == null || !Model.WarnOff.HasValue ? "" : Model.WarnOff.Value.ToString()).ToMvcString()
+            (秒)告警
+        </td>
+    </tr>
+    <tr>
+        <th>离线授权数(1～10)</th>
+        <td>
+            @Html.JValidateBox("OfflineRecordNum").SetValidateType(ValidateType.intNumber).SetWidth(30).SetValue(Model == null || !Model.OfflineRecordNum.HasValue ? "" : Model.OfflineRecordNum.Value.ToString()).ToMvcString()
+            <span style='color:#000'>(条/人)</span>离线授权数不能随意更改,更改后需要更新到控制器
+        </td>
+    </tr>
+    <tr>
+        <th>仪器信息</th>
+        <td>
+            @Html.TextArea("Info", Model == null ? "" : Model.Info, new { style = "width:350px;height:60px;" })
+        </td>
+    </tr>
+   
+</table>
+</form>

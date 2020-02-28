@@ -1,0 +1,436 @@
+﻿@model com.Bynonco.LIMS.Model.UsedConfirm
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Privilige;
+@{
+    var isAutoCalsUsedConfirmFee = com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer().GetIsAutoCalUsedConfirmFee();
+    var usedConfirmPrivilige = Model != null ?
+       PriviligeFactory.GetUsedConfirmPrivilige(User.Identity.Name, Model.EquipmentId) :
+       PriviligeFactory.GetUsedConfirmPrivilige(User.Identity.Name);
+    var equipmentUseConditionList = ViewData["EquipmentUseConditionList"] != null ? (IList<EquipmentUseCondition>)ViewData["EquipmentUseConditionList"] : null;
+    var chargeStandard = ViewData["ChargeStandard"] == null ? null : (ChargeStandard)ViewData["ChargeStandard"];
+    var calcFeeTimeRule = ViewData["CalcFeeTimeRule"] == null ? null : (CalcFeeTimeRule)ViewData["CalcFeeTimeRule"];
+    var isForAppointment = ViewData["IsForAppointment"] == null ? false : (bool)ViewData["IsForAppointment"];
+    var customer = com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer();
+    var isSampleCountReqired = customer.GetIsAppointmentSampleAmountRequired() || (chargeStandard != null && chargeStandard.ChargeTypeEnum == com.Bynonco.LIMS.Model.Enum.ChargeType.BySampleCount);
+    var isShowSampleNo = customer.GetIsShowAppointmentSampleInfo();
+    var isShowSampleCount = customer.GetIsShowAppointmentSampleInfo() || isSampleCountReqired;
+    var isShowSampleTarget = customer.GetIsShowAppointmentSampleTarget();
+    var isShowSampleStuff = customer.GetIsShowAppointmentSampleStuff();
+    var isShowSampleSize = customer.GetIsShowAppointmentSampleSize();
+    var selectSubjectProjectId = Model==null || !Model.SubjectProjectId.HasValue ? "" : Model.SubjectProjectId.Value.ToString();
+    var isEnableCostDeduct = true;
+    var isEnableEidtUsedConfirmEquipmentUseCondition = ViewData["IsEnableEidtUsedConfirmEquipmentUseCondition"] != null ? (bool)ViewData["IsEnableEidtUsedConfirmEquipmentUseCondition"] : false;
+    var isSuperAdmin = (bool)ViewData["IsSuperAdmin"];
+    var isOnlySuperAdminEnableHandleMinuseCostDeduct = com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer().GetIsOnlySuperAdminEnableHandleMinuseCostDeduct();
+    if(isOnlySuperAdminEnableHandleMinuseCostDeduct  && !isSuperAdmin)
+    {
+        isEnableCostDeduct = false;
+    }
+  }
+  <script type="text/javascript">
+      function getSelectedSubjectProjectId() {
+          return '@selectSubjectProjectId';
+      }
+      function doInitComboDate(id) {
+          setTimeout(function () {
+              var val = $("#" + id).combobox("getValue");
+              if (val && val != "") {
+                  $("#" + id).combobox("setText", val);
+              }
+          }, 100);
+      }
+ </script>
+ @Html.Partial("../Subject/LoadSubjectProjectScript")
+ @Html.Partial("../Equipment/EquipmentUseConditionScriptContainer")
+  @Html.Partial("../Equipment/EquipmentAdditionChargeScriptContainer")
+ <div id="divUsedConfirmEdit" style="overflow-x:hidden; width:450px; height:580px">
+ <script type="text/javascript">
+     var isFinishLoaded = false;
+     function doOnDesOptionsChangedCallBack(va) {
+         if (isFinishLoaded == true && '@(isAutoCalsUsedConfirmFee.ToString().ToLower())' == "true") doTryCalcFee();
+     }
+     function doOnDataDictChangedCallBack(va) {
+         if (isFinishLoaded == true && '@(isAutoCalsUsedConfirmFee.ToString().ToLower())' == "true") doTryCalcFee();
+     }
+     function showErrorMsg(erroeMsg) {
+         erroeMsg = erroeMsg != "" && erroeMsg.indexOf("出错") != -1 ? erroeMsg : "";
+         $("#trErrorMsg").css("display", erroeMsg != "" ? "" : "none");
+         $("#spErrorMsg").html(erroeMsg);
+     }
+     function doGetUsedConfirmRelativeData(isEquipmentChanged) {
+         if (isFinishLoaded == true) {
+             var selectedUserId = $("#UserId").val().trim();
+             var selectedEquipmentId = $("#EquipmentId").val().trim();
+             if (selectedUserId == "" || selectedEquipmentId == "") return;
+             var selectedDesOptionsIds = getEquipmentPartIds();
+             $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+             $.ajax({
+                 type: "POST",
+                 url: '@Url.Action("GetUsedConfirmRelativeData", "UsedConfirm")',
+                 data: $("#frmUsedConfirmEdit").serialize() + "&EquipmentPartIds=" + selectedDesOptionsIds + "&time=" + new Date().getMilliseconds(),
+                 success: function (msg) {
+                     $.messager.progress('close');
+                     var data = eval("(" + msg + ")");
+                     generateOpenFundRelativeData(data);
+                     $("#SubjectId").combobox("loadData", data.Subjects ? data.Subjects : null);
+                     $("#spanStandardPrice").text(data.ChargeStandardExpression);
+                     $("#spanReadableExpression").text(data.CalFeeTimeRuleExpression);
+                     $("#trEquipmentOpenFundChargeRemark").css("display", data.IsOpenFundCostDeduct ? "" : "none");
+                     $("#trSampleCount").css("display", data.IsShowSampleCount  ? "" : "none");
+                     if (isEquipmentChanged) {
+                         $("#tbEquipmentPartContainer").html("");
+                         $("#tbEquipmentUseConditionContainer").html("");
+                         $("#tbEquipmentAdditionChargeContainer").html("");
+                         if (data.EquipmentPartCount > 0) {
+                             doLoadUsedConfirmEquipmentParts();
+                         }
+                         if (data.EquipmentUseConditionCount > 0) {
+                             doLoadUsedConfirmEquipmentUseConditions();
+                         }
+                         if (data.EquipmentAdditionChargeItemCount > 0) {
+                             doLoadUsedConfirmEquipmentAddtionChargeItems();
+                         }
+                     }
+                     showErrorMsg(data.ErrorMessage);
+                     if (data.ErrorMessage != "") {
+                         $("#CalcFee").val("");
+                         $("#RealFee").val("");
+                     }
+                 }
+             });
+         }
+     }
+     function doLoadUsedConfirmEquipmentAddtionChargeItems() {
+         var selectedUserId = $("#UserId").val().trim();
+         var selectedEquipmentId = $("#EquipmentId").val().trim();
+         if (selectedUserId == "" || selectedEquipmentId == "") return;
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("UsedConfirmEquipmentAdditionChargeContainer", "UsedConfirm")',
+             data: $("#frmUsedConfirmEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 $("#tbEquipmentAdditionChargeContainer").html(msg);
+             }
+         });
+     }
+     function doLoadUsedConfirmEquipmentParts() {
+         var selectedUserId = $("#UserId").val().trim();
+         var selectedEquipmentId = $("#EquipmentId").val().trim();
+         if (selectedUserId == "" || selectedEquipmentId == "") return;
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("UsedConfirmEquipmentPartContainer", "UsedConfirm")',
+             data: $("#frmUsedConfirmEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 $("#tbEquipmentPartContainer").html(msg);
+             }
+         });
+     }
+     function doLoadUsedConfirmEquipmentUseConditions() {
+         var selectedUserId = $("#UserId").val().trim();
+         var selectedEquipmentId = $("#EquipmentId").val().trim();
+         if (selectedUserId == "" || selectedEquipmentId == "") return;
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("UsedConfirmEquipmentUseConditionContainer", "UsedConfirm")',
+             data: $("#frmUsedConfirmEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 $("#tbEquipmentUseConditionContainer").html(msg);
+             }
+         });
+     }
+</script>
+
+<form id="frmUsedConfirmEdit" action="#">
+    @Html.Hidden("IsAllowAccountMinuse", false)  
+    @Html.Hidden("UsedConfirmId", Model == null || Model.Id == default(Guid) || isForAppointment ? "" : Model.Id.ToString())
+    @Html.Hidden("AppointmentId", Model != null && Model.AppointmentId.HasValue ? Model.AppointmentId.ToString() : "")
+    @Html.Hidden("IsForAppointment", isForAppointment)
+    <table class="edit-table" style="width:100%;height:100%">
+        <tr id="trErrorMsg" style="display:none;">
+            <th colspan="3"><span id="spErrorMsg" style="color:Red;"></span></th>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>使用者</th>
+            <td id="tdUserId" style="padding-left:2px">
+                @Html.TokenInput("UserId").SetOnChange("doGetUsedConfirmRelativeData(false);").SetUrl(Url.Action("GetUserListByKeyWord", "User")).SetPrePopulate(ViewData["UserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserJson"].ToString()) ? null : ViewData["UserJson"].ToString()).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>设备名称</th>
+            <td id="tdEquipmentId" style="padding-left:2px;">
+                <div class="float_l">
+                    <div style="float:left;">@Html.TokenInput("EquipmentId").SetOnChange("doGetUsedConfirmRelativeData(true);").SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment")).SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString()).ToMvcString()</div>
+                    @if (Model == null)
+                    {
+                        <div style="float:left;">@Html.JLinkButton("btnClearVirtualEquipmentBindId", "").SetIconCls("icon-remove").SetPlain(true).SetOnclick("$('#EquipmentId').tokenInput('clear');").ToMvcString()</div>
+                    }
+                    <div style="clear:both;"></div>
+                </div>
+                
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>课题组</th>
+            <td>
+                @Html.JComboBox("SubjectId").SetOnChange("doGetUsedConfirmRelativeData(false);" + "doOnSubjectChanged(newValue, oldValue);").SetData(ViewData["SubjectJson"]).SetWidth(230).SetDisabled(Model != null).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>
+                项目名称
+             </th>
+            <td>@Html.JComboBox("SubjectProjectId").SetWidth(230).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>使用开始时间</th>
+            <td id="tdUseBeginAt">
+                <span  class="date">@(Html.JDateTimePicker("BeginAt").SetWidth(121).SetOnChange(isAutoCalsUsedConfirmFee ? "doGetUsedConfirmRelativeData(false);" : "").SetValue(Model != null && Model.BeginAt.HasValue ? Model.BeginAt.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd")).ToMvcString())</span>
+                <span class="time">@(Html.JComboBox("BeginAtHour").SetOnLoadSuccess("doInitComboDate('BeginAtHour');").SetOnChange(isAutoCalsUsedConfirmFee ? "doGetUsedConfirmRelativeData(false);" : "").SetWidth(40).SetData(ViewData["BeginAtHourJson"]).AddClass("time-fix").ToMvcString())</span><span>时</span>
+                <span class="time">@(Html.JComboBox("BeginAtMinute").SetOnLoadSuccess("doInitComboDate('BeginAtMinute');").SetOnChange(isAutoCalsUsedConfirmFee ? "doGetUsedConfirmRelativeData(false);" : "").SetWidth(40).SetData(ViewData["BeginAtMinuteJson"]).AddClass("time-fix").ToMvcString())</span><span>分</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>使用结束时间</th>
+            <td id="tdUseEndAt">
+                <span class="date">@(Html.JDateTimePicker("EndAt").SetWidth(121).SetOnChange(isAutoCalsUsedConfirmFee?"doGetUsedConfirmRelativeData(false);":"").SetValue(Model != null && Model.EndAt.HasValue ? Model.EndAt.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd")).ToMvcString())</span>
+                <span class="time">@(Html.JComboBox("EndAtHour").SetOnLoadSuccess("doInitComboDate('EndAtHour');").SetWidth(40).SetOnChange(isAutoCalsUsedConfirmFee ? "doGetUsedConfirmRelativeData(false);" : "").SetData(ViewData["EndAtHourJson"]).AddClass("time-fix").ToMvcString())</span><span>时</span>
+                <span class="time">@(Html.JComboBox("EndAtMinute").SetOnLoadSuccess("doInitComboDate('EndAtMinute');").SetOnChange(isAutoCalsUsedConfirmFee ? "doGetUsedConfirmRelativeData(false);" : "").SetWidth(40).SetData(ViewData["EndAtMinuteJson"]).AddClass("time-fix").ToMvcString())</span><span>分</span>
+            </td>
+        </tr>
+        <tr>
+            <th>计费标准</th>
+            <td>
+                <span id="spanStandardPrice">
+                    @if (Model == null)
+                    {
+                        @("未定义计费标准")
+                    }
+                    else
+                    {
+                        @Model.UnitPriceStr
+                    }
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th>计费时间规则</th>
+            <td>
+                <span id="spanReadableExpression">
+                    @if (calcFeeTimeRule == null)
+                    {
+                        @("未定义计费时间规则")
+                    }
+                    else
+                    {
+                        @(!string.IsNullOrWhiteSpace(calcFeeTimeRule.ReadableExpression) ?
+                            calcFeeTimeRule.ReadableExpression :
+                            calcFeeTimeRule.Expression)
+                    }
+                </span> 
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>计费时长</th>
+            <td>
+                 @Html.TextBox("CalcDuration", Model == null ? "0" : (Model.CalcDuration * 60).ToString("0"), new { @readonly = "readonly", style = "width:150px" })@("分钟")
+                 @Html.JLinkButton("btnCalcDuration", "计费").SetPlain(true).SetIconCls("icon-trainning").SetOnclick("doTryCalcFee();return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr id="trSampleCount" style="display:@(isShowSampleCount ? "" : "none");">
+            <th>
+                @if (isSampleCountReqired)
+                {
+                    <span class="required">*</span>
+                }
+                <span>样品数</span>
+            </th>
+            <td>
+                @Html.TextBox("SampleCount", Model == null || !Model.SampleCount.HasValue ? "" : Model.SampleCount.Value.ToString(), new { onchange = "doGetUsedConfirmRelativeData(false);", style="width:150px"})
+            </td>
+        </tr>
+        <tr style="display:@(isShowSampleStuff ? "" : "none");">
+            <th>样品材料</th>
+            <td>@Html.JValidateBox("SampleStuff").SetValue(Model == null ? "" : Model.SampleStuff).ToMvcString()</td>
+        </tr>
+        <tr style="display:@(isShowSampleSize ? "" : "none");">
+            <th>样品尺寸</th>
+            <td>@Html.JValidateBox("SampleSize").SetValue(Model == null ? "" : Model.SampleSize).ToMvcString()</td>
+        </tr>
+        <tr style="display:@(isShowSampleTarget ? "" : "none");">
+            <th>样品目的</th>
+            <td>@Html.JValidateBox("Target").SetValue(Model == null ? "" : Model.Target).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>
+                应收费
+            </th>
+            <td>
+                @Html.TextBox("CalcFee", Model == null ? "0" : Model.CalcFee.ToString("0.0"), new { @readonly = "readonly", style = "width:150px" })@("元")
+            </td>
+        </tr>
+        <tr>
+            <th>
+                实收费
+            </th>
+            <td>
+                @Html.TextBox("RealFee", Model == null || !Model.RealFee.HasValue ? "" : (Model.RealFee.Value + (Model.CostDeduct != null && Model.CostDeduct.CostDeductEquipmentOpenFunds != null && Model.CostDeduct.CostDeductEquipmentOpenFunds.Count > 0 ? Model.CostDeduct.CostDeductEquipmentOpenFunds.Sum(p => p.CalFee) : 0d)).ToString("0.0"), new { style = "width:150px" })@("元")
+            </td>
+        </tr>
+        @if (Model != null && Model.CostDeduct == null)
+        {
+            <tr>
+                <th>
+                    未扣费原因
+                </th>
+                <td>
+                    @Html.TextArea("WhyNotCostDeduct", Model == null || string.IsNullOrWhiteSpace(Model.WhyNotCostDeduct) ? "" : Model.WhyNotCostDeduct, 3, 55, null)
+                </td>
+            </tr>
+        }
+        <tr id="trEquipmentOpenFundChargeRemark" style='display:@(Model != null && Model.IsOpenFundCostDeduct ? "" : "none")'>
+            <th>
+                开放基金<br />扣费说明
+            </th>
+            <td>
+                <div id="divOpenFundFee" style="color:Blue; font-weight:bold;">
+                    @if (Model != null && Model.CostDeduct != null)
+                    {
+                        var openFundFee = Model.CostDeduct.OpenFundCurrency;
+                        @("总费用:" + (Model.CostDeduct.Fee + openFundFee).ToString("0.00") + "元,其中开放基金:" + openFundFee.ToString("0.00") + "," + "普通币:" + Model.CostDeduct.Fee.ToString("0.00"))
+                    }
+                </div>
+                <span style="color:#888888">当前课题组负责人该设备开放基金足以支付此次费用，暂以开发基金的收费标准进行计费，实际扣费标准会根据扣费时课题负责人账户和开发基金账户情况决定</span>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                备注
+            </th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, 3, 55, null)
+            </td>
+        </tr>
+        
+    </table>
+    <table id="tbEquipmentPartContainer" class="edit-table" style="margin-top:2px;width:100%;">
+        @Html.Partial("../Equipment/EquipmentPartContainer")
+    </table>
+    <table id="tbEquipmentUseConditionContainer" class="edit-table" style="margin-top:2px;width:100%;">
+        @if (equipmentUseConditionList != null && equipmentUseConditionList.Count > 0)
+        {
+            @Html.Partial("../Equipment/EquipmentUseConditionContainer", equipmentUseConditionList)
+        }
+    </table>
+    <table id="tbEquipmentAdditionChargeContainer" class="edit-table" style="margin-top:2px;width:100%;">
+            @Html.Partial("../Equipment/EquipmentAdditionChargeContainer")
+    </table>
+    </form>
+ <script type="text/javascript">
+     $(function () {
+         $("#tdUserId ul.token-input-list-facebook").css("width", "230px");
+         $("#tdEquipmentId ul.token-input-list-facebook").attr("style", "width: 230px; height:32px !important;");
+         var isIE6 = jQuery.browser.msie && (jQuery.browser.version == "6.0") && !jQuery.support.style;
+         if (isIE6) {
+             $("#tdUseBeginAt span.date span.datebox").css("width", "82px");
+             $("#tdUseBeginAt span.date span.datebox INPUT").css("width", "82px");
+             $("#tdUseBeginAt span.date INPUT.easyui-datebox").css("width", "82px");
+             $("#tdUseBeginAt span.time INPUT.combo-text").css("width", "30px");
+             $("#tdUseEndAt span.date span.datebox").css("width", "82px");
+             $("#tdUseEndAt span.date span.datebox INPUT").css("width", "82px");
+             $("#tdUseEndAt span.date INPUT.easyui-datebox").css("width", "82px");
+             $("#tdUseEndAt span.time INPUT.combo-text").css("width", "30px");
+         }
+         isFinishLoaded = true;
+     });
+     function doSaveUsedConfirm(editUsedConfirmDialog) {
+         var selectedDesOptionsIds = getEquipmentPartIds();
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("SaveUsedConfirm", "UsedConfirm")',
+             data: $("#frmUsedConfirmEdit").serialize() + "&EquipmentPartIds=" + selectedDesOptionsIds + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 if (msg.indexOf("出错") >= 0) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                     return false;
+                 }
+                 if (typeof (doSaveUsedConfirmCallBack) == 'function') {
+                     doSaveUsedConfirmCallBack(editUsedConfirmDialog);
+                 }
+             }
+         });
+     }
+     function doChargeUsedConfirm(editUsedConfirmDialog) {
+         var selectedDesOptionsIds = getEquipmentPartIds();
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("DirectCostDeduct", "UsedConfirm")',
+             data: $("#frmUsedConfirmEdit").serialize() + "&EquipmentPartIds=" + selectedDesOptionsIds + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 var data = eval("(" + msg + ")");
+                 if (data.ErrorMessage.indexOf("出错") >= 0) {
+                     $.messager.show({ title: '提示', msg: data.ErrorMessage, showType: 'show' });
+                     return false;
+                 }
+                 showErrorMsg(data.ErrorMessage);
+                 if (data.IsCheckMoneyNotPass != true) {
+                     if (data.ErrorMessage == "" && typeof (doChargeUsedConfirmCallBack) == 'function') {
+                         doChargeUsedConfirmCallBack(editUsedConfirmDialog);
+                     }
+                 }
+                 else if ('@(isEnableCostDeduct.ToString().ToLower())' == "true") {
+
+                     $.messager.confirm('提示', data.ErrorMessage + ",是否继续扣费?", function (r) {
+                         if (!r) return;
+                         $("#IsAllowAccountMinuse").val(true);
+                         return doChargeUsedConfirm();
+                     });
+                 }
+                 else { $.messager.show({ title: '提示', msg: data.ErrorMessage, showType: 'show' }); }
+             }
+         });
+     }
+     function doTryCalcFee() {
+         var selectedDesOptionsIds = getEquipmentPartIds();
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("CalcFeeUsedConfirm","UsedConfirm")',
+             data: $("#frmUsedConfirmEdit").serialize() + "&EquipmentPartIds=" + selectedDesOptionsIds + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 showErrorMsg(msg);
+                 if (msg && (msg.indexOf("出错") != -1)) return false;
+                 var data = eval("(" + msg + ")");
+                 generateOpenFundRelativeData(data);
+             }
+         });
+     }
+     function generateOpenFundRelativeData(data) {
+         $("#CalcDuration").val(data.Duration);
+         $("#RealFee").val(data.Fee);
+         $("#CalcFee").val(data.Fee);
+         $("#trEquipmentOpenFundChargeRemark").css("display", data.IsOpenFundCostDeduct.toString().toLowerCase() == "true" ? "" : "none");
+         $("#divOpenFundFee").html("总费用:" + data.Fee + "元,其中开放基金:" + data.OpenFundFee + "元,普通币:" + data.PredictFee + "元");
+     }
+     function doOnUsedConfirmEquipmentUseConditionDataChanged() {
+         doGetUsedConfirmRelativeData(false);
+     }
+     function doOnUsedConfirmEquipmentAdditionChargeItemDataChanged() {
+         doGetUsedConfirmRelativeData(false);
+     }
+</script>
+</div>

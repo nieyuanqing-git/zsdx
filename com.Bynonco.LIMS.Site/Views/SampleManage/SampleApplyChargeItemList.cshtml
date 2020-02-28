@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{ var queryExpression = ViewData["QueryExpression"];
+   var dataGrid = Html.JDataGrid("tbSampleApplyChargeItem")
+           .SetWidth(773)
+           .SetHeight(450)
+           .SetShowAddButton(true)
+           .SetUrl(Url.Action("GetSampleApplyChargeItemList", "SampleManage", new { queryExpression = queryExpression }))
+           .SetAddScript("doAddOrEditSampleApplyChargeItem('');")
+           .SetShowPrintButton(true)
+           .SetRefreshScript("doChargeItemRefresh();")
+           .SetOnDblClickRow("doAddOrEditSampleApplyChargeItem(rowData.SampleApplyChargeItemId);")
+           .SetSortName("ChargeTime")
+           .SetSortOrder(SortOrder.desc)
+           .SetPagination(false)
+           .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作", "operate").SetWidth(100).SetAlign(Align.center))
+           .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "SampleApplyChargeItemId").SetHidden(true))
+           .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "ChargeStatus").SetHidden(true))
+           .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "SampleChargeItemName").SetWidth(200).SetAlign(Align.left));
+           if(com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer().GetIsOpenFundCostDeduct())
+           {
+               dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否开放基金扣费", "IsOpenFundCostDeductStr").SetWidth(120).SetAlign(Align.center));
+               dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("补贴币(元)", "TotalOpenFundFee").SetWidth(80).SetAlign(Align.center));
+               dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("真实币(元)", "TotalFee").SetWidth(80).SetAlign(Align.center));
+           }
+           dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总价(元)", "CalFee").SetWidth(80).SetAlign(Align.center))
+           .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("单价(元)", "Price").SetWidth(80).SetAlign(Align.center))
+           .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("数量", "Quantity").SetWidth(80).SetAlign(Align.center));
+           
+           dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("收费人", "ChargeOperatorName").SetWidth(60).SetAlign(Align.center))
+           .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("收费时间", "ChargeTimeStr").SetWidth(150).SetAlign(Align.center))
+           .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("其他", "Other").SetWidth(200).SetAlign(Align.left))
+           .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(350).SetAlign(Align.left));
+ }
+ @(dataGrid.ToMvcString())
+
+

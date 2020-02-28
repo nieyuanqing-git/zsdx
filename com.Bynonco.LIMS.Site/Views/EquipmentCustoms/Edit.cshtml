@@ -1,0 +1,118 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentCustoms
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+<style type="text/css">
+#tdEquipmentIds .token-input-list-facebook{border:0;}
+</style>
+<div id="divEquipmentCustomsEdit"> 
+<form id="frmEquipmentCustoms" action="#">
+    @Html.Hidden("Id",Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style='width:650px;'>
+        <tr>
+            <th><span class='required'>*</span>征免税证明编号</th>
+            <td>
+                 @Html.JValidateBox("TaxProveID").SetValue(Model == null ? "" : Model.TaxProveID).SetWidth(400).ToMvcString()
+            </td>            
+        </tr>
+        <tr>
+            <th>序号</th>
+            <td>
+                 @Html.JValidateBox("SerialNO").SetValue(Model == null ? "" : Model.SerialNO.ToString()).SetWidth(400).ToMvcString()
+            </td>            
+        </tr>
+        <tr>
+            <th><span class='required'>*</span>进口报关单编号</th>
+            <td>
+                 @Html.JValidateBox("ImportOrderID").SetValue(Model == null ? "" : Model.ImportOrderID).SetWidth(400).ToMvcString()
+            </td>            
+        </tr>
+        
+        <tr>
+            <th>合同号</th>
+            <td>
+                 @Html.JValidateBox("ContractID").SetValue(Model == null ? "" : Model.ContractID).SetWidth(400).ToMvcString()
+            </td>            
+        </tr>
+        <tr>
+            <th><span class='required'>*</span>进口口岸</th>
+            <td>
+                 @Html.JValidateBox("ImportPort").SetValue(Model == null ? "" : Model.ImportPort).SetWidth(400).ToMvcString()
+            </td>            
+        </tr>
+        <tr>
+            <th><span class='required'>*</span>主管海关</th>
+            <td>
+                 @Html.JValidateBox("InChargeCustoms").SetValue(Model == null ? "" : Model.InChargeCustoms).SetWidth(400).ToMvcString()
+            </td>            
+        </tr>
+        <tr>
+            <th><span class='required'>*</span>进口日期</th>
+            <td>
+                 @(Html.JDateTimePicker("ImportDate").SetWidth(215).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.ImportDate.ToString("yyyy-MM-dd")).ToMvcString())
+            </td>            
+        </tr>
+        <tr>
+            <th>后续管理记录</th>
+            <td>
+                 @Html.JValidateBox("Record").SetValue(Model == null ? "" : Model.Record).SetWidth(400).ToMvcString()
+            </td>            
+        </tr>        
+        <tr>
+            <th><span class="required">*</span>是否申报共享标志</th>
+            <td>
+                @Html.CheckBox("IsShare", Model == null ? false : Model.IsShare)
+            </td>            
+        </tr> 
+        <tr>
+            <th><span class="required">*</span>是否收费标准已评议标志</th>
+            <td>
+                @Html.CheckBox("IsPriceApproved", Model == null ? false : Model.IsPriceApproved)
+            </td>
+        </tr>
+        <tr id="trEquipmentList">
+            <th>免税仪器</th>
+            <td colspan="3" style="padding:0;border:0;">
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            @(Html.TokenInput("EquipmentIds")
+                                .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                                .SetSingle(false)                                
+                                .SetWidth(400)            
+                                .SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString())
+                                .ToMvcString())
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectUserManagementEquipment('EquipmentIds');return false;").ToMvcString()
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnCleanEquipment", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanEquipment();return false;").ToMvcString()
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>       
+    </table>    
+<div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>
+<script type="text/javascript">
+
+    function doCleanEquipment() {
+        $("#EquipmentIds").tokenInput("clear");
+    }
+    function doSelectUserManagementEquipment() {
+        doSelectEquipmentDialog('EquipmentIds', { "SelectEquipmentMode": '@((int)com.Bynonco.LIMS.Model.Enum.SelectEquipmentMode.ManagementEquipment)' });
+        return false;
+    }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+
+        $("#EquipmentIds").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#EquipmentIds").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+</script>

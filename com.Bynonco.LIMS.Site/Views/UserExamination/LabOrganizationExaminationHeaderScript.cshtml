@@ -1,0 +1,43 @@
+﻿@{
+    var isManage = ViewData["IsManage"] == null ? true : (bool)ViewData["IsManage"];
+    string listAtionName = isManage ? "LabOrganizationExaminationList" : "MyLabOrganizationExaminationList";
+ }
+<script type="text/javascript">
+    function doShowPersonalExamination() {
+        $(".panel-header .icon-user").removeClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action(listAtionName, "UserExamination")' + "?date=" + new Date().getMilliseconds();
+        doLoadExaminationRecordList(url);
+    }
+    function doShowTurtorExamination() {
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").removeClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action(listAtionName, "UserExamination")' + "?ListType=Subject&date=" + new Date().getMilliseconds();
+        doLoadExaminationRecordList(url);
+    }
+    function doShowEquipmentExamination() {
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").removeClass("icon-globe-unselect");
+        var url = '@Url.Action(listAtionName, "UserExamination")' + "?ListType=Equipment&date=" + new Date().getMilliseconds();
+        doLoadExaminationRecordList(url);
+    }
+    
+    function doLoadExaminationRecordList(url) {
+        $("#divExaminationRecordList").empty();
+        $.ajax({
+            type: "Post",
+            url: url,
+            success: function (data) {
+                $("#divExaminationRecordList").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        doShowPersonalExamination();
+    });
+</script>

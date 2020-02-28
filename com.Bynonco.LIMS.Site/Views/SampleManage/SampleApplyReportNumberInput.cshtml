@@ -1,0 +1,13 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divSampleApplyReportNumberInput"> 
+<form id="frmSampleApplyReportNumberInput" action="#">
+    <table class="edit-table">
+        <tr>
+            <th><span class="required">*</span>报告数量</th>
+            <td>
+                @Html.JValidateBox("ReportCount").SetValue(Model == null ? "" : Model.OrderNo.Value.ToString()).SetValidateType(ValidateType.intNumber).SetWidth(230).ToMvcString()
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>

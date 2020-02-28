@@ -1,0 +1,112 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+}
+<script type="text/javascript">
+    function generateEquipmentTrainningQueryExpress() {
+        var queryExpression = "";
+        var creatorName = $("#SearchCreatorName").val().trim();
+        if (creatorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreatorName∽\"" + creatorName + "\"";
+        }
+        var createBeginTime = $("#SearchCreateBeginTime").datebox("getValue").trim();
+        if (createBeginTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime>\"" + createBeginTime + " 00:00:00" + "\"";
+        }
+        var createEndTime = $("#SearchCreateEndTime").datebox("getValue").trim();
+        if (createEndTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime<\"" + createEndTime + " 23:59:59" + "\"";
+        }
+        var registerName = $("#SearchRegisterName").val().trim();
+        if (registerName != "") {
+            queryExpression = "RegisterName∽\"" + registerName + "\"";
+        }
+
+        var registerBeginTime = $("#SearchRegisterBeginTime").datebox("getValue").trim();
+        if (registerBeginTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RegisterTime>\"" + registerBeginTime + " 00:00:00" + "\"";
+        }
+        var registerEndTime = $("#SearchRegisterEndTime").datebox("getValue").trim();
+        if (registerEndTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RegisterTime<\"" + registerEndTime + " 23:59:59" + "\"";
+        }
+        var status = $("#SearchStatus").combobox("getValue").trim();
+        if (status != "-1" && status!="") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+        }
+        var userIdentity = $("#SearchUserIdentity").combobox("getValue").trim();
+        if (userIdentity != "-1" && userIdentity != "") {
+            if ('@(isPopDialog.ToString().ToLower())' == 'true' && userIdentity == '@((int)UserIdentity.Other)')
+                queryExpression += (queryExpression == "" ? "" : "*") + "(UserIdentity=-\"" + '@((int)UserIdentity.Tutor)' + "\"*UserIdentity=-\"" + '@((int)UserIdentity.Student)' + "\")";
+            else
+                queryExpression += (queryExpression == "" ? "" : "*") + "UserIdentity=\"" + userIdentity + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#SearchCreatorName").val("");
+        $("#SearchCreateBeginTime").datebox("setValue", "");
+        $("#SearchCreateEndTime").datebox("setValue", "");
+        $("#SearchRegisterName").val("");
+        $("#SearchRegisterBeginTime").datebox("setValue", "");
+        $("#SearchRegisterEndTime").datebox("setValue", "");
+        $("#SearchStatus").combobox("setValue", "");
+        $("#SearchUserIdentity").combobox("setValue", "");
+        return false;
+    }
+    
+</script>
+<ul class="search">
+    <li>
+        <label style="width:80px">申请人</label>
+        @Html.JValidateBox("SearchCreatorName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+     <li>
+        <label style="width:80px">申请类型</label>
+         @(Html.JComboBox("SearchUserIdentity")
+            .SetEditable(false)
+            .SetData(ViewData["SearchUserIdentityJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li>
+        <label style="width:80px">申请开始时间</label>
+        @Html.JDateTimePicker("SearchCreateBeginTime").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label style="width:80px">申请结束时间</label>
+        @Html.JDateTimePicker("SearchCreateEndTime").SetWidth(155).ToMvcString()
+    </li>
+    
+     <li>
+        <label style="width:80px">登记人</label>
+        @Html.JValidateBox("SearchRegisterName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label style="width:80px">登记开始时间</label>
+        @Html.JDateTimePicker("SearchRegisterBeginTime").SetWidth(155).ToMvcString()
+        
+    </li>
+     <li>
+        <label style="width:80px">登记结束时间</label>
+        @Html.JDateTimePicker("SearchRegisterEndTime").SetWidth(155).ToMvcString()
+    </li> 
+    <li>
+        <label style="width:80px">类型</label>
+        @(Html.JComboBox("SearchStatus")
+            .SetEditable(false)
+            .SetData(ViewData["SearchStatusJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li>
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

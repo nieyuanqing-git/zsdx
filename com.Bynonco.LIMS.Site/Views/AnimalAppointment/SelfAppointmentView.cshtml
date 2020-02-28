@@ -1,0 +1,184 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimalAppointment
+@using com.Bynonco.JqueryEasyUI.Core;
+@{var applicant = (com.Bynonco.LIMS.Model.User)ViewData["Appicant"];}
+<div id="divAnimalAppointmentView" style="height:600px; width:600px;">
+    <h5>1.申请单审核</h5>
+     <table class="edit-table" style="width:100%">
+        <tr>
+             <th>
+               状态
+            </th>
+            <td>
+                 @System.Web.Mvc.MvcHtmlString.Create(Model.StatusStr)
+            </td>
+             <th>
+               审核人
+            </th>
+            <td>
+                 @Model.AutitorName
+            </td> 
+        </tr>
+        <tr>
+            <th>
+               审核时间
+            </th>
+            <td colspan="3">
+                @Model.AuditTimeStr
+            </td> 
+        </tr>
+        <tr>
+             <th>
+               审核备注
+            </th>
+            <td colspan="3">
+                 @Model.AuditRemark
+            </td> 
+        </tr>
+        <tr>
+            <th>
+                实际采购数量
+            </th>
+            <td>
+                总数量:@(Model.StatusEnum== com.Bynonco.LIMS.Model.Enum.AnimalAppointmentStatus.Purchased?Model.RealQuatityStr:"0")    &nbsp;&nbsp;♀数量:@(Model.StatusEnum== com.Bynonco.LIMS.Model.Enum.AnimalAppointmentStatus.Purchased?Model.MaleQuatity.ToString():"0")   &nbsp;&nbsp;♂数量:@(Model.StatusEnum == com.Bynonco.LIMS.Model.Enum.AnimalAppointmentStatus.Purchased ? Model.FemaleQuatity.ToString() : "0")
+            </td>
+            <th>
+                批次编号
+            </th>
+            <td>
+                @Model.AnimalCode
+            </td>    
+        </tr>
+        <tr>
+            <th>
+                质量合格证编号
+            </th>
+            <td colspan="3">
+                @Model.AnimalQualifiedNo
+            </td> 
+        </tr>
+    </table>
+    <h5>2.采购登记信息</h5>
+    <table class="edit-table" style="width:100%">
+         <tr>
+             <th>
+               采购登记人
+            </th>
+            <td>
+                 @Model.PurchaseOperatorName
+            </td> 
+             <th>
+               采购登记时间
+            </th>
+            <td>
+                @Model.PurchaseTimeStr
+            </td>
+        </tr>
+        <tr>
+           
+             <th>
+               采购登记备注
+            </th>
+            <td  colspan="3">
+                 @Model.PurchaseRemark
+            </td> 
+        </tr>
+
+    </table>
+    <h5>3.申请信息</h5>
+    <table class="edit-table" style="width:100%">
+        <tr>
+            <th>课程/课题名称</th>
+            <td colspan="3">@Model.SubjectProjectName</td>
+        </tr>
+        <tr>
+            <th>
+               申请人
+            </th>
+            <td>
+                 @Model.ApplicantName
+            </td> 
+            <th>
+               联系电话
+            </th>
+            <td>
+                @Model.ApplicantLinkTelNo
+            </td>
+        </tr>
+        <tr>
+             <th>
+               伦理编号
+            </th>
+            <td>
+                 @Model.EthicsNo
+            </td> 
+            <th>
+                入室时间
+            </th>
+            <td>
+                @Model.AnimalEnterTimeStr
+            </td>
+        </tr>
+        @if (applicant.TutorId.HasValue)
+        {
+            <tr>
+                <th>
+                    实验项目负责人
+                </th>
+                <td>
+                    @applicant.TutorName
+                </td>
+                <th>
+                    联系电话
+                </th>
+                <td>
+                    @Model.SubjectDictorLinkTelNo
+                </td>
+            </tr>
+        }
+        <tr>
+            <th>
+               动物品系
+            </th>
+            <td>
+                @Model.AnimalCategoryName
+            </td>
+             <th>
+              体重/日龄
+            </th>
+            <td>
+                 @Model.AnimalSpecifications
+            </td> 
+        </tr>
+        <tr>
+            <th>
+               性别
+            </th>
+            <td>
+                @Model.AnimalSexStr
+            </td>
+            <th>
+              申请数量
+            </th>
+            <td>
+                总数量: @Model.Quantity.ToString()  &nbsp;&nbsp;♂数量:@Model.MaleQuatity   &nbsp;&nbsp;♀数量:@Model.FemaleQuatity
+            </td> 
+        </tr>
+        <tr>
+             <th>
+              实验动物来源
+            </th>
+            <td colspan="3">
+                 @Model.AnimaUse
+            </td> 
+        </tr>
+        <tr>
+             <th>
+               本次使用实验动<br />物的实验场所及<br />实验周期
+            </th>
+            <td colspan="3">
+                 @Model.Remark
+            </td> 
+        </tr>
+    </table>
+   
+</div>

@@ -1,0 +1,317 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var businessType = -1;
+    Guid? businessId = null;
+    if (ViewData["EquipmentId"] != null && !string.IsNullOrWhiteSpace(ViewData["EquipmentId"].ToString()))
+    {
+        businessType = (int)TrainningExaminationBusinessType.Equipment;
+        businessId = new Guid(ViewData["EquipmentId"].ToString());
+    }
+    else if (ViewData["LabOrganizationId"] != null && !string.IsNullOrWhiteSpace(ViewData["LabOrganizationId"].ToString()))
+    {
+        businessType = (int)TrainningExaminationBusinessType.LabOrganization;
+        businessId = new Guid(ViewData["LabOrganizationId"].ToString());
+    }
+}
+<div id="divTrainningExaminationQuestionViewDialog" style="display:none;"></div>
+<div id="divTrainningExaminationMaterialViewDialog" style="display:none;"></div>
+<div id="divTrainningExaminationDialog" style="display:none"></div>
+<div id="divTrainningExaminationQuestionDialog" style="display:none"></div>
+<div id="divTrainningExaminationMaterialDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearchTrainningExamination(xpath) {
+        doClearTrainningExamination();
+        if((!xpath || xpath.trim()=="") && $("#tbTrainningTypeList").length > 0){
+           var selectedTrainningType = $("#tbTrainningTypeList").treegrid("getSelected");
+           if(!selectedTrainningType || selectedTrainningType.Id=="" || selectedTrainningType.Id.isDefaultGuid()) {
+              xpath = "";
+           }
+           else xpath = selectedTrainningType.XPath;
+       }
+       var queryExpression = "";
+       if(xpath && xpath != "") queryExpression  += (queryExpression == "" ? "" : "*") + "(TrainningTypeXPath→\"" + xpath  + "\")";
+       $("#tbTrainningExaminationList").datagrid("options").url = '@Url.Action("GetGridViewTrainningExaminationList", "TrainningExamination", new { BusinessType = businessType, BusinessId = businessId })';
+       $("#tbTrainningExaminationList").datagrid("load", { "queryExpression": queryExpression});
+       return false;
+    }  
+    function doClearTrainningExamination(){
+        $("#tbTrainningExaminationList").datagrid('loadData', { total: 0, rows: [] });
+    }
+    function doOnTrainningTypeSelected(rowData){
+        if(rowData.IsEnableSelect.toString() != "true") {
+            doClearTrainningExamination();
+            return;
+        }
+        doSearchTrainningExamination(rowData.XPath);
+    }
+    //------------------------试卷查看考题-------------------------
+    var trainningExaminationQuestionViewDialog;
+    function doTrainningExaminationQuestionViewDialog() {
+        if (trainningExaminationQuestionViewDialog) {
+            trainningExaminationQuestionViewDialog.dialog("destroy");
+        }
+        trainningExaminationQuestionViewDialog =  @Html.JDialog("divTrainningExaminationQuestionView").SetTitle("查看试卷考题").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("trainningExaminationQuestionViewDialog.dialog('close');return false;").SetModal(true).SetOkScript("trainningExaminationQuestionViewDialog.dialog('close');return false;").ToMvcString();
+    }
+    function doViewExaminationQuestion() {
+        var selectedTrainningExamination = $("#tbTrainningExaminationList").datagrid("getSelected");
+        if(!selectedTrainningExamination || selectedTrainningExamination.Id=="" || selectedTrainningExamination.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择试卷", showType: 'show' });
+            return false;
+        }
+        var id = selectedTrainningExamination.Id;
+        var url = '@Url.Action("ViewExaminationQuestion", "TrainningExamination")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divTrainningExaminationQuestionViewDialog").load(url,function(){
+            doTrainningExaminationQuestionViewDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    //------------------------试卷查看考题 End-------------------------
+    //------------------------试卷查看资料-------------------------
+    var trainningExaminationMaterialViewDialog;
+    function doTrainningExaminationMaterialViewDialog() {
+        if (trainningExaminationMaterialViewDialog) {
+            trainningExaminationMaterialViewDialog.dialog("destroy");
+        }
+        trainningExaminationMaterialViewDialog =  @Html.JDialog("divTrainningExaminationMaterialView").SetTitle("查看试卷资料").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("trainningExaminationMaterialViewDialog.dialog('close');return false;").SetModal(true).SetOkScript("trainningExaminationMaterialViewDialog.dialog('close');return false;").ToMvcString();
+    }
+    function doViewExaminationMaterial() {
+        var selectedTrainningExamination = $("#tbTrainningExaminationList").datagrid("getSelected");
+        if(!selectedTrainningExamination || selectedTrainningExamination.Id=="" || selectedTrainningExamination.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择试卷", showType: 'show' });
+            return false;
+        }
+        var id = selectedTrainningExamination.Id;
+        var url = '@Url.Action("ViewExaminationMaterial", "TrainningExamination")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divTrainningExaminationMaterialViewDialog").load(url,function(){
+            doTrainningExaminationMaterialViewDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    //------------------------试卷查看资料 End-------------------------
+    //----------------------- 试卷编辑 ----------------------//
+    var trainningExaminationDialog;
+    function doTrainningExaminationDialog() {
+        if (trainningExaminationDialog) {
+            trainningExaminationDialog.dialog("destroy");
+        }
+        trainningExaminationDialog =  @Html.JDialog("divTrainningExaminationEdit").SetTitle("试卷信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("trainningExaminationDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveTrainningExamination();").ToMvcString();
+    }
+    function doAddOrEditTrainningExamination(id){
+        var url = '@Url.Action("Edit", "TrainningExamination")'+ "?id=" + id;
+        url += "&BusinessType=" + '@businessType';
+        if('@(businessId.HasValue.ToString().ToLower())' == 'true') url += "&BusinessId=" + '@businessId';
+        url += "&date=" + new Date().getMilliseconds();
+        $("#divTrainningExaminationDialog").load(url,function(){
+            doTrainningExaminationDialog();
+        })
+        return false;
+    }
+    function doAddTrainningExamination(id) {
+       doAddOrEditTrainningExamination(id);
+    }
+    function doEditTrainningExamination(id) {
+       if(!id || id.trim()==""){
+           var selectedTrainningExamination = $("#tbTrainningExaminationList").datagrid("getSelected");
+           if(!selectedTrainningExamination || selectedTrainningExamination.Id=="" || selectedTrainningExamination.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择试卷", showType: 'show' });
+              return false;
+           }
+           id = selectedTrainningExamination.Id;
+       }
+       doAddOrEditTrainningExamination(id);
+    }
+    function doSaveTrainningExamination() {
+        if ($("#Name").val().trim() == "") {
+                $.messager.show({ title: '提示', msg: "请输入名称", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save", "TrainningExamination")',
+            data: $("#frmTrainningExaminationEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                trainningExaminationDialog.dialog('destroy');
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                doSearchTrainningExamination();
+            }
+        });
+        return false;
+    }
+    function doDeleteTrainningExamination(id) {
+        if (id == null || id.trim() == "") {
+            var selectedTrainningExaminations = $("#tbTrainningExaminationList").datagrid("getSelections");
+            if(!selectedTrainningExaminations || selectedTrainningExaminations.length==0){
+                $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+                return;
+            }
+            id = selectedTrainningExaminations[0].Id;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "TrainningExamination")',
+                data: "id=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchTrainningExamination();
+                }
+            });
+        });
+        return false;
+    }
+    //----------------------- End 试卷编辑 ----------------------//
+    //----------------------- 试卷考题 ----------------------//
+    var questionDialog;
+    function doQuestionDialog() {
+        if (questionDialog) {
+            questionDialog.dialog("destroy");
+        }
+        questionDialog =  @Html.JDialog("divQuestion").SetTitle("试卷考题管理").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("questionDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveQuestion();").ToMvcString();
+    }
+    function doSetQuestion(id, trainningTypeId) {
+        if(!id || id.trim()=="" || !trainningTypeId || trainningTypeId.trim()=="" ){
+            var selectedTrainningExaminations = $("#tbTrainningExaminationList").datagrid("getSelections");
+            if(!selectedTrainningExaminations || selectedTrainningExaminations.length==0){
+                $.messager.show({ title: '提示', msg: "请选择要设置试卷考题的项", showType: 'show' });
+                return;
+            }
+            id = selectedTrainningExaminations[0].Id;
+            trainningTypeId = selectedTrainningExaminations[0].TrainningTypeId;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Question", "TrainningExamination")'+ "?TrainningTypeId=" + trainningTypeId + "&TrainningExaminationId=" + id +"&date=" + new Date().getMilliseconds();
+        $("#divTrainningExaminationQuestionDialog").load(url,function(){
+            doQuestionDialog();
+            $.messager.progress('close');
+        });
+        return false;
+    }
+   
+    function doSaveQuestion(){
+        var nodes = [];
+        $("#ulQuestionList").find('.tree-checkbox2').each(function () {
+            var node = $(this).parent();
+            nodes.push($.extend({}, $.data(node[0], 'tree-node'), {
+                target: node[0],
+                checked: node.find('.tree-checkbox').hasClass('tree-checkbox2')
+            }));
+        });
+        var ids = '';
+        var nodesCheck = $('#ulQuestionList').tree('getChecked');
+        for (var i = 0; i < nodes.length; i++) {
+            if (!nodes[i].id.isDefaultGuid()) {
+                if (ids != '') ids += ',';
+                ids += nodes[i].id;
+            }
+        }
+        for (var i = 0; i < nodesCheck.length; i++) {
+            if (!nodesCheck[i].id.isDefaultGuid()) {
+                if (ids != '') ids += ',';
+                ids += nodesCheck[i].id;
+            }
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("SaveTrainningExaminationQuestion", "TrainningExamination")',
+            data: "ids=" + ids + "&TrainningExaminationId=" + $("#TrainningExaminationId").val() + "&date=" + new Date(),
+            success: function (msg) {
+                $.messager.progress('close');
+                questionDialog.dialog('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "试卷考题设置成功", showType: 'show' });
+            }
+        });
+        return false;
+   } 
+    //----------------------- End 试卷考题 ----------------------//
+    //----------------------- 试卷资料 ----------------------//
+    var materialDialog;
+    function doMaterialDialog() {
+        if (materialDialog) {
+            materialDialog.dialog("destroy");
+        }
+        materialDialog =  @Html.JDialog("divMaterial").SetTitle("试卷资料管理").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("materialDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveMaterial();").ToMvcString();
+    }
+    function doSetMaterial(id, trainningTypeId) {
+        if(!id || id.trim()=="" || !trainningTypeId || trainningTypeId.trim()=="" ){
+            var selectedTrainningExaminations = $("#tbTrainningExaminationList").datagrid("getSelections");
+            if(!selectedTrainningExaminations || selectedTrainningExaminations.length==0){
+                $.messager.show({ title: '提示', msg: "请选择要设置试卷资料的项", showType: 'show' });
+                return;
+            }
+            id = selectedTrainningExaminations[0].Id;
+            trainningTypeId = selectedTrainningExaminations[0].TrainningTypeId;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Material", "TrainningExamination")'+ "?TrainningTypeId=" + trainningTypeId + "&TrainningExaminationId=" + id +"&date=" + new Date().getMilliseconds();
+        $("#divTrainningExaminationMaterialDialog").load(url,function(){
+            doMaterialDialog();
+            $.messager.progress('close');
+        });
+        return false;
+    }
+   
+    function doSaveMaterial(){
+        var nodes = [];
+        $("#ulMaterialList").find('.tree-checkbox2').each(function () {
+            var node = $(this).parent();
+            nodes.push($.extend({}, $.data(node[0], 'tree-node'), {
+                target: node[0],
+                checked: node.find('.tree-checkbox').hasClass('tree-checkbox2')
+            }));
+        });
+        var ids = '';
+        var nodesCheck = $('#ulMaterialList').tree('getChecked');
+        for (var i = 0; i < nodes.length; i++) {
+            if (!nodes[i].id.isDefaultGuid()) {
+                if (ids != '') ids += ',';
+                ids += nodes[i].id;
+            }
+        }
+        for (var i = 0; i < nodesCheck.length; i++) {
+            if (!nodesCheck[i].id.isDefaultGuid()) {
+                if (ids != '') ids += ',';
+                ids += nodesCheck[i].id;
+            }
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("SaveTrainningExaminationMaterial","TrainningExamination")',
+            data: "ids=" + ids + "&TrainningExaminationId=" + $("#TrainningExaminationId").val() + "&date=" + new Date(),
+            success: function (msg) {
+                $.messager.progress('close');
+                materialDialog.dialog('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "试卷资料设置成功", showType: 'show' });
+            }
+        });
+        return false;
+   } 
+    //----------------------- End 试卷资料 ----------------------//
+
+</script>

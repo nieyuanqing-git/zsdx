@@ -1,0 +1,61 @@
+﻿@{
+    Layout = ViewBag.Layout;
+    var listType = ViewData["ListType"] == null ? "" : ViewData["ListType"].ToString().Trim().ToLower();
+}
+ <div class="search-grid hide" style="width:280px">
+    <div class="search-inner-box">
+        @Html.Partial("../Equipment/TrainningSearch")
+    </div>
+</div>
+@Html.Partial("../EquipmentTrainning/Header")
+<div id='divEquipmentTrainningList'></div>    
+<div>@Html.Partial("../Equipment/TrainningScriptContainer")</div>    
+<script type="text/javascript">
+    function doShowPersonalTrainning() {
+        $(".panel-header .icon-user").removeClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action("EquipmentTrainningList", "EquipmentTrainning")' + "?date= " + new Date().getMilliseconds();
+        doLoadEquipmentTrainningList(url);
+    }
+    function doShowTurtorTrainning() {
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").removeClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action("EquipmentTrainningList", "EquipmentTrainning")' + "?ListType=Subject&date= " + new Date().getMilliseconds();
+        doLoadEquipmentTrainningList(url);
+    }
+    function doShowEquipmentTrainning() {
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").removeClass("icon-globe-unselect");
+        var url = '@Url.Action("EquipmentTrainningList", "EquipmentTrainning")' + "?ListType=Equipment&date= " + new Date().getMilliseconds();
+        doLoadEquipmentTrainningList(url);
+    }
+
+    function doLoadEquipmentTrainningList(url) {
+        $("#divEquipmentTrainningList").empty();
+        $.ajax({
+            type: "Post",
+            url: url,
+            success: function (data) {
+                $("#divEquipmentTrainningList").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        switch ('@listType') {
+            case 'subject':
+                doShowTurtorTrainning();
+                break;
+            case 'equipment':
+                doShowEquipmentTrainning();
+                break;
+            default:
+                doShowPersonalTrainning();
+                break;
+        }
+    });
+</script>

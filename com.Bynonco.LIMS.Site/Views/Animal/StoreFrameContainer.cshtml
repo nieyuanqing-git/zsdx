@@ -1,0 +1,73 @@
+﻿@model com.Bynonco.LIMS.Model.AnimalFrame
+@{
+    var animalCageList = ViewData["AnimalCageList"] != null ? (IList<com.Bynonco.LIMS.Model.AnimalCage>)ViewData["AnimalCageList"] : null;
+    int count = Model.RowCnt * Model.ColCnt;
+    int freeCount = count - (animalCageList == null ? 0 : animalCageList.Count);
+    int busyCount = count - freeCount;
+}
+<style type="text/css">
+    #tbAnimalFrameItems{border-collapse:collapse;}
+    #tbAnimalFrameItems tr th{border:1px solid #ccc;text-align:center;padding:2px;width:50px;}
+    #tbAnimalFrameItems tr td{border:1px solid #ccc;width:50px;padding:2px; line-height:22px}
+    .busy{background-color:red}
+    .free{background-color:green}
+    .selected{background-color:Gray}
+</style>
+<div id="divAnimalFrameContainerTip"  style="margin-top:5px; margin-left:100px; margin-bottom:5px; clear:both;">
+    <ul>
+    <li style="float:left; text-align:center; height:30px; width:80px; background-color:Blue;margin: 0; line-height:30px; color:White;">总架位数:@(count)</li>
+        <li style="float:left; text-align:center; height:30px; width:80px; background-color:Green;margin: 0; line-height:30px; color:White;">空闲:@(freeCount)</li>
+        <li style="float:left; text-align:center; height:30px; width:80px; background-color:Red; margin: 0;line-height:30px;color:White;">占用:@(busyCount)</li>
+    </ul>
+</div>
+<div style="padding-top:5px;clear:both;">
+   <table id="tbAnimalFrameItems" class="book" >
+        <tr>
+            <th style="padding-bottom:0px;width:80px;height:23px;background:transparent url(../../JqueryPlugin/JqueryEasyUI/themes/default/images/datagrid_header_bg.gif) scroll 0 0">行号/列号</th>
+            @for (var i = 1; i <= Model.ColCnt; i++)
+            {
+                <td style="padding-bottom:0px;color:#555555;text-align:center;background:transparent url(../../JqueryPlugin/JqueryEasyUI/themes/default/images/datagrid_header_bg.gif) repeat scroll 0 0">
+                    @i
+                </td>
+            }
+        </tr>
+        @for (var j = 1; j <= Model.RowCnt; j++)
+        {
+                <tr id="tr_@(j.ToString())">
+                <td style="text-align:center;color:#555555;width:80px;">
+                    @j
+                </td>
+                @for (var i = 1; i <= Model.ColCnt; i++)
+                {
+                    com.Bynonco.LIMS.Model.AnimalCage animalCageFind = null;
+                    if (animalCageList != null && animalCageList.Count > 0)
+                    {
+                        animalCageFind = animalCageList.FirstOrDefault(p => p.FrameColNo == i && p.FrameRowNo == j);
+                    }
+                    var className = animalCageFind != null ? "busy" : "free";
+                    <td class="@className" title='@(j.ToString()+"-" + i.ToString())' frameId="@Model.Id"  rowNo="@j" colNo="@i"  style="text-align:center;color:#555555;width:100px;">
+                        @if (animalCageFind != null)
+                        {
+                            <span><a id='@animalCageFind.Id' onclick="doOnFrameSelected(this);return false;" class="animalFrame" style="color:White;" href="javascript:void(0);" >@animalCageFind.Name</a></span>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var elements = $("#tbAnimalFrameItems tr td.busy a.animalFrame");
+        elements.each(function () {
+            Tipped.create(this, '@Url.Action("Detail","AnimalCage")' + "?time" + new Date().getMilliseconds(), { ajax: { data: { id: $(this).attr("id") }, type: 'get' }, skin: 'light', hook: 'topleft' });
+        });
+    });
+    function doOnFrameSelected(element) {
+        var elements = $("#tbAnimalFrameItems tr td.busy a.animalFrame");
+        Tipped.hide(elements);
+        if (typeof (doOnFrameSelectedCallBack) == 'function') {
+            doOnFrameSelectedCallBack(element.id);
+        }
+    }
+</script>

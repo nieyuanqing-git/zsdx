@@ -1,0 +1,103 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var doorName = $("#SearchDoorName").val().trim();
+        if (doorName != "") {
+            queryExpression = "(DoorName∽\"" + doorName.trim() + "\")";
+        }
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "(UserName∽\"" + userName.trim() + "\")";
+        }
+        var tutorName = $("#SearchTutorName").val().trim();
+        if (tutorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "TutorName∽\"" + tutorName + "\"";
+        }
+        var startTime = $("#SearchStartTime").datebox("getValue").trim();
+        if (startTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OptTime>\"" + startTime + "\"";
+        }
+        var endTime = $("#SearchEndTime").datebox("getValue").trim();
+        if (endTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OptTime<\"" + endTime + " 23:59:59\"";
+        }
+        var organizationXPath = $("#SearchLabOrganizationXPath").val().trim();
+        if (organizationXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DoorOrgXPath→\"" + organizationXPath + "\"";
+        }
+        var status = $("#SearchStatus").combobox("getValue");
+        if (status != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#SearchDoorName").val("");
+        $("#SearchUserName").val("");
+        $("#SearchTutorName").val("");
+        $("#SearchStartTime").datebox("setValue", "");
+        $("#SearchEndTime").datebox("setValue", "");
+        $("#SearchLabOrganizationId").val('@Guid.Empty.ToString()');
+        $("#SearchLabOrganizationXPath").val("");
+        $("#SearchStatus").combobox("setValue", "");
+        return false;
+    }
+
+    function getSearchLabOrganizationXPath(element) {
+        $("#SearchLabOrganizationXPath").val("");
+        var organizationId = element.value;
+        if (organizationId != "" && !organizationId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: organizationId }, function (data) {
+                if (data && data != "")
+                    $("#SearchLabOrganizationXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>门</label>
+        @Html.JValidateBox("SearchDoorName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>房间</label>
+        @Html.DropDownList("SearchLabOrganizationId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px", onchange = "getSearchLabOrganizationXPath(this);" })
+        @Html.Hidden("SearchLabOrganizationXPath")
+
+    </li>
+    <li>
+        <label>用户</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>导师</label>
+        @Html.JValidateBox("SearchTutorName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>进出</label>
+        @(Html.JComboBox("SearchStatus")
+            .SetEditable(false)
+            .SetData(ViewData["SearchStatusJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li>
+        <label>开始时间</label>
+        @Html.JDateTimePicker("SearchStartTime").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchEndTime").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

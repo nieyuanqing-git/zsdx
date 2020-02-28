@@ -1,0 +1,92 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isIE11Browser = Request.Browser.Type.ToString().ToLower().IndexOf("mozilla") >= 0;//处理兼容
+    var is360Browser = Request.Browser.Type.IndexOf("Chrome") >= 0;//处理兼容
+}
+<script type="text/javascript">
+    function generateDoorAuthorizationQueryExpress() {
+        var queryExpression = "";
+        var userName = $("#SearchAuthorizationUserName").val().trim();
+        if (userName != "") {
+            queryExpression = "(UserName∽\"" + userName.trim() + "\")";
+        }
+        var realCard = $("#SearchAuthorizationRealCard").val().trim();
+        if (realCard != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "RealCard=\"" + realCard.trim() + "\"";
+        }
+        var tutorName = $("#SearchAuthorizationTutorName").val().trim();
+        if (tutorName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "TutorName=\"" + tutorName.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doDoorAuthorizationReset() {
+        $("#SearchAuthorizationUserName").val("");
+        $("#SearchAuthorizationRealCard").val("");
+        $("#SearchAuthorizationTutorName").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>用户</label>
+        @Html.JValidateBox("SearchAuthorizationUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li style='height:30px;'>
+        <label>卡号</label>
+        @Html.JValidateBox("SearchAuthorizationRealCard").SetWidth(100).SetHeight(18).ToMvcString()
+        @{
+        if (Request.Browser.Type.StartsWith("Firefox"))
+        {
+            <embed type="application/BynonUsbICReader-plugin" width="27" height="25" pluginspage="@Url.Content("~/npBUICR.xpi")"></embed>
+        }
+        else
+        {
+            <object id="UsbICReader" classid="CLSID:AD2E79EA-80BC-4AFA-8DDA-DD7E5A1A48D7" style="width: 27px;height: 25px; display: inline;"></object>
+        }
+    }
+    </li>
+    <li>
+        <label>导师</label>
+        @Html.JValidateBox("SearchAuthorizationTutorName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnDoorAuthorizationSearch", "查询").SetOnclick("SearchUserDoorAuthorization();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnDoorAuthorizationReset", "清空").SetOnclick("doDoorAuthorizationReset();").ToMvcString()
+        @Html.JLinkButton("btnDoorAuthorizationClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+
+<script type="text/javascript">
+    function CardReaded(card) {
+        doDoorAuthorizationReset();
+        $("#SearchAuthorizationRealCard").val(card);
+        if (typeof (SearchUserDoorAuthorization) == 'function') SearchUserDoorAuthorization();
+        if (typeof (SearchUserDoorContinuedAuthorization) == 'function') SearchUserDoorContinuedAuthorization();
+        return 1;
+    }
+    function DeviceChanged(isConnected) {
+        if (isConnected == 0) $.messager.show({ title: '提示', msg: '读卡器已拔出', showType: 'show' });
+        else $.messager.show({ title: '提示', msg: '读卡器已连接', showType: 'show' });
+        return 1;
+    }
+    $(function () {
+        if (document.UsbICReader != undefined) {
+            if ("@(isIE11Browser.ToString().ToLower())" == "true") {
+                $("#UsbICReader").bind("CardReaded", CardReaded); //支持ie11 mozilla
+                $("#UsbICReader").bind("DeviceChanged", DeviceChanged);
+            }
+            else if ("@(is360Browser.ToString().ToLower())" == "true") {
+                $("#UsbICReader").bind("CardReaded", CardReaded); //支持360
+                $("#UsbICReader").bind("DeviceChanged", DeviceChanged);
+            } else {
+                document.UsbICReader.attachEvent("CardReaded", CardReaded);
+                document.UsbICReader.attachEvent("DeviceChanged", DeviceChanged);
+            }
+
+        }
+    });
+</script>

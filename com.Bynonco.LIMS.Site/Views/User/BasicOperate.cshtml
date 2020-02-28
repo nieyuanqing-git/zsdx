@@ -1,0 +1,374 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUser
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    bool isAjax = ViewData["IsAjax"] == null ? false : (bool)ViewData["IsAjax"];
+    var userPrivilige = Model == null ? com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserPrivilige(User.Identity.Name)
+        : com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserPrivilige(User.Identity.Name,Model.Id);
+    bool IsAuditWaitting = false;
+    bool IsAuditPass = false;
+    bool IsInBlackList = false;
+    bool IsInvalid = false;
+    bool IsAuditReject = false;
+    string AuditPassName = "";
+    if (Model != null && Model.UserStatus.HasValue)
+    {
+        switch ((com.Bynonco.LIMS.Model.Enum.UserStatus)Model.UserStatus.Value)
+        {
+            case com.Bynonco.LIMS.Model.Enum.UserStatus.AuditWaitting:
+                IsAuditWaitting = true;
+                break;
+            case com.Bynonco.LIMS.Model.Enum.UserStatus.AuditPass:
+                IsAuditPass = true;
+                break;
+            case com.Bynonco.LIMS.Model.Enum.UserStatus.InBlackList:
+                IsInBlackList = true;
+                break;
+            case com.Bynonco.LIMS.Model.Enum.UserStatus.Invalid:
+                IsInvalid = true;
+                break;
+            case com.Bynonco.LIMS.Model.Enum.UserStatus.AuditReject:
+                IsAuditReject = true;
+                break;
+        }
+        if(userPrivilige.IsEnableAudit || (userPrivilige.IsEnableSetInvalid && !IsInvalid) || (userPrivilige.IsEnableSetBlacklist && !IsInBlackList))
+        {
+            <p><span class="icon icon-setting"></span>状态设置</p>
+            <table class="edit-info">
+                <tr>
+                    <td>
+                    @if (userPrivilige.IsEnableAudit)
+                    {
+                        if (!IsAuditPass)
+                        {
+                            AuditPassName = com.Bynonco.LIMS.Model.Enum.UserStatus.AuditPass.ToCnName();
+                            if (IsInvalid)
+                            {
+                                AuditPassName = "解除" + com.Bynonco.LIMS.Model.Enum.UserStatus.Invalid.ToCnName();
+                            }
+                            else if (IsInBlackList)
+                            {
+                                AuditPassName = "解除" + com.Bynonco.LIMS.Model.Enum.UserStatus.InBlackList.ToCnName();
+                            } 
+                            @(Html.JLinkButton("btnAuditPass", AuditPassName)
+                                .SetIconCls("icon-pass")
+                                .SetPlain(true)
+                                .SetOnclick("doAuditPass();return false;")
+                                .ToMvcString())
+                        }
+                        if (!IsAuditReject)
+                        {
+                            @(Html.JLinkButton("btnAuditReject", com.Bynonco.LIMS.Model.Enum.UserStatus.AuditReject.ToCnName())
+                            .SetIconCls("icon-reject")
+                            .SetPlain(true)
+                            .SetOnclick("doAuditReject();return false;")
+                            .ToMvcString())
+                        }
+                    }
+                    @if (userPrivilige.IsEnableSetInvalid && !IsInvalid)
+                    {
+                        @(Html.JLinkButton("btnSetInvalid", com.Bynonco.LIMS.Model.Enum.UserStatus.Invalid.ToCnName())
+                        .SetIconCls("icon-invalid")
+                        .SetPlain(true)
+                        .SetOnclick("doSetInvalid();return false;")
+                        .ToMvcString())
+                    }
+                    @if (userPrivilige.IsEnableSetBlacklist && !IsInBlackList)
+                    {
+                        @(Html.JLinkButton("btnSetBlackList", com.Bynonco.LIMS.Model.Enum.UserStatus.InBlackList.ToCnName())
+                            .SetIconCls("icon-blacklist")
+                            .SetPlain(true)
+                            .SetOnclick("doSetBlackList();return false;")
+                            .ToMvcString())
+                    }
+                    </td>
+                </tr>
+            </table>
+        }
+    }
+    <div class="edit-operate">
+        @if (userPrivilige.IsEnableSaveBasic)
+        {
+            @Html.JLinkButton("btnSaveBasic", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveBasic();return false;").ToMvcString()
+        }
+        @if (userPrivilige.IsEnableDelete && Model != null)
+        {
+            @Html.JLinkButton("btnDelete", "删除").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("doDeleteUser('" + Model.Id.ToString() + "');return false;").ToMvcString()
+        }
+        @Html.JLinkButton("btnBack", "返回列表").SetIconCls("icon-back").SetOnclick("doBack();return false;").SetPlain(true).ToMvcString()
+    </div>
+    <div id="divOperateDialog" style="display:none;"></div>
+<script type="text/javascript">
+    function checkBasicInfo()
+    {
+        if ($("#Label").val().trim() == "") {
+            $.messager.show({ title: '警告', msg: '登录名为空', showType: 'show' });
+            return false;
+        }
+        if ($("#TagId").combobox("getValue").trim() == "") {
+            $.messager.show({ title: '警告', msg: '用户类型为空', showType: 'show' });
+            return false;
+        }
+        if ($("#CreditLimitId").combobox("getValue").trim() == "") {
+            $.messager.show({ title: '警告', msg: '信用额度为空', showType: 'show' });
+            return false;
+        }
+        if ($("#UserName").val().trim() == "") {
+            $.messager.show({ title: '警告', msg: '姓名为空', showType: 'show' });
+            return false;
+        }
+        var email = $("#Email").val().trim();
+        if(doCheckColNameIsPass("Email","邮箱"))
+        {
+            $.messager.show({ title: '警告', msg: '邮箱为空', showType: 'show' });
+            return false;
+        }
+        if (email == "" && !$("#Email").validatebox("isValid")) {
+            $.messager.show({ title: '警告', msg: '邮箱格式不正确', showType: 'show' });
+            return false;
+        }
+        var phonenumber = $("#PhoneNumber").val().trim();
+        if(doCheckColNameIsPass("PhoneNumber","手机"))
+        {
+            $.messager.show({ title: '警告', msg: '手机为空', showType: 'show' });
+            return false;
+        }
+        if (phonenumber == "" && !$("#PhoneNumber").validatebox("isValid") && !$("#PhoneNumber").val().isMobile()) {
+            $.messager.show({ title: '警告', msg: '手机格式不正确', showType: 'show' });
+            return false;
+        }
+        var fixedphone = $("#FixedPhone").val().trim();
+        if(doCheckColNameIsPass("FixedPhone","固话"))
+        {
+            $.messager.show({ title: '警告', msg: '固话为空', showType: 'show' });
+            return false;
+        }
+        if (fixedphone != "" && !$("#FixedPhone").validatebox("isValid") && !$("#FixedPhone").val().isFixTelephoneNo()) {
+            $.messager.show({ title: '警告', msg: '固话格式不正确', showType: 'show' });
+            return false;
+        }
+        var certificateTypeId = $("#CertificateTypeId").combobox("getValue").trim();
+        if(doCheckColNameIsPass("CertificateTypeId","证件类型"))
+        {
+            $.messager.show({ title: '警告', msg: '证件类型为空', showType: 'show' });
+            return false;
+        }
+        if(doCheckColNameIsPass("IdentityCardNo","证件号码"))
+        {
+            $.messager.show({ title: '警告', msg: '证件号码为空', showType: 'show' });
+            return false;
+        }
+        if ($("#OrganizationId").val().trim() == "" || $("#OrganizationId").val().trim() == '@Guid.Empty.ToString()') {
+            $.messager.show({ title: '警告', msg: '单位机构为空', showType: 'show' });
+            return false;
+        }
+        if ($("#UserTypeId").combotree("getValue").trim() == "" || $("#UserTypeId").combotree("getValue").trim() == '@Guid.Empty.ToString()') {
+            $.messager.show({ title: '警告', msg: '身份为空', showType: 'show' });
+            return false;
+        }
+        var card = $("#Card").val().trim();
+        if (card == "") {
+            $.messager.show({ title: '警告', msg: '卡号为空', showType: 'show' });
+            return false;
+        }
+        else if (card != "" && !$("#Card").validatebox("isValid")) {
+            $.messager.show({ title: '警告', msg: '卡号格式不正确', showType: 'show' });
+            return false;
+        }
+        var validitytime = $("#ValidityTime").datebox("getValue").trim();
+        if (validitytime != "" && !validitytime.isDate()) {
+            $.messager.show({ title: '警告', msg: '有效时间格式不正确', showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    function doSaveBasic() {
+//        var isOk = checkBasicInfo();
+//        if(!isOk) return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBasic", "User")',
+            data: $("#frmUserEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                if ($("#Id").val() == "") {
+                    $("#Id").val(msg);
+                    var id = $("#Id").val();
+                    var url = '@Url.Action("Edit", "User")' + "?id=" + encodeURI(id) + "&date=" + new Date().getMilliseconds();
+                    ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doDeleteUser(id){
+        if(!id || id.trim() == "")
+            return false;
+        $.messager.confirm('提示', '是否确认删除用户?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "User")',
+                data: "id=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.alert('提示',  '删除成功', 'warning');
+                    doBack();
+                }
+            });
+        });
+        return false;
+    }
+    function doReLoadBasic()
+    {
+        var url = '@Url.Action("BasicContainer", "User", new { id = Model == null ? "" : Model.Id.ToString(), date = DateTime.Now.Millisecond })';
+        ajaxActionLink(url, "Loading", "divMainContentBox", ajaxloadsuccess, dialogOpen ,true);
+    }
+    function doAuditPass() {
+        //var isOk = checkBasicInfo();
+        //if(!isOk) return false;
+        var passname = '@AuditPassName';
+        var id = '@(Model == null ? "" : Model.Id.ToString())';
+        if (passname != "" && id != "") {
+            $.messager.confirm('提示', '是否保存并' + passname + '?', function (r) {
+                if (!r) return;
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveAuditPass", "User")',
+                    data: $("#frmUserEdit").serialize() +"&date=" + new Date().getMilliseconds(),
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.alert('提示', msg, 'warning');
+                            return false;
+                        }
+//                      doReLoadBasic();
+                        $.messager.show({ title: '提示', msg: passname + "成功", showType: 'show' });
+                        doBack();
+                    }
+                });
+            });
+        }
+        else {
+            $.messager.show({ title: '提示', msg: "审核出错，请刷新页面重试.", showType: 'show' });
+        }
+    }
+    var auditRejectDialog;
+    function doAuditRejectDialog() {
+        if (auditRejectDialog) {
+            auditRejectDialog.dialog("destroy");
+        }
+        auditRejectDialog =  @Html.JDialog("divUserAuditReject").SetTitle("审核不通过").SetIconCls("icon-reject").SetAutoDialog(false).SetCancelScript("auditRejectDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveAuditReject();").ToMvcString();
+    }
+    function doAuditReject(){
+        var id = '@(Model == null ? "" : Model.Id.ToString())';
+        var url = '@Url.Action("AuditReject", "User")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divOperateDialog").load(url,function(){
+            doAuditRejectDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveAuditReject(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveAuditReject", "User")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmUserAuditReject").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                auditRejectDialog.dialog('close');
+//                doReLoadBasic();
+                doBack();
+            }
+        });
+   }
+   var setInvalidDialog;
+   function doSetInvalidDialog() {
+        if (setInvalidDialog) {
+            setInvalidDialog.dialog("destroy");
+        }
+        setInvalidDialog =  @Html.JDialog("divUserSetInvalid").SetTitle("禁止登录").SetIconCls("icon-invalid").SetAutoDialog(false).SetCancelScript("setInvalidDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveSetInvalid();").ToMvcString();
+   }
+   function doSetInvalid(){
+        var id = '@(Model == null ? "" : Model.Id.ToString())';
+        var url = '@Url.Action("SetInvalid", "User")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divOperateDialog").load(url,function(){
+            doSetInvalidDialog();
+            $.messager.progress('close');
+        })
+        return false;
+   }
+   function doSaveSetInvalid(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveSetInvalid", "User")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmUserSetInvalid").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                setInvalidDialog.dialog('close');
+//                doReLoadBasic();
+                doBack();
+            }
+        });
+   }
+   var setBlackListDialog;
+   function doSetBlackListDialog() {
+        if (setBlackListDialog) {
+            setBlackListDialog.dialog("destroy");
+        }
+        setBlackListDialog =  @Html.JDialog("divUserSetBlackList").SetTitle("禁止登录").SetIconCls("icon-invalid").SetAutoDialog(false).SetCancelScript("setBlackListDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveSetBlackList();").ToMvcString();
+   }
+   function doSetBlackList(){
+        var id = '@(Model == null ? "" : Model.Id.ToString())';
+        var url = '@Url.Action("SetBlackList", "User")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divOperateDialog").load(url,function(){
+            doSetBlackListDialog();
+            $.messager.progress('close');
+        })
+        return false;
+   }
+   function doSaveSetBlackList(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveSetBlackList", "User")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmUserSetBlackList").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                setBlackListDialog.dialog('close');
+//                doReLoadBasic();
+                doBack();
+            }
+        });
+   }
+</script>
+}

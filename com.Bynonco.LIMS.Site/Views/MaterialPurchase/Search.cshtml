@@ -1,0 +1,84 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isShowStatus = ViewData["IsShowStatus"] == null ? false : (bool)ViewData["IsShowStatus"];
+}
+<script type="text/javascript">
+    function generateMaterialPurchaseQueryExpress() {
+        var queryExpression = "";
+        var purchaseNum = $("#SearchPurchaseNum").val().trim();
+        if (purchaseNum != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "purchaseNum∽\"" + purchaseNum + "\"";
+        }
+        var userName = $("#SearchApplyUserName").val();
+        if (userName.trim() != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyUserName∽\"" + userName.trim() + "\"";
+        }
+        var equipmentGroupName = $("#SearchEquipmentGroupName").val();
+        if (equipmentGroupName.trim() != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentGroupName∽\"" + equipmentGroupName.trim() + "\"";
+        }
+        var applyTimeStart = $("#SearchApplyTimeStart").datebox("getValue").trim();
+        if (applyTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime>\"" + applyTimeStart + "\"";
+        }
+        var applyTimeEnd = $("#SearchApplyTimeEnd").datebox("getValue").trim();
+        if (applyTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyTime<\"" + applyTimeEnd + " 23:59:59\"";
+        }
+        if ($("#SearchMaterialPurchaseStatus").length > 0) {
+            var status = $("#SearchMaterialPurchaseStatus").combobox("getValue");
+            if (status.trim() != "" && status.trim() != "-1") {
+                queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+            }
+        }
+        return queryExpression;
+    }
+    function doMaterialPurchaseReset() {
+        $("#SearchPurchaseNum").val("");
+        $("#SearchApplyUserName").val("");
+        $("#SearchEquipmentGroupName").val("");
+        $("#SearchApplyTimeStart").datebox("setValue", "");
+        $("#SearchApplyTimeEnd").datebox("setValue", "");
+        if ($("#SearchMaterialPurchaseStatus").length > 0) {
+            $("#SearchMaterialPurchaseStatus").combobox('setValue', '-1');
+        }
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>采购单号</label>
+        @Html.JValidateBox("SearchPurchaseNum").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>采购人</label>
+        @Html.JValidateBox("SearchApplyUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>仪器组群</label>
+        @Html.JValidateBox("SearchEquipmentGroupName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+     <li>
+        <label>采购时间</label>
+        @Html.JDateTimePicker("SearchApplyTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchApplyTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    @if (isShowStatus)
+    {
+        <li>
+            <label>状态</label>
+            @Html.JComboBox("SearchMaterialPurchaseStatus").SetEditable(false).SetWidth(155).SetData(ViewData["MaterialPurchaseStatusJson"]).ToMvcString()
+        </li>
+    }
+    <li class="button">
+        @Html.JLinkButton("btnMaterialPurchaseSearch", "查询").SetOnclick("doMaterialPurchaseSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialPurchaseReset", "清空").SetOnclick("doMaterialPurchaseReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialPurchaseClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

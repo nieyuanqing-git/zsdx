@@ -1,0 +1,124 @@
+﻿@model com.Bynonco.LIMS.Model.DepositRecord
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var isPreAudit = ViewData["IsPreAudit"] == null ? false : bool.Parse(ViewData["IsPreAudit"].ToString());
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsDepositTesterRequired = customer == null ? false : customer.GetIsDepositTesterRequired();
+    var customerIsDepositPhoto = customer == null ? false : customer.GetIsDepositPhoto();
+    var customerIsDepositPhotoAfterPreAudit = customer == null ? false : customer.GetIsDepositPhotoAfterPreAudit();
+    var customerIsDepositPhotoRequired = customer == null ? false : customer.GetIsDepositPhotoRequired();
+    var customerIsDepositPhotoAutoPreAuditPass = customer == null ? false : customer.GetIsDepositPhotoAutoPreAuditPass();
+    customerIsDepositPhotoRequired = customerIsDepositPhotoRequired && (Model != null && Model.StatusEnum == DepositRecordStatus.AuditPass);
+    if (customerIsDepositPhotoAfterPreAudit) { customerIsDepositPhoto = customerIsDepositPhoto && (Model != null && Model.StatusEnum == DepositRecordStatus.AuditPass); }
+    var customerDepositSamplyNoDisplayName = customer == null ? "样品编号" : customer.GetDepositSamplyNoDisplayName();
+}
+<div id="divDepositRecordAudit">
+ <form id="frmDepositRecordAudit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tdDepositRecordAudit" class="edit-table"  style="width:600px;">
+         <tr>
+            <th>导师</th>
+            <td colspan='@(customerIsDepositTesterRequired ? 1 : 3)'>
+                @(ViewData["TutorName"] == null ? "" : ViewData["TutorName"].ToString())
+                @(ViewData["TutorPhoneNumber"] == null ? "" : "电话: " + ViewData["TutorPhoneNumber"].ToString())
+                @Html.Hidden("TutorId", ViewData["TutorId"] == null ? "" : ViewData["TutorId"].ToString())
+            </td>
+            @if (customerIsDepositTesterRequired)
+            {
+                <th>测样人</th>
+                <td>
+                    @(Model == null ? "" : Model.JoinedTesterNames)
+                </td>
+            }
+        </tr>
+        <tr class='hide'>
+            <th>@customerDepositSamplyNoDisplayName</th>
+            <td>@(Model == null ? "" : Model.SampleNo)</td>
+            <th>样品名称</th>
+            <td>@(Model == null ? "" : Model.SampleName)</td>
+        </tr>
+        <tr>
+            <th>存款金额</th>
+            <td>@(Model == null || !Model.DepositSum.HasValue ? "" : Math.Round(Model.DepositSum.Value, 2).ToString())</td>
+            <th>币种</th>
+            <td>
+               @(ViewData["CurencyTypeName"] == null ? "" : ViewData["CurencyTypeName"].ToString())
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>
+                @(Model == null ? "" : Model.Remark.ToString())
+            </td>
+        </tr>
+         @if (Model != null && Model.StatusEnum != DepositRecordStatus.AuditWaitting && !customerIsDepositPhotoAutoPreAuditPass)
+         {
+        <tr>
+            <th>预审信息</th>
+            <td colspan='3'>@(string.Format("[{0}]({1}){2}:{3}", Model.StatusEnum.ToCnName(), !Model.PreAuditTime.HasValue ? "" : Model.PreAuditTime.Value.ToString(), Model.PreAuditUser == null ? "" : Model.PreAuditUser.UserName, Model.PreAuditRemark))</td>
+        </tr>
+         }
+        <tr>
+            <th>审核备注</th>
+            <td colspan='3'>
+                @Html.TextArea("CheckRemark", Model == null ? "" : (isPreAudit ? Model.PreAuditRemark : Model.CheckRemark), new { style = "font-size:12px;text-decoration:none;height:30px;width:96%;margin-right:5px;" })
+            </td>
+        </tr>
+         @if (customerIsDepositPhoto)
+         {
+        <tr>
+            <th>凭证号</th>
+            <td>
+                @Html.JValidateBox("CertificateNum").SetValue(Model == null ? "" : Model.CertificateNum).SetWidth(200).ToMvcString()
+            </td>
+            <th>发票号</th>
+            <td>
+                @Html.JValidateBox("InvoiceNo").SetValue(Model == null ? "" : Model.InvoiceNo).SetWidth(200).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>审核验证图</th>
+            <td colspan='3'>
+                @if (Model != null && !string.IsNullOrWhiteSpace(Model.DepositRecordPhoto))
+                {
+                <a href='@Url.Content("~/" + Model.DepositRecordPhoto)' target="_blank" style='text-decoration:underline;'>
+                    @(Model != null && !string.IsNullOrWhiteSpace(Model.DepositRecordPhotoName) ? Model.DepositRecordPhotoName : "(点击查看存款验证图片/附件)")
+                </a>
+                }
+                else
+                {
+                    <span style='color:Red'>(未上传审核验证图)</span>
+                }
+            </td>
+        </tr>
+         }
+    </table>
+    <table class="edit-table"  style="width:600px;" id='tbEquipmentList'>
+        <tr>
+            <th colspan='6' style='text-align:left;padding-left:10px;'><span class="icon icon-equipment"></span>相关仪器设备</th>
+        </tr>
+        <tr>
+            <th style='width:120px;'>仪器所在单位</th>
+            <th style='width:150px;'>申请使用仪器</th>
+            <th style='width:100px;'>样品名称</th>
+            <th style='width:80px'>样品数量</th>
+            <th style='width:80px'>单价</th>
+            <th style='width:80px'>预计收费</th>
+        </tr>
+        @if (Model != null && Model.DepositRecordEquipmentList != null && Model.DepositRecordEquipmentList.Count() > 0)
+        {
+            foreach (var item in Model.DepositRecordEquipmentList)
+            {
+                @Html.Partial("../DepositRecord/EquipmentInfo", item)
+            }
+        }
+    </table>
+    <table class="edit-table" style="width:600px;" >
+        <tr>
+            <th style='text-align:right;'>合计测试总金额 <span id='spSumTotaPrice' style='font-weight:bold'>@(Model != null && Model.TotaPrice.HasValue ? Math.Round(Model.TotaPrice.Value,2).ToString() : "-")</span> 元</th>
+        </tr>
+    </table>
+  </form>
+</div> 

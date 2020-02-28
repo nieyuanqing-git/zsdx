@@ -1,0 +1,35 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var delinquencyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDelinquencyPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbDelinquencyRuleList")
+    .SetUrl(Url.Action("GetGridDelinquencyRuleList", "Delinquency"))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("Type")
+    .SetSortOrder(SortOrder.asc)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(200).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("严重程度累计", "TotalSeverity").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("处罚持续天数", "PersisDays").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("处罚类型", "TypeStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("消息模板", "MessageTemplate").SetWidth(300).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(1000).SetAlign(Align.left));
+    //dataGrid.SetShowAddButton(delinquencyPrivilige.IsEnableAddDelinquencyRule);
+    //if (delinquencyPrivilige.IsEnableAddDelinquencyRule)
+    //{
+    //    dataGrid.SetAddScript("doAddOrEditDelinquencyRule('');");
+    //}
+    dataGrid.SetShowEditButton(delinquencyPrivilige.IsEnableEditDelinquencyRule);
+    if (delinquencyPrivilige.IsEnableEditDelinquencyRule)
+    {
+        dataGrid.SetEditScript("doEditDelinquencyRule();");
+        dataGrid.SetOnDblClickRow("doAddOrEditDelinquencyRule(rowData.Id);");
+    }
+    //dataGrid.SetShowDeleteButton(delinquencyPrivilige.IsEnableDeleteDelinquencyRule);
+    //if (delinquencyPrivilige.IsEnableDeleteDelinquencyRule)
+    //{
+    //    dataGrid.SetDeleteScript("doDeleteDelinquencyRule();return false;");
+    //}
+}
+@(dataGrid.ToMvcString()) 

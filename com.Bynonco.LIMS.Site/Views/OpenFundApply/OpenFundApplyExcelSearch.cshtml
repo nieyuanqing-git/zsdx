@@ -1,0 +1,65 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateOpenFundApplyExcelQueryExpress() {
+        var queryExpression = "";
+        var applyNum = $("#SearchOpenFundApplyExcelApplyNum").val().trim();
+        if (applyNum != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OpenFundApplyApplyNum∽\"" + applyNum + "\"";
+        }
+        var userName = $("#SearchOpenFundApplyExcelUserLabel").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentLabel∽\"" + userName + "\"";
+        }
+        var userOrgName = $("#SearchOpenFundApplyExcelUserOrgName").val().trim();
+        if (userOrgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OpenFundApplyUserOrgName∽\"" + userOrgName + "\"";
+        }
+        var applyTimeBegin = $("#SearchOpenFundApplyExcelCreateTimeBegin").datebox("getValue").trim();
+        if (applyTimeBegin != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime>\"" + applyTimeBegin + " 00:00:00" + "\"";
+        }
+        var applyTimeEnd = $("#SearchOpenFundApplyExcelCreateTimeEnd").datebox("getValue").trim();
+        if (applyTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime<\"" + applyTimeEnd + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+    function doOpenFundApplyExcelReset() {
+        $("#SearchOpenFundApplyExcelApplyNum").val("");
+        $("#SearchOpenFundApplyExcelUserLabel").val("");
+        $("#SearchOpenFundApplyExcelUserOrgName").val("");
+        $("#SearchOpenFundApplyExcelCreateTimeBegin").datebox("setValue", "");
+        $("#SearchOpenFundApplyExcelCreateTimeEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>申请单号</label>
+        @Html.JValidateBox("SearchOpenFundApplyExcelApplyNum").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>申请人</label>
+        @Html.JValidateBox("SearchOpenFundApplyExcelUserLabel").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>申请单位</label>
+        @Html.JValidateBox("SearchOpenFundApplyExcelUserOrgName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>申请时间</label>
+        @Html.JDateTimePicker("SearchOpenFundApplyExcelCreateTimeBegin").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchOpenFundApplyExcelCreateTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnOpenFundApplyExcelSearch", "查询").SetOnclick("doOpenFundApplyExcelSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnOpenFundApplyExcelReset", "清空").SetOnclick("doOpenFundApplyExcelReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnOpenFundApplyExcelClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

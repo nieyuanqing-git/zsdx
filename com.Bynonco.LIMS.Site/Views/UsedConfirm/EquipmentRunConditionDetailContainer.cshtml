@@ -1,0 +1,27 @@
+﻿@{
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString().Trim();
+}
+<div id="divEquipmentRunConditionDetail" style="width:800px;">
+     <div class="search-grid hide">
+        <div class="search-inner-box" >
+            @Html.Partial("../UsedConfirm/UnDeductUsedConfirmSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../UsedConfirm/EquipmentRunConditionDetail")</div>
+    <div style="display:none">@Html.Partial("../UsedConfirm/ScriptContainer")</div>
+</div>
+
+<script type="text/javascript">
+    function doUnDeductUsedConfirmSearch() {
+        var queryExpression = generateUnDeductUsedConfirmQueryExpression();
+        if ('@queryExpression' != '') queryExpression += (queryExpression == "" ? "" : "*") + '@queryExpression'
+        $("#tbUsedConfirmSearchList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUsedConfirmSearchList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doExpertEquipmentRunConditionDetail(equipmentId) {
+        var queryExpression = generateUnDeductUsedConfirmQueryExpression();
+        if ('@queryExpression' != '') queryExpression += (queryExpression == "" ? "" : "*") + '@queryExpression'
+        var url = '@Url.Action("ExpertEquipmentRunConditionDetail", "UsedConfirm")' + "?equipmentId=" + equipmentId + "&queryExpression=" + queryExpression.trim() + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+</script>

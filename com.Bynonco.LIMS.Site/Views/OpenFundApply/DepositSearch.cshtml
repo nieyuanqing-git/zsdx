@@ -1,0 +1,59 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var searchApplyNum = $("#SearchApplyNum").val().trim();
+        if (searchApplyNum != "") {
+            queryExpression = "ApplyNum∽\"" + searchApplyNum.trim() + "\"";
+        }
+        var searchUserName = $("#SearchUserName").val().trim();
+        if (searchUserName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + searchUserName.trim() + "\"";
+        }
+        var depositDateStart = $("#SearchDepositDateStart").datebox("getValue").trim();
+        if (depositDateStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DepositDate>\"" + depositDateStart + "\"";
+        }
+        var depositDateEnd = $("#SearchDepositDateEnd").datebox("getValue").trim();
+        if (depositDateEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DepositDate<\"" + depositDateEnd + " 23:59:59\"";
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#SearchApplyNum").val("");
+        $("#SearchUserName").val("");
+        $("#SearchDepositDateStart").datebox("setValue", "");
+        $("#SearchDepositDateEnd").datebox("setValue", "");
+        return false;
+    }
+    
+</script>
+<ul class="search">
+    <li>
+        <label style="vertical-align: top;">基金号</label>
+        @Html.JValidateBox("SearchApplyNum").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label style="vertical-align: top;">存款人</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>存款时间</label>
+        @Html.JDateTimePicker("SearchDepositDateStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchDepositDateEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doDepositSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

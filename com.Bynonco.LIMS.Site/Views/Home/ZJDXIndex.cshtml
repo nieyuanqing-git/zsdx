@@ -1,0 +1,87 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = "~/Views/Shared/ZJDXHomeLayout/HomeLayout.cshtml";
+    ViewBag.Title = "首页";
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    IList<com.Bynonco.LIMS.Model.LabOrganization> labOrganizationList = ViewData["SubLabOrganizationList"] == null ? null : (IList<com.Bynonco.LIMS.Model.LabOrganization>)ViewData["SubLabOrganizationList"];
+    var isShowCollege = orgXPath == "000" && labOrganizationList != null && labOrganizationList.Count() > 0;
+}
+@section ImportCssAndJs
+{
+   <script type="text/javascript">
+       function doLoadEquipmentList(objId, roomName, categoryName) {
+           if (!roomName) roomName = "";
+           if (!categoryName) categoryName = "";
+           if ($("#" + objId).length > 0) {
+               $("#" + objId).empty();
+               $.ajax({
+                   type: "Post",
+                   url: '@Url.Action("SearchResult", "Equipment")',
+                   data: "RoomName=" + roomName + "&CategoryName=" + categoryName,
+                   success: function (data) {
+                       if (data && data.indexOf("出错,") != -1) {
+                       }
+                       else {
+                           $("#" + objId).html(data);
+                       }
+                       ajaxloadsuccess();
+                       return false;
+                   }
+               });
+           }
+       }
+       $(function () {
+           doLoadEquipmentList("equipmentListB302", "科研楼B302", "生化平台");
+           doLoadEquipmentList("equipmentListB306", "科研楼B306", "生化平台");
+           doLoadEquipmentList("equipmentListB415", "科研楼B415", "成像平台");
+           doLoadEquipmentList("equipmentListB325", "科研楼B325", "生化平台");
+           doLoadEquipmentList("equipmentListB318", "科研楼B318+B814", "生化平台");
+       });
+</script>
+}
+@section MainFull
+{
+    <div class='content-box content-left-box-723'>
+        <h2 class='title-723'>
+            <span>科研楼B302(生化平台)</span>
+        </h2>
+        <div class='content-723' id="equipmentListB302">
+        
+        </div>
+    </div>
+    <div class='content-box content-right-box-254'>
+        <h2 class='title-254'>
+            <span>科研楼B306(生化平台)</span>
+        </h2>
+        <div class='content-254' id="equipmentListB306">
+        
+        </div>
+    </div>
+    <div class='content-box content-left-box-473'>
+        <h2 class='title-473'>
+            <span>科研楼B415(成像平台)</span>
+        </h2>
+        <div class='content-473' id="equipmentListB415">
+        
+        </div>
+    </div>
+    <div class='content-box content-left-box-254' style="margin-left:3px;">
+        <h2 class='title-254'>
+            <span>科研楼B325(生化平台)</span>
+        </h2>
+        <div class='content-254' id="equipmentListB325">
+        
+        </div>
+    </div>
+    <div class='content-box content-right-box-254'>
+        <h2 class='title-254'>
+            <span>科研楼B318+B814(生化平台)</span>
+        </h2>
+        <div class='content-254' id="equipmentListB318">
+        
+        </div>
+    </div>
+    <div class='clear-both'></div>
+}
+

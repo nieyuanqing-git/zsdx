@@ -1,0 +1,138 @@
+﻿@model com.Bynonco.LIMS.Model.UserDoorAuthorization
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var doorId = ViewData["DoorId"] == null ? "" : ViewData["DoorId"].ToString();
+    var doorName = ViewData["DoorName"] == null ? "" : ViewData["DoorName"].ToString();
+    var userId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString();
+    var userName = ViewData["UserName"] == null ? "" : ViewData["UserName"].ToString();
+}
+<div id="divUserDoorAuthorizationEdit">
+ <form id="frmUserDoorAuthorizationEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tdUserDoorAuthorizationEdit" class="edit-table"  style="width:640px;">
+        <tr>
+            <th><span class="required">* </span>门禁</th>
+            <td colspan="3" style='@(doorId== "" ? "padding:0;border:0;": "")'>
+                @if (doorId == "")
+                {
+                    <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>
+                                @(Html.TokenInput("DoorId")
+                                    .SetUrl(Url.Action("GetDoorAuthorizationDoorListByKeyWord", "Door", new { UserId = userId }))
+                                    .SetSingle(false)
+                                    .SetWidth(400)
+                                    .ToMvcString())
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnSelectDoor", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectAuthorizationDoor();return false;").ToMvcString()
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnCleanDoor", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanDoor();return false;").ToMvcString()
+                            </td>
+                        </tr>
+                    </table>
+                }
+                else
+                {
+                    <div style="padding-left:2px">
+                        @Html.Hidden("DoorId", doorId)
+                        @doorName
+                    </div>
+                }
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>用户</th>
+            <td colspan="3" style='@(userId == "" ? "padding:0;border:0;" : "")'>
+                @if (userId == "")
+                {
+                     <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>
+                                @(Html.TokenInput("UserId")
+                            .SetUrl(Url.Action("GetUserListByKeyWordIsLeamsAdd", "User"))
+                                    .SetSingle(false)
+                                    .SetWidth(400)
+                                    .ToMvcString())
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnSelectUser", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectAuthorizationUser();return false;").ToMvcString()
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnCleanUser", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanUser();return false;").ToMvcString()
+                            </td>
+                        </tr>
+                    </table>
+                }
+                else
+                {
+                    <div style="padding-left:2px">
+                        @Html.Hidden("UserId", userId)
+                        @userName
+                    </div>
+                }
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>开始时间</th>
+            <td>
+                @Html.JDateTimePicker("StartDate").SetMode(DateTimePickerMode.dateTime).SetShowSeconds(false).SetValue(Model == null || !Model.StartDate.HasValue ? DateTime.Now.ToString("yyyy-MM-dd 00:00") : Model.StartDate.Value.ToString("yyyy-MM-dd HH:mm")).SetWidth(180).ToMvcString()
+            </td>
+            <th><span class="required">* </span>结束时间</th>
+            <td>
+                @Html.JDateTimePicker("EndDate").SetMode(DateTimePickerMode.dateTime).SetShowSeconds(false).SetValue(Model == null || !Model.EndDate.HasValue ? DateTime.Now.ToString("yyyy-MM-dd 23:59") : Model.EndDate.Value.ToString("yyyy-MM-dd HH:mm")).SetWidth(180).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan="3" >
+                @Html.TextArea("AuthorizationNote", Model == null ? "" : Model.AuthorizationNote, new { style = "font-size:12px;text-decoration:none;height:60px;width:520px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<div style="display:none">@Html.Partial("../Door/SelectDoorNoPagingContainer")</div>
+<div style="display:none">@Html.Partial("../User/SelectUserNoPagingContainer")</div>
+<script type="text/javascript">
+    function doCleanDoor() {
+        $("#frmUserDoorAuthorizationEdit #DoorId").tokenInput("clear");
+    }
+    function getSelectedDoorsCallBack(selectedDoorNames, selectedDoorIds, selectedDoorJsonArray) {
+
+        $("#frmUserDoorAuthorizationEdit #DoorId").tokenInput("clear");
+        if (selectedDoorIds != "") {
+            var selectedDoorIdsArray = selectedDoorIds.split(",");
+            var selectedDoorNamesArray = selectedDoorNames.split(",");
+            if (!selectedDoorIdsArray || selectedDoorIdsArray.length == 0 || !selectedDoorNamesArray || selectedDoorNamesArray.length == 0) return;
+            for (var i = 0; i < selectedDoorIdsArray.length && i < selectedDoorNamesArray.length; i++) {
+                $("#frmUserDoorAuthorizationEdit #DoorId").tokenInput("add", { id: selectedDoorIdsArray[i], text: selectedDoorNamesArray[i] });
+            }
+        }
+    }
+    function doSelectAuthorizationDoor() {
+        doSelectDoorDialog('DoorId');
+        return false;
+    }
+
+    function doCleanUser() {
+        $("#frmUserDoorAuthorizationEdit #UserId").tokenInput("clear");
+    }
+    function getSelectedUserCallBack(selectedUserNames, selectedUserIds) {
+
+        $("#frmUserDoorAuthorizationEdit #UserId").tokenInput("clear");
+        if (selectedUserIds != "") {
+            var selectedUserIdsArray = selectedUserIds.split(",");
+            var selectedUserNamesArray = selectedUserNames.split(",");
+            if (!selectedUserIdsArray || selectedUserIdsArray.length == 0 || !selectedUserNamesArray || selectedUserNamesArray.length == 0) return;
+            for (var i = 0; i < selectedUserIdsArray.length && i < selectedUserNamesArray.length; i++) {
+                $("#frmUserDoorAuthorizationEdit #UserId").tokenInput("add", { id: selectedUserIdsArray[i], text: selectedUserNamesArray[i] });
+            }
+        }
+    }
+    function doSelectAuthorizationUser() {
+        doSelectUserIsLeamsAddDialog('UserId');
+        return false;
+    }
+</script>

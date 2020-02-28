@@ -1,0 +1,331 @@
+﻿@model com.Bynonco.LIMS.Model.SJ3
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var sJ3Statistics = Model == null ? null : Model.GetSJ3Statistics();
+}
+<div id="divSJ3Edit">
+<form id="frmSJ3Edit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("SJ3StatisticsId", Model == null ? "" : Model.SJ3StatisticsId.ToString())
+    @Html.Hidden("SJ3EquipmentId", Model == null ? "" : Model.EquipmentId.ToString())
+    <table id="tdSJ3Edit" class="edit-info">
+        <tr>
+            <th>统计效益时间</th>
+            <td>@(sJ3Statistics == null ? "" : sJ3Statistics.StatisticsTimeSpan)</td>
+        </tr>
+        <tr>
+            <th>学校代码</th>
+            <td>
+                @Html.JValidateBox("SchoolCode").SetValue(Model == null ? "" : Model.SchoolCode.Trim()).SetReadOnly(true).SetWidth(55).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>仪器编号</th>
+            <td>
+                @Html.JValidateBox("Label").SetValue(Model == null ? "" : Model.Label.Trim()).SetReadOnly(true).SetWidth(65).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>分类号</th>
+            <td>
+                @Html.JValidateBox("CategoryCode").SetValue(Model == null ? "" : Model.CategoryCode.Trim()).SetReadOnly(true).SetWidth(65).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>仪器名称</th>
+            <td colspan='5'>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name.Trim()).SetReadOnly(true).SetWidth(400).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>单价</th>
+            <td>
+                @Html.JValidateBox("UnitPrice").SetValue(Model == null ? "" : Model.UnitPrice.Trim()).SetReadOnly(true).SetWidth(100).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>型号</th>
+            <td>
+                @Html.JValidateBox("Model").SetValue(Model == null ? "" : Model.Model.Trim()).SetReadOnly(true).SetWidth(100).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>规格</th>
+            <td colspan='5'>
+                @Html.TextArea("Specifications", Model == null ? "" : Model.Specifications.Trim(), new { style = "font-size:12px;text-decoration:none;height:45px;width:400px;margin-right:5px;" })
+            </td>
+        </tr>
+        <tr>
+            <th>教学使用机时</th>
+            <td>
+                @Html.JValidateBox("UsedHourEducation").SetValue(Model == null ? "" : Model.UsedHourEducation.Trim()).SetWidth(50).ToMvcString()
+            </td>
+            <th>科研使用机时</th>
+            <td>
+                @Html.JValidateBox("UsedHourScientificResearch").SetValue(Model == null ? "" : Model.UsedHourScientificResearch.Trim()).SetWidth(50).ToMvcString()
+            </td>
+            <td rowspan='2'>
+                @Html.JLinkButton("btnUsedHourList", "使用机时").SetIconCls("icon-edit").SetPlain(false).SetOnclick("doManageSJ3StatisticsUsedHourListDialog('" + (Model == null ? "" : Model.SJ3StatisticsId.ToString()) + "','" + (Model == null ? "" : Model.EquipmentId.ToString()) + "');return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>社会服务使用机时</th>
+            <td>
+                @Html.JValidateBox("UsedHourSocialServices").SetValue(Model == null ? "" : Model.UsedHourSocialServices.Trim()).SetWidth(50).ToMvcString()
+            </td>
+            <th>开放使用机时</th>
+            <td>
+                @Html.JValidateBox("UsedHourOpen").SetValue(Model == null ? "" : Model.UsedHourOpen.Trim()).SetWidth(50).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>测样数</th>
+            <td>
+                @Html.JValidateBox("SampleItemCount").SetValue(Model == null ? "" : Model.SampleItemCount.Trim()).SetWidth(50).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>培训人员数_学生</th>
+            <td>
+                @Html.JValidateBox("TrainingStudent").SetValue(Model == null ? "" : Model.TrainingStudent.Trim()).SetWidth(30).ToMvcString()
+            </td>
+            <th>培训人员数_教师</th>
+            <td>
+                @Html.JValidateBox("TrainingTutor").SetValue(Model == null ? "" : Model.TrainingTutor.Trim()).SetWidth(30).ToMvcString()
+            </td>
+            <td rowspan='2'>
+                @Html.JLinkButton("btnEquipmentTrainningList", "培训人员").SetIconCls("icon-edit").SetPlain(false).SetOnclick("doManageEquipmentTrainningListDialog('" + (Model == null ? "" : Model.SJ3StatisticsId.ToString()) + "','" + (Model == null ? "" : Model.EquipmentId.ToString()) + "');return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>培训人员数_其他</th>
+            <td>
+                @Html.JValidateBox("TrainingOther").SetValue(Model == null ? "" : Model.TrainingOther.Trim()).SetWidth(30).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>教学实验项目数</th>
+            <td>
+                @Html.JValidateBox("ProjectEducation").SetValue(Model == null ? "" : Model.ProjectEducation.Trim()).SetWidth(30).ToMvcString()
+            </td>
+        </tr>
+        <tr>   
+            <th>科研项目数</th>
+            <td colspan='3'>
+                @Html.JValidateBox("ProjectScientificResearch").SetValue(Model == null ? "" : Model.ProjectScientificResearch.Trim()).SetWidth(30).ToMvcString()
+            </td>
+            <td>
+                @Html.JLinkButton("btnSubjectAchievementList", "科研项目").SetIconCls("icon-edit").SetPlain(false).SetOnclick("doManageSubjectAchievementListDialog('" + (Model == null ? "" : Model.SJ3StatisticsId.ToString()) + "','" + (Model == null ? "" : Model.EquipmentId.ToString()) + "');return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr>  
+            <th>社会服务项目数</th>
+            <td>
+                @Html.JValidateBox("ProjectSocialServices").SetValue(Model == null ? "" : Model.ProjectSocialServices.Trim()).SetWidth(30).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>获奖等级_国家级</th>
+            <td>
+                @Html.JValidateBox("AwardsCountry").SetValue(Model == null ? "" : Model.AwardsCountry.Trim()).SetWidth(30).ToMvcString()
+            </td>
+            <th>获奖等级_省部级</th>
+            <td>
+                @Html.JValidateBox("AwardsProvince").SetValue(Model == null ? "" : Model.AwardsProvince.Trim()).SetWidth(30).ToMvcString()
+            </td>
+             <td>
+                @Html.JLinkButton("btnAwardsList", "获奖情况").SetIconCls("icon-edit").SetPlain(false).SetOnclick("doManageAwardsListDialog('" + (Model == null ? "" : Model.SJ3StatisticsId.ToString()) + "','" + (Model == null ? "" : Model.EquipmentId.ToString()) + "');return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>发明专利_教师</th>
+            <td>
+                @Html.JValidateBox("PatentTutor").SetValue(Model == null ? "" : Model.PatentTutor.Trim()).SetWidth(30).ToMvcString()
+            </td>
+            <th>发明专利_学生</th>
+            <td>
+                @Html.JValidateBox("PatentStudent").SetValue(Model == null ? "" : Model.PatentStudent.Trim()).SetWidth(30).ToMvcString()
+            </td>
+             <td>
+                @Html.JLinkButton("btnPatentList", "发明专利").SetIconCls("icon-edit").SetPlain(false).SetOnclick("doManagePatentListDialog('" + (Model == null ? "" : Model.SJ3StatisticsId.ToString()) + "','" + (Model == null ? "" : Model.EquipmentId.ToString()) + "');return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>论文情况_三大检索</th>
+            <td>
+                @Html.JValidateBox("ThesisThreeSearch").SetValue(Model == null ? "" : Model.ThesisThreeSearch.Trim()).SetWidth(30).ToMvcString()
+            </td>
+            <th>论文情况_核心刊物</th>
+            <td>
+                @Html.JValidateBox("ThesisPublication").SetValue(Model == null ? "" : Model.ThesisPublication.Trim()).SetWidth(30).ToMvcString()
+            </td>
+            <td>
+                @Html.JLinkButton("btnThesisList", "论文情况").SetIconCls("icon-edit").SetPlain(false).SetOnclick("doManageThesisListDialog('" + (Model == null ? "" : Model.SJ3StatisticsId.ToString()) +"','" + (Model == null ? "" : Model.EquipmentId.ToString()) + "');return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>负责人姓名</th>
+            <td>
+                @Html.JValidateBox("AdminName").SetValue(Model == null ? "" : Model.AdminName.Trim()).SetWidth(100).ToMvcString()
+            </td>
+        </tr>
+    </table>
+</form>
+@Html.Partial("../Statistics/SJ3EditOperate")
+
+<div>
+    <p id='sj3HelpTitle' style='cursor:pointer;'><span class="icon icon-info-blue"></span>填写格式帮助 --(点击展开/收缩)</p>
+    <table class='edit-info hide' id='sj3HelpInfo'>
+        <tr>
+            <th>学校代码</th>
+            <td style='line-height:25px'>
+                数据格式为字符型，长度为5
+            </td>
+        </tr>
+        <tr>
+            <th>仪器编号</th>
+            <td style='line-height:25px'>
+                数据格式为字符型，长度为8。指学校内部使用的仪器设备编号，在本校内具有唯一性
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>分类号</th>
+            <td style='line-height:25px'>
+                数据格式为字符型，长度为8。指对仪器设备进行统一分类的编码，按教育部高教司颁发的《高等学校固定资产分类及编码》填写，不得自行增加。若无对应编码，填上一级编码，编码末位填“00”补齐8位。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>仪器名称</th>
+            <td style='line-height:25px'>
+                数据格式为字符型，长度为30。用汉字表示，不能为空，与《高等学校固定资产分类及编码》中的分类号所对应的名称一致，若无对应名称，则填写仪器设备标牌的汉字名称或规范的中文翻译名称。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>单价</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为12。指仪器设备包括附件在内的总价格。以元为单位，保留两位小数。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>型号</th>
+            <td style='line-height:25px'>
+                数据格式为字符型，长度为20。按仪器设备标牌或说明书标示填写，型号不清的仪器设备，经学校管理部门核实后，填“*”，超出字段长度应截取主要部分填写。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>规格</th>
+            <td style='line-height:25px'>
+                数据格式为字符型，长度为200。指仪器设备的规格和主要技术指标。超出字段长度应截取主要部分填写。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>教学使用机时</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为4。用于教学工作的使用机时数。根据仪器设备使用记录按教学方面统计机时数，若无使用机时，填“0”，不能空项。使用机时：必要的开机准备时间+测试时间+必须的后处理时间。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>科研使用机时</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为4。用于科研工作的使用机时数。根据仪器设备使用记录按科研方面统计机时数，若无使用机时，填“0”，不能空项。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>社会服务使用机时</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为4。用于社会服务的使用机时数。根据仪器设备使用记录按社会服务方面统计机时数，若无使用机时，填“0”，不能空项。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>开放使用机时</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为4。仪器对用户开放使用（用户自行上机测试、观察样品）的机时数。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>测样数</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为6。本学年在本仪器设备上测试、分析的样品数量，按照原始记录统计填报。同一样品在一台仪器上测试，统计测样数为1，与测试方法和次数无关。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>培训人员数_学生</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为4。本学年在本仪器上培训的能够独立操作的学生数，不包括各种形式的参观人数。按照原始记录统计填报。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>培训人员数_教师</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为4。本学年在本仪器上培训的能够独立操作的教师数，不包括各种形式的参观人数。按照原始记录统计填报。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>培训人员数_其他</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为4。本学年在本仪器上培训的能够独立操作的其他人员数，不包括各种形式的参观人数。按照原始记录统计填报。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>教学实验项目数</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为3。本学年利用本仪器设备开设的列入教学计划的实验项目数。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>科研项目数</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为3。本学年利用本仪器设备完成的各种科研项目或合作项目数。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>社会服务项目数</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为4。本学年利用本仪器设备完成的为校外承担的社会服务项目数。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>获奖等级_国家级</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为2。利用本仪器设备在本学年获得的国家级奖励情况。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>获奖等级_省部级</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为2。利用本仪器设备本学年获得的省部级奖励情况。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>发明专利_教师</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为2。利用本仪器设备在本学年获得的已授权发明专利数，不含实用新型和外观设计。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>发明专利_学生</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为2。利用本仪器设备在本学年获得的已授权发明专利数，不含实用新型和外观设计。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>论文情况_三大检索</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为3。利用本仪器设备在本学年发表论文情况。三大检索指：SCI、EI 、ISTP。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>论文情况_核心刊物</th>
+            <td style='line-height:25px'>
+                数据格式为数值型，长度为3。利用本仪器设备在本学年核心期刊发表论文情况。
+            </td>
+        </tr>
+        <tr>
+            <th style='vertical-align:top;'>负责人姓名</th>
+            <td style='line-height:25px'>
+                数据格式为字符型，长度为8。指本仪器设备或机组的负责人姓名，没有负责人的填“无”
+            </td>
+        </tr>
+    </table>
+</div>
+</div> 

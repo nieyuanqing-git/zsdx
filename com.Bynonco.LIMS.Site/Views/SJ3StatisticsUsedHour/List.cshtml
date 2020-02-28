@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var sJ3StatisticsId = ViewData["SJ3StatisticsId"] == null ? "" : ViewData["SJ3StatisticsId"].ToString();
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+    
+    var sJ3StatisticsUsedHourPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSJ3StatisticsUsedHourPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSJ3StatisticsUsedHourList")
+    .SetUrl(Url.Action("GetGridSJ3StatisticsUsedHourList", "SJ3StatisticsUsedHour"))
+    .AddQueryParam("EquipmentId", equipmentId)
+    .AddQueryParam("SJ3StatisticsId", sJ3StatisticsId)
+    .AddQueryParam("QueryExpression", queryExpression)
+    .SetHeight(isPopDialog ? 350 : 650)
+    .SetPageSize(isPopDialog ? 10 : 20)
+    .SetSortName("BeginAt")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch();")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用人", "UserName").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "BeginAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("合计机时(小时)", "UsedHourStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用类型", "UseDirectionStr").SetWidth(130).SetAlign(Align.center));
+    dataGrid.SetShowAddButton(sJ3StatisticsUsedHourPrivilige.IsEnableAdd);
+    if (sJ3StatisticsUsedHourPrivilige.IsEnableAdd)
+    {
+        dataGrid.SetAddScript("doAddOrEditSJ3StatisticsUsedHour('');");
+    }
+    dataGrid.SetShowEditButton(sJ3StatisticsUsedHourPrivilige.IsEnableEdit);
+    if (sJ3StatisticsUsedHourPrivilige.IsEnableEdit)
+    {
+        dataGrid.SetEditScript("doEditSJ3StatisticsUsedHour();");
+        dataGrid.SetOnDblClickRow("doAddOrEditSJ3StatisticsUsedHour(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(sJ3StatisticsUsedHourPrivilige.IsEnableDelete);
+    if (sJ3StatisticsUsedHourPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteSJ3StatisticsUsedHour();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

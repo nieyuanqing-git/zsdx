@@ -1,0 +1,448 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript" src="../../JqueryPlugin/JqueryRaty/jquery.raty.js"></script>
+<div id="divEquipmentMarkingDialog" style="display:none"></div>
+<div id="divEquipmentBrokenReportDialog" style="display:none"></div>
+<div id="divEquipmentCameraVideoRecordDialog" style="display:none;"></div>
+<div id="divViewEquipmentRepairDialog" style="display:none;"></div>
+<script type="text/javascript">
+    function redirectToSampleApply(equipmentId){
+        var url = '@Url.Action("EquipmentSampleItemsIndex", "EquipmentSampleItems")' + "?equipmentId=" + equipmentId + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doSampleApply(equipmentId,equipmentName,isShowMessageContent,showMessageContent){
+         if(isShowMessageContent.toString().toLowerCase()=="true" && showMessageContent.trim()!= ""){
+            $.messager.confirm('注意',showMessageContent.trim(),function(r){
+                if (r) redirectToSampleApply(equipmentId);
+            });
+        }
+        else {redirectToSampleApply(equipmentId);}
+    }
+    function doEditEquipment() {
+        var selectedRow = $("#tbEquipmentList").datagrid("getSelected");
+        if (!selectedRow) {
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if (selectedRow) doAddOrEditEquipment(selectedRow.Id);
+        return false;
+    }
+    function doAddOrEditEquipment(id) {
+        var url = '@Url.Action("Edit", "Equipment")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doDeleteEquipment(id) {
+         if(!id || id.trim()==""){
+           var selectedEquipment = $("#tbEquipmentList").datagrid("getSelected");
+           if(!selectedEquipment || selectedEquipment.Id=="" || selectedEquipment.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedEquipment.Id;
+       }
+       $.messager.confirm('提示', '确认删除该设备信息?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Equipment")' + "?id=" + id + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    doEquipmentSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doBack() {
+        var url = '@Url.Action("Index", "Equipment")' + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doReload(id) {
+        var url = '@Url.Action("Edit", "Equipment")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doDelete() {
+        var id = $("#Id").val().trim();
+        if (id == "") {
+            $.messager.show({ title: '警告', msg: "编码为空,不能删除", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除该设备信息?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Equipment")' + "?id=" + id + "&time=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    doBack();
+                }
+            });
+        });
+        return false;
+    }
+    function doTranningApply(equipmentId,equipmentName) {
+    $.messager.confirm('提示', '确认申请【' + equipmentName + "】的培训?", function (r) {
+        if (!r) return;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ApplyTrainning","EquipmentTrainning")',
+            data: "EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1 || msg.indexOf("成功"))) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    if (msg.indexOf("出错") != -1) return false;
+                }
+                var element = $("#btnTranningApply_" + equipmentId);
+                if (element) element.remove();
+            }
+        });
+     });
+   }
+   function doFocus(equipmentId,equipmentName) {
+       $.messager.confirm('提示', '确认收藏【' + equipmentName + "】?" , function (r) {
+           if (!r) return;
+           $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+           $.ajax({
+               type: "POST",
+               url: '@Url.Action("FocusEquipment", "UserEquipment")',
+               data: "EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds(),
+               success: function (msg) {
+                   $.messager.progress('close');
+                   if (msg && (msg.indexOf("出错") != -1 || msg.indexOf("成功"))) {
+                       $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                       if (msg.indexOf("出错") != -1) return false;
+                   }
+                   var element = $("#btnFocus_" + equipmentId);
+                   if (element) {
+                       element.attr("id", "btnCancelFocus_" + equipmentId);
+                       element.removeClass();
+                       element.addClass("l-btn-color l-btn-color-grey");
+                       element.attr("onclick", "doCancelFocus('" + equipmentId + "','" + equipmentName + "');return false;");
+                       element.text("取消收藏");
+                       element.attr("title","点击取消收藏" + equipmentName)
+                   }
+               }
+           });
+       });
+   }
+   function doApply(equipmentId,equipmentName) {
+       $.messager.confirm('提示', '确认申请【' + equipmentName + "】?" , function (r) {
+           if (!r) return;
+           $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+           $.ajax({
+               type: "POST",
+               url: '@Url.Action("Apply", "UserEquipment")',
+               data: "EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds(),
+               success: function (msg) {
+                   $.messager.progress('close');
+                   if (msg && (msg.indexOf("出错") != -1 || msg.indexOf("成功"))) {
+                       $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                       if (msg.indexOf("出错") != -1) return false;
+                   }
+                   var element = $("#btnApply_" + equipmentId);
+                   if (element) {
+                       element.attr("id", "btnCancelApply_" + equipmentId);
+                       element.removeClass();
+                       element.addClass("l-btn-color l-btn-color-black");
+                       element.attr("onclick", "doCancelApply('" + equipmentId + "','" + equipmentName + "');return false;");
+                       element.text("撤销申请");
+                       element.attr("title","点击撤销使用" + equipmentName + "资质申请");
+                   }
+               }
+           });
+       });
+   }
+    function doCancelApply(equipmentId,equipmentName) {
+       $.messager.confirm('提示', '确认撤销申请【' + equipmentName + "】?", function (r) {
+           if (!r) return;
+           $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+           $.ajax({
+               type: "POST",
+               url: '@Url.Action("CancelApply", "UserEquipment")',
+               data: "EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds(),
+               success: function (msg) {
+                   $.messager.progress('close');
+                   if (msg && (msg.indexOf("出错") != -1 || msg.indexOf("成功"))) {
+                       $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                       if (msg.indexOf("出错") != -1) return false;
+                   }
+                   var element = $("#btnCancelApply_" + equipmentId);
+                   if (element) {
+                       element.attr("id", "btnApply_" + equipmentId);
+                       element.removeClass();
+                       element.addClass("l-btn-color l-btn-color-red");
+                       element.attr("onclick", "doApply('" + equipmentId + "','" + equipmentName + "');return false;");
+                       element.text("申请");
+                       element.attr("title","点击提交使用" + equipmentName + "资质申请");
+                       
+                   }
+               }
+           });
+       });
+   }
+   function doCancelFocus(equipmentId,equipmentName) {
+       $.messager.confirm('提示', '确认取消收藏【' + equipmentName + "】?", function (r) {
+           if (!r) return;
+           $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+           $.ajax({
+               type: "POST",
+               url: '@Url.Action("CancelFocus", "UserEquipment")',
+               data: "EquipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds(),
+               success: function (msg) {
+                   $.messager.progress('close');
+                   if (msg && (msg.indexOf("出错") != -1 || msg.indexOf("成功"))) {
+                       $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                       if (msg.indexOf("出错") != -1) return false;
+                   }
+                   var element = $("#btnCancelFocus_" + equipmentId);
+                   if (element) {
+                       element.attr("id", "btnFocus_" + equipmentId);
+                       element.attr("onclick", "doFocus('" + equipmentId + "','" + equipmentName + "');return false;");
+                       element.removeClass();
+                       element.addClass("l-btn-color l-btn-color-orange");
+                       element.text("收藏");
+                       element.attr("title","点击收藏" + equipmentName)
+                   }
+               }
+           });
+       });
+   }
+   function doMark(equipmentId,equipmentName) {
+        $.messager.confirm('提示', '确认对【' + equipmentName + "】进行评论?", function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            var url = '@Url.Action("AddEquipmentMarking","Equipment")' + "?id=" + "&EquipmentId=" + equipmentId +  "&date=" + new Date().getMilliseconds();
+            $("#divEquipmentMarkingDialog").load(url, function (data) {
+                $.messager.progress('close');
+                doEquipmentMarkingDialog();                
+            });
+        });
+        return false;
+    }
+    var equipmentMarkingDialog;
+    function doEquipmentMarkingDialog() {
+        if (equipmentMarkingDialog) {
+            equipmentMarkingDialog.dialog("destroy");
+        }
+        equipmentMarkingDialog =  @Html.JDialog("divEquipmentMarkingEdit").SetTitle("设备评论信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentMarkingDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEquipmentMarking();return false;").ToMvcString();
+    }
+    function doReportBroken(equipmentId,equipmentName){
+        $.messager.confirm('提示', '确认对【' + equipmentName + "】进行报障?", function (r) {
+           if (!r) return;
+           $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            var url = '@Url.Action("AddBrokenReport","Equipment")' + "?id=" + "&EquipmentId=" + equipmentId +  "&date=" + new Date().getMilliseconds();
+            $("#divEquipmentBrokenReportDialog").load(url, function (data) {
+                $.messager.progress('close');
+                doEquipmentBrokenReportDialog();
+            });
+        });
+        return false;
+    }
+    var equipmentBrokenReportDialog;
+    function doEquipmentBrokenReportDialog() {
+        if (equipmentBrokenReportDialog) {
+            equipmentBrokenReportDialog.dialog("destroy");
+        }
+        equipmentBrokenReportDialog =  @Html.JDialog("divEquipmentBrokenReportEdit").SetTitle("设备故障报告信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentBrokenReportDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEquipmentBrokenReport();return false;").ToMvcString();
+    }
+    function doModify(equipmentId,equipmentName) {
+        doAddOrEditEquipment(equipmentId);
+    }
+    function redirectToAppointment(equipmentId){
+         var url = '@Url.Action("AppointmentBoxIndex", "Equipment")' + "?id=" + equipmentId + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    function doAppointment(equipmentId,equipmentName,isShowMessageContent,showMessageContent){
+        if(isShowMessageContent && isShowMessageContent.toString().toLowerCase()=="true" && showMessageContent.trim()!= ""){
+            $.messager.confirm('注意',showMessageContent.trim(),function(r){
+                if (r) redirectToAppointment(equipmentId);
+            });
+        }
+        else {redirectToAppointment(equipmentId);}
+    }
+    function doExaminationManage(equipmentId,equipmentName) {
+        var url = '@Url.Action("ExaminationManage", "Equipment")' + "?id=" + encodeURI(equipmentId) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+   function doUserExamination(businessType, businessId) {
+        var url = '@Url.Action("Examination", "UserExamination")' + "?BusinessType=" + businessType + "&BusinessId=" + encodeURI(businessId) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+    
+
+
+    function doEquipmentCamera(equipmentId){
+        if(!equipmentId || equipmentId == "")
+        {
+            $.messager.show({ title: '警告', msg: "请选择要监控的设备", showType: 'show' });
+            return false;
+        }
+        var screenWidth =window.screen.width ;
+        var url = '@Url.Action("EquipmentRelationCameraPlay", "Equipment")'+ "?RelationId=" + equipmentId + "&date=" + new Date().getMilliseconds();
+        window.open(url,'_blank');
+        return false;
+    }
+    var equipmentCameraVideoRecordDialog;
+    function doEquipmentCameraVideoRecordDialog() {
+        if (equipmentCameraVideoRecordDialog) {
+            equipmentCameraVideoRecordDialog.dialog("destroy");
+        }
+        equipmentCameraVideoRecordDialog =  @Html.JDialog("divVideoRecordManage").SetTitle("监控记录信息").SetIconCls("icon-note").SetAutoDialog(false).SetCancelScript("equipmentCameraVideoRecordDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).SetOnClose("equipmentCameraVideoRecordDialog.dialog('destroy');return false;").ToMvcString();
+    }
+    function doEquipmentCameraRecord(equipmentId){
+        if(!equipmentId || equipmentId.trim()==""){
+            $.messager.show({ title: '提示', msg:"请选择设备", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("EquipmentVideoRecord","Equipment")'+ "?RelationId=" + equipmentId + "&IsPopDialog=true&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentCameraVideoRecordDialog").load(url,function(){
+            $.messager.progress('close');
+            doEquipmentCameraVideoRecordDialog();
+        })
+        return false;
+    }
+
+    function GetEquipmentCurStatusInfo(equipmentId) {
+        if(!equipmentId || equipmentId.trim()==""){
+            return false;
+        }
+        var imgLodingIcon = $("#imgLodingIcon" + equipmentId);
+        var imgLodingList = $("#imgLodingList" + equipmentId);
+        var imgLodingUserIcon = $("#imgLodingUserIcon" + equipmentId);
+        var imgLodingUserList = $("#imgLodingUserList" + equipmentId);
+
+        if(imgLodingIcon.length > 0) imgLodingIcon.removeClass("hide");
+        if(imgLodingList.length > 0) imgLodingList.removeClass("hide");
+        if(imgLodingUserIcon.length > 0) imgLodingUserIcon.removeClass("hide");
+        if(imgLodingUserList.length > 0) imgLodingUserList.removeClass("hide");
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("GetEquipmentCurStatusInfo", "Equipment")',
+            data: "Id=" + equipmentId + "&date=" + new Date().getMilliseconds(),
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                    if(imgLodingIcon.length > 0){
+                        imgLodingIcon.parent().append(data.EquipmentStatusNameStr);
+                        imgLodingIcon.addClass("hide");
+                    }
+                    if(imgLodingUserIcon.length > 0){
+                        imgLodingUserIcon.parent().append(data.UserName);
+                        imgLodingUserIcon.addClass("hide");
+                    }
+                    if(imgLodingList.length > 0){
+                        imgLodingList.parent().append(data.EquipmentStatusIcon);
+                        imgLodingList.addClass("hide");
+                    }
+                    if(imgLodingUserList.length > 0){
+                        imgLodingUserList.parent().append(data.UserName);
+                        imgLodingUserList.addClass("hide");
+                    }
+                }
+            }
+        });
+    }
+
+    function doExportDoc(equipmentId) {
+        var url = '@Url.Action("ExportDoc","Equipment")' + "?Id=" + equipmentId;
+        window.open(url, '_blank');
+    }
+
+
+    function doOpen(equipmentId,equipmentName) {
+       $.messager.confirm('提示', '确认开放【' + equipmentName + "】?" , function (r) {
+           if (!r) return;
+           $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+           $.ajax({
+               type: "POST",
+               url: '@Url.Action("Open", "Equipment")',
+               data: "id=" + equipmentId + "&date=" + new Date().getMilliseconds(),
+               success: function (msg) {
+                   $.messager.progress('close');
+                   if (msg && (msg.indexOf("出错") != -1 || msg.indexOf("成功"))) {
+                       $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                       if (msg.indexOf("出错") != -1) return false;
+                   }
+                   var element = $("#btnOpen_" + equipmentId);
+                   if (element) {
+                       element.attr("id", "btnClose_" + equipmentId);
+                       element.removeClass();
+                       element.addClass("l-btn-color l-btn-color-black");
+                       element.attr("onclick", "doCancelFocus('" + equipmentId + "','" + equipmentName + "');return false;");
+                       element.text("取消开放");
+                       element.attr("title","点击取消开放" + equipmentName)
+                   }
+               }
+           });
+       });
+   }
+   
+   function doClose(equipmentId,equipmentName) {
+       $.messager.confirm('提示', '确认取消开放【' + equipmentName + "】?", function (r) {
+           if (!r) return;
+           $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+           $.ajax({
+               type: "POST",
+               url: '@Url.Action("Close", "Equipment")',
+               data: "id=" + equipmentId + "&date=" + new Date().getMilliseconds(),
+               success: function (msg) {
+                   $.messager.progress('close');
+                   if (msg && (msg.indexOf("出错") != -1 || msg.indexOf("成功"))) {
+                       $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                       if (msg.indexOf("出错") != -1) return false;
+                   }
+                   var element = $("#btnClose_" + equipmentId);
+                   if (element) {
+                       element.attr("id", "btnOpen_" + equipmentId);
+                       element.attr("onclick", "doOpen('" + equipmentId + "','" + equipmentName + "');return false;");
+                       element.removeClass();
+                       element.addClass("l-btn-color l-btn-color-green");
+                       element.text("开放");
+                       element.attr("title","点击开放" + equipmentName)
+                   }
+               }
+           });
+       });
+   }
+   var viewEquipmentRepairDialog;
+    function doViewEquipmentRepairDialog() {
+        if (viewEquipmentRepairDialog) {
+            viewEquipmentRepairDialog.dialog("destroy");
+        }
+        viewEquipmentRepairDialog =  @Html.JDialog("divViewEquipmentRepair").SetTitle("查看设备维修记录").SetIconCls("icon-repair").SetAutoDialog(false).SetCancelScript("viewEquipmentRepairDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).SetOnClose("viewEquipmentRepairDialog.dialog('destroy');return false;").ToMvcString();
+    }
+    function doViewLastRepairByEquipmentId(equipmentId){
+        if(!equipmentId || equipmentId.trim()==""){
+            $.messager.show({ title: '提示', msg:"请选择设备仪器", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("ViewLastRepairByEquipmentId", "Equipment")'+ "?equipmentId=" + equipmentId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divViewEquipmentRepairDialog").load(url,function(){
+            $.messager.progress('close');
+            doViewEquipmentRepairDialog();
+        })
+        return false;
+    }
+</script>

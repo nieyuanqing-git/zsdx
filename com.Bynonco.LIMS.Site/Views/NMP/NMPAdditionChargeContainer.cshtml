@@ -1,0 +1,40 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{ 
+    var nmpAdditionChargeItemList = ViewData["NMPAdditionChargeItems"] != null ? (IList<com.Bynonco.LIMS.Model.NMPAdditionChargeItem>)ViewData["NMPAdditionChargeItems"] : null;
+    var isEnableEidtUsedConfirmEquipmentAddtionChargeItem = ViewData["IsEnableEidtNMPUsedConfirmAddtionChargeItem"] != null ? (bool)ViewData["IsEnableEidtNMPUsedConfirmAddtionChargeItem"] : false;
+ }
+@if (nmpAdditionChargeItemList != null && nmpAdditionChargeItemList.Count > 0)
+{
+    var nmpAdditionChargeItems = ViewData["NMPUsedConfirmAddtionChargeItems"] != null ? (IDictionary<Guid, com.Bynonco.LIMS.Model.Business.ChargeItem>)ViewData["NMPUsedConfirmAddtionChargeItems"] : null;
+    nmpAdditionChargeItemList = nmpAdditionChargeItemList.OrderBy(p => p.Name).ToList();
+    foreach (var nmpAdditionChargeItem in nmpAdditionChargeItemList)
+    {
+        double price = nmpAdditionChargeItem.StandardPrice;
+        var amount = 1;
+        if (nmpAdditionChargeItems != null && nmpAdditionChargeItems.Count > 0 && nmpAdditionChargeItems.Any(p => p.Key == nmpAdditionChargeItem.Id))
+        {
+            price = nmpAdditionChargeItems[nmpAdditionChargeItem.Id].Price;
+            amount = nmpAdditionChargeItems[nmpAdditionChargeItem.Id].Amount;
+        }
+        <tr>
+            <th>
+                @nmpAdditionChargeItem.Name 
+            </th>
+            <td>
+               @Html.Hidden("hidOriginalNMPUsedConfirmAddtionChargeItemAmount" + nmpAdditionChargeItem.Id, amount)
+               @Html.Hidden("hidOriginalNMPUsedConfirmAddtionChargeItemPrice" + nmpAdditionChargeItem.Id, price)
+               @Html.Hidden("hidNMPUsedConfirmAddtionChargeItemAmount" + nmpAdditionChargeItem.Id, amount)
+               @Html.Hidden("hidNMPUsedConfirmAddtionChargeItemPrice" + nmpAdditionChargeItem.Id, price)
+               @Html.Hidden("hidNMPUsedConfirmAddtionChargeItemAmountChanged" + nmpAdditionChargeItem.Id, false)
+               @Html.Hidden("hidNMPUsedConfirmAddtionChargeItemPriceChanged" + nmpAdditionChargeItem.Id, false)
+               <span>数量:</span><span id='@("spanNMPUsedConfirmAddtionChargeItemAmount" + nmpAdditionChargeItem.Id.ToString())'>@amount</span> 
+               <span>价格:</span><span id='@("spanNMPUsedConfirmAddtionChargeItemPrice" + nmpAdditionChargeItem.Id.ToString())'>@price</span> 
+               @if (isEnableEidtUsedConfirmEquipmentAddtionChargeItem)
+               {
+                   
+                   @Html.JLinkButton("btn" + nmpAdditionChargeItem.Id, "修改").SetOnclick(string.Format("doEditNMPUsedConfirmAdditionChargeItem('{0}');", nmpAdditionChargeItem.Id)).SetPlain(true).SetIconCls("icon-edit").ToMvcString()
+               }
+            </td>
+        </tr>
+    }
+}

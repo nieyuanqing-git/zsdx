@@ -1,0 +1,4 @@
+header .logo{background: url(logo.png) no-repeat center center;}
+.banner{background:url(banner.png) no-repeat center center;-moz-background-size:cover;-webkit-background-size:cover;-o-background-size:cover;background-size:cover;}
+.link1{background:url(link1.png) no-repeat center center;}
+.link2{background:url(link2.png) no-repeat center center;}

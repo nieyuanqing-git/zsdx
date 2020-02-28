@@ -1,0 +1,18 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dateScope = com.Bynonco.LIMS.Utility.DateTimeUtility.GetWeekFirstAndLastDate(DateTime.Now);
+}
+<ul>
+    <li style="float:left; width:580px;width:610px;">
+        <ul style='padding-top:5px;height:28px;'>
+            <li style="float:left;padding-left:5px;">
+                <label>统计时间</label>
+                @Html.JDateTimePicker("beginDate").SetValue(dateScope.BeginTime.ToString("yyyy-MM-dd")).SetWidth(125).ToMvcString()
+                ～
+                @Html.JDateTimePicker("endDate").SetValue(dateScope.EndTime.ToString("yyyy-MM-dd")).SetWidth(125).ToMvcString()
+            </li>
+            <li style="float:left;padding-left:5px;">@Html.JLinkButton("btnSearch", "统计").SetOnclick("doAnimalReceiveRegisterStatisticsDetail();return false;").ToMvcString()</li>
+            <div class="clear-both"></div>
+        </ul>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,148 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "设备单位" : customer.GetLabOrganizationName();
+}
+<script type="text/javascript">
+    var beginDate = "";
+    var endDate = "";
+    var payerId = "";
+    var subjectId = "";
+    var equipmentId = "";
+    function generatePayerBalanceTotalQueryExpression() {
+        var queryExpression = "";
+        var payerId = $("#SearchPayerId").val().trim();
+        if (payerId != "") {
+            queryExpression = "PayerId=\"" + payerId + "\"";
+        }
+        var subjectId = $("#SearchSubjectId").val().trim();
+        if (subjectId != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "SubjectId=\"" + subjectId + "\"";
+        }
+        var equipemntId = $("#SearchEquipmentId").val().trim();
+        if (equipemntId != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentId=\"" + equipemntId + "\"";
+        }
+        var deductBeginTime = $("#SearchDeductBeginTime").datebox("getValue").trim();
+        if (deductBeginTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DeductAt>\"" + deductBeginTime + " 00:00:00" + "\"";
+        }
+        var deductEndTime = $("#SearchDeductEndTime").datebox("getValue").trim();
+        if (deductEndTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DeductAt<\"" + deductEndTime + " 23:59:59" + "\"";
+        }
+        var organizationXPath = $("#SearchBalanceEquipmentOrgXPath").val().trim();
+        if (organizationXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "LabRoomXPath→\"" + organizationXPath + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doPayerBalanceTotalReset() {
+        $("#SearchPayerId").tokenInput("clear");
+        $("#SearchSubjectId").tokenInput("clear");
+        $("#SearchEquipmentId").tokenInput("clear");
+        $("#SearchDeductBeginTime").datebox("setValue", "");
+        $("#SearchDeductEndTime").datebox("setValue", "");
+        $("#SearchBalanceEquipmentOrgId").val('@Guid.Empty.ToString()');
+        $("#SearchBalanceEquipmentOrgXPath").val("");
+        return false;
+    }
+    function doGetSearchBalanceEquipmentOrgXPath(element) {
+        $("#SearchBalanceEquipmentOrgXPath").val("");
+        var organizationId = element.value;
+        if (organizationId != "" && !organizationId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: organizationId }, function (data) {
+                if (data && data != "")
+                    $("#SearchBalanceEquipmentOrgXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+</script>
+<ul class="search">
+    <li id="liUserId" class="li-tokenInput">
+        <label style="margin-right:5px;display: inline-block; width: 60px;">付费人</label>
+        @(Html.TokenInput("SearchPayerId")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetSingle(true)
+                .ToMvcString())
+        <div style="float:left;">@Html.JLinkButton("btnClearSearchPayerId", "").SetIconCls("icon-remove").SetPlain(true).SetOnclick("$('#SearchPayerId').tokenInput('clear');").ToMvcString()</div>
+    </li>
+    <li id="liSubjectId" class="li-tokenInput">
+        <label style="margin-right:5px;display: inline-block; width: 60px;">课题组</label>
+        @(Html.TokenInput("SearchSubjectId")
+                .SetUrl(Url.Action("GetSubjectListByKeyWord", "Subject"))
+                .SetSingle(true)
+                .ToMvcString())
+        <div style="float:left;">@Html.JLinkButton("btnClearSearchSubjectId", "").SetIconCls("icon-remove").SetPlain(true).SetOnclick("$('#SearchSubjectId').tokenInput('clear');").ToMvcString()</div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<ul class="search">
+    <li id="liSearchEquipmentId" class="li-tokenInput">
+        <label style="margin-right:5px;display: inline-block; width: 60px;">设备</label>
+        @(Html.TokenInput("SearchEquipmentId")
+            .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+            .SetSingle(true)
+            .ToMvcString())
+        <div style="float:left;">@Html.JLinkButton("btnClearSearchEquipmentId", "").SetIconCls("icon-remove").SetPlain(true).SetOnclick("$('#SearchEquipmentId').tokenInput('clear');").ToMvcString()</div>
+    </li>
+    <li>
+        <label style="display: inline-block; width: 60px;">@customerOrgName</label>
+        @if ((bool) ViewData["IsSuperAdmin"])
+        {
+            @Html.DropDownList("SearchBalanceEquipmentOrgId", (IEnumerable<SelectListItem>) ViewData["SearchEquipmentOrganizationSelectListItem"], new {style = "width:180px;height:25px;", onchange = "doGetSearchBalanceEquipmentOrgXPath(this);"})
+            @Html.Hidden("SearchBalanceEquipmentOrgXPath")
+        }
+        else
+        {
+            @ViewData["CurrentOrganizationName"].ToString();
+            @Html.Hidden("SearchBalanceEquipmentOrgXPath", ViewData["CurrentOrganizationXPath"])
+        }
+    </li>
+     <div class="clear-both"></div>
+</ul>
+<ul class="search">
+    <li id='liDeductBeginTime'>
+        <label style="margin-right:5px;display: inline-block; width: 60px;">扣费时间</label>
+        @Html.JDateTimePicker("SearchDeductBeginTime").SetWidth(100).ToMvcString()
+    </li>
+    <li id='liDeductEndTime' style="padding-left:5px;">
+        <label>～</label>
+        @Html.JDateTimePicker("SearchDeductEndTime").SetWidth(100).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnPayerBalanceTotalSearch", "查询").SetOnclick("doSearch();generatePayerBalanceTotalQueryData();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnPayerBalanceTotalReset", "清空").SetOnclick("doPayerBalanceTotalReset();").ToMvcString()
+        @Html.JLinkButton("btnPayerBalanceTotalClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+</ul>
+<div class="clear-both"></div>
+<script type="text/javascript">
+    $(function () {
+        $("#liSearchEquipmentId ul.token-input-list-facebook").css("width", "143px");
+        $("#liUserId ul.token-input-list-facebook").css("width", "143px");
+        $("#liSubjectId ul.token-input-list-facebook").css("width", "143px");
+        $("#liDeductBeginTime .datebox .combo-text").css("width", "80px");
+        $("#liDeductEndTime .datebox .combo-text").css("width", "80px");
+        $(".search-inner-box #liDeductBeginTime .datebox").css("width", "153px");
+        $(".search-inner-box #liDeductBeginTime .datebox .combo-text").css("width", "135px");
+        $(".search-inner-box #liDeductEndTime").css("padding-left", "15px");
+        $(".search-inner-box #liDeductEndTime .datebox").css("width", "153px");
+        $(".search-inner-box #liDeductEndTime .datebox .combo-text").css("width", "135px");
+        $(".search-inner-box #liDeductEndTime label").html("结束时间");
+    });
+    function generatePayerBalanceTotalQueryData() {
+        beginDate = $("#SearchDeductBeginTime").datebox("getValue").trim();
+        endDate = $("#SearchDeductEndTime").datebox("getValue").trim();
+        payerId = $("#SearchPayerId").val();
+        subjectId = $("#SearchSujectId").val();
+        equipmentId = $("#SearchEquipmentId").val();
+    }
+    function getPayerBalanceTotalQueryData() {
+        return { "beginDate": beginDate, "endDate": endDate, "payerId": payerId, "subjectId": subjectId, "equipmentId": equipmentId };
+    }
+</script>

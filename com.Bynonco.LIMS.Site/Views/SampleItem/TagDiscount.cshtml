@@ -1,0 +1,34 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@{
+    Layout = ViewBag.Layout;
+    var sampleStatusPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSampleStatusPrivilige(User.Identity.Name);
+    var tags = ViewData["Tags"] == null ? null : (IList<Tag>)ViewData["Tags"];
+    var defaulTagSampleItemDiscounts = ViewData["DefaulTagSampleItemDiscounts"] == null ? null : (IList<TagSampleItemDiscount>)ViewData["DefaulTagSampleItemDiscounts"];
+    var tagSampleItemDiscounts = ViewData["TagSampleItemDiscounts"] == null ? null : (IList<TagSampleItemDiscount>)ViewData["TagSampleItemDiscounts"];
+ }
+@if (tags != null)
+{
+    <table id="tbTagSampleItemDiscount">
+
+        @foreach (var tag in tags)
+        {
+            TagSampleItemDiscount defaulTagSampleItemDiscount = tagSampleItemDiscounts == null ? null : tagSampleItemDiscounts.FirstOrDefault(p => p.TagId == tag.Id);
+            if (defaulTagSampleItemDiscount == null)
+            {
+                defaulTagSampleItemDiscount = defaulTagSampleItemDiscounts == null ? null : defaulTagSampleItemDiscounts.FirstOrDefault(p => p.TagId == tag.Id);
+            }
+            <tr>
+                <th id="th@(tag.Id)" style="width:100px; text-align:right;">@tag.Name</th>
+                <td id="td@(tag.Id)" style="width:170px;text-align:left; padding-left:5px">
+                    @(Html.JValidateBox(tag.Id.ToString())
+                    .SetValue(defaulTagSampleItemDiscount == null ? "" : defaulTagSampleItemDiscount.Discount.ToString("0.00"))
+                    .SetValidateType(ValidateType.number).ToMvcString())
+                    <span>%</span>
+            
+               </td>
+            </tr>
+        }
+    </table>
+}
+

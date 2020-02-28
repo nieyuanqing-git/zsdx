@@ -1,0 +1,260 @@
+﻿@charset "utf-8";
+/*
+Font sizes for all selectors other than the body are given in percentages,
+with 100% equal to 13px. To calculate a font size percentage, multiply the
+desired size in pixels by 7.6923076923.
+
+Here's a quick lookup table:
+
+10px - 76.923%
+11px - 84.615%
+12px - 92.308%
+13px - 100%
+14px - 107.692%
+15px - 115.385%
+16px - 123.077%
+17px - 130.769%
+18px - 138.462%
+19px - 146.154%
+20px - 153.846%
+*/
+
+html { color: #333; overflow-y: auto;}
+body {
+	font-size:12px;
+	color:#555555;
+	margin: 0;
+	padding: 0;
+	font-family: Microsoft YaHei,Arial, Helvetica, sans-serif,SimSun;
+}
+
+
+/* Font Style Setting-----------*/
+.f_bold{ font-weight:bold;	}
+.f_italic{ font-style:italic;}
+.f_red{ color:#f11414;}
+.f_white{ color:#fff;}
+.f_orange{ color:#e18400;}
+.f_purple{ color:#72478F;}
+.f_black{ color:#000;}
+.f_blue{ color:#0fbfd7;}
+.f_gray{ color:#d4d4d4;}
+.f_green{ color:#5da402;}
+.f_brown{ color:#724747;}
+.f_13{ font-size:13px;}
+.f_14{ font-size:14px;}
+
+/* -- Links ----------------------------------------------------------------- */
+a,a:link,a:visited,a:active{cursor:pointer;text-decoration: none;color: #333;}
+a:hover{text-decoration:none;color:#008B03;} 
+
+hr { border: none; border-top: 1px solid #afafaf;}
+
+/* -- Paragraphs and paragraph-like blocks ---------------------------------- */
+p{
+ margin: 0.7em 0.6em;
+}
+dd p, td p { margin-bottom: 0; }
+dd p:first-child, td p:first-child { margin-top: 0; }
+
+/* -- Headings -------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {color: #555555; font-weight: bold; line-height: 1.1; margin: 1.1em 0 0.5em;}
+h1 { font-size: 184.6%; color: #444444; margin: 0.75em 0 0.5em; padding: 0 16px 0 20px;}
+h2 { font-size: 153.846%; }
+h3 { font-size: 138.462%; }
+h4 { border-bottom: 1px solid #DBDFEA; font-size: 115.385%; font-weight: normal; padding-bottom: 2px;}
+h5, h6 { font-size: 107.692%; }
+
+/* -- Code and examples ----------------------------------------------------- */
+code, kbd, pre, samp {font-family: Menlo, Monaco, 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Consolas', 'Courier New', Courier, monospace; font-size: 92.308%; line-height: 1.35;}
+p code, p kbd, p samp { background: #FCFBFA; border: 1px solid #EFEEED; padding: 0 3px;}
+
+a code, a kbd, a samp,
+pre code, pre kbd, pre samp,
+table code, table kbd, table samp,
+.intro code, .intro kbd, .intro samp,
+.toc code, .toc kbd, .toc samp {
+    background: none;
+    border: none;
+    padding: 0;
+}
+pre.code, pre.terminal, pre.cmd, #doc pre.prettyprint { overflow-x: auto; padding: 0.3em 0.6em; _width: 99%;}
+pre.code, #doc pre.prettyprint { background: #FCFBFA; border: 1px solid #EFEEED; border-left-width: 5px;}
+
+pre.terminal, pre.cmd { background: #F0EFFC; border: 1px solid #D0CBFB; border-left: 5px solid #D0CBFB;}
+
+/* Don't reduce the font size of <code>/<kbd>/<samp> elements inside <pre>
+   blocks. */
+pre code, pre kbd, pre samp { font-size: 100%; }
+
+/* Used to denote text that shouldn't be selectable, such as line numbers or
+   shell prompts. Guess which browser this doesn't work in. */
+.noselect { -moz-user-select: -moz-none; -khtml-user-select: none; -webkit-user-select: none; -o-user-select: none; user-select: none;}
+
+/* -- TextArea----------------------------------------------------------------- */
+textarea { font-weight:normal; font-size:12px;font-family: helvetica,arial,sans-serif;overflow:auto;}
+/* -- Lists ----------------------------------------------------------------- */
+ol, ul {list-style: none outside none;padding:0;margin:0;}
+li{list-style: none outside none;}
+dd { margin: 0.2em 0 0.7em 1em; }
+dl { margin: 1em 0; }
+dt { font-weight: bold; }
+ul.solid-list li {border-bottom: 1px solid #CCCCCC;padding-bottom: 3px;}
+ul.dotted-list li {border-bottom: 1px dotted #CCCCCC;padding-bottom: 3px;}
+ul li.last {border-bottom: 0 none;}
+/* -- Tables ---------------------------------------------------------------- */
+caption, th { text-align: left; }
+td dl { margin: 0; }
+td dl dl { margin: 1em 0; }
+td pre:first-child { margin-top: 0; }
+th {border-bottom: none; border-top: none; color: #000;/*#FFF1D5*/ font-weight:normal; line-height: 1.3; white-space: nowrap; }
+
+
+/* Core Formatting ------ */
+.a_left{ text-align:left;}
+.a_right{ text-align:right;}
+.a_center{ text-align:center;}
+.v_middle{ vertical-align:middle;}
+.float_l{ float:left;}
+.float_r{ float:right;}
+.clear-both{clear:both;}
+.clearfix:after{clear:both;content:".";display:block;font-size:0;height:0;line-height:0;visibility:hidden;}
+.clearfix{display:block;zoom:1}
+.margin-l-10{margin-left:10px;}
+.padding-10{padding:10px;}
+/* img ---------------*/
+img{border: 0;}
+
+/* edit form --------*/
+.edit-table
+{
+    border-collapse:collapse;
+    height:auto
+}
+.edit-table th
+{
+    text-align:center; 
+    width:80px; 
+    line-height:20px; 
+    font-weight:normal; 
+    border:1px solid #F0F0F0;
+    vertical-align:middle;
+    padding:2px 5px 2px 0;
+    color:Gray;
+    background-color:#F7F7F7;
+}
+.edit-table td
+{
+    text-align:left;
+    line-height:20px; 
+    border:1px solid #F0F0F0; 
+    vertical-align:middle;
+    padding:2px 0 2px 1px;
+}
+.edit-table td input.easyui-validatebox{margin:0 2px;}
+.edit-table td span.combo{margin-left:2px;}
+
+.edit-table td span{color:Gray;}
+span.required{color:#888;}
+th span.required{color:red;font-size:16px;}
+
+.edit-table-Attachment td{width:30px;}
+.hide{display:none;}
+.show{display:inline;}
+
+.ico{display: inline-block;height: 18px;vertical-align: middle;width: 16px;}  
+.icoMiddle{display: inline-block;height: 34px; vertical-align: middle;width: 32px;}
+.icoLargar{display: inline-block;height: 50px; vertical-align: middle;width: 48px;}
+
+
+/* -------------------Search -------------------*/
+ul.search li{float:left;padding: 5px 0 5px 15px;vertical-align: middle;height:20px;} 
+ul.search li label{height:20px;line-height:20px; vertical-align:middle;display:inline-block; text-align:center;}
+div.divsplit {height:5px;}
+
+/* -------------------Tabs -------------------*/
+.tabs{ padding-left:8px; background-color:#ECEDF1}
+.tabs ul{ display:inline;}
+.tabs ul li{float: left;list-style: none outside none;padding-left: 5px;}
+
+/*---------------------------- notification ----------------------------*/
+.notification {border-radius: 6px 6px 6px 6px;}
+.notification {background-position: 10px 11px !important;background-repeat: no-repeat !important;border: 1px solid;font-size: 13px; margin: 0 0 15px; padding: 0;width: 99.8%;}
+.information {background: url("images/information.png") repeat scroll 0 0 #DBE3FF;border-color: #A2B4EE;color: #585B66;}
+.attention {background: url("images/exclamation.png") no-repeat scroll 10px 11px #FFFBCC;border-color: #E6DB55;color: #666452;}
+.error {background: url("images/cross_circle.png") repeat scroll 0 0 #FFCECE;border-color: #DF8F8F;color: #665252;}
+.pass {background: url("images/tick_circle.png") repeat scroll 0 0 #D5FFCE;border-color: #9ADF8F;color: #556652;}
+.notification div {display: block;font-style: normal;line-height: 1.5em;padding: 10px 10px 10px 36px;}
+.green-box {background: none repeat scroll 0 0 #D5FFCE;border-color: #9ADF8F;color: #556652;}
+.blue-box {background: none repeat scroll 0 0 #DBE3FF;border-color: #A2B4EE;color: #585B66;}
+.info-gray-box{background-color: #F4F4F4; border: 1px solid #CCCCCC; border-radius: 6px 6px 6px 6px; margin-bottom: 10px; padding: 10px;}
+.info-gray-box h2.title{border-bottom: 1px dotted #A0A0A0;line-height:30px;margin: 0.7em 0;}
+/*--------------------------color-span -----------------------*/
+.color-span{display: inline-block;font-weight: bold;padding: 1px 3px;color: #FFF;}
+.green-span{ background-color: #91c700;}
+.gary-green-span{ background-color: #1092be;}
+.cyan-span{ background-color: #00ddec;}
+.orange-span{ background-color: #eb6400;}
+.golden-span{ background-color: #ffc90e;}
+.red-span{ background-color: #f00000;}
+.blue-span{ background-color: #0062c3;}
+.light-gray-span{background-color:#c3c3c3;}
+.gray-span{background-color:#AAA;}
+.black-span{background-color:#13110d;}
+.purple-span{background-color:#3c0920;}
+.light-purple-span{background-color:#c8bfe7;}
+.yellow-span{background-color:#604e1c;}
+.light-yellow-span{background-color:#efe4b0;}
+.pink-span{background-color:#600c62;}
+.brown-span{background-color:#2b2828;}
+.light-green-span{background-color:#31503d;}
+.dark-blue-span{background-color:#130c3a;}
+/*------------------------- button --------------------------*/
+a.l-btn-color {-moz-border-radius:3px; -webkit-border-radius:3px; border-radius:3px; margin-right: 5px;  padding: 1px 3px; white-space:nowrap;}
+a.l-btn-color,a.l-btn-color:link,a.l-btn-color:visited,a.l-btn-color:active,a.l-btn-color:hover{cursor:pointer;text-decoration: none;color: #FFF;}
+a.l-btn-color-blue{ border:1px solid #10335e; background:url('images/button-blue.png') repeat-x left bottom; }
+a.l-btn-color-red{ border:1px solid #4a1114; background:url('images/button-red.png') repeat-x left bottom; }
+a.l-btn-color-green{ border:1px solid #3d5314; background:url('images/button-green.png') repeat-x left bottom; }
+a.l-btn-color-cyan{ border:1px solid #0c4468; background:url('images/button-cyan.png') repeat-x left bottom; }
+a.l-btn-color-purple{ border:1px solid #3c0920; background:url('images/button-purple.png') repeat-x left bottom; }
+a.l-btn-color-light-green{ border:1px solid #31503d; background:url('images/button-light-green.png') repeat-x left bottom; }
+a.l-btn-color-grey{ border:1px solid #44544f; background:url('images/button-grey.png') repeat-x left bottom; }
+a.l-btn-color-dark-blue{ border:1px solid #130c3a; background:url('images/button-dark-blue.png') repeat-x left bottom; }
+a.l-btn-color-yellow{ border:1px solid #604e1c; background:url('images/button-yellow.png') repeat-x left bottom; }
+a.l-btn-color-black{ border:1px solid #13110d; background:url('images/button-black.png') repeat-x left bottom; }
+a.l-btn-color-pink{ border:1px solid #600c62; background:url('images/button-pink.png') repeat-x left bottom; }
+a.l-btn-color-orange{ border:1px solid #69260c; background:url('images/button-orange.png') repeat-x left bottom; }
+a.l-btn-color-brown{ border:1px solid #2b2828; background:url('images/button-brown.png') repeat-x left bottom; }
+/*------------------------- star --------------------------*/
+.star{background-image:url('images/star-full.png');background-repeat:no-repeat;padding-right:192px;height:17px;line-height:17px;font-size: 12px;width:192px;}
+.star-10{background-position:left 0px;}
+.star-9{background-position:left -17px;}
+.star-8{background-position:left -34px;}
+.star-7{background-position:left -51px;}
+.star-6{background-position:left -68px;}
+.star-5{background-position:left -85px;}
+.star-4{background-position:left -102px;}
+.star-3{background-position:left -119px;}
+.star-2{background-position:left -136px;}
+.star-1{background-position:left -153px;}
+.star-0{background-position:left -170px;}
+
+
+.backToTop {
+    display: none;
+    width: 18px;
+    line-height: 1.2;
+    padding: 5px 0;
+    background-color: #000;
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+    position: fixed;
+    _position: absolute;
+    right: 10px;
+    bottom: 100px;
+    _bottom: "auto";
+    cursor: pointer;
+    opacity: .6;
+    filter: Alpha(opacity=60);
+}

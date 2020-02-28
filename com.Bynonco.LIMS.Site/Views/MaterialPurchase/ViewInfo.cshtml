@@ -1,0 +1,127 @@
+﻿@model com.Bynonco.LIMS.Model.MaterialPurchase
+@using com.Bynonco.LIMS.Model.View; 
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divMaterialPurchaseView">
+@if (Model != null)
+{
+    var groupAdminAuditInfo = (Model.GroupAdmin == null ? "" : Model.GroupAdmin.UserName)
+        + (Model.AuditGroupAdminTime.HasValue ? "(" + Model.AuditGroupAdminTime.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : "")
+        + Model.AuditGroupAdminRemark;
+    var directorAuditInfo = (Model.Director == null ? "" : Model.Director.UserName)
+            + (Model.AuditDirectorTime.HasValue ? "(" + Model.AuditDirectorTime.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : "")
+            + Model.AuditDirectorRemark;
+    var operatorAuditInfo = (Model.Operator == null ? "" : Model.Operator.UserName)
+            + (Model.AuditOperatorTime.HasValue ? "(" + Model.AuditOperatorTime.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : "")
+            + Model.AuditOperatorRemark;
+    var inputAuditInfo = (Model.Inputor == null ? "" : Model.Inputor.UserName)
+            + (Model.AuditInputTime.HasValue ? "(" + Model.AuditInputTime.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : "")
+            + Model.AuditInputRemark;
+    var balanceAuditInfo = (Model.Balance == null ? "" : Model.Balance.UserName)
+            + (Model.AuditBalanceTime.HasValue ? "(" + Model.AuditBalanceTime.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : "")
+            + Model.AuditBalanceRemark;
+    var materialPurchaseItemList = ViewData["ViewMaterialPurchaseItemList"] == null ? null : (List<ViewMaterialPurchaseItem>)ViewData["ViewMaterialPurchaseItemList"];
+    
+    <table  class="edit-table"  style="width:650px;height:auto">
+        <tr>
+            <th>采购单号</th>
+            <td>@Model.PurchaseNum</td>
+            <th>状态</th>
+            <td colspan='3'>@(Model.StatusEnum.ToCnName())</td>
+        </tr>
+        <tr>
+            <th>采购人</th>
+            <td>@(Model.ApplyUser != null ? Model.ApplyUser.UserName : "")</td>
+            <th>仪器群组</th>
+            <td>@(Model.EquipmentGroup != null ? Model.EquipmentGroup.Name : "")</td>
+            <th>采购时间</th>
+            <td>@Model.ApplyTime.ToString("yyyy-MM-dd")</td>
+        </tr>
+        <tr>
+            <th colspan='6'>采购项目</th>
+        </tr>
+        <tr>
+            <td colspan='6'>
+                <table cellpadding="0" cellspacing="0" border="0" class="edit-table">
+                    <tr>
+                        <th >名称</th>
+                        <th style='width:80px;'>单价</th>
+                        <th style='width:60px;'>采购量</th>
+                        <th style='width:80px;'>总额</th>
+                        <th style='width:180px;'>供应商名称</th>
+                        <th style='width:80px;'>联系电话</th>
+                        <th style='width:80px;'>入库量</th>
+                    </tr>
+                    @if (materialPurchaseItemList != null && materialPurchaseItemList.Count() > 0)
+                    {
+                        foreach (var item in materialPurchaseItemList)
+                        {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td style='text-align:center;'>@item.UnitPrice</td>
+                            <td style='text-align:center;'>@item.PurchaseValue</td>
+                            <td style='text-align:center;'>@item.Amount</td>
+                            <td>@item.SupplierName</td>
+                            <td style='text-align:center;'>@item.SupplierPhone</td>
+                            <td style='text-align:center;'>@(item.InputCount.HasValue ? item.InputCount.ToString() : "")</td>
+                        </tr>
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='5'>@System.Web.Mvc.MvcHtmlString.Create(Model.Remark)</td>
+        </tr>
+        @if (groupAdminAuditInfo != "")
+        {
+        <tr>
+            <th>组群负责人审核</th>
+            <td colspan='5'>
+                @groupAdminAuditInfo
+            </td>
+        </tr>
+        }
+        @if (directorAuditInfo != "")
+        {
+        <tr>
+            <th>技术负责人审核</th>
+            <td colspan='5'>
+                @directorAuditInfo
+            </td>
+        </tr>
+        }
+        @if (operatorAuditInfo != "")
+        {
+        <tr>
+            <th>经办人意见</th>
+            <td colspan='5'>
+                @operatorAuditInfo
+            </td>
+        </tr>
+        }
+        @if (inputAuditInfo != "")
+        {
+        <tr>
+            <th>入库人意见</th>
+            <td colspan='5'>
+                @inputAuditInfo
+            </td>
+        </tr>
+        }
+        @if (balanceAuditInfo != "")
+        {
+        <tr>
+            <th>财务结算报销</th>
+            <td colspan='5'>
+                @balanceAuditInfo
+            </td>
+        </tr>
+        }
+    </table>
+}
+else
+{
+    @:无效信息
+}
+</div> 

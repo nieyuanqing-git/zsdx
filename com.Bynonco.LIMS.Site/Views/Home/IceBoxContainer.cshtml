@@ -1,0 +1,21 @@
+﻿<h2 class='title'><span>冰箱监控</span><a href='@Url.Action("IceBoxIFrame", "Home")' class='more'>详情>></a></h2>
+<div id="divIceBox" class="content-box content-box-153" style="padding-top: 5px; overflow-y: auto; height: 163px;">
+</div>
+
+<script type="text/javascript">
+    function getIceBox() {
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("IceBox", "Home")',
+            data: "date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $("#divIceBox").empty();
+                $("#divIceBox").append(msg);
+            }
+        });
+    }
+    $(function () {
+        getIceBox();
+        setInterval("getIceBox()", 10000);
+    });
+</script>

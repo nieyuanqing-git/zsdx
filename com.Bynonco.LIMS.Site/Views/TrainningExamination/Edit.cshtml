@@ -1,0 +1,175 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewTrainningExamination
+@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function doOnNameChanged() {
+        $("#InputStr").val("");
+    }
+</script>
+@{
+    var businessType = ViewData["BusinessType"] == null ? "" : ViewData["BusinessType"].ToString();
+    var businessId = ViewData["BusinessId"] == null ? "" : ViewData["BusinessId"].ToString();
+    var businessName = ViewData["BusinessName"] == null ? "" : ViewData["BusinessName"].ToString();
+}
+<div id="divTrainningExaminationEdit"> 
+    <form id="frmTrainningExaminationEdit" action="#">
+        @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+        <table id="tbTrainningExaminationEdit" class="edit-table" style="width:550px;">
+            @if (Model != null)
+            {
+                
+                <tr>
+                    <th>试卷所属</th>
+                    <td colspan='3'>
+                    @Html.Hidden("EditBusinessType", Model.BusinessType.ToString())
+                    @Html.Hidden("BusinessId", Model.BusinessId.ToString())
+                    [@(Model.BusinessTypeName)] @(Model.BusinessName)
+                    </td>
+                </tr>
+            }
+            else if (businessType != "" && businessId != "" && businessName != "")
+            {
+               <tr>
+                    <th>试卷所属</th>
+                    <td colspan='3'>
+                    @Html.Hidden("EditBusinessType", businessType)
+                    @Html.Hidden("BusinessId", businessId)
+                    @(businessName)
+                    </td>
+                </tr>
+            }
+            else
+            {
+            <tr>
+                <th><span class="required">* </span>所属类型</th>
+                <td id="tdBusinessType">
+                    @(Html.JComboBox("EditBusinessType")
+                    .SetData(ViewData["BusinessTypeJson"])
+                    .SetValue(Model == null ? "" : Model.BusinessType.ToString())
+                    .SetOnChange("setTimeout('doBusinessTypeChange();', 500);")
+                    .SetWidth(155)
+                    .ToMvcString())
+                </td>
+                <th id="thBusiness"><span class="required">* </span>试卷所属</th>
+                <td id="tdEquipment" class='hide'>
+                    <div style='float:left;'>
+                    @(Html.TokenInput("EquipmentId")
+                        .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                        .SetSingle(true)
+                        .SetWidth(150)
+                        .ToMvcString())
+                    </div>
+                    <div style='float:left;'>
+                        @Html.JLinkButton("btnClearSearchEquipmentId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#EquipmentId').tokenInput('clear');;return false;").ToMvcString()
+                    </div>
+                    <div class='clear-both'></div>
+                </td>
+                @*<td id="tdLabOrganization" class='hide'>
+                    <div style='float:left;'>
+                    @(Html.TokenInput("LabOrganizationId")
+                        .SetUrl(Url.Action("GetUserAutherOrganizationListByKeyWord", "LabOrganization"))
+                        .SetSingle(true)
+                        .SetWidth(400)
+                        .ToMvcString())
+                    </div>
+                    <div style='float:left;'>
+                    @Html.JLinkButton("btnClearSearchLabOrganizationId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#LabOrganizationId').tokenInput('clear');;return false;").ToMvcString()
+                    </div>
+                    <div class='clear-both'></div>
+                </td>*@
+            </tr>
+            }
+            <tr>
+                <th><span class="required">* </span>名称</th>
+                <td>
+                    @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(150).ToMvcString()
+                </td>
+                @if (Model == null)
+                {
+                    <th><span class="required">* </span>试卷类型</th>
+                    <td colspan='3'>
+                        @(Html.JComboTree("TrainningTypeId")
+                        .SetData(ViewData["TrainningTypeJson"])
+                        .SetValue(Model == null ? (ViewData["TrainningTypeId"] == null ? "" : ViewData["TrainningTypeId"].ToString()) : Model.TrainningTypeId.ToString())
+                        .SetMultiple(false)
+                        .SetDisabled(Model != null)
+                        .SetWidth(155).SetRequired(false).SetExpandAll(true).ToMvcString())
+                    </td>
+                }
+                else
+                {
+                    <th><span class="required">* </span>试卷类型</th>
+                    <td>
+                        @Model.TrainningTypeName
+                        @Html.Hidden("TrainningTypeId", Model.TrainningTypeId)
+                    </td>
+                }
+            </tr>
+            <tr class='hide'>
+                <th>助记符</th>
+                <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(200).ToMvcString()</td>
+            </tr>
+            <tr>
+                <th><span class="required">* </span>通过类型</th>
+                <td id="tdPassType">
+                    @(Html.JComboBox("PassType")
+                    .SetData(ViewData["ExaminationPassTypeJson"])
+                    .SetValue(Model == null ? "" : Model.PassType.ToString())
+                    .SetWidth(155)
+                    .ToMvcString())
+                </td>
+                <th><span class="required">* </span>通过条件</th>
+                <td>@Html.JValidateBox("PassStandard").SetValue(Model == null || !Model.PassStandard.HasValue ? "" : Math.Round(Model.PassStandard.Value,2).ToString()).SetWidth(150).ToMvcString()</td>
+            </tr>
+            <tr>
+                <th>最多考试次数</th>
+                <td>@Html.JValidateBox("MaxExaminationTime").SetValue(Model == null || !Model.MaxExaminationTime.HasValue ? "" : Model.MaxExaminationTime.Value.ToString()).SetWidth(100).ToMvcString() (次)</td>
+                <th>最少学习时间</th>
+                <td>@Html.JValidateBox("MinReadMaterialDateTime").SetValue(Model == null || !Model.MinReadMaterialDateTime.HasValue ? "" : Math.Round(Model.MinReadMaterialDateTime.Value,2).ToString()).SetWidth(100).ToMvcString() (小时)</td>
+            </tr>
+            <tr>
+                <th>随机考题数目</th>
+                <td colspan='3'>
+                @Html.JValidateBox("RandomQuestionCount").SetValue(Model == null || !Model.RandomQuestionCount.HasValue ? "" : Model.RandomQuestionCount.Value.ToString()).SetWidth(100).ToMvcString()
+                (仅当试卷未设置考题时生效)
+                </td>
+            </tr>
+            <tr>
+                <th>是否必考</th>
+                <td>
+                    @Html.CheckBox("IsRequired", Model == null ? false : Model.IsRequired)
+                </td>
+                <th>是否停用</th>
+                <td>
+                    @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+                </td>
+            </tr>
+            <tr>
+                <th>备注</th>
+                <td colspan='3'>
+                    @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-size:12px;text-decoration:none;height:60px;width:96%;margin-right:5px;" })
+                </td>
+            </tr>
+        </table>
+      </form>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#tdEquipment ul.token-input-list-facebook").css("width", "125px");
+        $("#tdLabOrganization ul.token-input-list-facebook").css("width", "125px");
+    });
+    function doBusinessTypeChange() {
+        $("#tdEquipment").addClass("hide");
+        $("#tdLabOrganization").addClass("hide");
+        var businessType = $("#EditBusinessType").combobox('getValue');
+        if (businessType == '@((int)com.Bynonco.LIMS.Model.Enum.TrainningExaminationBusinessType.LabOrganization)') {
+            $("#thBusiness").addClass("hide");
+            $("#tdBusinessType").attr("colspan","3");
+        }
+        else if (businessType == '@((int)com.Bynonco.LIMS.Model.Enum.TrainningExaminationBusinessType.Equipment)') {
+            $("#tdEquipment").removeClass("hide");
+            $("#thBusiness").removeClass("hide");
+            $("#tdBusinessType").attr("colspan", "1");
+        }
+    }
+</script>

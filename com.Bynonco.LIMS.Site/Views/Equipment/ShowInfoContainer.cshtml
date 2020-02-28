@@ -1,0 +1,16 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerShowTopInfo = customer == null ? "" : customer.GetEquipmentShowTopInfo();
+    customerShowTopInfo = "../Equipment/" + (customerShowTopInfo == "" ? "ShowTopInfo" : customerShowTopInfo);
+}
+<div class="info-pannel">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Partial(customerShowTopInfo)
+    @Html.Partial("../Equipment/ShowDetailTag")
+</div>
+@Html.Partial("../Equipment/ScriptContainer")
+@Html.Partial("../Equipment/ShowScriptContainer")        
+@Html.Partial("../Equipment/PaginationListScripts")
+

@@ -1,0 +1,16 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divAppointmentDetailInfoDialog" style="display:none"></div>
+<script type="text/javascript">
+    var appointmentDetailInfoDialog;
+    function doShowAppointmentDetailInfo(appointmentId){
+        var url= '@Url.Action("AppointmentDetailInfo","Appointment")';
+        if(appointmentDetailInfoDialog) {
+            appointmentDetailInfoDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAppointmentDetailInfoDialog").load(url, { "appointmentId":appointmentId, "date": new Date().getMilliseconds() }, function () {
+            appointmentDetailInfoDialog = @(Html.JDialog("divAppointmentDetailInfoContainer").SetTitle("预约详细信息").SetAutoDialog(false).SetOkScript("appointmentDetailInfoDialog.dialog('close');").SetCancelScript("appointmentDetailInfoDialog.dialog('close');").SetIconCls("icon-save").ToMvcString());
+            $.messager.progress('close');
+        });
+    }
+</script>

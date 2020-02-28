@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+}
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var searchUserName =  $("#SearchUserName").val()
+        if (searchUserName != "")
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + searchUserName + "\"";
+        var searchLabOrganizationName = $("#SearchLabOrganizationName").val()
+        if (searchLabOrganizationName != "")
+            queryExpression += (queryExpression == "" ? "" : "*") + "OrgName∽\"" + searchLabOrganizationName + "\"";
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#SearchUserName").val("");
+        $("#SearchLabOrganizationName").val("");
+        $("#SearchStatus").combobox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>用户名称</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>@customerOrgName</label>
+        @Html.JValidateBox("SearchLabOrganizationName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

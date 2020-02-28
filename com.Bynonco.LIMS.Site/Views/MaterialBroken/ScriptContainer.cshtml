@@ -1,0 +1,210 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var materialBrokenPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetMaterialBrokenPrivilige(User.Identity.Name);}
+<div id="divMaterialBrokenDialog" style="display:none"></div>
+<div id="divViewMaterialBrokenDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doMaterialBrokenSearch() {
+        var queryExpression = generateMaterialBrokenQueryExpress();
+        $("#tbMaterialBrokenList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbMaterialBrokenList").datagrid("load", { "queryExpression": queryExpression.trim()});
+        return false;
+    }
+    var materialBrokenDialog;
+    function doMaterialBrokenDialog() {
+        if (materialBrokenDialog) {
+            materialBrokenDialog.dialog("destroy");
+        }
+        materialBrokenDialog =  @Html.JDialog("divMaterialBrokenEdit").SetTitle("耗材报废单信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("materialBrokenDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveMaterialBroken();").ToMvcString();
+    }
+    function doAddOrEditMaterialBroken(id){
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Edit","MaterialBroken")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialBrokenDialog").load(url,function(){
+            doMaterialBrokenDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAddMaterialBroken(id) {
+       doAddOrEditMaterialBroken(id);
+    }
+    function doEditMaterialBroken(id) {
+       if(!id || id.trim()==""){
+           var selectedMaterialBroken = $("#tbMaterialBrokenList").datagrid("getSelected");
+           if(!selectedMaterialBroken || selectedMaterialBroken.Id=="" || selectedMaterialBroken.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材报废单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialBroken.Id;
+       }
+       doAddOrEditMaterialBroken(id);
+    }
+    function doAuditMaterialBrokenDialog() {
+        if (materialBrokenDialog) {
+            materialBrokenDialog.dialog("destroy");
+        }
+        materialBrokenDialog =  @(Html.JDialog("divMaterialBrokenEdit")
+            .SetTitle("耗材报废单信息")
+            .AddButton(new ToolBarButton() { Handler = "doAuditPassMaterialBroken();return false;", Id = "btnAuditPassMaterialBroken", Text = "审核通过", IconCls = "icon-pass",Disabled = !materialBrokenPrivilige.IsEnableAudit })
+            .AddButton(new ToolBarButton() { Handler = "doAuditRejectMaterialBroken();return false;", Id = "btnAuditRejectMaterialBroken", Text = "审核不通过", IconCls = "icon-reject",Disabled = !materialBrokenPrivilige.IsEnableAudit })
+            .SetIconCls("icon-save")
+            .SetAutoDialog(false)
+            .SetShowOkButton(false)
+            .SetCancelScript("materialBrokenDialog.dialog('destroy');return false;")
+            .SetModal(true).ToMvcString());
+    }
+    function doAuditMaterialBroken(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedMaterialBroken = $("#tbMaterialBrokenList").datagrid("getSelected");
+           if(!selectedMaterialBroken || selectedMaterialBroken.Id=="" || selectedMaterialBroken.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材报废单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialBroken.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Audit","MaterialBroken")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialBrokenDialog").load(url,function(){
+            doAuditMaterialBrokenDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAuditPassMaterialBroken()
+    {
+        var url = '@Url.Action("AuditPass","MaterialBroken")'
+        doSaveMaterialBroken(url)
+    }
+    function doAuditRejectMaterialBroken()
+    {
+        var url = '@Url.Action("AuditReject","MaterialBroken")'
+        doSaveMaterialBroken(url)
+    }
+    function doOutputMaterialBrokenDialog() {
+        if (materialBrokenDialog) {
+            materialBrokenDialog.dialog("destroy");
+        }
+        materialBrokenDialog =  @(Html.JDialog("divMaterialBrokenEdit")
+            .SetTitle("耗材报废单信息")
+            .AddButton(new ToolBarButton() { Handler = "doSaveOutputMaterialBroken();return false;", Id = "btnOutputMaterialBroken", Text = "报废出库", IconCls = "icon-materialoutput",Disabled = !materialBrokenPrivilige.IsEnableOutput })
+            .SetIconCls("icon-save")
+            .SetAutoDialog(false)
+            .SetShowOkButton(false)
+            .SetCancelScript("materialBrokenDialog.dialog('destroy');return false;")
+            .SetModal(true).ToMvcString());
+    }
+    function doOutputMaterialBroken(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedMaterialBroken = $("#tbMaterialBrokenList").datagrid("getSelected");
+           if(!selectedMaterialBroken || selectedMaterialBroken.Id=="" || selectedMaterialBroken.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材报废单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialBroken.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Output","MaterialBroken")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialBrokenDialog").load(url,function(){
+            doOutputMaterialBrokenDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveOutputMaterialBroken()
+    {
+        var url = '@Url.Action("SaveOutput","MaterialBroken")'
+        doSaveMaterialBroken(url)
+    }
+    function doSaveMaterialBroken(url){
+        if(!url || url.trim() == "")
+        {
+            url = '@Url.Action("Save","MaterialBroken")';
+        }
+        if($("#BrokenNum").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"报废单号为空", showType: 'show' });;
+          return false;
+        }
+        if($("#BrokenUserId").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"报废人为空", showType: 'show' });;
+          return false;
+        }
+        if($("#BrokenTime").datetimebox("getValue") == ""){
+          $.messager.show({ title: '提示', msg:"报废时间为空", showType: 'show' });;
+          return false;
+        }
+        if($("#MaterialInfoIds").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"报废项目为空", showType: 'show' });;
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#frmMaterialBrokenEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                materialBrokenDialog.dialog('close');
+                doMaterialBrokenSearch();
+            }
+        });
+   }
+   function doDeleteMaterialBroken(id){
+        if(!id || id.trim() == ""){
+              var selectedMaterialBroken = $("#tbMaterialBrokenList").datagrid("getSelected");
+                if(!selectedMaterialBroken || selectedMaterialBroken.Id.trim() == "" || selectedMaterialBroken.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的报废单", showType: 'show' });
+                    return false;
+                }
+                id = selectedMaterialBroken.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "MaterialBroken")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doMaterialBrokenSearch();
+                }
+            });
+        });
+        return false;
+   }
+   var viewMaterialBrokenDialog;
+   function doViewMaterialBrokenDialog() {
+        if (viewMaterialBrokenDialog) {
+            viewMaterialBrokenDialog.dialog("destroy");
+        }
+        viewMaterialBrokenDialog =  @Html.JDialog("divMaterialBrokenView").SetTitle("耗材报废单信息").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewMaterialBrokenDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doViewMaterialBrokenInfo(id)
+    {
+        if(!id || id.trim()==""){
+           var selectedMaterialBroken = $("#tbMaterialBrokenList").datagrid("getSelected");
+           if(!selectedMaterialBroken || selectedMaterialBroken.Id=="" || selectedMaterialBroken.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材报废单", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialBroken.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewInfo","MaterialBroken")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewMaterialBrokenDialog").load(url,function(){
+            doViewMaterialBrokenDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+</script>

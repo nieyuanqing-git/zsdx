@@ -1,0 +1,64 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var equipmentId = ViewData["EquipmentId"] == null ? "" :ViewData["EquipmentId"].ToString();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+    var achievementPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetAchievementPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbThesisList")
+        .SetUrl(ViewData["Url"] == null ? Url.Action("GetThesisList", "Achievement") : ViewData["Url"].ToString())
+        .AddQueryParam("EquipmentId", equipmentId)
+        .AddQueryParam("QueryExpression", queryExpression)
+        .SetHeight(isPopDialog ? 350 : 650)
+        .SetSortName("CreateTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(isPopDialog ? 10 : 20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("标题", "Title").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("作者", "FirstThesisAuthorNames").SetWidth(100).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("通讯作者", "OtherThesisAuthorNames").SetWidth(100).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("指导导师", "TutorName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("刊物名称", "JournalName").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("刊物类别", "JournalTypeName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("发表年份", "JournalTimeStr").SetWidth(60).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("卷（期）号", "VolumeNumber").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在分区", "ISSN").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("页面范围", "Pagination").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("影响因子", "ImpactFactor").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(80).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(80).SetAlign(Align.center));
+    
+    dataGrid.SetShowAddButton(achievementPrivilige.IsEnableThesisAdd);
+    if (achievementPrivilige.IsEnableThesisAdd)
+    {
+        dataGrid.SetAddScript("doAddThesis('','" + equipmentId + "')");
+    }
+    dataGrid.SetShowEditButton(achievementPrivilige.IsEnableThesisEdit);
+    if (achievementPrivilige.IsEnableThesisEdit)
+    {
+        dataGrid.SetEditScript("doEditThesis('','" + equipmentId + "')");
+        dataGrid.SetOnDblClickRow("doEditThesis(rowData.Id,'" + equipmentId + "');");
+    }
+    dataGrid.SetShowDeleteButton(achievementPrivilige.IsEnableThesisDelete);
+    if (achievementPrivilige.IsEnableThesisDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteThesis('');");
+    }
+    dataGrid.SetShowExpertButton(achievementPrivilige.IsEnableThesisExpert);
+    if (achievementPrivilige.IsEnableThesisExpert)
+    {
+        dataGrid.SetExpertScript("doThesisExportExcel();");
+    }
+    if (achievementPrivilige.IsEnableThesisImportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doThesisImportExcel();", IconCls = "icon-import", Id = "btnImportExcel", Text = "导入" });
+    }
+}
+@(dataGrid.ToMvcString())

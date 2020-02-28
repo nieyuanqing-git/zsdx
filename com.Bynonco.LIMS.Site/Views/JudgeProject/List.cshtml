@@ -1,0 +1,49 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var judgeProjectPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetJudgeProjectPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbJudgeProjectList")
+       .SetUrl(Url.Action("GetViewJudgeProjectList", "JudgeProject"))
+       .SetHeight(550)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetPagination(false)
+       .SetOnSelect("doOnJudgeProjectSelected(rowData);")
+       .SetOnLoadSuccess("setTimeout('doJudgeProjectLoadSuccess();', 500);");
+    dataGrid.SetShowAddButton(judgeProjectPrivilige.IsEnableAdd);
+    dataGrid.SetShowEditButton(judgeProjectPrivilige.IsEnableEdit);
+    if (judgeProjectPrivilige.IsEnableAdd)
+    {
+        dataGrid.SetAddScript("doAddJudgeProject('');");
+    }
+    if (judgeProjectPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetEditScript("doEditJudgeProject('');");
+       dataGrid.SetOnDblClickRow("doEditJudgeProject(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(judgeProjectPrivilige.IsEnableDelete);
+    if (judgeProjectPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteJudgeProject('');");
+    }
+    if (judgeProjectPrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("权重", "Weight").SetWidth(50).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("分数", "ProjectCent").SetWidth(50).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreaterName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(110).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(110).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())
+<script type="text/javascript">
+    function doJudgeProjectLoadSuccess() {
+        $('#tbJudgeProjectList').datagrid('selectRow', 0);
+    } 
+</script>

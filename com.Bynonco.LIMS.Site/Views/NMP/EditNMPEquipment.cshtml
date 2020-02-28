@@ -1,0 +1,41 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMPEquipment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{var viewNMP = ViewData["ViewNMP"] != null ? (com.Bynonco.LIMS.Model.View.ViewNMP)ViewData["ViewNMP"] : null;}
+<div id="divNMPEquipmentEdit"> 
+<form id="frmNMPEquipment" action="#">
+    @Html.Hidden("Id",Model == null ? "" : Model.Id.ToString())
+    @Html.Hidden("NMPId",viewNMP.Id.ToString())
+    <table id="tbNMPEquipmentEdit" class="edit-table">
+        <tr>
+            <th>工位名称名称</th>
+            <td>@viewNMP.Name</td>
+        </tr>
+        <tr>
+            <th>所在单位</th>
+            <td>@viewNMP.OrganizationName</td>
+        </tr>
+        <tr>
+            <th>所在房间</th>
+            <td>@viewNMP.RoomName</td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>工位关联仪器名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(230).SetValidateType(ValidateType.none).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>Oid</th>
+            <td>
+                @Html.JValidateBox("Oid").SetValue(Model == null ? "" : Model.Oid).SetWidth(230).SetValidateType(ValidateType.none).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>固定资产编号</th>
+            <td>
+                @Html.JValidateBox("Label").SetValue(Model == null ? "" : Model.Label).SetWidth(230).SetValidateType(ValidateType.none).ToMvcString()
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>

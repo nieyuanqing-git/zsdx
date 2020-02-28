@@ -1,0 +1,22 @@
+﻿
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+        var dataGrid = Html.JDataGrid("tbHolidayIncludeEquipmentList")
+        .SetUrl(Url.Action("GetHolidayIncludeList","Holiday"))
+        .AddQueryParam("queryExpression", string.Format("HolidaysId=\"{0}\"", ViewData["HolidaysId"] == null ? default(Guid).ToString() : ViewData["HolidaysId"].ToString()))
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(true)
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false)
+        .SetWidth(608)
+        .SetHeight(300)
+        .SetPagination(false)
+        .SetDeleteScript("doDeletequipment('tbHolidayIncludeEquipmentList','IncludedEquipmentIds');")
+        .AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "isSelectIncludeEquipment = true;doSelectEquipmentDialog('IncludedEquipmentIds');", IconCls = "icon-search", Id = "btnSelectIncludeEquipment", Text = "选择" })
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "Name").SetWidth(250).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(150).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在地点", "RoomName").SetWidth(350).SetAlign(Align.left));
+ }
+ @(dataGrid.ToMvcString())

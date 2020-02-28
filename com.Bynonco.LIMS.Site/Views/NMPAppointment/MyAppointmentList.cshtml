@@ -1,0 +1,52 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var nmpAppointmentPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPAppointmentPrivilige(User.Identity.Name);
+    Guid? NMPAdminId = null;
+    if (ViewData["NMPAdminId"] != null) 
+    {
+        NMPAdminId = new Guid(ViewData["NMPAdminId"].ToString());
+    }
+    Guid? SubjectId = null;
+    if (ViewData["SubjectId"] != null)
+    {
+        SubjectId = new Guid(ViewData["SubjectId"].ToString());
+    }
+    var dataGrid = Html.JDataGrid("tbNMPAppointmentSearchList")
+    .SetUrl(Url.Action("GetMyGridViewNMPAppointmentList", "NMPAppointment", new { SubjectId = SubjectId, NMPAdminId = NMPAdminId }))
+    .SetPageSize(10)
+    .SetHeight(550)
+    .SetSortName("BeginTime")
+    .SetSortOrder(SortOrder.desc)
+     .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(52).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("工位设备名称", "NMPEquipmentNameStr").SetWidth(280).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预约者", "UserName").SetWidth(50).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("电话", "UserPhoneStr").SetWidth(110).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "TutorName").SetWidth(50).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核状态", "AuditingStatusStr").SetWidth(120).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "BeginTimeStr").SetWidth(110).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndTimeStr").SetWidth(110).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("时长(分钟)", "DurationStr").SetWidth(70).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("工位名称", "NMPName").SetWidth(150).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结算状态", "HasClossingAccountStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "AuditingUserName").SetWidth(80).SetAlign(Align.center).SetSortable(false))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("价格(元)", "Fee").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("放置地点", "RoomName").SetWidth(300).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("课题组", "SubjectName").SetWidth(300).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("项目名称", "SubjectProjectName").SetWidth(300).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核备注", "AuditingNoPassWhy").SetWidth(300).SetAlign(Align.left))
+    .SetShowPrintButton(false)
+    .SetShowSearchButton(true)
+    .SetShowPrintButton(false)
+    .SetSearchScript("doShowSearch()");
+    if ((bool)ViewData["IsTurtor"])
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler = string.Format("doNMPAppointmentAuditBatch({0},'tbNMPAppointmentSearchList');return false;", (int)com.Bynonco.LIMS.Model.Enum.AppointmentAuditType.TutorAudit), IconCls = "icon-pass", Id = "btnNMPAppointmentTutorAudit", Text = "导师审核" });
+    }
+    if (nmpAppointmentPrivilige.IsEnableAuditAppointment)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Handler = string.Format("doNMPAppointmentAuditBatch({0},'tbNMPAppointmentSearchList');return false;", (int)com.Bynonco.LIMS.Model.Enum.AppointmentAuditType.AdminAudit), IconCls = "icon-pass", Id = "btnNMPAppointmentAdminAudit", Text = "管理员审核" });
+    }
+}
+@(dataGrid.ToMvcString()) 

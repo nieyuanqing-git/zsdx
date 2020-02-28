@@ -1,0 +1,24 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var delinquencyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDelinquencyPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbPunishRecordList")
+    .SetUrl(ViewData["Url"] == null ? Url.Action("GetGridViewPunishActionList", "Delinquency") : ViewData["Url"].ToString())
+    .SetHeight(550)
+    .SetPageSize(10)
+    .SetSortName("TotalSeverity")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(45).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("姓名", "PunisherNameStr").SetWidth(200).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束", "StatusStr").SetWidth(50).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开始时间", "BeginAtStr").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("结束时间", "EndAtStr").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("处罚级别", "DelinquencyRuleName").SetWidth(120).SetAlign(Align.center));
+    if (delinquencyPrivilige.IsEnableBatchStopPunish)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doBatchBatchStopPunish();", IconCls = "icon-stop", Id = "btnBatchStopPunish", Text = "结束" });
+    }
+}
+@(dataGrid.ToMvcString()) 

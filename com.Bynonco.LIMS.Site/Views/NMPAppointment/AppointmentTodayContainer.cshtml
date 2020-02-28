@@ -1,0 +1,28 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+    var equipmentAppointmentTotalType = ViewData["EquipmentAppointmentTotalType"] == null ? "" : ViewData["EquipmentAppointmentTotalType"].ToString().ToLower().Trim();
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../NMPAppointment/AppointmentSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    <div>
+        <ul class="tabs" style="border-bottom:0;">
+            <li class='@(equipmentAppointmentTotalType == "" ? "tabs-selected" : "")' id="liAppointmentAll"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">全部</span><span class="tabs-icon"></span></a></li>
+            <li class='@(equipmentAppointmentTotalType == ((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoingTotal).ToString() ? "tabs-selected" : "")' id="liDoingTotal"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoingTotal.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li class='@(equipmentAppointmentTotalType == ((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoneTotal).ToString() ? "tabs-selected" : "")' id="liDoneTotal"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoneTotal.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li class='@(equipmentAppointmentTotalType == ((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.MissTotal).ToString() ? "tabs-selected" : "")' id="liMissTotal"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.MissTotal.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li class='@(equipmentAppointmentTotalType == ((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.CancelTotal).ToString() ? "tabs-selected" : "")' id="liCancelTotal"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.CancelTotal.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li class='@(equipmentAppointmentTotalType == ((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.WaitingAudit).ToString() ? "tabs-selected" : "")' id="liWaitingAudit"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.WaitingAudit.ToCnName()</span><span class="tabs-icon"></span></a></li>
+            <li class='@(equipmentAppointmentTotalType == ((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.Audited).ToString() ? "tabs-selected" : "")' id="liAudited"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">@com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.Audited.ToCnName()</span><span class="tabs-icon"></span></a></li>
+        </ul>
+        @Html.Partial("../NMPAppointment/MyAppointmentHeader")
+        <div id="divAppointmentRecordList"></div>
+    </div>
+</div>
+@Html.Partial("../NMPAppointment/ScriptContainer")
+@Html.Partial("../NMPAppointment/AppointmentTodayScript")

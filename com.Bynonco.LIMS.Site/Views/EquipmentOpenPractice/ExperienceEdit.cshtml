@@ -1,0 +1,15 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentOpenPracticeExperience
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var infoId = Model == null ? Guid.NewGuid() : Model.Id;
+}
+<tr id='@("tr_" + infoId)'>
+    <td class='item-Id'>
+        <input id="Id_@(infoId)" type="hidden" value="@(infoId)" name="Id_@(infoId)"/>
+        @Html.JLinkButton("btnRemoveExperience_" + infoId, "").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveItem('" + infoId + "');return false;").ToMvcString()
+        @*@Html.Hidden("ExperienceId_" + infoId, infoId.ToString())*@
+    </td>
+    <td>@Html.JValidateBox("ApplyDate_" + infoId).SetValue(Model == null ? "" : Model.ApplyDate).SetWidth(150).ToMvcString()</td>
+    <td>@Html.JValidateBox("ApplyContent_" + infoId).SetValue(Model == null ? "" : Model.ApplyContent).SetWidth(150).ToMvcString()</td>
+    <td>@Html.JValidateBox("ApplySuccess_" + infoId).SetValue(Model == null ? "" : Model.ApplySuccess).SetWidth(250).ToMvcString()</td>
+</tr>

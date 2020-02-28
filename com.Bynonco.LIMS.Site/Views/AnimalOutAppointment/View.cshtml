@@ -1,0 +1,123 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimalOutAppointment
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var animalOutAppointment = (com.Bynonco.LIMS.Model.AnimalOutAppointment)ViewData["AnimalOutAppointment"];
+    var animals = ViewData["Animals"] != null ? (IList<com.Bynonco.LIMS.Model.View.ViewAnimal>)ViewData["Animals"] : null;
+ }
+<div id="divAnimalOutAppointmentView" style="width:650px; overflow-x:hidden;"> 
+    <table class="edit-table" style="width:100%;">
+        @if (Model.ApplicantName != Model.SubjectDirectorName)
+        {
+            <tr>
+                <th>实验负责人</th>
+                <td>@Model.SubjectDirectorName</td>
+                <th>联系方式</th>
+                <td>@Model.SubjectDirectorPhoneNumber</td>
+            </tr>
+        }
+        <tr>
+            <th>申请人</th>
+            <td>@Model.ApplicantName</td>
+            <th>申请日期</th>
+            <td>@Model.ApplyTimeStr</td>
+        </tr>
+        <tr>
+            <th>联系方式</th>
+            <td>
+                 @Model.ContactInfo
+            </td>
+            <th>动物取出时间</th>
+            <td>@Model.OutTimeStr</td>
+        </tr>
+        <tr>
+            <th>课题组</th>
+            <td>
+                 @Model.SubjectProjectName
+            </td>
+            <th>@(ViewData["ProjectShowName"].ToString())</th>
+            <td>
+                @Model.SubjectProjectName
+            </td>
+        </tr>
+        <tr>
+            <th>伦理编号</th>
+            <td>
+                @Model.EthicsNo
+            </td>
+            <th>所属品系</th>
+            <td>
+                @Model.AnimalCategoryName
+            </td>
+        </tr>
+        <tr>
+            <th>性别</th>
+            <td>
+                @Model.SexStr
+            </td>
+            <th>体重/日龄</th>
+            <td>
+                @Model.Specification
+            </td>
+        </tr>
+        <tr>
+            <th>数量</th>
+            <td>总数量:@Model.Amount  &nbsp;&nbsp; ♂数量:@Model.MaleQuatity  &nbsp;&nbsp;♀数量:@Model.FemaleQuatity </td>
+            <th>实验动物用途</th>
+            <td>@Model.Usage</td>
+        </tr>
+        <tr>
+            <th>本次使用实验动<br />物的实验场所</th>
+            <td colspan="3">@Model.UseAnimalPlace</td>
+        </tr>
+        <tr>
+            <th>是否反馈</th>
+            <td>@System.Web.Mvc.MvcHtmlString.Create(Model.IsFeedBackStr)</td>
+            <th>反馈人</th>
+            <td>@Model.FeedBackOperatorName</td>
+        </tr>
+        <tr>
+            <th>反馈时间</th>
+            <td colspan="3">@Model.FeedBackTimeStr</td>
+        </tr>
+        <tr>
+            <th>实验动物尸体处理方式</th>
+            <td>@Model.CorpseHanldedWayName</td>
+            <th>实验动物尸体返还时间</th>
+            <td>@Model.CorpseReturnTimeStr</td>
+        </tr>
+        <tr>
+            <th>审核人</th>
+            <td>@Model.AuditorName</td>
+             <th>审核时间</th>
+            <td>@Model.AuditTimeStr</td>
+        </tr>
+        <tr>
+            <th>审核备注</th>
+            <td colspan="3">
+                @Model.AuditRemark
+            </td>
+        </tr>
+        <tr>
+            <th>申请备注</th>
+            <td colspan="3">
+                @Model.ApplyRemark
+            </td>
+        </tr>
+       <tr>
+            <th>取材动物信息</th>
+            <td colspan="3">
+                @if (animals != null && animals.Count > 0)
+                {
+                    foreach (var animal in animals)
+                    {
+                        @System.Web.Mvc.MvcHtmlString.Create(animal.Name + (!string.IsNullOrWhiteSpace(animal.AnimalPos) ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight:bold;'>" + animal.AnimalPos + "</span>" : ""))
+                        if (animal.Id != animals.Last().Id)
+                        {
+                            <br />  
+                        }
+                    }
+                }
+            </td>
+       </tr>
+    </table>
+</div>

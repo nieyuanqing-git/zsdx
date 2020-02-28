@@ -1,0 +1,25 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var dataGrid = Html.JDataGrid("tbMaterialInfoLogList")
+        .SetUrl(Url.Action("GetViewMaterialInfoLogList", "MaterialInfo", new { MaterialInfoId = ViewData["MaterialInfoId"] == null ? "" : ViewData["MaterialInfoId"].ToString()}))
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetSortName("OperateTime")
+        .SetSortOrder(SortOrder.desc)
+        .SetHeight(550)
+        .SetPageSize(15)
+        .SetShowPrintButton(false);
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作时间", "OperateTimeStr").SetWidth(110).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作人", "OperatorName").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("库存变化", "DifValue").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("库存值", "StockValue").SetWidth(80).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("操作环节", "BusinessTypeStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("动作", "OperateTypeStr").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(250).SetAlign(Align.left).SetSortable(false));
+    
+ }
+@(dataGrid.ToMvcString())

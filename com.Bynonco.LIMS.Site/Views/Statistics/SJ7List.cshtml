@@ -1,0 +1,77 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tbSJ7List').datagrid({
+            columns: [[
+            { title: '实验室个数', field: 'ExperimentRoomCount', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '实验室房屋<br />使用面积', field: 'ExperimentRoomTotalArea', width: 60, rowspan: 3, sortable: true, align: 'center' },
+            { title: '经费投入（万元）', colspan: 10, align: 'center' }
+            ],[
+            { title: '总计', field: 'ExperimentFundsTotal', width: 100, rowspan: 2, sortable: true, align: 'center' },
+            { title: '仪器设备购置经费', colspan: 2, align: 'center' },
+            { title: '仪器设备维护经费', colspan: 2, align: 'center' },
+            { title: '仪器设备运行经费', colspan: 2, align: 'center' },
+            { title: '实验室建设经费', field: 'ExperimentRoomMoneyBuild', width: 100, rowspan: 2, sortable: true, align: 'center' },
+            { title: '实验教学研究<br />与改革经费', field: 'ExperimentRoomMoneyEducationResearch', width: 100, rowspan: 2, sortable: true, align: 'center' },
+            { title: '其它', field: 'ExperimentRoomMoneyOther', width: 100, rowspan: 2, sortable: true, align: 'center' }
+            ],[
+            { title: '小计', field: 'ExperimentFundsBuyEquipmentMoney', width: 100, sortable: true, align: 'center' },
+            { title: '其中教学仪器购置经费', field: 'ExperimentFundsBuyEquipmentMoneyEducation', width: 60, sortable: true, align: 'center' },
+            { title: '小计', field: 'ExperimentFundsRepairEquipmentMoney', width: 100, sortable: true, align: 'center' },
+            { title: '其中教学仪器维护经费', field: 'ExperimentFundsRepairEquipmentMoneyEducation', width: 60, sortable: true, align: 'center' },
+            { title: '小计', field: 'ExperimentFundsRunEquipmentMoney', width: 100, sortable: true, align: 'center' },
+            { title: '其中年材料消耗经费', field: 'ExperimentFundsRunEquipmentMoneyMaterial', width: 60, sortable: true, align: 'center' }
+            ]],
+            frozenColumns: [[
+                { field: 'ck', checkbox: true, rowspan: 3 },
+                { title: '状态', field: 'AuditStatusNickName', rowspan: 3, sortable: true, align: 'center' },
+                { title: '学校代码', field: 'SchoolCode', rowspan: 3, sortable: true, align: 'center' }
+                ]],
+            url: '/Statistics/GetGridViewSJ7List',
+            loadMsg: '数据加载中,请稍候……',
+            pageNumber: 1,
+            pageSize: 20,
+            pageList: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+
+            height: 650,
+            iconCls: 'icon-save',
+            collapsed: false,
+            collapsible: true,
+            remoteSort: true,
+            sortOrder: 'asc',
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            fitColumns: false,
+            striped: true,
+            nowrap: true,
+            method: 'post',
+            pagePosition: 'bottom',
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ7Edit ? "onDblClickRow: function(rowIndex, rowData){ doEditSJ7(rowData.Id); },":"")
+            toolbar: [
+            {
+                id: 'btnGridSearch',
+                text: '搜索',
+                disabled: false,
+                iconCls: 'icon-search',
+                handler: function () {
+                    $('#btnGridSearch').linkbutton('enable');
+                    doShowSearch();
+                }
+            }
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ7Add ? ",{id: 'btnSJ7Add',text: '新增',disabled: false,iconCls: 'icon-add',handler: function () { $('#btnSJ7Add').linkbutton('enable'); doAddSJ7();}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ7Edit ? ",{id: 'btnSJ7Edit',text: '编辑',disabled: false,iconCls: 'icon-edit',handler: function () { $('#btnSJ7Edit').linkbutton('enable'); doEditSJ7('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ7Delete && false ? ",{id: 'btnSJ7Delete',text: '删除',disabled: false,iconCls: 'icon-cancel',handler: function () { $('#btnSJ7Delete').linkbutton('enable'); doDeleteSJ7('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ7AuditPass ? ",{id: 'btnSJ7AuditPass',text: '审核通过',disabled: false,iconCls: 'icon-pass',handler: function () { $('#btnSJ7AuditPass').linkbutton('enable'); doAuditPassSJ7('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ7AuditReject ? ",{id: 'btnSJ7AuditReject',text: '审核不通过',disabled: false,iconCls: 'icon-no',handler: function () { $('#btnSJ7AuditReject').linkbutton('enable'); doAuditRejectSJ7('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ7AuditWaitting ? ",{id: 'btnSJ7AuditWaitting',text: '置为待审',disabled: false,iconCls: 'icon-info',handler: function () { $('#btnSJ7AuditWaitting').linkbutton('enable'); doAuditWaittingSJ7('');}}":"")
+            ,{id: 'btnSJ7Reload',text: '刷新',disabled: false,iconCls: 'icon-reload',handler: function () { $('#btnSJ7Reload').linkbutton('enable'); doSJ7Search('');}}
+            ],
+            showFooter: false
+        });
+    });
+</script>
+<table id="tbSJ7List"></table>

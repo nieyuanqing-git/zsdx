@@ -1,0 +1,49 @@
+﻿@{ 
+    var equipmentPartList = ViewData["EquipmentParts"] != null ? (IList<com.Bynonco.LIMS.Model.EquipmentPart>)ViewData["EquipmentParts"] : null;
+    var selectedEquipmentPartIds = ViewData["SelectedEquipmentPartIds"] != null ? (IList<Guid>)ViewData["SelectedEquipmentPartIds"] : null;
+    bool isSingleSelect = false;
+ }
+@if (equipmentPartList != null && equipmentPartList.Count>0)
+{
+    isSingleSelect = equipmentPartList.First().GetEquipment().IsEquipmentPartSingleSelect;
+    <tr>
+        <th>
+            <span class="required">*</span>设备部件
+        </th>
+        <td id="tdEquipmentPart">
+            @foreach (var equipmentPart in equipmentPartList)
+            {
+                bool isChecked = selectedEquipmentPartIds != null && selectedEquipmentPartIds.Count > 0 && selectedEquipmentPartIds.Any(p => p == equipmentPart.Id);
+                <input class="desOptions" @(isChecked ? "checked='checked'" : "") title="@equipmentPart.Remark" onclick="doOnDesOptionsChanged(this);"  type="checkbox" id="@(equipmentPart.Id.ToString())" name="@(equipmentPart.Id.ToString())"/>
+                <span title="@equipmentPart.Remark">@equipmentPart.Name</span>
+            }
+        </td>
+    </tr>
+}
+ <script type="text/javascript">
+     function isSelectEquipmentPart() {
+         var desOptions = $(".desOptions");
+         var selectedDesOptions = $("#tdEquipmentPart input:checked");
+         if (desOptions && desOptions.length > 0 && (!selectedDesOptions || selectedDesOptions.length == 0)) {
+             return false;
+         }
+         return true
+     }
+     function doOnDesOptionsChanged(element) {
+         if ($(element).attr("checked")) {
+             if ('@(isSingleSelect.ToString().ToLower())' == 'true') {
+                 $(".desOptions").removeAttr("checked");
+             }
+             $(element).attr("checked", "checked");
+         }
+         if (typeof (doOnDesOptionsChangedCallBack) == 'function') doOnDesOptionsChangedCallBack();
+     }
+     function getEquipmentPartIds() {
+         var selectedDesOptionIds = "";
+         var selectedDesOptions = $("#tdEquipmentPart input:checked");
+         if (selectedDesOptions && selectedDesOptions.length > 0) {
+             selectedDesOptions.each(function () { selectedDesOptionIds += selectedDesOptionIds == "" ? $(this).attr("id") : "," + $(this).attr("id") });
+         }
+         return selectedDesOptionIds;
+     }
+</script>

@@ -1,0 +1,57 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentOpenTrainingCarryOutQueryExpress() {
+        var queryExpression = "";
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression = "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+        var equipmentOrgName = $("#SearchEquipmentOrgName").val().trim();
+        if (equipmentOrgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentOrgName∽\"" + equipmentOrgName.trim() + "\"";
+        }
+        var applyLinkman = $("#SearchApplyLinkman").val().trim();
+        if (applyLinkman != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyLinkman∽\"" + applyLinkman.trim() + "\"";
+        }
+        var applyLinkPhone = $("#SearchApplyLinkPhone").val().trim();
+        if (applyLinkPhone != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyLinkPhone=\"" + applyLinkPhone.trim() + "\"";
+        }
+        
+        return queryExpression;
+    }
+    function doResetEquipmentOpenTrainingCarryOut() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchEquipmentOrgName").val("");
+        $("#SearchApplyLinkman").val("");
+        $("#SearchApplyLinkPhone").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>所属机构</label>
+        @Html.JValidateBox("SearchEquipmentOrgName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>联系人</label>
+        @Html.JValidateBox("SearchApplyLinkman").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>联系电话</label>
+        @Html.JValidateBox("SearchApplyLinkPhone").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentOpenTrainingCarryOutSearch", "查询").SetOnclick("doSearchEquipmentOpenTrainingCarryOut();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentOpenTrainingCarryOutReset", "清空").SetOnclick("doResetEquipmentOpenTrainingCarryOut();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentOpenTrainingCarryOutClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

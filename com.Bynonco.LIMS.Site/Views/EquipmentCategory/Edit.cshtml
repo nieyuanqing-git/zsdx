@@ -1,0 +1,107 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentCategory
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+}
+<style type="text/css">
+     #tdEquipmentCategoryEdit th{text-align:center; width:80px; line-height:25px;}
+     #tdEquipmentCategoryEdit td{text-align:left;width:300px;line-height:25px;}
+</style>
+<script type="text/javascript">
+    function doOnParentLoadSuccess(){
+        if($("#Id").val().trim()==""){
+          var selectedEquipmentCategory = $("#tbEquipmentCategoryList").treegrid("getSelected");
+          if(selectedEquipmentCategory && selectedEquipmentCategory.Id && !selectedEquipmentCategory.Id.trim() == "" && !selectedEquipmentCategory.Id.isDefaultGuid()) {
+              var parentId = selectedEquipmentCategory.Id;
+              var parentName = selectedEquipmentCategory.Name;
+              $("#ParentId").combotree("setValue",parentId);
+              $("#tdEquipmentCategoryEdit #tdParentId span input.combo-text.validatebox-text").val(parentName);  
+          }
+        }
+      else $("#tdEquipmentCategoryEdit #tdParentId span input.combo-text.validatebox-text").val('@(Model != null && Model.GetParent() != null ? Model.GetParent().Name : "")');     
+    }
+    function doOnOrganizationLoadSuccess(){
+        $("#tdEquipmentCategoryEdit #tdOrgId span input.combo-text.validatebox-text").val('@(Model != null && Model.LabOrganization != null ? Model.LabOrganization.Name : "")');     
+    }
+    function doOnIsStopLoadSuccess(){
+        $("#tdEquipmentCategoryEdit #tdIsStop span input.combo-text.validatebox-text").val('@ViewData["IsStopNickName"]');     
+    }
+    function doOnNameChanged(){
+        $("#InputStr").val("");
+    }
+</script>
+<div id="divEquipmentCategoryEdit">
+ <form id="frmEquipmentCategoryEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdEquipmentCategoryEdit" class="edit-table"  style="width:420px;height:auto">
+        <tr>
+            <th>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(250).ToMvcString()
+                <span>必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>助记符</th>
+            <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(250).ToMvcString()</td>
+        </tr>
+         <tr>
+            <th>分类号</th>
+            <td>
+                @Html.JValidateBox("Code").SetValue(Model == null ? "" : Model.Code).SetWidth(250).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>XPath</th>
+            <td>@Html.JValidateBox("XPath").SetValue(Model == null ? "" : Model.XPath).SetWidth(250).SetDisabled(true).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>父级分类</th>
+            <td id="tdParentId">
+                @(Html.JComboTree("ParentId")
+                .SetData(ViewData["ParentJson"])
+                .SetValue(Model == null || !Model.ParentId.HasValue ? "" : Model.ParentId.Value.ToString())
+                .SetOnLoadSuccess("setTimeout('doOnParentLoadSuccess();', 500);")
+                .SetMultiple(false)
+                .SetDisabled(Model != null)
+                .SetWidth(255).SetRequired(false).SetExpandAll(true).ToMvcString())
+            </td>
+        </tr>
+         <tr>
+            <th>@customerOrgName</th>
+            <td id="tdOrgId">
+                @(Html.JComboTree("OrgId")
+                .SetEditable(false)
+                .SetCheckBox(false)
+                .SetMultiple(false)
+                .SetExpandAll(true)
+                .SetRequired(true)
+                .SetData(ViewData["OranizationJson"])
+                .SetOnLoadSuccess("setTimeout('doOnOrganizationLoadSuccess();', 500);")
+                .SetValue(Model==null || !Model.OrgId.HasValue ? "" : Model.OrgId.Value.ToString())
+                .SetWidth(255).SetRequired(false).ToMvcString())
+                <span>必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>是否停用</th>
+            <td id="tdIsStop">
+                @(Html.JComboBox("IsStop")
+                .SetEditable(false)
+                .SetRequired(true)
+                .SetData(ViewData["IsStopJson"])
+                .SetValue(Model==null || !Model.IsStop ? "0" : "1")
+                .SetOnLoadSuccess("setTimeout('doOnIsStopLoadSuccess();', 500);")
+                .SetWidth(255).SetRequired(false).ToMvcString())
+                
+            </td>
+        </tr>
+         <tr>
+            <th>备注</th>
+            <td>@Html.TextArea("Remark",Model == null ? "" : Model.Remark, new {style="width:96%;height:80px"})</td>
+        </tr>
+    </table>
+  </form>
+</div> 

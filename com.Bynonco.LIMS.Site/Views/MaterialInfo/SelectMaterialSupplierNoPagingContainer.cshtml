@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    var selectMaterialSupplierDialog;
+    var curMaterialInfoId;
+    function doSelectMaterialSupplierDialog(materialInfoId,parameter) {
+        curMaterialInfoId = materialInfoId;
+        var queryExpression = "MaterialInfoId=\"" + materialInfoId + "\"";
+        var url = '@Url.Action("SelectMaterialSupplierNoPaging","MaterialInfo")';
+        if(selectMaterialSupplierDialog) {
+            selectMaterialSupplierDialog.dialog("destroy");
+        }
+        if(!parameter)parameter = {"queryExpression":queryExpression };
+        else parameter.queryExpression = queryExpression;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelectMaterialSupplier").load(url, parameter, function () {
+            $.messager.progress('close');
+            selectMaterialSupplierDialog = @(Html.JDialog("divSelectMaterialSupplierDialog").SetTitle("选择耗材供应商").SetAutoDialog(false).SetOkScript("getSelectedMaterialSuppliers();").SetOnClose("selectMaterialSupplierDialog.dialog('destroy');return false;").SetCancelScript("selectMaterialSupplierDialog.dialog('close');").SetIconCls("icon-search").ToMvcString());
+        });
+        return false;
+    }
+    
+    function getSelectedMaterialSuppliers(id) {
+        if(!id || id.trim()==""){
+           var selectedCountry = $("#tbSelectMaterialSupplierNoPagingList").datagrid("getSelected");
+           if(!selectedCountry || selectedCountry.Id=="" || selectedCountry.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择耗材供应商", showType: 'show' });
+              return false;
+           }
+           id = selectedCountry.Id;
+        }
+        if(selectMaterialSupplierDialog)selectMaterialSupplierDialog.dialog("close");
+        if(typeof(getSelectedMaterialSuppliersCallBack) == 'function')getSelectedMaterialSuppliersCallBack(id);
+    }
+</script>
+<div id="divSelectMaterialSupplier" style="display:none"></div>
+

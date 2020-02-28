@@ -1,0 +1,119 @@
+﻿@model com.Bynonco.LIMS.Model.Business.DataSyncAndCommunicationSetting
+@using com.Bynonco.JqueryEasyUI.Core;
+<form id="frmDataSyncSettins">
+    <p><span class="icon icon-setting"></span>数据同步/通讯设置</p>
+    <table id="tdMessageNoticeSetting" class="edit-info">
+        <tr>
+            <th colspan="2" style="text-align:left; padding-left:80px;font-size:14px;font-weight:bold;color:Red;">修改需重启IIS生效</th>
+        </tr>
+        <tr>
+            <th style="text-align:left; padding-left:100px; font-weight:bold;font-size:14px" colspan="2">数据同步设置</th>
+        </tr>
+       
+        <tr>
+            <th>开启机构同步服务</th>
+            <td>@Html.CheckBox("IsAutoOrganizationSync")</td>
+        </tr>
+         <tr>
+            <th>开启用户同步服务</th>
+            <td>@Html.CheckBox("IsAutoUserDataSync")</td>
+        </tr>
+        <tr>
+            <th>开启课题组项目同步服务</th>
+            <td>@Html.CheckBox("IsAutoSubjectProjectImcomeSync")&nbsp;@Html.JLinkButton("btnAutoSubjectProjectImcomeSync", "手工同步(须等待较长时间)").SetPlain(true).SetOnclick("doDealSubjectProjectSyncInfo();").SetIconCls("icon-note").ToMvcString()</td>
+        </tr>
+          <tr>
+            <th>开启设备同步</th>
+            <td>@Html.CheckBox("IsAutoEquipmentDataSync")</td>
+        </tr>
+
+        <tr>
+            <th  style="text-align:left; padding-left:100px; font-weight:bold;font-size:14px" colspan="2">数据通讯设置</th>
+        </tr>
+         <tr>
+            <th>开启自动登记爽约服务</th>
+            <td>@Html.CheckBox("IsAutoRegisterAppointmentsOfTimeout")</td>
+        </tr>
+        <tr>
+            <th>开启自动取消预约服务</th>
+            <td>@Html.CheckBox("IsAutoCancelAppoinment") &nbsp;&nbsp;
+                同时登记爽约&nbsp;&nbsp;
+                @Html.CheckBox("IsRegisterAppointmentOfTimeoutWhenAutoCancel", Model.IsRegisterAppointmentOfTimeoutWhenAutoCancel)
+            </td>
+        </tr>
+         <tr>
+            <th  style="text-align:left; padding-left:100px; font-weight:bold;font-size:14px" colspan="2">
+                数据上传设置&nbsp&nbsp&nbsp&nbsp
+                @Html.JLinkButton("btnCollegeUploadSettingAdd","新增").SetPlain(true).SetIconCls("icon-add").SetOnclick("doAddCollegeUploadSetting();").ToMvcString()
+            </th>
+        </tr>
+         @if (Model.CollegeUploadSettingList != null && Model.CollegeUploadSettingList.Count() > 0)
+         {
+             foreach (var collegeUploadSetting in Model.CollegeUploadSettingList)
+             {
+                 @Html.Partial("CollegeUploadSetting",collegeUploadSetting);
+             }
+         }
+    </table>
+</form>
+<div class="edit-operate">
+    @Html.JLinkButton("btnSave", "保存").SetPlain(true).SetOnclick("doSave();").SetIconCls("icon-save").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSave() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save", "DataSyncAndCommunicationSetting")' + "?time=" + new Date().getMilliseconds(),
+            data: $("#frmDataSyncSettins").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+    }
+    function doDealSubjectProjectSyncInfo() {
+        $.messager.progress({ title: '提示', msg: '本次请求处理时间较长,请耐心等候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DealSubjectProjectSync", "DataSyncAndCommunicationSetting")' + "?time=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+    }
+    function doAddCollegeUploadSetting() {
+        $.messager.progress({ title: '提示', msg: '正在处理,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("CollegeUploadSetting", "DataSyncAndCommunicationSetting")' + "?time=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $("#tdMessageNoticeSetting").append(msg);
+            }
+        });
+    }
+    function doOnIsAutoUploadEquipmentInfoChanged(element,id) {
+        $("#trUploadEquipmentInfoURL_" + id).css("display", $(element).attr("checked") ? "" : "none");
+    }
+    function doDeleteCollegeUploadSetting(id) {
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $("." + id).html("");
+        });
+    }
+    
+</script>

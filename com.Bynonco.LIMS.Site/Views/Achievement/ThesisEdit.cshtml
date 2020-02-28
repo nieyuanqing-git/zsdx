@@ -1,0 +1,226 @@
+﻿@model com.Bynonco.LIMS.Model.Thesis
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.MVC.Controllers
+@{
+    var view = ViewContext.RouteData.GetViewName();
+    if (view.StartsWith("~"))
+    {
+        Html.RenderPartial(view, Model);
+        return;
+    }
+    var enableUploadFileType = "可上传的文件类型:" + ViewData["EnableUploadFileType"] + ".   ";
+    var enableUploadFileSize = "最大可上传" + ViewData["enableUploadFileSize"] + "的文件.";
+    var uploadTip = enableUploadFileType + "" + enableUploadFileSize;
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();   
+}
+<div id="divThesisEdit">
+ <form id="frmThesisEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("OldEquipmentId", equipmentId)
+    <table id="tdThesisEdit" class="edit-table"  style="width:640px;">
+         <tr>
+            <th><span class="required">*</span>论文标题</th>@*@(equipmentId==null || equipmentId=="" ? "*":"")*@
+            <td colspan="3">
+                @(Html.JValidateBox("Title").SetWidth(530).SetValue(Model == null ? "" : Model.Title).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>作者</th>
+            <td colspan="3" id="tdFirstAuthor">
+                 @(Html.TokenInput("FirstAuthorName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(false)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doFirstAuthorNameChange();")
+                    .SetOnDelete("doFirstAuthorNameChange();")
+                    .SetPrePopulate(ViewData["FirstAuthorJson"] == null || string.IsNullOrWhiteSpace(ViewData["FirstAuthorJson"].ToString()) ? null : ViewData["FirstAuthorJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("FirstAuthorId", ViewData["FirstAuthorId"] == null ? "" : ViewData["FirstAuthorId"].ToString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>通讯作者</th>
+            <td colspan="3" id="tdOtherAuthor">
+                 @(Html.TokenInput("OtherAuthorName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(false)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doOtherAuthorNameChange();")
+                    .SetOnDelete("doOtherAuthorNameChange();")
+                    .SetPrePopulate(ViewData["OtherAuthorJson"] == null || string.IsNullOrWhiteSpace(ViewData["OtherAuthorJson"].ToString()) ? null : ViewData["OtherAuthorJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("OtherAuthorId", ViewData["OtherAuthorId"] == null ? "" : ViewData["OtherAuthorId"].ToString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>期刊类别</th>
+            <td>@(Html.JComboBox("JournalType")
+                .SetData(ViewData["JournalTypeJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>刊物名称</th>
+            <td>
+                @(Html.JValidateBox("JournalName").SetWidth(210).SetValue(Model == null ? "" : Model.JournalName).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>发表年份</th>
+            <td>
+                @(Html.JDateTimePicker("JournalTime").SetWidth(215).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.JournalTime.Value.ToString("yyyy-MM-dd")).ToMvcString())
+            </td>
+            <th><span class="required">* </span>卷（期）号</th>
+            <td colspan="3">
+                @(Html.JValidateBox("VolumeNumber").SetWidth(210).SetValue(Model == null ? "" : Model.VolumeNumber.ToString()).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>页码范围</th>
+            <td>
+                @(Html.JValidateBox("Pagination").SetWidth(210).SetValue(Model == null ? "" : Model.Pagination).ToMvcString())
+            </td>
+            <th><span class="required">* </span>指定导师</th>
+            <td id='tdTutorId'>
+                 @(Html.TokenInput("TutorId")
+                    .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(true)
+                    .SetPrePopulate(ViewData["TutorJson"] == null || string.IsNullOrWhiteSpace(ViewData["TutorJson"].ToString()) ? null : ViewData["TutorJson"].ToString())
+                    .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>影响因子</th>
+            <td>
+                @(Html.JValidateBox("ImpactFactor").SetWidth(210).SetValue(Model == null ? "" : Model.ImpactFactor).ToMvcString())
+            </td>
+            <th><span class="required">* </span>所在分区</th>
+            <td>
+                @(Html.JValidateBox("ISSN").SetWidth(210).SetValue(Model == null ? "" : Model.ISSN).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>单位</th>
+            <td colspan="3" id="tdDepartmentName">
+                @(Html.TokenInput("DepartmentName")
+                    .SetUrl(Url.Action("GetLabOrganizationWeakListByKeyWord", "LabOrganization"))
+                    .SetWidth(540)
+                    .SetSingle(false)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doDepartmentNameChange();")
+                    .SetOnDelete("doDepartmentNameChange();")
+                    .SetPrePopulate(ViewData["DepartmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["DepartmentJson"].ToString()) ? null : ViewData["DepartmentJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("DepartmentId", ViewData["DepartmentId"] == null ? "" : ViewData["DepartmentId"].ToString())
+            </td>
+        </tr>
+        <tr id="trEquipmentList">
+            <th>相关仪器</th>
+            <td colspan="3" style="padding:0;border:0;">
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            @(Html.TokenInput("EquipmentId")
+                                .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                                .SetSingle(false)                                
+                                .SetWidth(400)            
+                                .SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString())
+                                .ToMvcString())
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectEquipmentDialog('EquipmentId');return false;").ToMvcString()
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnCleanEquipment", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanEquipment();return false;").ToMvcString()
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th rowspan="2">
+                 附件信息
+            </th>
+            <td colspan="3">
+                <input id="fileToUpload" type="file" name="fileToUpload" style="width:230px" title="@(uploadTip)" />
+                @(Html.JLinkButton("btnUpLoad", "上传").SetIconCls("icon-upload").SetPlain(true).SetOnclick("ajaxFileUpload();return false;").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3"  id="tdAttachment">
+                @Html.Partial("AttachmentList", "Achievement")
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>
+<script type="text/javascript">
+    $(function () {        
+        $("#tdTutorId ul.token-input-list-facebook").css("width", "215px");
+        $("#tdFirstAuthor ul.token-input-list-facebook").css("width", "535px");
+        $("#tdOtherAuthor ul.token-input-list-facebook").css("width", "535px");
+        $("#tdDepartmentName ul.token-input-list-facebook").css("width", "535px");
+        if('@(string.IsNullOrWhiteSpace(equipmentId).ToString().ToLower())' !="true")
+        {
+            $("#trEquipmentList").css("display", "none");
+            $("#EquipmentId").val("@(equipmentId)");
+        }
+     });
+    
+     function doCleanEquipment() {
+         $("#EquipmentId").tokenInput("clear");
+     }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+
+        $("#EquipmentId").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#EquipmentId").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+    function doFirstAuthorNameChange() {
+        $("#FirstAuthorId").val("");
+        var firstAuthorList = $("#FirstAuthorName").tokenInput("get");
+        if (firstAuthorList && firstAuthorList.length > 0) {
+            var firstAuthorIds = "";
+            for (var i = 0; i < firstAuthorList.length; i++) {
+                if (firstAuthorIds != "") firstAuthorIds += ",";
+                firstAuthorIds += firstAuthorList[i].id;
+            }
+            $("#FirstAuthorId").val(firstAuthorIds);
+        }
+    }
+    function doOtherAuthorNameChange() {
+        $("#OtherAuthorId").val("");
+        var otherAuthorList = $("#OtherAuthorName").tokenInput("get");
+        if (otherAuthorList && otherAuthorList.length > 0) {
+            var otherAuthorIds = "";
+            for (var i = 0; i < otherAuthorList.length; i++) {
+                if (otherAuthorIds != "") otherAuthorIds += ",";
+                otherAuthorIds += otherAuthorList[i].id;
+            }
+            $("#OtherAuthorId").val(otherAuthorIds);
+        }
+    }
+    function doDepartmentNameChange() {
+        $("#DepartmentId").val("");
+        var departmentList = $("#DepartmentName").tokenInput("get");
+        if (departmentList && departmentList.length > 0) {
+            var departmentIds = "";
+            for (var i = 0; i < departmentList.length; i++) {
+                if (departmentIds != "") departmentIds += ",";
+                departmentIds += departmentList[i].id;
+            }
+            $("#DepartmentId").val(departmentIds);
+        }
+    }
+</script>

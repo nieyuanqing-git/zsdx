@@ -1,0 +1,126 @@
+﻿@{
+    var listType = ViewData["ListType"] == null ? "" : ViewData["ListType"].ToString().Trim().ToLower();
+    var isTurtor = ViewData["IsTurtor"] != null && (bool)ViewData["IsTurtor"] ? true : false;
+    var isUserWorkScope = ViewData["IsUserWorkScope"] != null && (bool)ViewData["IsUserWorkScope"] ? true : false;
+}
+<script type="text/javascript">
+    function doClosePopSearch() {
+        doCloseSearch();
+    }
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            doAppointmentTagSearch();
+        });
+    });
+    function GetTotalType() {
+        if ($(".tabs .tabs-selected")) {
+            var tabId = $(".tabs .tabs-selected").attr("id");
+            var totalType = "";
+            switch (tabId) {
+                case "liDoingTotal":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoingTotal)';
+                    break;
+                case "liDoneTotal":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.DoneTotal)';
+                    break;
+                case "liMissTotal":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.MissTotal)';
+                    break;
+                case "liChangeTotal":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.ChangeTotal)';
+                    break;
+                case "liCancelTotal":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.CancelTotal)';
+                    break;
+                case "liWaitingAudit":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.WaitingAudit)';
+                    break;
+                case "liAudited":
+                    totalType = '@((int)com.Bynonco.LIMS.Model.Enum.EquipmentAppointmentTotalType.Audited)';
+                    break;
+            }
+            return totalType;
+        }
+    }
+    function doAppointmentTagSearch() {
+        var hasListTypeUser = ($(".panel-header .icon-user").length > 0);
+        var hasListTypeTurtor = ($(".panel-header .icon-subject").length > 0);
+        var hasListTypeEquipment = ($(".panel-header .icon-globe").length > 0);
+
+        var isListTypeUser = ($(".panel-header .icon-user-unselect").length == 0 && $(".panel-header .icon-user").length > 0);
+        var isListTypeTurtor = ($(".panel-header .icon-subject-unselect").length == 0 && $(".panel-header .icon-subject").length > 0);
+        var isListTypeEquipment = ($(".panel-header .icon-globe-unselect").length == 0 && $(".panel-header .icon-globe").length > 0);
+
+        if (isListTypeEquipment)  doShowEquipmentAppointment();
+        else if (isListTypeTurtor)  doShowTurtorAppointment();
+        else if (isListTypeUser) doShowPersonalAppointment();
+        else if (hasListTypeEquipment) doShowEquipmentAppointment();
+        else if (hasListTypeTurtor) doShowTurtorAppointment();
+        else doShowPersonalAppointment();
+    }
+    function doAppointmentSearch() {
+        var queryExpression = generateAppointmentTotalQueryExpression();
+        $("#tbAppointmentTodayList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbAppointmentTodayList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doShowPersonalAppointment() {
+        var queryExpression = generateAppointmentTotalQueryExpression();
+        $(".panel-header .icon-user").removeClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action("AppointmentTodayList", "Appointment")' + "?ListType=User&date= " + new Date().getMilliseconds() + "&queryExpression=" + queryExpression;
+        doLoadAppointmentRecordList(url);
+    }
+    function doShowTurtorAppointment() {
+        var queryExpression = generateAppointmentTotalQueryExpression();
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").removeClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").addClass("icon-globe-unselect");
+        var url = '@Url.Action("AppointmentTodayList", "Appointment")' + "?ListType=Subject&date= " + new Date().getMilliseconds() + "&queryExpression=" + queryExpression;
+        doLoadAppointmentRecordList(url);
+    }
+    function doShowEquipmentAppointment() {
+        var queryExpression = generateAppointmentTotalQueryExpression();
+        $(".panel-header .icon-user").addClass("icon-user-unselect");
+        $(".panel-header .icon-subject").addClass("icon-subject-unselect");
+        $(".panel-header .icon-globe").removeClass("icon-globe-unselect");
+        var url = '@Url.Action("AppointmentTodayList", "Appointment")' + "?ListType=Equipment&date= " + new Date().getMilliseconds() + "&queryExpression=" + queryExpression;
+        doLoadAppointmentRecordList(url);
+    }
+
+    function doLoadAppointmentRecordList(url) {
+        totalType = GetTotalType();
+        if (totalType != "") url += "&TotalType=" + totalType;
+        $("#divAppointmentRecordList").empty();
+        $.ajax({
+            type: "Post",
+            url: url,   
+            success: function (data) {
+                $("#divAppointmentRecordList").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        switch ('@listType') {
+            case 'user':
+                doShowPersonalAppointment();
+                break;
+            case 'subject':
+                doShowTurtorAppointment();
+                break;
+            case 'equipment':
+                doShowEquipmentAppointment();
+                break;
+            default:
+                if ('@(isUserWorkScope.ToString().ToLower())' == 'true') doShowEquipmentAppointment();
+                else if ('@(isTurtor.ToString().ToLower())' == 'true') doShowTurtorAppointment();
+                else doShowPersonalAppointment();
+                break;
+        }
+    });
+</script>
+        

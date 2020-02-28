@@ -1,0 +1,95 @@
+﻿@model com.Bynonco.LIMS.Model.AchievementStudent
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.MVC.Controllers
+@{
+    var view = ViewContext.RouteData.GetViewName();
+    if (view.StartsWith("~"))
+    {
+        Html.RenderPartial(view, Model);
+        return;
+    }
+    var enableUploadFileType = "可上传的文件类型:" + ViewData["EnableUploadFileType"] + ".   ";
+    var enableUploadFileSize = "最大可上传" + ViewData["enableUploadFileSize"] + "的文件.";
+    var uploadTip = enableUploadFileType + "" + enableUploadFileSize;
+}
+<div id="divAchievementStudentEdit">
+ <form id="frmAchievementStudentEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tdAchievementStudentEdit" class="edit-table"  style="width:640px;">
+         <tr>
+            <th><span class="required">* </span>导师</th>
+            <td id="tdTutorId" colspan="3">
+                  @(Html.TokenInput("TutorId")
+                    .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(false)
+                    .SetPrePopulate(ViewData["TutorJson"] == null || string.IsNullOrWhiteSpace(ViewData["TutorJson"].ToString()) ? null : ViewData["TutorJson"].ToString())
+                    .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>姓名</th>
+            <td>
+                @(Html.JValidateBox("StudentName").SetWidth(210).SetValue(Model == null ? "" : Model.StudentName).ToMvcString())
+            </td>
+            <th><span class="required">* </span>学号</th>
+            <td>
+                @(Html.JValidateBox("StudentNumber").SetWidth(210).SetValue(Model == null ? "" : Model.StudentNumber).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>学位</th>
+            <td>@(Html.JComboBox("Degree")
+                .SetData(ViewData["DegreeJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>在读情况</th>
+            <td>@(Html.JComboBox("StudyType")
+                .SetData(ViewData["StudyTypeJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+            </td>
+        </tr>
+         <tr>
+            <th><span class="required">* </span>毕业去向</th>
+            <td colspan="3">                
+                @(Html.JValidateBox("GraduationTo").SetWidth(210).SetValue(Model == null ? "" : Model.GraduationTo).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>开始时间</th>
+            <td>
+                @(Html.JDateTimePicker("BeginTime").SetWidth(215).SetValue(Model == null || !Model.BeginTime.HasValue ? "" : Model.BeginTime.Value.ToString("yyyy-MM-dd")).ToMvcString())
+            </td>
+            <th>结束时间</th>
+            <td>
+                @(Html.JDateTimePicker("EndTime").SetWidth(215).SetValue(Model == null || !Model.EndTime.HasValue ? "" : Model.EndTime.Value.ToString("yyyy-MM-dd")).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th rowspan="2">
+                 附件信息
+            </th>
+            <td colspan="3">
+                <input id="fileToUpload" type="file" name="fileToUpload" style="width:230px" title="@(uploadTip)" />
+                @(Html.JLinkButton("btnUpLoad", "上传").SetIconCls("icon-upload").SetPlain(true).SetOnclick("ajaxFileUpload();return false;").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3"  id="tdAttachment">
+                @Html.Partial("AttachmentList", "Achievement")
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdTutorId ul.token-input-list-facebook").css("width", "215px");
+    });
+</script>

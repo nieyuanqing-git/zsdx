@@ -1,0 +1,168 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@{
+    var controller = ViewContext.RouteData.Values["controller"].ToString().ToLower();
+    var action = ViewContext.RouteData.Values["action"].ToString().ToLower();
+    var articleCategoryId = ViewData["ArticleCategoryId"] == null ? "" : ViewData["ArticleCategoryId"].ToString().ToLower();
+    var viewHomeMenuList = ViewData["ViewHomeMenuList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewHomeMenu>)ViewData["ViewHomeMenuList"];
+    var articleCategory = ViewData["ArticleCategoryList"] == null ? null : (List<com.Bynonco.LIMS.Model.ArticleCategory>)ViewData["ArticleCategoryList"];
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    IList<com.Bynonco.LIMS.Model.LabOrganization> labOrganizationList = ViewData["SubLabOrganizationList"] == null ? null : (IList<com.Bynonco.LIMS.Model.LabOrganization>)ViewData["SubLabOrganizationList"];
+}
+<script type="text/javascript">
+    $(function () {
+        $('.flyout-menu').each(function(){
+            $(this).menu({
+                content: $(this).next().html(), // grab content from this page
+                flyOut: true,
+			    showSpeed: 100
+            });
+        });
+    });
+</script>
+<div class="home-menu">
+    @if (orgXPath != "000" || (controller != "home" && action != "index") || (controller == "home" && action == "friendlylinklist"))
+    {
+        if (labOrganizationList != null && labOrganizationList.Count() > 0)
+        {
+            <a href="javascript:;" class="fg-button fg-button-l fg-button-icon-right ui-widget ui-state-default ui-corner-all flyout-menu">
+                <span class="ui-icon ui-icon-triangle-1-s"></span>@(orgXPath != "000" ? "其它仪器共享平台" : "院级仪器共享平台")</a>
+            <div class="hide" style="display:none">
+                <ul>
+                    @foreach (var item in labOrganizationList)
+                    {
+                        object routeXPathValue = new { XPath = item.XPath };
+                        var name = "".PadLeft((item.XPath.Length - 6) * 2 / 3, '-') + item.Name;
+                        var cutName = ShortcutStringUtility.GetSubString(name, 24, "..");
+                        <li><a href="@Url.Action("Index", "Home", routeXPathValue)" title='@name'>@cutName</a></li>
+                    }
+                </ul>
+            </div>
+        }
+    }
+    @if (orgXPath != "000")
+    { 
+        <a href="@Url.Action("Index", "Home", new { XPath = "000" })" class='fg-button ui-widget ui-state-default'>校级首页</a>
+    }
+    @if (viewHomeMenuList != null && viewHomeMenuList.Count() > 0)
+    {
+        var itemList = viewHomeMenuList.Where(p => p.ParentId == null);
+        foreach (var item in itemList)
+        {
+            string checkUrl = "/" + controller;
+            switch (controller)
+            {
+                case "home":
+                case "equipment":
+                case "exchangefairyland":
+                    checkUrl += "/";
+                    break;
+                case "article":
+                    checkUrl = "articlecategoryid=" + articleCategoryId;
+                    break;
+                default:
+                    checkUrl += "/" + action;
+                    break;
+            }
+            var parentId = item.Id;
+            var childList = viewHomeMenuList.Where(p => p.ParentId == item.Id);
+            if (childList != null && childList.Count() > 0)
+            {
+                <a href="javascript:;" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all flyout-menu">
+                <span class="ui-icon ui-icon-triangle-1-s"></span>@item.Name</a>
+                <div class="hide" style="display:none">
+                    @Html.HtmlChildHomeMenu(viewHomeMenuList, parentId, checkUrl)
+                </div>
+            }
+            else
+            {
+                var url = "";
+                var onclickScript = "";
+                if (!item.Url.ToLower().StartsWith("javascript:"))
+                {
+                    url = item.UrlStr;
+                }
+                else
+                {
+                    url = "#";
+                    onclickScript = "onclick=" + item.Url;
+                }
+                <a href="@url" @(onclickScript) class='fg-button ui-widget ui-state-default @(item.UrlStr.ToLower().IndexOf(checkUrl) != -1 ? "current" : "")'>@item.Name</a>
+            }
+        }
+    }
+    else
+    {
+        var categoryNames = "";
+        <a href="@Url.Action("Index", "Home", routeCurrentXPathValue)" class='fg-button ui-widget ui-state-default @(controller == "home" && action == "index" ? "current" : "")'>首 页</a>
+        <a href="@Url.Action("ShowList", "EquipmentCategory", routeCurrentXPathValue)" class='fg-button ui-widget ui-state-default @(controller == "equipmentcategory" && action == "showlist" ? "current" : "")'>设备分类</a>
+        <a href="@Url.Action("ShowList", "Equipment", routeCurrentXPathValue)" class='fg-button ui-widget ui-state-default @(controller == "equipment" ? "current" : "")'>仪器展示</a>
+        if (articleCategory != null && articleCategory.Count() > 0)
+        {
+            for (int k = 0; k < articleCategory.Count() && k < 3; k++)
+            {
+                var topItem = articleCategory[k];
+                if (categoryNames.IndexOf(topItem.Name + ",") != -1) { continue; }
+                categoryNames += topItem.Name + ",";
+                object routeArticleCategoryValuesTop = new { ArticleCategoryId = topItem.Id, XPath = orgXPath };
+                <a href="@Url.Action("ShowList", "Article", routeArticleCategoryValuesTop)" class="fg-button ui-widget ui-state-default @(controller == "article" && action == "showList" && articleCategoryId == topItem.Id.ToString().ToLower() ? "current" : "")">@topItem.Name</a>
+            }
+        }
+        <a href="#" onclick="doEquipmentApply()"   class="fg-button ui-widget ui-state-default @(controller == "EquipmentApply" ? "current" : "")">入网申请</a>
+        <a href="#" onclick="doJudgeEquipmentRecord()" class="fg-button ui-widget ui-state-default @(controller == "JudgeEquipmentRecord" ? "current" : "")">仪器考核</a>
+        if (articleCategory != null && articleCategory.Count() > 3)
+        {
+            <a href="javascript:;" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all flyout-menu">
+                <span class="ui-icon ui-icon-triangle-1-s"></span>更多</a>
+            <div class="hide" style="display:none">
+                <ul>
+                    @{
+                    for (int i = 5; i < articleCategory.Count(); i++)
+                    {
+                        var item = articleCategory[i];
+
+                        if (categoryNames.IndexOf(item.Name + ",") != -1) { continue; }
+                        categoryNames += item.Name + ",";
+                        object routeArticleCategoryValues = new { ArticleCategoryId = item.Id, XPath = orgXPath };
+                        <li><a href="@Url.Action("ShowList", "Article", routeArticleCategoryValues)" class="@(controller == "article" && action == "showList" && articleCategoryId == item.Id.ToString().ToLower() ? "current" : "")">@item.Name</a></li>
+                    }
+                    }
+                </ul>
+            </div>
+        }
+                                                                                                                       }
+       @* <a href="@Url.Action("Original", "ExchangeFairyland", routeCurrentXPathValue)" class="fg-button ui-widget ui-state-default @(controller == "exchangefairyland" ? "current" : "")">交流园地</a>
+        <a href="@Url.Action("Show", "QA", routeCurrentXPathValue)" class="fg-button ui-widget ui-state-default @(controller == "qa" ? "current" : "")">问与答</a>
+          *@ 
+       
+       @* <a href="@Url.Action("ExaminationListForHome", "LabOrganization", routeCurrentXPathValue)" class="fg-button ui-widget ui-state-default @(controller == "laborganization" && action == "examinationlistforhome" ? "current" : "")">在线考试</a>*@
+    
+</div>
+<script type="text/javascript">
+    function doEquipmentApply() {
+        if('@(Request.IsAuthenticated && ViewData["LoginUser"] != null)' != 'True' )
+        {
+            $.messager.show({ title: '提示', msg: "请登录系统", showType: 'show' });
+            backToLogin();
+        }
+        else
+        {
+            var url = '@Url.Action("EquipmentApplyIndex", "EquipmentApply")';
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+        return false;
+    }
+    function doJudgeEquipmentRecord() {
+        if('@(Request.IsAuthenticated && ViewData["LoginUser"] != null)' != 'True' )
+        {
+            $.messager.show({ title: '提示', msg: "请登录系统", showType: 'show' });
+            backToLogin();
+        }
+        else
+        {
+            var url = '@Url.Action("RecordIndex", "JudgeEquipmentRecord")';
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        }
+        return false;
+    }
+</script>

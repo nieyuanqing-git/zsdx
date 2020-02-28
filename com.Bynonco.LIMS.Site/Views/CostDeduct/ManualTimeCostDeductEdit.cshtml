@@ -1,0 +1,94 @@
+﻿@model com.Bynonco.LIMS.Model.ManualTimeCostDeduct
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Privilige;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{       
+    var isIE11Browser = Request.Browser.Type.ToString().ToLower().IndexOf("mozilla") >= 0; //处理兼容
+    var is360Browser = Request.Browser.Type.IndexOf("Chrome") >= 0;//处理兼容
+ }
+<div id="divManualTimeCostDeductEdit" style="overflow:hidden">
+    <form id="frmManualTimeCostDeductEdit" action="#">
+        @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+        <table class="edit-table" style='width:400px;'>            
+            <tr>
+                <th>设备名称</th>
+                <td id="tdEquipmentId">
+                       @(Html.TokenInput("EquipmentId")
+                            .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                            .SetSingle(true)
+                            .SetWidth(205)
+                            .SetOnChange("")
+                            .SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString())
+                            .ToMvcString())
+                </td>
+            </tr>
+            <tr>
+                <th>年份</th>
+                <td>
+                    @Html.JValidateBox("CostYear").SetValue(Model == null ? "" : Model.CostYear).SetWidth(205).ToMvcString()                     
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    月份
+                 </th>
+                <td>
+                    @Html.JValidateBox("CostMonth").SetValue(Model == null ? "" : Model.CostMonth).SetWidth(205).ToMvcString() 
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>使用人次</th>
+                <td>
+                    @(Html.JValidateBox("UsedAccount").SetValue(Model == null ? "0" : Model.UsedAccount.ToString()).SetWidth(205).SetValidateType(ValidateType.intNumber).ToMvcString())
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>使用机时(分钟)</th>
+                <td>
+                    @Html.JValidateBox("UsedTime").SetValue(Model == null ? "0" : Model.UsedTime.ToString()).SetWidth(205).SetValidateType(ValidateType.number).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>金额</th>
+                <td>
+                    @Html.JValidateBox("Currency").SetValue(Model == null ? "0" : Model.Currency.ToString()).SetWidth(205).SetValidateType(ValidateType.number).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    备注
+                </th>
+                <td>
+                    @Html.TextArea("Remark", Model == null ? "" : Model.Remark, 3, 50, null)
+                </td>
+            </tr>
+        </table>        
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdEquipmentId ul.token-input-list-facebook").css("width", "205px");
+    });
+    function doSaveManualTimeCostDeduct() {       
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveManualTimeCostDeduct","CostDeduct")',
+            data: $("#frmManualTimeCostDeductEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                manualTimeCostDeductDialog.dialog('close');
+                doManualTimeDeductSearch(true);
+            }
+        });   
+    }
+</script>

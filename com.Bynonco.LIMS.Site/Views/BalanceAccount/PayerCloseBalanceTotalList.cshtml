@@ -1,0 +1,50 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isCostDeductOpenFund = ViewData["IsCostDeductOpenFund"] == null ? false : bool.Parse(ViewData["IsCostDeductOpenFund"].ToString());
+    var balanceAccountPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetBalanceAccountPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbPayerCloseBalanceTotalList")
+    .SetUrl(Url.Action("GetGridPayerCloseBalanceTotalList", "BalanceAccount") + "?balanceAccountId=" + ViewData["BalanceAccountId"].ToString())
+    .SetHeight(480)
+    .SetPageSize(20)
+    .SetMutiSelect(false)
+    .SetSortName("PayerName")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowSearchButton(false)
+    .SetShowRefreshButton(false)
+    .SetShowPrintButton(false);
+    if (balanceAccountPrivilige.IsEnableViewCloseBalanceTotalDetail)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("查看明细", "ViewBalanceTotalDetailOperate").SetWidth(80).SetAlign(Align.center));
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "PayerId").SetHidden(true))
+     .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("课题编码", "SubjectId").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("付费人", "PayerName").SetSortable(false).SetWidth(80).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("课题组", "SubjectName").SetSortable(false).SetWidth(120).SetAlign(Align.left));
+    if(isCostDeductOpenFund)
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("普通费用<br />真实币", "CostRealFeeStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("普通费用<br />虚拟币", "CostVirtualFeeStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开放基金费用<br />真实币", "CostOpenFundRealFeeStr").SetHidden(true).SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开放基金费用<br />补贴币", "CostSubsidiesFeeStr").SetHidden(true).SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开放基金费用<br />上半年总额", "CostFirstHalfFeeStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开放基金费用<br />下半年总额", "CostSecondHalfFeeStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总费用", "CostTotalFeeStr").SetSortable(false).SetWidth(100).SetAlign(Align.center));
+    }
+    else
+    {
+        dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("真实币费用", "CostRealFeeStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("虚拟币费用", "CostVirtualFeeStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("总费用", "CostTotalFeeStr").SetSortable(false).SetWidth(100).SetAlign(Align.center));
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchZPanel();", IconCls = "icon-search", Id = "btnGridSearchZPanel", Text = "搜索" });
+    
+    if (balanceAccountPrivilige.IsEnableExportPayerUnCloseBalanceTotal)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportPayerCloseBalanceTotal();", IconCls = "icon-excel", Id = "btnExportPayerUnCloseBalanceTotal", Text = "导出汇总" });
+    }
+    if (balanceAccountPrivilige.IsEnabelExportPayerUnCloseBalanceTotalDetail)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportPayerCloseBalanceTotalDetail();", IconCls = "icon-excel", Id = "btnExportPayerUnCloseBalanceTotalDetail", Text = "导出明细" });
+    }  
+}
+@(dataGrid.ToMvcString()) 

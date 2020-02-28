@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbTagEquipmentFunList")
+    .SetUrl(Url.Action("GetGridTagEquipmentFunList", "Equipment"))
+    .AddQueryParam("queryExpression", string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户类型", "TagName").SetSortable(false).SetWidth(300).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预约时间", "WorkHoursStr").SetSortable(false).SetWidth(1000).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddTagEquipmentFun);
+    if (equipmentPrivilige.IsEnableAddTagEquipmentFun)
+    {
+        dataGrid.SetAddScript("doAddOrEditTagEquipmentFun('');");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditTagEquipmentFun);
+    if (equipmentPrivilige.IsEnableEditTagEquipmentFun)
+    {
+        dataGrid.SetEditScript("doEditTagEquipmentFun();");
+        dataGrid.SetOnDblClickRow("doAddOrEditTagEquipmentFun(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteTagEquipmentFun);
+    if (equipmentPrivilige.IsEnableDeleteTagEquipmentFun)
+    {
+        dataGrid.SetDeleteScript("doDeleteTagEquipmentFun();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

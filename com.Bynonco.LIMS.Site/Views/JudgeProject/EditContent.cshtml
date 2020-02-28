@@ -1,0 +1,29 @@
+﻿@model com.Bynonco.LIMS.Model.JudgeProjectContent
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+<div id="divJudgeProjectContentEdit">
+ <form id="frmJudgeProjectContentEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("JudgeProjectId", Model == null ? ViewData["JudgeProjectId"] == null ? "" : ViewData["JudgeProjectId"].ToString() : Model.JudgeProjectId.ToString())
+    <table id="tdJudgeProjectEdit" class="edit-table"  style="width:385px;">
+         <tr>
+            <th><span class="required">* </span>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>评价标准</th>
+            <td>
+                @Html.TextArea("JudgeStandard", Model == null ? "" : Model.JudgeStandard, new { style = "font-size:12px;text-decoration:none;height:60px;width:295px;margin-right:5px;" })
+            </td>
+        </tr>
+        <tr>
+            <th>是否停用</th>
+            <td>
+                @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

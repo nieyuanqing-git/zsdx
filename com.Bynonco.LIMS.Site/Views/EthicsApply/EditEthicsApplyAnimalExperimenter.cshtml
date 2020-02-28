@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEditEthicsApplyAnimalExperimenter">
+    <form id="frmEthicsApplyAnimalExperimenter">
+        <table class="edit-table">
+            <tr>
+                <th><span class="required">*</span>姓名</th>
+                <td>
+                    @(Html.JValidateBox("Name").SetWidth(235).SetValue(ViewData["Name"].ToString()).ToMvcString())
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>技术职称</th>
+                <td>
+                    @(Html.JValidateBox("Title").SetWidth(235).SetValue(ViewData["Title"].ToString()).ToMvcString())
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>电话</th>
+                <td>
+                    @(Html.JValidateBox("TelNo").SetWidth(235).SetValue(ViewData["TelNo"].ToString()).ToMvcString())
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>工作内容</th>
+                <td>
+                    @(Html.JValidateBox("WorkContent").SetWidth(235).SetValue(ViewData["WorkContent"].ToString()).ToMvcString())
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>动物使用培训证号</th>
+                <td>
+                    @(Html.JValidateBox("UseAnimalTranningNo").SetWidth(235).SetValue(ViewData["UseAnimalTranningNo"].ToString()).ToMvcString())
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>

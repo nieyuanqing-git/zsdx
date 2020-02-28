@@ -1,0 +1,39 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSubject
+@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+          #tbSimpleSubjectBasicInfo tr td{ text-align:left; padding-left:2px}
+</style>
+@Html.Hidden("SubjectId", Model == null ? "" : Model.Id.ToString())
+@if (Model != null)
+{
+    var subjectPrivilige = Model == null ?
+         com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name) :
+         com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name, Model.Id, false);
+    <table id="tbSimpleSubjectBasicInfo">
+        <tr>
+            <td rowspan="7" valign="middle"><img style="width:80px;height:80px;border:1px solid #ECECEC;padding:1px;" src="@(Model.IconPath)" alt="@(Model.Name)" /></td>
+            <td style="font-size:13px;font-weight:bold;">
+                @Model.Name
+                &nbsp;
+                @if (subjectPrivilige.IsEnableEdit)
+                {
+                   @Html.JLinkButton("btnEditSubject", "修改").SetPlain(true).SetIconCls("icon-edit").SetOnclick("isCooperative=false;doEditSubject();return false;").ToMvcString()
+                }
+             </td>
+        </tr>
+        <tr>
+            <td>负责人: @Model.Subject.Director.UserName</td>
+        </tr>
+        <tr>
+            <td>@(Model.Subject.Director.Organization != null ? Model.Subject.Director.Organization.NameStr : "")</td>
+        </tr>
+    </table>
+    <script type="text/javascript">
+        function doEditSubject() {
+            var subjectId = $("#SubjectId").val();
+            var url = '@Url.Action("Edit", "Subject")' + "?time=" + new Date().getMilliseconds() + "&id=" + subjectId + "&isCooperative=false";
+            ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+            return false;
+        }
+    </script>
+}

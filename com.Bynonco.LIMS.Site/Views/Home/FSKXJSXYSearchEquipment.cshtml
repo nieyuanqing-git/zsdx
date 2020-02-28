@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var hotEquipmentList = ViewData["HotEquipmentList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewEquipmentTotal>)ViewData["HotEquipmentList"];
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+}
+<h2 class='title'>
+    <span>设备查询</span>   
+</h2>
+<div class="content-box content-box-153">
+<ul>
+    <li style=' float: left;height: 20px;padding: 5px 0 5px 2px;vertical-align: middle;'>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEqName").SetWidth(135).ToMvcString()
+    </li>
+    <li style=' float: left;height: 20px;padding: 5px 0 5px 2px;vertical-align: middle;'>
+        <label>单位名称</label>
+        @Html.JValidateBox("SearchOrgName").SetWidth(135).ToMvcString()
+    </li>
+    <li style=' float: left;height: 20px;padding: 5px 0 5px 2px;vertical-align: middle;'>
+        <label>仪器型号</label>
+        @Html.JValidateBox("SearchModel").SetWidth(135).ToMvcString()
+    </li>
+    <li style=' float: left;height: 20px;padding: 5px 0 5px 2px;vertical-align: middle;'>
+        <label>技术指标</label>
+        @Html.JValidateBox("SearchQualification").SetWidth(135).ToMvcString()
+    </li>
+    <li>
+        <div style="margin-left: 135px;margin-top: 5px;">
+            @Html.JLinkButton("btnEquipmentSearch", "查询").SetOnclick("doEquipmentSearch();doCloseSearch();return false;").ToMvcString()
+        </div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+</div>
+<script type="text/javascript">
+    function doEquipmentSearch() {
+        var url = '@Url.Action("ShowList", "Equipment", new { XPath = orgXPath })' + "&EquipmentName=" + $("#SearchEqName").val().trim() + "&OrgName=" + $("#SearchOrgName").val().trim() + "&EquipmentLabel=" + $("#SearchModel").val().trim() + "&Qualification=" + $("#SearchQualification").val().trim();
+        url = encodeURI(url);
+        location.href = url;                
+    }
+</script>

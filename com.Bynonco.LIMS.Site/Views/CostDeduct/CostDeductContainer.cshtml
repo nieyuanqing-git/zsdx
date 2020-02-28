@@ -1,0 +1,50 @@
+﻿@{bool isManage = (bool)ViewData["IsManage"];}
+@{string widthStr = ViewData["Width"] != null ? "width:" + ViewData["Width"].ToString() + "px" : "";}
+<div id="divUsedCostDeduct" style="@widthStr">
+     <div class="search-grid hide"> 
+        <div class="search-inner-box">
+            @Html.Partial("../CostDeduct/CostDeductSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../CostDeduct/CostDeductList")</div>
+</div>
+<script type="text/javascript">
+    function doDeductSearch(isPosCurPage) {
+        var queryExpression = generateDeductQueryExpression();
+        if (isPosCurPage) {
+            $("#tbViewCostDeductList").datagrid("reload", { "queryExpression": queryExpression.trim() });
+        }
+        else {
+            $("#tbViewCostDeductList").datagrid('loadData', { total: 0, rows: [] });
+            $("#tbViewCostDeductList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        }
+    }
+    function doExportCostDeductList(payerId) {
+        var newQueryExpression = generateDeductQueryExpression();
+        var url = '@Url.Action("ExportCostDeductList", "CostDeduct")' + "?userId=" + '@(ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "")' + "&isManage=" + '@(isManage.ToString().ToLower())' + "&queryExpression=" + newQueryExpression.trim() + "&payerId=" + payerId + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    function doDeleteCostDeduct(id) {
+        $.messager.confirm('提示', '确认取消扣费?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("CancelCostDeduct","CostDeduct")',
+                data: { "id": id },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doDeductSearch(true);
+                }
+            });
+        });
+    }
+    function doPrintCostDeduct(id) {
+        window.open('@Url.Action("Print","CostDeduct")' + "?id=" + id + "&time=" + new Date().getMilliseconds(), "_blank");
+        return false;
+    }
+</script>

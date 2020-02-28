@@ -1,0 +1,39 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentOpenTrainingPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentOpenTrainingPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEquipmentOpenTrainingList")
+    .SetUrl(Url.Action("GetGridViewEquipmentOpenTrainingList", "EquipmentOpenTraining"))
+    .SetHeight(600)
+    .SetPageSize(10)
+    .SetSortName("CreateTime")
+    .SetSortOrder(SortOrder.desc)
+    .SetShowPrintButton(false)
+    .SetShowSearchButton(true)
+    .SetShowAddButton(false)
+    .SetShowEditButton(false)
+    .SetShowDeleteButton(false)
+    .SetShowRefreshButton(false)
+    .SetMutiSelect(true)
+    .SetSingleSelect(false)
+    .SetSearchScript("doShowSearch();");
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学期编码", "SemesterId").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(52).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("培训名称", "NameStr").SetWidth(250).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("培训负责人", "AdminUserName").SetWidth(70).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "AdminPhone").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("目的与意义", "Purpose").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("支撑条件", "SupportingConditions").SetWidth(200).SetAlign(Align.center));
+    if (equipmentOpenTrainingPrivilige.IsEnableAdd) 
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAddEquipmentOpenTraining('');", IconCls = "icon-add", Id = "btnAddEquipmentOpenTraining", Text = "新增" });
+    }
+    if (equipmentOpenTrainingPrivilige.IsEnableExportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportExcelEquipmentOpenTraining();", IconCls = "icon-export", Id = "btnExportExcelEquipmentOpenTraining", Text = "导出" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearchEquipmentOpenTraining();", IconCls = "icon-reload", Id = "btnSearchEquipmentOpenTraining", Text = "刷新" });
+  }
+  @(dataGrid.ToMvcString())

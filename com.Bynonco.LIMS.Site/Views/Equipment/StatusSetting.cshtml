@@ -1,0 +1,21 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@model com.Bynonco.LIMS.Model.View.ViewEquipment
+<p><span class="icon icon-equipmentinfo"></span>状态设置</p>
+<form id="frmStatusSettingEdit" action="#">
+@(Html.Hidden("Id", Model == null ? "" : Model.Id.ToString()))
+@(Html.Hidden("hidStatus", Model == null ? "" : Model.Status.ToString()))
+<table class="edit-info">
+    <tr>
+        <th>当前状态</th>
+        <td>@(Html.JComboBox("Status").SetData(ViewData["EquipmentStatusJson"]).SetWidth(252).ToMvcString())
+        &nbsp;&nbsp;<span class="icon icon-info-blue" title="在用——正在使用的仪器设备&#10多余——具有使用价值而未使用的仪器设备&#10待修——待修或正在修理的仪器设备&#10待报废 ——已经失去使用价值，而未履行正式报废手续的仪器设备&#10降档——经学校批准允许降档次使用、管理的仪器设备&#10其它——现状不详的仪器设备"></span>
+        </td>
+    </tr>
+    <tr>
+        <th>状态描述</th>
+        <td>@(Html.TextArea("StatusDescription", Model == null ? "" : Model.StatusDescription, new { style = "font-weight:normal;font-size:12px;height:150px;width:520px" }))</td>
+    </tr>
+</table>
+</form>
+
+<div id="divLogDialog" style="display:none"></div>

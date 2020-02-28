@@ -1,0 +1,62 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUser
+@using com.Bynonco.JqueryEasyUI.Core;
+<div class="edit-operate">
+    @Html.JLinkButton("btnSaveUserAccount", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doUserAccountSave();return false;").ToMvcString()
+    @Html.JLinkButton("btnBack", "返回列表").SetIconCls("icon-back").SetOnclick("doBack();return false;").SetPlain(true).ToMvcString()
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#trRealCurrency").removeClass("hide");
+        $("#trVirtualCurrency").removeClass("hide");
+        $("#trPreAlert").removeClass("hide");
+        $("#trUnUseable").removeClass("hide");
+        $("#trUnAppointment").removeClass("hide");
+        $("#trUserAccountRemark").removeClass("hide");
+    });
+    function checkUserAccountInfo() {
+        if ($("#TagId").combobox("getValue").trim() == "") {
+            $.messager.show({ title: '警告', msg: '请选择用户类型', showType: 'show' });
+            return false;
+        }
+        if ($("#CreditLimitId").combobox("getValue").trim() == "") {
+            $.messager.show({ title: '警告', msg: '请选择信用额度', showType: 'show' });
+            return false;
+        }
+        var preAlert = $("#PreAlert").val().trim();
+        if (preAlert != "" && !$("#PreAlert").validatebox("isValid")) {
+            $.messager.show({ title: '警告', msg: '预警值格式不正确', showType: 'show' });
+            return false;
+        }
+        var unUseable = $("#UnUseable").val().trim();
+        if (unUseable != "" && !$("#UnUseable").validatebox("isValid")) {
+            $.messager.show({ title: '警告', msg: '不可使用值格式不正确', showType: 'show' });
+            return false;
+        }
+        var unAppointment = $("#UnAppointment").val().trim();
+        if (unAppointment != "" && !$("#UnAppointment").validatebox("isValid")) {
+            $.messager.show({ title: '警告', msg: '不可预约值格式不正确', showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+    function doUserAccountSave() {
+        var isOk = checkUserAccountInfo();
+        if (!isOk) return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var id = '@(Model != null ? Model.Id.ToString() :"")';
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUserAccount", "User")',
+            data: $("#frmUserAccount").serialize() + "&Id=" + id + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+</script>

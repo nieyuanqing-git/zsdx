@@ -1,0 +1,218 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divMaterialUserAccountDialog" style="display:none"></div>
+<div id="divMaterialDepositRecordDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doMaterialUserAccountSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbMaterialUserAccountList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbMaterialUserAccountList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+
+    var materialUserAccountDialog;
+    function doMaterialUserAccountDialog() {
+        if (materialUserAccountDialog) {
+            materialUserAccountDialog.dialog("destroy");
+        }
+        materialUserAccountDialog =  @Html.JDialog("divMaterialUserAccountEdit").SetTitle("经费账户信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("materialUserAccountDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveMaterialUserAccount();").ToMvcString();
+    }
+    function doAddMaterialUserAccount(userId)
+    {
+        doAddOrEditMaterialUserAccount('' , userId);
+        return false;
+    }
+    function doEditMaterialUserAccount(id) {
+        if(!id || id.trim()==""){
+            var selectedMaterialUserAccount = $("#tbMaterialUserAccountList").datagrid("getSelected");
+            if(!selectedMaterialUserAccount || selectedMaterialUserAccount.Id=="" || selectedMaterialUserAccount.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择经费账户信息", showType: 'show' });
+                return false;
+            }
+            id = selectedMaterialUserAccount.Id;
+        }
+        doAddOrEditMaterialUserAccount(id);
+        return false;
+    }
+    function doAddOrEditMaterialUserAccount(id,userId){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Edit","MaterialUserAccount")'+ "?id=" + id + "&UserId=" + userId + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialUserAccountDialog").load(url,function(){
+            doMaterialUserAccountDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveMaterialUserAccount(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "经费账户名称为空", showType: 'show' });
+          return false;
+        }
+        if($("#UserId").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "账户导师为空", showType: 'show' });
+          return false;
+        }
+        
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","MaterialUserAccount")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmMaterialUserAccountEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                materialUserAccountDialog.dialog('close');
+                if($("#tbMaterialUserAccountList").length > 0)doMaterialUserAccountSearch();
+            }
+        });
+    }
+    function doDeleteMaterialUserAccount(id){
+        if(!id || id.trim() == ""){
+              var selectedMaterialUserAccount = $("#tbMaterialUserAccountList").datagrid("getSelected");
+                if(!selectedMaterialUserAccount || selectedMaterialUserAccount.Id.trim() == "" || selectedMaterialUserAccount.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedMaterialUserAccount.Id;
+         }
+        $.messager.confirm('提示', '是否确认删除该经费账户?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "MaterialUserAccount")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doMaterialUserAccountSearch();
+                }
+            });
+        });
+        return false;
+   }
+
+    function doOnMaterialUserAccountSelected(rowData){
+        var queryExpression = generateDepositRecordQueryExpress();
+        queryExpression += (queryExpression == "" ? "" : "*") + "MaterialUserAccountId=\"" + rowData.Id  + "\"";
+        $("#tbMaterialDepositRecordList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbMaterialDepositRecordList").datagrid("load", { "queryExpression": queryExpression});
+    }
+    function doMaterialDepositRecordSearch() {
+        var queryExpression = generateDepositRecordQueryExpress();
+        var selectedMaterialUserAccount = $("#tbMaterialUserAccountList").datagrid("getSelected");
+        if(!selectedMaterialUserAccount || selectedMaterialUserAccount.Id.trim() == "" || selectedMaterialUserAccount.Id.isDefaultGuid())
+        {
+            //目前先展示全部
+            //queryExpression += (queryExpression == "" ? "" : "*") + "Id=null";
+        }
+        else
+        {
+            queryExpression += (queryExpression == "" ? "" : "*") + "MaterialUserAccountId=\"" + selectedMaterialUserAccount.Id  + "\"";
+        }
+
+        $("#tbMaterialDepositRecordList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbMaterialDepositRecordList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    var materialDepositRecordDialog;
+    function doMaterialDepositRecordDialog() {
+        if (materialDepositRecordDialog) {
+            materialDepositRecordDialog.dialog("destroy");
+        }
+        materialDepositRecordDialog =  @Html.JDialog("divMaterialDepositRecordEdit").SetTitle("经费账户存取").SetIconCls("icon-yen").SetAutoDialog(false).SetCancelScript("materialDepositRecordDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveMaterialDepositRecord();").ToMvcString();
+    }
+
+    function doInputMaterialUserAccount(id) {
+       doInputOrOutputMaterialUserAccount(id,'@((int)MaterialDepositRecordType.Input)');
+    }
+    function doOutputMaterialUserAccount(id) {
+       doInputOrOutputMaterialUserAccount(id,'@((int)MaterialDepositRecordType.Output)');
+    }
+    function doInputOrOutputMaterialUserAccount(materialUserAccountId,materialDepositRecordType){
+        if(!materialUserAccountId || materialUserAccountId.trim() == "")
+        {
+            $.messager.show({ title: '提示', msg:"请选择要操作的经费账户", showType: 'show' });
+            return false;
+        }
+        if(materialDepositRecordType != '@((int)MaterialDepositRecordType.Input)' && materialDepositRecordType != '@((int)MaterialDepositRecordType.Output)')
+        {
+            $.messager.show({ title: '提示', msg:"无效的操作类型", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("DepositRecordAdd","MaterialUserAccount")'+ "?MaterialUserAccountId=" + materialUserAccountId + "&MaterialDepositRecordType=" + materialDepositRecordType + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialDepositRecordDialog").load(url,function(){
+            doMaterialDepositRecordDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doMaterialPurchaseBalanceAdd(materialPurchaseId){
+        if(!materialPurchaseId || materialPurchaseId.trim() == "")
+        {
+            $.messager.show({ title: '提示', msg:"请选择要报销结账的采购单", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("MaterialPurchaseBalanceAdd","MaterialUserAccount")'+ "?Id=" + materialPurchaseId + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialDepositRecordDialog").load(url,function(){
+            doMaterialDepositRecordDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveMaterialDepositRecord(){
+        if ($("#OperateType").combobox("getValue").trim() == "") {
+            $.messager.show({ title: '提示', msg: '操作类型为空', showType: 'show' });
+            return false;
+        }
+        if($("#MaterialUserAccountId").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "经费账户为空", showType: 'show' });
+          return false;
+        }
+        if(!$("#DepositSum").validatebox("isValid")){
+          $.messager.show({ title: '提示', msg: "金额不正确", showType: 'show' });
+          return false;
+        }
+        var id = $("#MaterialUserAccountId").val();
+        var depositSum = $("#DepositSum").val();
+        var url = "";
+        if($("#OperateType").combobox("getValue").trim() == '@((int)MaterialDepositRecordType.Input)')
+        {
+            url = '@Url.Action("InputMoney","MaterialUserAccount")' +  "?date=" + new Date().getMilliseconds();
+            if($("#MaterialPurchaseId").length > 0 && $("#MaterialPurchaseId").val() != '')
+            {
+                url += "&MaterialPurchaseId=" +  $("#MaterialPurchaseId").val();
+            }
+        }
+        else if($("#OperateType").combobox("getValue").trim() == '@((int)MaterialDepositRecordType.Output)')
+            url = '@Url.Action("OutputMoney","MaterialUserAccount")' +  "?date=" + new Date().getMilliseconds();
+        if(url == "")
+        {
+            $.messager.show({ title: '提示', msg: "无效的操作类型", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { "Id": id, "DepositSum" :depositSum},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                materialDepositRecordDialog.dialog('close');
+                if($("#tbMaterialUserAccountList").length > 0)doMaterialDepositRecordSearch();
+                if($("#tbMaterialPurchaseList").length > 0) doMaterialPurchaseSearch();
+            }
+        });
+    }
+</script>
+

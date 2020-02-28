@@ -1,0 +1,231 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.JTab("divEquipmentApplyDetail").SetBorder(false).ToMvcString() 
+<div id="divEquipmentApplyDetail" style="width:800px;overflow-x:hidden;">
+    <div title="基本信息" >
+        <div style="width:785px;height:560px;overflow-x:hidden; overflow-y:auto">
+            <table id="tbEquipmentApplyBasicInfo" style="width:100%" class="edit-table">
+                <tr>
+                    <th>
+                        单位名称
+                    </th>
+                    <td>
+                       @Model.LabRoomName
+                    </td>
+                    <th>校仪器编号</th>
+                     <td>
+                        @Model.EquipmentNo
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        仪器中文名称
+                    </th>
+                    <td>
+                        @Model.Name
+                    </td>
+                    <th>
+                        仪器英文名称
+                    </th>
+                    <td>
+                        @Model.EnName
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        仪器别名
+                    </th>
+                    <td>
+                        @Model.NickName
+                    </td>
+                    <th>
+                        型号规格
+                    </th>
+                    <td>
+                        @Model.Model
+                    </td>
+                </tr>    
+                <tr>
+                    <th>
+                        生产厂商
+                    </th>
+                    <td>
+                        @Model.Manufacturer
+                    </td>
+                    <th>
+                        国别
+                    </th>
+                    <td>
+                        @Model.Country
+                    </td>
+                </tr>
+                <tr>
+                     <th>
+                        仪器分类号
+                    </th>
+                    <td>
+                        @Model.CategoryCode
+                    </td>
+                    <th>
+                        原值
+                    </th>
+                    <td>
+                        @(!Model.Worth.HasValue ? "" : Model.Worth.Value.ToString("0.00"))
+                    </td>
+                </tr>
+                <tr>
+                     <th>
+                        建帐日期
+                    </th>
+                    <td id="tdCountry">
+                        @(!Model.CreateAccountDate.HasValue ? "" : Model.CreateAccountDate.Value.ToString("yyyy-MM-dd"))
+                    </td>
+                    <th>
+                        启用日期
+                    </th>
+                    <td>
+                        @(!Model.StartDate.HasValue ? "" : Model.StartDate.Value.ToString("yyyy-MM-dd"))
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        仪器检定情况
+                    </th>
+                    <td>
+                        @Model.TestCondition
+                    </td>
+                    <th>
+                        收费标准
+                    </th>
+                    <td>
+                        @Model.ChargeStandard
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        仪器所在实验室
+                    </th>
+                    <td>
+                        @Model.LocatedLabRoom
+                    </td>
+                    <th>
+                        仪器安放地址
+                    </th>
+                    <td>
+                        @Model.Location
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        仪器本地网址
+                    </th>
+                    <td colspan="3">
+                        @Model.WebSite
+                    </td>
+                </tr>
+                 <tr>
+                    <th>仪器管理人</th>
+                    <td>
+                        @Model.EquipmentAdminName
+                    </td>
+                    <th>联系电话</th>
+                    <td>
+                        @Model.EquipmentAdminLinkTelNo
+                    </td>
+                </tr>
+                <tr>
+                    <th>申请年份</th>
+                    <td colspan="3">
+                       @Model.ApplyYear
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        备注
+                    </th>
+                    <td colspan="3">
+                         @Model.Remark
+                    </td>
+                </tr>
+                <tr>
+                    <th>仪器在本校、本地区<br />分布及需求状况</th>
+                    <td colspan="3">
+                        @Model.DistributionAndRequirementName
+                    </td>
+                </tr>
+            </table>
+            <p><span  class="ico icon-function"></span><b>仪器的主要功能、技术指标、学术特色和应用范围</b></p>
+            <p>@Model.Introduce</p>
+            <hr />
+            <p><span  class="ico icon-function"></span><b>仪器开放服务情况:（陈述仪器过去几年对校内、校外开放服务的情况，包括服务内容、成果等方面的特色）</b></p>
+            <p>@Model.OpenConditionName</p>
+            <p><span  class="ico icon-function"></span><b>仪器目前运行维护经费的主要来源</b></p>
+            <p>@Model.ServiceCondition</p>
+            <p>@Model.FundsSource</p>
+            <hr />
+            <p><span  class="ico icon-function"></span><b>仪器如加入共享，开展对校内外的开放服务，还存在哪些困难</b></p>
+            <p>@Model.Trouble</p>
+            <hr />
+            <p><span  class="ico icon-function"></span><b>仪器如能获得加入共享并获得补贴，拟开展以下方面的建设</b></p>
+            <p>@Model.Construct</p>
+            <hr />
+            <p><span  class="ico icon-function"></span><b>预期的建设成果及效益</b></p>
+            <p>@Model.PredictEffectiveness</p>
+            <hr />
+            <p><span  class="ico icon-function"></span><b>重点实验室审查意见（仪器是否状况良好，技术人员是否落实，是否适合对外提供开放服务等）</b></p>
+            <table class="edit-table" style="width:100%">
+                <tr>
+                    <th>负责人</th>
+                    <td>@Model.LabRoomAuditDirectorOrgName</td>
+                </tr>
+                <tr>
+                    <th>审核时间</th>
+                    <td>@Model.LabRoomDirectorAuditTimeStr</td>
+                </tr>
+                <tr>
+                    <th>审核意见</th>
+                    <td>@Model.LabRoomDirectorAuditRemark</td>
+                </tr>
+            </table>
+            <p><span  class="ico icon-function"></span><b>学校主管部门审核意见意见</b></p>
+            <table class="edit-table" style="width:100%">
+                <tr>
+                    <th>负责人</th>
+                    <td>@Model.SchoolAuditDirectorName</td>
+                </tr>
+                <tr>
+                    <th>审核时间</th>
+                    <td>@Model.SchoolDirectorAuditTimeStr</td>
+                </tr>
+                <tr>
+                    <th>审核意见</th>
+                    <td>@Model.SchoolDirectorAuditRemark</td>
+                </tr>
+            </table>
+            <p><span  class="ico icon-function"></span><b>学校实验室与大型科学仪器管理委员会审议意见</b></p>
+            <table class="edit-table" style="width:100%">
+                <tr>
+                    <th>负责人</th>
+                    <td>@Model.ShareEAuditDirectorName</td>
+                </tr>
+                <tr>
+                    <th>审核时间</th>
+                    <td>@Model.ShareEDirectorAuditTimeStr</td>
+                </tr>
+                <tr>
+                    <th>审核意见</th>
+                    <td>@Model.ShareEDirectorAuditRemark</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div title="设备图标信息">
+        @Html.Partial("../EquipmentApply/EquipmentApplyIcon")
+    </div>
+    <div title="设备机组主要人员">
+        @Html.Partial("../EquipmentApply/EquipmentGroupServer")
+    </div>
+</div>
+<div title="开放服务机时统计" style="display:none">
+    @Html.Partial("../EquipmentApply/EquipmentServiceHoursStat")
+</div>

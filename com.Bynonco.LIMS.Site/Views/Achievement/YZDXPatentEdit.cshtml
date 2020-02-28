@@ -1,0 +1,137 @@
+﻿@model com.Bynonco.LIMS.Model.Patent
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var enableUploadFileType = "可上传的文件类型:" + ViewData["EnableUploadFileType"] + ".   ";
+    var enableUploadFileSize = "最大可上传" + ViewData["enableUploadFileSize"] + "的文件.";
+    var uploadTip = enableUploadFileType + "" + enableUploadFileSize;
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+}
+<div id="divPatentEdit">
+ <form id="frmPatentEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdPatentEdit" class="edit-table"  style="width:640px;">
+         <tr>
+            <th><span class="required">* </span>专利名称</th>
+            <td>
+                @(Html.JValidateBox("PatentName").SetWidth(210).SetValue(Model == null ? "" : Model.PatentName).ToMvcString())
+            </td>
+            <th><span class="required">* </span>专利号</th>
+            <td>
+                @(Html.JValidateBox("PatentNum").SetWidth(210).SetValue(Model == null ? "" : Model.PatentNum).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>专利类型</th>
+            <td>@(Html.JComboBox("PatentType")
+                .SetData(ViewData["PatentTypeJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>专利所属</th>
+            <td>@(Html.JComboBox("PatentBelongTo")
+                .SetData(ViewData["PatentBelongToTypeJson"])
+                .SetWidth(215)
+                .SetMutiSelect(false)
+                .SetEditable(false)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>日期</th>
+            <td colspan='3'>
+                @(Html.JDateTimePicker("PatentTime").SetWidth(215).SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.PatentTime.Value.ToString("yyyy-MM-dd")).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>发明人员</th>
+            <td colspan="3" id="tdMemberName">
+                  @(Html.TokenInput("MemberName")
+                    .SetUrl(Url.Action("GetUserWeakListByKeyWord", "User"))
+                    .SetWidth(210)
+                    .SetSingle(false)
+                    .SetTokenValue("text")
+                    .SetOnAdd("doMemberNameChange();")
+                    .SetOnDelete("doMemberNameChange();")
+                    .SetPrePopulate(ViewData["MemberJson"] == null || string.IsNullOrWhiteSpace(ViewData["MemberJson"].ToString()) ? null : ViewData["MemberJson"].ToString())
+                    .ToMvcString())
+                 @Html.Hidden("MemberId", ViewData["MemberId"] == null ? "" : ViewData["MemberId"].ToString())
+            </td>
+        </tr>
+        <tr id="trEquipmentList">
+            <th><span class="required">* </span>相关仪器</th>
+            <td colspan="3" style="padding:0;border:0;">
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            @(Html.TokenInput("EquipmentId")
+                                .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment"))
+                                .SetSingle(false)
+                                .SetWidth(400)
+                                .SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString())
+                                .ToMvcString())
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectEquipmentDialog('EquipmentId');return false;").ToMvcString()
+                        </td>
+                        <td style='width:70px;text-align:center;border:0;'>
+                           @Html.JLinkButton("btnCleanEquipment", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanEquipment();return false;").ToMvcString()
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th rowspan="2">
+                 <span class="required">* </span>附件信息
+            </th>
+            <td colspan="3">
+                <input id="fileToUpload" type="file" name="fileToUpload" style="width:230px" title="@(uploadTip)" />
+                @(Html.JLinkButton("btnUpLoad", "上传").SetIconCls("icon-upload").SetPlain(true).SetOnclick("ajaxFileUpload();return false;").ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3"  id="tdAttachment">
+                @Html.Partial("AttachmentList", "Achievement")
+            </td>
+        </tr>
+    </table>
+  </form>
+    <div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $("#tdMemberName ul.token-input-list-facebook").css("width", "535px");
+        if ('@(string.IsNullOrWhiteSpace(equipmentId).ToString().ToLower())' != "true") {
+            $("#trEquipmentList").css("display", "none");
+            $("#EquipmentId").val("@(equipmentId)");
+        }
+     });
+    function doMemberNameChange() {
+        $("#MemberId").val("");
+        var memberList = $("#MemberName").tokenInput("get");
+        if (memberList && memberList.length > 0) {
+            var memberIds = "";
+            for (var i = 0; i < memberList.length; i++) {
+                if (memberIds != "") memberIds += ",";
+                memberIds += memberList[i].id;
+            }
+            $("#MemberId").val(memberIds);
+        }
+    }
+    function doCleanEquipment() {
+        $("#EquipmentId").tokenInput("clear");
+    }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+        $("#EquipmentId").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#EquipmentId").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+</script>

@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var isShowEquipmentSampleItemSearch = (bool)ViewData["IsShowEquipmentSampleItemSearch"];
+}
+<div style='display:@(isShowEquipmentSampleItemSearch ? "" : "none")'>@Html.Partial("../EquipmentSampleItems/Search")</div>
+<div id="divSampleItems">@Html.Partial("SampleItems")</div>
+<script type="text/javascript">
+    function doSampleItemsSearch(isAuto) {
+        var qrySampleStatusId = getQuerySampleStatusId();
+        if (sampleStatusId != "") qrySampleStatusId = sampleStatusId;
+        var pageNumber = $('#divSampleItemsPaging').pagination("options").pageNumber;
+        var pageSize = $('#divSampleItemsPaging').pagination("options").pageSize;
+        var queryExpression = generateQueryExpress();
+        if (isAuto && equipmentId != "") {
+            queryExpression += queryExpression == "" ? "EquipmentId=\"" + equipmentId + "\"" : "(*EquipmentId=\"" + encodeURI(equipmentId) + "\")";
+        }
+        var url = '@Url.Action("GetEquipmentSampleItems", "EquipmentSampleItems")';
+        var pos = window.location.href.indexOf("?");
+        url = encodeURI(url + (pos == -1 ? "?" : window.location.href.substring(pos) + "&") + "page=" + pageNumber + "&rows=" + pageSize + "&sampleStatusId=" + qrySampleStatusId + "&sampleItemName=" + sampleItemName + "&queryExpression=" + queryExpression) + "&time=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        $("#divSampleItems").html("");
+        $("#divSampleItems").load(url, function () {
+            $.messager.progress("close");
+        });
+        return false;
+    }
+    $(function () {
+        doSampleItemsSearch(true);
+    });
+</script>

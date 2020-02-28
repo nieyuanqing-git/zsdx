@@ -1,0 +1,71 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentOpenTrainingCarryOutSignUpQueryExpress() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName.trim() + "\"";
+        }
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+        var searchEquipmentOpenTrainingCarryOutName = $("#SearchEquipmentOpenTrainingCarryOutName").val().trim();
+        if (searchEquipmentOpenTrainingCarryOutName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentOpenTrainingCarryOutName∽\"" + searchEquipmentOpenTrainingCarryOutName.trim() + "\"";
+        }
+        var equipmentOrgName = $("#SearchEquipmentOrgName").val().trim();
+        if (equipmentOrgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentOrgName∽\"" + equipmentOrgName.trim() + "\"";
+        }
+        var status = $("#SearchStatus").combobox("getValue");
+        if (status != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+        }
+        return queryExpression;
+    }
+    function doResetEquipmentOpenTrainingCarryOutSignUp() {
+        $("#SearchUserName").val("");
+        $("#SearchEquipmentName").val("");
+        $("#SearchEquipmentOpenTrainingCarryOutName").val("");
+        $("#SearchEquipmentOrgName").val("");
+        $("#SearchStatus").combobox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    
+    <li>
+        <label>报名人</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>培训名称</label>
+        @Html.JValidateBox("SearchEquipmentOpenTrainingCarryOutName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>所属机构</label>
+        @Html.JValidateBox("SearchEquipmentOrgName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>状态</label>
+        @(Html.JComboBox("SearchStatus")
+                .SetEditable(false)
+                .SetMutiSelect(false)
+                .SetData(ViewData["EquipmentOpenTrainingCarryOutSignUpStatusJson"])
+                .SetWidth(155)
+                .ToMvcString())
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentOpenTrainingCarryOutSignUpSearch", "查询").SetOnclick("doSearchEquipmentOpenTrainingCarryOutSignUp();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentOpenTrainingCarryOutSignUpReset", "清空").SetOnclick("doResetEquipmentOpenTrainingCarryOutSignUp();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentOpenTrainingCarryOutSignUpClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

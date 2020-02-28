@@ -1,0 +1,64 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<form id="frmExaminationDefaultSettingEdit" action="#">
+    <p><span class="icon icon-setting"></span>机构考试默认设置</p>
+    <table id="tbExaminationSetting" class="edit-info">
+        <tr>
+            <th>是否需要在线考试才能预约</th>
+            <td>
+                @(Html.CheckBox("IsNeedExaminationBeforeAppointment"))
+                <span class="icon icon-info-blue" title="用户需要在线考试通过后才能预约机构下的设备"></span>
+            </td>
+        </tr>
+        <tr>
+            <th>默认试卷类型</th>
+            <td>
+                @(Html.JComboTree("TrainningTypeId")
+                    .SetData(ViewData["TrainningTypeJson"])
+                    .SetValue(ViewData["TrainningTypeId"] == null ? "" : ViewData["TrainningTypeId"].ToString())
+                    .SetMultiple(false)
+                    .SetWidth(205).SetRequired(false).SetExpandAll(true).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>试卷默认考题数</th>
+            <td>
+                @(Html.JValidateBox("TrainningQuestionCount").SetValue(ViewData["TrainningQuestionCount"].ToString()).SetWidth(80).ToMvcString())
+             </td>
+        </tr>
+        <tr>
+            <th>最大在线考试次数</th>
+            <td>
+                @(Html.JValidateBox("MaxExaminationTime").SetValue(ViewData["MaxExaminationTime"].ToString()).SetWidth(80).ToMvcString())
+                <span>(次)</span>
+             </td>
+        </tr>
+        <tr>
+            <th>考试通过类型</th>
+            <td>
+                @(Html.JValidateBox("ExaminationPassType").SetValue(ViewData["ExaminationPassType"].ToString()).SetWidth(80).ToMvcString())
+                <span>(0:分数线 1:正确率)</span>
+             </td>
+        </tr>
+        <tr>
+            <th>考试通过线</th>
+            <td>
+                @(Html.JValidateBox("PassStandard").SetValue(ViewData["PassStandard"].ToString()).SetWidth(80).ToMvcString())
+                <span>(分 或者 %)</span>
+             </td>
+        </tr>
+        <tr>
+            <th>是否需要阅读资料才能考试</th>
+            <td>
+                @(Html.CheckBox("IsNeedReadMaterialBeforeExamination"))
+                <span class="icon icon-info-blue" title="用户需要阅读资料达到学时才能考试"></span>
+            </td>
+        </tr>
+	    <tr>
+            <th>最少阅读资料学时</th>
+            <td>
+                @(Html.JValidateBox("MinReadMaterialDateTime").SetValue(ViewData["MinReadMaterialDateTime"].ToString()).SetWidth(80).ToMvcString())
+                <span>(小时)</span>
+             </td>
+        </tr>
+    </table>
+</form>

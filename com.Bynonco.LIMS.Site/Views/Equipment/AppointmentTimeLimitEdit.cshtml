@@ -1,0 +1,41 @@
+﻿@model com.Bynonco.LIMS.Model.AppointmentTimeLimit
+@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divAppointmentTimeLimitEdit">
+    <form id="frmAppointmentTimeLimitEdit" action="#">
+    @Html.Hidden("AppointmentTimeLimitId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style="width:500px;">
+        <tr>
+            <th>用户</th>
+            <td id="tbSelectAppointmentTimeLimitUsers">
+                @(Html.TokenInput("AppointmentTimeLimitUserIds")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["AppointmentTimeLimitUsersJson"] == null || string.IsNullOrWhiteSpace(ViewData["AppointmentTimeLimitUsersJson"].ToString()) ? null : ViewData["AppointmentTimeLimitUsersJson"].ToString())
+                .SetSingle(false)
+                .SetPreventDuplicates(true)
+                .SetWidth(200)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>时间限制</th>
+            <td>
+                @Html.JValidateBox("Period").SetValue(Model == null ? "" : Model.Period.ToString()).SetValidateType(ValidateType.positiveIntNumber).SetWidth(150).ToMvcString()
+                天内可预约
+                @Html.JValidateBox("Duration").SetValue(Model == null ? "" : Model.Duration.ToString()).SetValidateType(ValidateType.positiveIntNumber).SetWidth(150).ToMvcString()
+                小时 
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:420px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tbSelectAppointmentTimeLimitUsers ul.token-input-list-facebook").css("width", "420px");
+    });
+</script>

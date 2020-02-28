@@ -1,0 +1,87 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+}
+<style type="text/css">
+    #tbEquipmentSampleItemsSearch th{text-align:right; width:60px; line-height:20px; padding:3px}
+    #tbEquipmentSampleItemsSearch td{text-align:left;line-height:20px; padding:3px}
+    #tbEquipmentSampleItemsSearch td a{font-weight:normal;}
+</style>
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var equipmentName = $("#txtQueryEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += "EquipmentName∽\"" + equipmentName + "\"";
+        }
+
+        var sampleItemName = $("#txtQuerySampleItemName").val().trim();
+        if (sampleItemName != "") {
+            queryExpression += queryExpression == "" ?  "SampleItemName∽\"" + sampleItemName + "\"" : "*" + "SampleItemName∽\"" + sampleItemName.trim() + "\"";
+        }
+
+        var selectedSampleStatus = $("#cbxQuerySampleStatus").combobox("getValue");
+        if (selectedSampleStatus && selectedSampleStatus!="" && selectedSampleStatus != "@(default(Guid).ToString())") {
+            queryExpression += (queryExpression =="" ? ("SampleStatusId=\"" + selectedSampleStatus + "\"") : ("*SampleStatusId=\"" + selectedSampleStatus + "\""));
+        }
+
+        var selectedOrganizationId = $("#cbxQueryOrganization").val();
+        if (selectedOrganizationId != "" && selectedOrganizationId != "@(default(Guid).ToString())") {
+            queryExpression += (queryExpression == "" ? ("OrganizationId=\"" + selectedOrganizationId + "\"") : ("*OrganizationId=\"" + selectedOrganizationId + "\""));
+        }
+        return encodeURI(queryExpression);
+    }
+    function getQuerySampleStatusId() {
+        var selectedSampleStatus = $("#cbxQuerySampleStatus").combobox("getValue");
+        if (selectedSampleStatus == "@(default(Guid).ToString())") return "";
+        return selectedSampleStatus;
+    }
+    function doQueryReset() {
+        $("#txtQueryEquipmentName").val("");
+        $("#txtQuerySampleItemName").val("");
+        $("#cbxQuerySampleStatus").combobox("setValue", "@(default(Guid).ToString())");
+        $("#cbxQueryOrganization").val("@(default(Guid).ToString())");
+        return false;
+    }
+</script>
+<div class="panel-header"  style="border-bottom:none;">
+    <div class="menu-type">
+       <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnGridSearch" hidefocus="true" onclick="return false;">
+           <span class="l-btn-left">
+                <span class="l-btn-text icon-search" style="padding-left: 20px;">搜索</span>
+           </span>
+       </a>
+    </div>
+    <div style="padding-top:38px">
+        <table id="tbEquipmentSampleItemsSearch" style="border-collapse: collapse;">
+        <tr>
+            <th >@customerOrgName</th>
+            <td>
+                @Html.DropDownList("cbxQueryOrganization", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:165px" })
+            </td>
+            <th>形态名称</th>
+            <td>
+                @Html.JComboBox("cbxQuerySampleStatus").SetWidth(165).SetData(ViewData["SampleStatusJson"]).SetMutiSelect(false).ToMvcString()
+            </td>
+            <td rowspan="3" style="text-align:center; vertical-align:middle; width:200px">
+                @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSampleItemsSearch(false);").ToMvcString()
+                @Html.JLinkButton("btnReset", "清空").SetOnclick("doQueryReset();").ToMvcString()
+            </td>
+        </tr>
+         <tr>
+            <th>项目名称</th>
+            <td>
+                @Html.JValidateBox("txtQuerySampleItemName").SetWidth(160).ToMvcString()
+            </td>
+            <th style="line-height:20px">设备名称</th>
+            <td style="line-height:20px">
+                @Html.JValidateBox("txtQueryEquipmentName").SetWidth(160).ToMvcString()
+            </td>
+            
+        </tr>
+    </table>
+    </div>
+    <div class="clear-both"></div>
+</div>

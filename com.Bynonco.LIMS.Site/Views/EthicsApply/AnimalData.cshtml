@@ -1,0 +1,120 @@
+﻿@model com.Bynonco.LIMS.Model.EthicsApplyAnimalData
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var id = Guid.NewGuid().ToString().Replace("-", "");
+    Guid? animalCategoryId = null, animalSourceId = null, animalGradeId = null;
+    if (Model != null)
+    {
+        animalCategoryId = Model.AnimalCategoryId;
+        animalSourceId = Model.AnimalSourceId;
+        animalGradeId = Model.AnimalGradeId;
+    }
+    var animalCategorySelectListItem = com.Bynonco.LIMS.MVC.MvcControlDataAssistant.GenerateAnimalCategorySelectListItem(animalCategoryId, true);
+    var animalSourceJson = com.Bynonco.LIMS.MVC.JsonAssitant.GenerateDictCodeListJson(animalSourceId, "AnimalSource", true);
+    var animalGradeJson = com.Bynonco.LIMS.MVC.JsonAssitant.GenerateDictCodeListJson(animalGradeId, "AnimalGrade", true);
+    bool isShowAllowRelativeAmount = (bool)ViewData["IsShowAllowRelativeAmount"];
+    int width = isShowAllowRelativeAmount ? 230 : 300;
+ }
+<div id="@("div" + id)" style="margin-top:1px; margin-bottom:1px">
+    <table class='@(isShowAllowRelativeAmount ? "edit-table" : "edit-info")' style="width:100%">
+        @if (!isShowAllowRelativeAmount)
+        {
+            <tr>
+                <th>
+                    <span class="required">*</span>动物来源
+                </th>
+                <td>
+                    @Html.JComboBox("AnimalSourceId_" + id).SetData(animalSourceJson).SetWidth(width + 5).ToMvcString()
+                    <span>可手工输入</span>
+                </td>
+                <td rowspan="8">
+                    @Html.JLinkButton("btnDeleteAnimalData" + id, "删除").SetOnclick(string.Format("doDeleteAnimalData('{0}');return false;", id)).SetIconCls("icon-remove").SetPlain(true).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>品种品系</th>
+                <td>@Html.DropDownList("AnimalCategoryId_" + id, animalCategorySelectListItem, new { style = string.Format("width:{0}px", width + 5) })</td>
+            </tr>
+            <tr>
+                <th>
+                    <span class="required">*</span>级别
+                </th>
+                <td>
+                   @Html.JComboBox("AnimalGradeId_" + id).SetData(animalGradeJson).SetWidth(width + 5).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <span class="required">*</span>规格
+                </th>
+                <td>
+                    @Html.JValidateBox("AnimalSpecifications_" + id).SetValue(Model == null ? "" : Model.AnimalSpecifications).SetWidth(width).SetValidateType(ValidateType.required).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>数量</th>
+                <td>
+                    @Html.JValidateBox("AnimalAmout_" + id).SetValue(Model == null ? "" : Model.AnimalAmout.ToString()).SetWidth(width).SetValidateType(ValidateType.none).SetOnChange(string.Format("doCalAnimalAmount('{0}','{1}','{2}','{3}');", "AnimalAmout_" + id, "AnimalAmout_" + id, "MaleAnimalAmount_" + id, "FeMaleAnimalAmount_" + id)).ToMvcString()
+                </td>
+            </tr>
+            <tr class="animalAmount">
+                <th><span class="required">*</span>♂数量</th>
+                <td>
+                    @Html.JValidateBox("MaleAnimalAmount_" + id).SetValue(Model == null ? "" : Model.MaleAnimalAmount.ToString()).SetWidth(width).SetValidateType(ValidateType.none).SetOnChange(string.Format("doCalAnimalAmount('{0}','{1}','{2}','{3}');", "MaleAnimalAmount_" + id, "AnimalAmout_" + id, "MaleAnimalAmount_" + id, "FeMaleAnimalAmount_" + id)).ToMvcString()
+                </td>
+            </tr>
+            <tr class="animalAmount">
+                <th><span class="required">*</span>♀数量</th>
+                <td>
+                    @Html.JValidateBox("FeMaleAnimalAmount_" + id).SetValue(Model == null ? "" : Model.FeMaleAnimalAmount.ToString()).SetWidth(width).SetValidateType(ValidateType.none).SetOnChange(string.Format("doCalAnimalAmount('{0}','{1}','{2}','{3}');", "FeMaleAnimalAmount_" + id, "AnimalAmout_" + id, "MaleAnimalAmount_" + id, "FeMaleAnimalAmount_" + id)).ToMvcString()
+                </td>
+            </tr>
+        }
+        else
+        {
+            <tr style="display:none;">
+                <td colspan="2">
+                    @Html.Hidden("AnimalSourceId_" + id, Model.AnimalSourceId)
+                    @Html.Hidden("AnimalCategoryId_" + id, Model.AnimalCategoryId)
+                    @Html.Hidden("AnimalGradeId_" + id, Model.AnimalGradeId)
+                    @Html.Hidden("AnimalSpecifications_" + id, Model.AnimalSpecifications)
+                    @Html.Hidden("AnimalAmout_" + id, Model.AnimalAmout)
+                    @Html.Hidden("MaleAnimalAmount_" + id, Model.MaleAnimalAmount)
+                    @Html.Hidden("FeMaleAnimalAmount_" + id, Model.FeMaleAnimalAmount)
+                </td>
+            </tr>
+            <tr>
+                <th>品种品系</th>
+                <td><b>@Model.AnimalCategory.Name</b></td>
+            </tr>
+            <tr>
+                <th>申请数量</th>
+                <td>总数量:@Model.AnimalAmout &nbsp;&nbsp;♀数量:@Model.MaleAnimalAmount &nbsp;&nbsp;♂数量:@Model.FeMaleAnimalAmount</td>
+            </tr>
+        }
+        @if (isShowAllowRelativeAmount)
+        {
+             <tr>
+                <th><span class="required">*</span>允许数量</th>
+                <td>
+                    @Html.JValidateBox("AllowQuatity_" + id).SetValue(Model == null || Model.GetEthicsApply().Status == (int)EthicsApplyStatus.Applied ? "" : Model.AllowQuatity.ToString()).SetWidth(width).SetValidateType(ValidateType.none).SetOnChange(string.Format("doCalAnimalAmount('{0}','{1}','{2}','{3}');", "AllowQuatity_" + id, "AllowQuatity_" + id, "AllowMaleQuatity_" + id, "AllowFemaleQuatity_" + id)).ToMvcString()
+                </td>
+            </tr>
+            <tr class="animalAmount">
+                <th><span class="required">*</span>允许♀数量</th>
+                <td>
+                    @Html.JValidateBox("AllowMaleQuatity_" + id).SetValue(Model == null || Model.GetEthicsApply().Status == (int)EthicsApplyStatus.Applied ? "" : Model.AllowMaleQuatity.ToString()).SetWidth(width).SetValidateType(ValidateType.none).SetOnChange(string.Format("doCalAnimalAmount('{0}','{1}','{2}','{3}');", "AllowMaleQuatity_" + id, "AllowQuatity_" + id, "AllowMaleQuatity_" + id, "AllowFemaleQuatity_" + id)).ToMvcString()
+                </td>
+            </tr>
+            <tr class="animalAmount">
+                <th><span class="required">*</span>允许♂数量</th>
+                <td>
+                    @Html.JValidateBox("AllowFemaleQuatity_" + id).SetValue(Model == null || Model.GetEthicsApply().Status == (int)EthicsApplyStatus.Applied ? "" : Model.AllowFemaleQuatity.ToString()).SetWidth(width).SetValidateType(ValidateType.none).SetOnChange(string.Format("doCalAnimalAmount('{0}','{1}','{2}','{3}');", "AllowFemaleQuatity_" + id, "AllowQuatity_" + id, "AllowMaleQuatity_" + id, "AllowFemaleQuatity_" + id)).ToMvcString()
+                </td>
+            </tr>
+        }
+    </table>
+    <div style="height:10px"></div>
+</div>

@@ -1,0 +1,46 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@{
+    var sampleItem = ViewData["SampleItem"] != null ? (com.Bynonco.LIMS.Model.SampleItem)ViewData["SampleItem"] : null;
+    var sampleItemName = sampleItem == null ? "" : sampleItem.Name;
+    var sampleDirections = System.Web.Mvc.MvcHtmlString.Create(sampleItem == null ? "" : string.IsNullOrWhiteSpace(sampleItem.DirectionsStr) ? "" : sampleItem.DirectionsStr.ToHtmlBr()); 
+ }
+<script type="text/javascript">
+    $(function () {
+        var sampleItemNameTemp = "@sampleItemName";
+        var sampleDirectionsTemp = "@sampleDirections";
+        if (sampleItemNameTemp != "" && sampleDirectionsTemp != "") {
+            var sampleItemJsonArray = new Array();
+            sampleItemJsonArray.push({ "Name": sampleItemNameTemp, "Directions": sampleDirectionsTemp });
+            generateSampleItemDescriptions(sampleItemJsonArray, "divSampleItemDescriptions");
+        }
+    });
+    function generateSampleItemDescriptions(selectedItemsJsonArray, showSampleItemDescriptionsEelement) {
+        var samplaItemDescriptions = "";
+        if (selectedItemsJsonArray && selectedItemsJsonArray.length > 0) {
+            samplaItemDescriptions += "<table id='tbSamplaItemDescriptions'  style='border-collapse:collapse;width:100%'>"
+            for (var i = 0; i < selectedItemsJsonArray.length; i++) {
+                if (!selectedItemsJsonArray[i].Directions || selectedItemsJsonArray[i].Directions.trim() == "") continue;
+                var color = i % 2 == 0 ? "red" : "blue";
+                samplaItemDescriptions += "<tr>";
+                samplaItemDescriptions += "<th style='background:transparent;border-style:none;text-align:right'>";
+                samplaItemDescriptions += "<div style='width:100%;text-align:right;white-space:nowrap;font-weight:bold;color:" + color + "'>";
+                samplaItemDescriptions += selectedItemsJsonArray[i].Name + "：";
+                samplaItemDescriptions += "<div>";
+                samplaItemDescriptions += "</th>";
+                samplaItemDescriptions += "<td style='text-align:left;font-weight:bold;border-style:none;color:" + color + "'>";
+                samplaItemDescriptions += selectedItemsJsonArray[i].Directions;
+                samplaItemDescriptions += "</td>";
+                samplaItemDescriptions += "</tr>";
+            }
+            samplaItemDescriptions += "</table>"
+        }
+        $("#" + showSampleItemDescriptionsEelement).html(samplaItemDescriptions);
+        var height = $("#divSampleItemDescriptions").height();
+        if (height > 100) {
+            $("#" + showSampleItemDescriptionsEelement).css("overflow", "auto");
+            $("#" + showSampleItemDescriptionsEelement).height(100);
+        }
+    }
+</script>
+

@@ -1,0 +1,45 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var depositRecordPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetOpenFundApplyPrivilige(User.Identity.Name);
+    var payerId = ViewData["PayerId"].ToString();
+}
+<div id="divPayerDepositManage" style="width:800px">
+    <div>
+        <ul class="tabs" style="border-bottom:0;">
+            <li class="tabs-selected" id="liDepositRecord"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">普通存款</span><span class="tabs-icon"></span></a></li>
+            @if (false && depositRecordPrivilige != null && depositRecordPrivilige.IsEnableDepositContainer)
+            {
+                 <li id="liOpenFundDepositRecord"><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">开放基金存款</span><span class="tabs-icon"></span></a></li>
+            }
+        </ul>
+        <div id="divDepositRecordContainer"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $("#" + this.id).attr("class", "tabs-selected");
+            loadDepositRecordList();
+        });
+        loadDepositRecordList();
+    });
+    function loadDepositRecordList() {
+        //ajaxloadbegin();
+        if ($(".tabs .tabs-selected")) {
+            var url = "";
+            var tabId = $(".tabs .tabs-selected").attr("id");
+            if (tabId == "liDepositRecord") {
+                url = '@Url.Action("PayerDepositContainer", "DepositRecord")' + "?payerId=" + '@payerId';
+            }
+            else {
+                url = '@Url.Action("PayerDepositContainer", "OpenFundApply")' + "?payerId=" + '@payerId';
+            }
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divDepositRecordContainer").load(url, function () {
+                $.messager.progress('close');
+                //ajaxloadsuccess();
+            });
+        }
+    }
+</script>

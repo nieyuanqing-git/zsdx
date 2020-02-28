@@ -1,0 +1,58 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var searchName = $("#SearchName").val().trim();
+        if (searchName != "") {
+            queryExpression = "Name∽\"" + searchName.trim() + "\"";
+        }
+        var searchUserName = $("#SearchUserName").val().trim();
+        if (searchUserName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + searchUserName.trim() + "\"";
+        }
+        var createTimeStart = $("#SearchCreateTimeStart").datebox("getValue").trim();
+        if (createTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime>\"" + createTimeStart + "\"";
+        }
+        var createTimeEnd = $("#SearchCreateTimeEnd").datebox("getValue").trim();
+        if (createTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime<\"" + createTimeEnd + " 23:59:59\"";
+        }
+        return queryExpression;
+    }
+
+    function doMaterialUserAccountReset() {
+        $("#SearchName").val("");
+        $("#SearchUserName").val("");
+        $("#SearchCreateTimeStart").datebox("setValue", "");
+        $("#SearchCreateTimeEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="vertical-align: top;">账户名称</label>
+        @Html.JValidateBox("SearchName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>用户名称</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    
+    <li>
+        <label>申请时间</label>
+        @Html.JDateTimePicker("SearchCreateTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchCreateTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnMaterialUserAccountSearch", "查询").SetOnclick("doMaterialUserAccountSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnMaterialUserAccountReset", "清空").SetOnclick("doMaterialUserAccountReset();").ToMvcString()
+        @Html.JLinkButton("btnMaterialUserAccountClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

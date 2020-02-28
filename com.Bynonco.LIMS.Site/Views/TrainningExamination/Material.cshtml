@@ -1,0 +1,45 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var trainningTypeId = ViewData["TrainningTypeId"] == null ? "" : ViewData["TrainningTypeId"].ToString();
+}
+<script type="text/javascript">
+    function MaterialListBeforeLoad() {
+        $("#Loading").css("display", "block");
+        return true;
+    }
+    function MaterialListLoadSuccess() {
+        $.ajax({
+            url: '@Url.Action("GetTrainningExaminationMaterialByTrainningExaminationId","TrainningExamination")',
+            data: "id=" + $("#TrainningExaminationId").val(),
+            cache: false,
+            success: function (data) {
+                var array = data.split(',');
+                for (var i = 0; i < array.length; i++) {
+                    var node = $('#ulMaterialList').tree('find', array[i]);
+                    if (node) {
+                        if ($('#ulMaterialList').tree('isLeaf', node.target))
+                            $('#ulMaterialList').tree('check', node.target);
+                    }
+                }
+            }
+        });
+        $("#Loading").css("display", "none");
+    }
+    function MaterialListOnLoadError() {
+        $("#Loading").css("display", "none");
+        $.messager.show({ title: '提示', msg: "加载失败,请刷新重试", showType: 'show' });
+    }
+</script>
+<div id="divMaterial" style="width:500px;height:450px;"> 
+    @(Html.JTree("ulMaterialList")
+        .SetUrl(Url.Action("GetTreeGridTrainningMaterialList", "TrainningMaterial") + "?TrainningTypeId=" + trainningTypeId)
+        .SetCheckBox(true)
+        .SetExpandAll(true)
+        .SetOnBeforeLoad("MaterialListBeforeLoad();")
+        .SetOnLoadSuccess("MaterialListLoadSuccess();")
+        .SetOnLoadError("MaterialListOnLoadError();")
+        .ToMvcString()
+    )
+    @Html.Hidden("TrainningExaminationId",ViewData["TrainningExaminationId"] != null ? ViewData["TrainningExaminationId"].ToString(): "")
+</div>
+

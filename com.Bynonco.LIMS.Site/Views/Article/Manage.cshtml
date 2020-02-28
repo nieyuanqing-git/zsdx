@@ -1,0 +1,115 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide" style="width:320px;">
+    <div class="search-inner-box">
+        @Html.Partial("../Article/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+    <div id="divArticleList">
+        @Html.Partial("../Article/List")
+    </div>
+</div>
+
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        getSearchDataGrid(queryExpression);
+    }
+    function getSearchDataGrid(queryExpression) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            url: '@Url.Action("Manage", "Article", new { date = DateTime.Now.Millisecond })',
+            data: { "queryExpression": queryExpression,"isSearch":"true"},
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divArticleList").html(data);
+            },
+            error: function () {
+                $.messager.show({ title: '提示', msg: "请求出错", showType: 'show' });
+            }
+        });
+     }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbArticleList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+
+    function doDeleteArticle(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedIds().toString(): ids;
+        if (delIds == null) {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认删除?', function (r) {
+            if (!r) return;
+            $.ajax({
+                url: '@Url.Action("Delete", "Article", new { date = DateTime.Now.Millisecond })',
+                data: { "ids": delIds },
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    getSearchDataGrid("");
+                }
+            });
+        });
+        return false;
+    }
+
+    function doAddOrEditArticle(id) {
+        var url = '@Url.Action("Edit", "Article")' + "?id=" + encodeURI(id) + "&time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+    }
+    function doAddArticle(id) {
+       doAddOrEditArticle(id);
+    }
+    function doEditArticle(id) {
+       if(!id || id.trim()==""){
+           id=generateSelectedIds();
+           if (!id || id.length == 0) {
+                $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+                return false;
+           }
+            if (id && id.length > 1) {
+                $.messager.show({ title: '提示', msg: "不能多项编辑", showType: 'show' });
+                return false;
+           }
+           id =id.toString();
+       }
+       doAddOrEditArticle(id);
+    }
+    function doEditShow(type)
+    {
+        var ids = generateSelectedIds();
+        if (!ids || ids.length == 0) {
+            $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+            return false;
+        }
+        ids = ids.toString();
+        $.messager.confirm('提示', '是否确认该操作?', function (r) {
+            if (!r) return;
+            $.ajax({
+                url: '@Url.Action("EditShow", "Article")',
+                data: { "ids": ids, "edittype": type, "date": new Date() },
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    getSearchDataGrid("");
+                }
+            });
+        });
+        return false;
+    }
+</script>

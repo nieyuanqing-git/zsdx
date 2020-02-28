@@ -1,0 +1,209 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMPEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Business;
+@{
+    Layout = ViewBag.Layout;
+    var viewNMP = (com.Bynonco.LIMS.Model.View.ViewNMP)ViewData["ViewNMP"];
+    var selectedNMPEquipmentId = ViewData["SelectedNMPEquipmentId"] != null ? ViewData["SelectedNMPEquipmentId"].ToString() : "";
+}
+@Html.Hidden("NMPId", viewNMP.Id)
+@Html.Hidden("NMPAppointmentTimeStep",viewNMP.AppointmentTimeStep)
+@Html.Hidden("NMPEquipmentId",Model!=null?Model.Id.ToString():"")
+@Html.Hidden("NMPAppointmentUserId", ViewData["NMPAppointmentUserId"])
+@{
+    var appointmentInputSetting = (com.Bynonco.LIMS.Model.Business.AppointmentInputSetting)ViewData["AppointmentInputSetting"];
+}
+<div class="layout-center-full">
+    <div id="divAppointmentContainer" class="edit-box" >
+         @if (Model != null && !string.IsNullOrWhiteSpace(viewNMP.Remark))
+         {
+            <div class="notification attention">
+		        <div>@System.Web.Mvc.MvcHtmlString.Create(viewNMP.Remark.Replace("\r\n", "<br />"))</div>
+	        </div>
+         }
+         <div id="divNMPRelativeInfo">
+             <div class="info-gray-box">
+                @Html.Partial("ShowNMPEquipmentList",viewNMP)
+            </div>
+            <div id="divAppointmentTimesContainer"></div>
+            </div>
+            <div id="divUserRelativeInfo" style="display:none"></div>
+            <div id="divAppointmentTotalInfoContainer" style="display:none;">
+                <div id="divAppointmentTotalInfo"></div>
+                @Html.CheckBox("HasReadTheNotice")我已仔细阅读并同意以上条款
+            </div>
+            <div id="divAppointmentBoxOperate" style="margin-left:170px;margin-bottom:3px;margin-top:3px">@Html.Partial("../Equipment/AppointmentBoxOperate")</div>
+    </div>
+</div>
+<div style="display:none">@Html.Partial("ScriptContainer")</div>
+<script type="text/javascript">
+    var curIndex = 0;
+    $(function () {
+        var nmpEquipmentId = $("#NMPEquipmentId").val().trim();
+        if (nmpEquipmentId == "") return;
+        loadNMPAppointmentTimes();
+    });
+    function loadEquipmentAppointmentTimes() {
+        loadNMPAppointmentTimes();
+    }
+    function loadNMPAppointmentTimes() {
+        $("#divAppointmentBoxOperate").css("display","none");
+        if ($("#divAppointmentTimesContainer").length > 0) {
+           var nmpEquipmentId = $("#NMPEquipmentId").val().trim();
+           if (nmpEquipmentId == "") return;
+           var url = '@Url.Action("AppointmentTimesContainer", "NMP")';
+           var weekIndex = $("#WeekIndex").val();
+           var nmpId = $("#NMPId").val();
+           var appointmentUserId = $("#NMPAppointmentUserId").val();
+           $.messager.progress({ title: '提示', msg: '正在提交请求数据,请稍候……' });
+           $("#divAppointmentTimesContainer").load(url, { "userId": appointmentUserId, "NMPId": nmpId,"NMPEquipmentId":nmpEquipmentId, "WeekIndex": weekIndex ? weekIndex : "0", "date": new Date().getMilliseconds() }, function (data) {
+               $("#divAppointmentBoxOperate").css("display", "");
+               $.messager.progress('close');
+           });
+        }
+    }
+    function doPreviousOperate() {
+        curIndex--;
+        doShowInfo();
+        $("#btnPrevious").linkbutton(curIndex > 0 ? "enable" : "disable");
+        $("#btnNext").linkbutton(curIndex <3 ? "enable" : "disable");
+    }
+    function doNextOperate() {
+        switch(curIndex){
+            case 0:
+                if(!doRelativeInfoValidate()) return;
+                doLoadUserRelativeInfo();
+                break;
+            case 1:
+                if(!doUserAppointmentInfoValidate()) return;
+                doLoadAppointmentTotalInfo(); 
+                break;
+            case 2: 
+                if(!doSubmitAppointmentValidate()) return;
+                doSubmitAppointment();
+                break;
+        }
+        curIndex++;
+        doShowInfo();
+        $("#btnPrevious").linkbutton(curIndex > 0 ? "enable" : "disable");
+        $("#btnNext").linkbutton(curIndex <3 ? "enable" : "disable");
+    }
+    function doShowInfo() {
+        switch (curIndex) {
+            case 0:
+                $("#divNMPRelativeInfo").show();
+                $("#divUserRelativeInfo").hide();
+                $("#divAppointmentTotalInfoContainer").hide();
+                $("#btnNext span.l-btn-text").text("下一步");    
+                break;
+            case 1:
+                $("#divNMPRelativeInfo").hide();
+                $("#divAppointmentTotalInfoContainer").hide();
+                $("#divUserRelativeInfo").show();
+                $("#btnNext span.l-btn-text").text("下一步");    
+                break;
+            case 2:
+                $("#divAppointmentTotalInfoContainer").show();
+                $("#divNMPRelativeInfo").hide();
+                $("#divUserRelativeInfo").hide();
+                $("#btnNext span.l-btn-text").text("完成");
+                
+                break;
+        }
+    }
+    function doLoadAppointmentTotalInfo() {
+        var appointmentUserId = $("#NMPAppointmentUserId").val().trim();
+        var nmpId = $("#NMPId").val();
+        var nmpEquipmentId = $("#NMPEquipmentId").val();
+        var subjectName = $("#SubjectId").combobox("getText");
+        var useNature = $("#UseNature").combobox("getText");
+        var appointmentTimes = getSelectedAppointmentTimeIds();
+        var url = '@Url.Action("AppointmentTotalInfo", "NMPAppointment")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求数据,请稍候……' });
+        $("#divAppointmentTotalInfo").load(url, {"userId": appointmentUserId, "NMPId": nmpId, "NMPEquipmentId": nmpEquipmentId, "AppointmentTimes": appointmentTimes, "SubjectName": subjectName, "UsedNature": useNature, "date": new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+        });
+    }
+    function doUserAppointmentInfoValidate(){
+        var subjectId= $("#SubjectId").combobox("getValue").trim();
+        if(subjectId==""){
+            $.messager.alert('提示', "请选择课题组", 'warning');
+            return false;
+        }
+        if('@(appointmentInputSetting.IsUseNatureRequired.ToString().ToLower())'=="true")
+        {
+            var useNature = $("#UseNature").combobox("getValue").trim();
+            if(useNature==""){
+                $.messager.alert('提示', "请选择使用性质", 'warning');
+                return false ;
+            }
+        }
+        if('@(appointmentInputSetting.IsExperimentContentRequired.ToString().ToLower())'=="true")
+        {
+            var experimentationContent = $("#ExperimentationContent").val().trim();
+            if (experimentationContent == "") {
+                $.messager.alert('提示', "实验内容为空", 'warning');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function doRelativeInfoValidate() {
+        var appointmentTimeIds = getSelectedAppointmentTimeIds();
+        if (appointmentTimeIds == "") {
+            $.messager.alert('提示', "请选择预约时间段", 'warning');
+            return false;
+        }
+        return true;
+    }
+    function doLoadUserRelativeInfo() {
+        if ($("#divUserRelativeInfo").html() != "") return;
+        var nmpId = $("#NMPId").val();
+        var nmpEquipmentId = $("#NMPEquipmentId").val();
+        var appointmentUserId = $("#NMPAppointmentUserId").val();
+        var url = '@Url.Action("AppointmentUserRelativeInfo", "NMPAppointment")';
+        $.messager.progress({ title: '提示', msg: '正在提交请求数据,请稍候……' });
+        $("#divUserRelativeInfo").load(url, {"nmpId":nmpId,"nmpEquipmentId":nmpEquipmentId,"userId":appointmentUserId,"date": new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+        });
+    }
+
+    function doSubmitAppointmentValidate(){
+        if(!$("#HasReadTheNotice").attr("checked")){
+            $.messager.alert('提示', "请勾选上我已仔细阅读并同意以上条款", 'warning');
+            return false;
+        }
+        return true;
+    }
+    function doSubmitAppointment() {
+        var nmpId = $("#NMPId").val();
+        var nmpEquipmentId = $("#NMPEquipmentId").val();
+        var appointmentTimes = getSelectedAppointmentTimeIds();
+        var appointmentStep = $("#NMPAppointmentTimeStep").val();
+        var appointmentUserId = $("#NMPAppointmentUserId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Appointment", "NMPAppointment")';
+        $.ajax({
+            type: "Post",
+            url: url,
+            data: $("#frmAppointmentUserRelativeInfo").serialize() + "&userId=" + appointmentUserId + "&AppointmentStep=" + appointmentStep + "&AppointmentTimes=" + appointmentTimes + "&NMPId=" + nmpId + "&NMPEquipmentId=" + nmpEquipmentId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $("#divAppointmentContainer").html(msg);
+            }
+        });
+        return false;
+    }
+    function doBack() {
+       var url = '@Url.Action("Index", "NMP")' + "?time=" + new Date().getMilliseconds();
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;  
+    }
+
+</script>

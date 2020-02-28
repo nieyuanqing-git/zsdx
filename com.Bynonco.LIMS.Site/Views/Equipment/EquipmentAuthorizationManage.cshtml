@@ -1,0 +1,41 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full" >
+    <ul class="tabs" style="border-bottom:0;">
+        <li class="tabs-selected"><a class="tabs-inner" href="javascript:void(0)" onclick="doLoadUserEquipmentAuthorization(this);" id="lnkUserEquipmentAuthorization"><span class="tabs-title">设备授权</span><span class="tabs-icon"></span></a></li>
+        <li><a class="tabs-inner" href="javascript:void(0)" onclick="doLoadUserEquipmentContinuedAuthorization(this);"><span class="tabs-title">周期性授权</span><span class="tabs-icon"></span></a></li>
+    </ul>
+    <div id="divEquipmentAuthorizationList"></div>
+</div>
+<script type="text/javascript">
+    function doLoadUserEquipmentAuthorization(obj) {
+        var url = '@Url.Action("UserEquipmentAuthorizationManage", "EquipmentAuthorization",new {EquipmentId = Model.Id})';
+        doLoadEquipmentAuthorizationList(obj, url);
+        return false;
+    }
+    function doLoadUserEquipmentContinuedAuthorization(obj) {
+        var url = '@Url.Action("UserEquipmentContinuedAuthorizationManage", "EquipmentAuthorization",new {EquipmentId = Model.Id})';
+        doLoadEquipmentAuthorizationList(obj, url);
+        return false;
+    }
+    function doLoadEquipmentAuthorizationList(obj, url) {
+        $(obj).parent().addClass("tabs-selected");
+        $(obj).parent().siblings().removeClass("tabs-selected");
+        ajaxloadbegin();
+        $("#divEquipmentAuthorizationList").empty();
+        $.ajax({
+            type: "Post",
+            url: url,
+            success: function (data) {
+                $("#divEquipmentAuthorizationList").html(data);
+                ajaxloadsuccess();
+                return false;
+            }
+        });
+    }
+    $(function () {
+        doLoadUserEquipmentAuthorization($("#lnkUserEquipmentAuthorization"));
+    });
+</script>

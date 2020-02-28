@@ -1,0 +1,135 @@
+﻿@model com.Bynonco.LIMS.Model.AnimalCage
+@using com.Bynonco.JqueryEasyUI.Core; 
+<script type="text/javascript">
+//    function doOnAnimalFrameChanged() {
+//        var selectedAnimalFrameId = $("#AnimalFrameId").val();
+//        $("#FrameRowNo").removeAttr("disabled");
+//        $("#FrameColNo").removeAttr("disabled");
+//        if (selectedAnimalFrameId == '@Guid.Empty') {
+//            $("#FrameRowNo").val("");
+//            $("#FrameRowNo").attr("disabled", "disabled");
+//            $("#FrameColNo").val("");
+//            $("#FrameColNo").attr("disabled", "disabled");
+//            return;
+//        }
+//        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+//        $.ajax({
+//            type: "POST",
+//            url: '@Url.Action("GetAnimalFrameLabRoomId", "AnimalFrame")' + "?time=" + new Date().getMilliseconds().toString(),
+//            data: { "id": selectedAnimalFrameId },
+//            success: function (msg) {
+//                $.messager.progress('close');
+//                if (msg.indexOf("出错") >= 0) {
+//                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+//                    return false;
+//                }
+//                $("#LabRoomId").val(msg);
+//            }
+//        });
+//    }
+    var isAnimalFrameDataLoading = true;
+    function doOnLabRoomChanged(element, frameElementId) {
+        if (!isAnimalFrameDataLoading) {
+            var labRoomId = element.value;
+            var frmameElement = document.getElementById(frameElementId);
+            frmameElement.options.length = 0;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetAnimalFrameListByRoomId", "AnimalFrame")',
+                data: { "labRoomId": labRoomId, "time": new Date().getMilliseconds() },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg != "") {
+                        var frmames = eval(msg);
+                        if (frmames.length == 0) return;
+                        for (var i = 0; i < frmames.length; i++) {
+                            var option = document.createElement("OPTION");
+                            frmameElement.options.add(option);
+                            option.text = frmames[i].text;
+                            option.value = frmames[i].id;
+                        }
+                    }
+                }
+            });
+            return false;
+        }
+    }
+</script>
+<div id="divAnimalCageEdit"> 
+<form id="frmAnimalCage" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tbAnimalFrameEdit" class="edit-table">
+        <tr>
+            <th><span class="required">*</span>名称</th>
+            <td>
+                 @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+                
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>序号</th>
+            <td>
+                 @Html.JValidateBox("OrderNo").SetValue(Model == null ? "1" : Model.OrderNo.ToString()).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>编码</th>
+            <td>
+                 @Html.JValidateBox("Code").SetValue(Model == null ? "" : Model.Code).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>所在房间</th>
+            <td>
+                 @Html.DropDownList("LabRoomId", ViewData["LabRoomSelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["LabRoomSelectListItem"], new { style = "width:235px", onchange = "doOnLabRoomChanged(this,'AnimalFrameId');" })
+            </td>
+        </tr>
+        <tr>
+            <th>所在架子</th>
+            <td>
+                 @Html.DropDownList("AnimalFrameId", ViewData["AnimalFrameSelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["AnimalFrameSelectListItem"], new { style = "width:235px"})
+            </td>
+        </tr>
+        <tr>
+            <th>处在架子哪一行</th>
+            <td>
+                 @Html.JValidateBox("FrameRowNo").SetValue(Model == null || !Model.FrameRowNo.HasValue ? "" : Model.FrameRowNo.Value.ToString()).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>处在架子哪一列</th>
+            <td>
+                 @Html.JValidateBox("FrameColNo").SetValue(Model == null || !Model.FrameColNo.HasValue ? "" : Model.FrameColNo.ToString()).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>行数</th>
+            <td>
+                 @Html.JValidateBox("RowCnt").SetValue(Model == null ? "" : Model.RowCnt.ToString()).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>列数</th>
+            <td>
+                 @Html.JValidateBox("ColCnt").SetValue(Model == null ? "" : Model.ColCnt.ToString()).SetWidth(230).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+           <th><span class="required">*</span>是否停用</th>
+           <td>
+                @Html.JComboBox("IsStop").SetData(ViewData["IsStopJson"]).SetWidth(235).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, 3, 50, null)
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>
+<script type="text/javascript">
+    $(function () { isAnimalFrameDataLoading = false; });
+</script>

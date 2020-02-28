@@ -1,0 +1,59 @@
+﻿@model com.Bynonco.LIMS.Model.Enum.ArticleCategoryHomeLocation
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var customer = CustomerFactory.GetCustomer();
+    var contentHeight = Model.ToString().StartsWith("First") || Model.ToString().StartsWith("Third") || customer.GetIsShowSecondLineCenter153() ? 153 : 186;
+    bool isEmpty = true;
+    if (ViewData[Model.ToString() + "ArticleCategory"] != null)
+    {
+        var articleCategoryList = (List<ArticleCategory>)ViewData[Model.ToString() + "ArticleCategory"];
+        if (articleCategoryList != null && articleCategoryList.Count() > 0)
+        {
+            isEmpty = false;
+            for (int i = 0; i < articleCategoryList.Count(); i++)
+            {
+                var currentArticleCategory = articleCategoryList[i];
+                var currentArticleList = (List<Article>)ViewData[currentArticleCategory.Id.ToString()];
+                var routeArticleCategoryValue = new { ArticleCategoryId = currentArticleCategory.Id, XPath = orgXPath };
+                var firstArticleId = currentArticleList == null || currentArticleList.Count() == 0 ? Guid.Empty : currentArticleList[0].Id;
+                var moreUrl = currentArticleCategory.HomeLocationShowTypeEnum == ArticleCategoryHomeLocationShowType.Content ? Url.Action("Show", "Article", new { id = firstArticleId, ArticleCategoryId = currentArticleCategory.Id, XPath = orgXPath }) : Url.Action("ShowList", "Article", routeArticleCategoryValue);
+                <h2 class='title'>
+                    <span>@currentArticleCategory.Name</span>
+                    <a href='@moreUrl' class='more'>更多>></a>
+                </h2>
+                <div class="content-box" style='height:68px;padding-top:0px;'>
+                    @if (currentArticleList != null)
+                    {
+                        switch (currentArticleCategory.HomeLocationShowTypeEnum)
+                        {
+                            case ArticleCategoryHomeLocationShowType.List:
+                                <ul class="news-list">
+                                    @foreach (var item in currentArticleList.Take(3))
+                                    {
+                                        <li>
+                                            <a href='@Url.Action("Show", "Article", new { id = item.Id, ArticleCategoryId = item.ArticleCategoryId, XPath = orgXPath })' title="@item.Title">@(ShortcutStringUtility.GetSubString(item.Title, 40, ".."))</a>
+                                            <span>@item.PublishAt.Value.ToString("yyyy.MM.dd")</span>
+                                        </li>
+                                    }
+                                </ul>
+                                break;
+                        }
+                    }
+                </div>
+            }
+        }
+    }
+    if (isEmpty)
+    {
+        <h2 class='title'>
+            <span>没有文章列表</span>
+        </h2>
+        <div class="content-box content-box-@contentHeight">
+           
+        </div>
+    }
+}

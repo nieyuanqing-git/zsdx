@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSelectSampleSendTimeDialog"></div>
+<script type="text/javascript">
+    var selectSampleSendTimeDialog;
+    var curExpectSendTimeEelement;
+    var curExpectSendDateEelement;
+    var curSelectedEquipmentIdsEelement;
+    function doSelectSampleSendTime(sampleApplyIdElement,expectSendDateEelement,expectSendTimeEelement, selectedEquipmentIdsEelement) {
+        curExpectSendTimeEelement = expectSendTimeEelement;
+        curExpectSendDateEelement = expectSendDateEelement;
+        curSelectedEquipmentIdsEelement = selectedEquipmentIdsEelement;
+        var selectedEquipmentIds = $.trim(document.getElementById(selectedEquipmentIdsEelement).value);
+        if (selectedEquipmentIds == "") {
+            $.messager.show({ title: '警告', msg: "请选择设备", showType: 'show' });
+            return;
+        }
+        var sampleApplyId= $.trim($("#sampleApplyIdElement").val());
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍后……' });
+        $("#divSelectSampleSendTimeDialog").load('@Url.Action("GetSelectSampleSendTimes","SampleManage")', {"sampleApplyId":sampleApplyId,"equipmentId": selectedEquipmentIds }, function (data) {
+            $.messager.progress('close');
+            if (selectSampleSendTimeDialog) {
+                selectSampleSendTimeDialog.dialog("destroy");
+            }
+            selectSampleSendTimeDialog = @(Html.JDialog("divAppointmentTimesContainer").SetTitle("选择送样时间").SetIconCls("icon-save").SetAutoDialog(false).SetOkScript("doSetSampleSendTime();return false;").SetCancelScript("selectSampleSendTimeDialog.dialog('close');return false;").SetModal(true).ToMvcString());        
+        });
+    }
+    function doSetSampleSendTime(){
+        var selectedSendTime = GetSelectedAppointmentTimes();
+        var selectedSendDate = GetSelectedAppointmentDates();
+        $("#" + curExpectSendDateEelement).datebox("setText",selectedSendDate);
+        $("#" + curExpectSendDateEelement).datebox("setValue",selectedSendDate);
+        $("#" + curExpectSendTimeEelement).val(selectedSendTime);
+        selectSampleSendTimeDialog.dialog("close");
+    }
+   function loadEquipmentAppointmentTimes() {
+        if ($("#divAppointmentTimesContainer").length > 0) {
+            var url = '@Url.Action("GetSelectSampleSendTimes", "SampleManage")';
+            var sampleApplyId= $.trim($("#sampleApplyIdElement").val());
+            var weekIndex = $("#WeekIndex").val();
+            var equipmentId = $("#" + curSelectedEquipmentIdsEelement).val();
+            $.messager.progress({ title: '提示', msg: '正在提交请求数据,请稍候……' });
+            $("#divAppointmentTimesLoad").load(url, {"sampleApplyId":sampleApplyId,"equipmentId": equipmentId, "weekIndex": weekIndex ? weekIndex : "0", "date": new Date().getMilliseconds() }, function () {
+                $.messager.progress('close');
+            });
+        }
+    }
+</script>

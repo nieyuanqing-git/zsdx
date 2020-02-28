@@ -1,0 +1,92 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;   
+@using com.Bynonco.LIMS.Utility;     
+@{
+    ViewBag.Title = "问答反馈";
+    Layout = "~/Views/Shared/_TwoColumnLayout.cshtml";
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    var loginUser = ViewData["LoginUser"] == null ? null : (com.Bynonco.LIMS.Model.User)ViewData["LoginUser"];
+}
+
+@section ImportCssAndJs{
+    <script type="text/javascript">
+        function checkIsLogin(){
+            if ("@(User.Identity.IsAuthenticated)" == "False") {
+                $("#QuestionContext").blur();
+                backToLogin();
+            }
+        }
+        function submitData() {
+            if ($.trim($("#QuestionContext").val()) == "") {
+                $.messager.alert('提示', '提问内容不能为空', 'warning');
+                return false;
+            }
+            if ($.trim($("#QuestionContext").val()).length < 2 || $.trim($("#QuestionContext").val()).length > 1000) {
+                $.messager.alert('提示', '输入2-1000字符范围', 'warning');
+                return false;
+            }
+            if ("@(User.Identity.IsAuthenticated)" == "False") {
+                $.messager.alert('提示', '请登录再提问', 'warning');
+                return false;
+            }
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("SaveQuestion","QA",new { date=DateTime.Now.Millisecond})',
+                data: $("#frmQuestion").serialize(),
+                success: function (msg) {
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.alert('提示', msg, 'warning');
+                        return false;
+                    }
+                    $("#QuestionContext").val("");
+                    $("#IsTop").removeAttr("checked");
+                    doSearch();
+                }
+            });
+        }
+    </script>
+}
+
+@section MainLeft
+{
+    @Html.Partial("../ArticleCategory/HomeShowList")
+    @Html.Partial("../Home/FriendLink")
+}
+@section MainRight
+{
+    @Html.Partial("../QA/PaginationListContainer")
+    <div id="containerQuestion">
+        <h2 class="title"  style="margin-top:20px;">
+            <span>发表提问</span>
+        </h2>
+        <form id="frmQuestion" action="#">
+            <div class="content-box">
+                @Html.Hidden("OrgId", ViewBag.OrgId as string)
+                @if (loginUser == null)
+                {
+                <div style="margin-top:10px;" class="notification error">
+			        <div>您还没有登录系统, 请 <a href='#' style='text-decoration:underline;' onclick='backToLogin();;return false;'>登录</a> 后进行提问</div>
+		        </div>
+                }
+                else
+                {
+                    <div class="edit-box">
+                        <div class="edit-info">
+                            <div class="tit">内容</div>
+                            <div class="bdmain">
+                                <div class="textare-box">
+                                    <strong>
+                                        <textarea id="QuestionContext" name="QuestionContent"  class="textareinp" rows="8" cols="80" onfocus="checkIsLogin();"></textarea>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="edit-info" style="margin-top:95px;">
+                            <input name="isTop" id="isTop" type="checkbox" class="isTop-input" />置顶<br />
+                            <input id="submitPublish" class="botton" type="submit" onclick="submitData();return false;" value="提 交"/>
+                        </div>   
+                    </div>
+                }
+            </div>
+        </form>
+    </div>
+}

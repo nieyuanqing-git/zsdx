@@ -1,0 +1,64 @@
+﻿@model com.Bynonco.LIMS.Model.Country
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divCountryEdit">
+ <form id="frmCountryEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdCountryEdit" class="edit-table"  style="width:385px;">
+        <tr>
+            <th>中文简称</th>
+            <td>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>中文全称</th>
+            <td>
+                @Html.JValidateBox("FullName").SetValue(Model == null ? "" : Model.FullName).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>英文简称</th>
+            <td>
+                @Html.JValidateBox("EngName").SetValue(Model == null ? "" : Model.EngName).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>英文全称</th>
+            <td>
+                @Html.JValidateBox("FullEngName").SetValue(Model == null ? "" : Model.FullEngName).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>两字符代码</th>
+            <td>
+                @Html.JValidateBox("Code2Char").SetValue(Model == null ? "" : Model.Code2Char).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>三字符代码</th>
+            <td>
+                @Html.JValidateBox("Code3Char").SetValue(Model == null ? "" : Model.Code3Char).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+        <tr>
+            <th>四字符代码</th>
+            <td>
+                @Html.JValidateBox("CountryCode").SetValue(Model == null ? "" : Model.CountryCode).SetWidth(200).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>数字代码</th>
+            <td>
+                @Html.JValidateBox("CodeNum").SetValue(Model == null ? "" : Model.CodeNum).SetWidth(200).ToMvcString()
+                <span class="required">必填</span>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

@@ -1,0 +1,45 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var payerId = ViewData["PayerId"] != null ? ViewData["PayerId"].ToString() : "";
+    var url = Url.Action("GetGridManualTimeCostDeductList", "CostDeduct");   
+    var costDeductPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCostDeductPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbManualTimeCostDeductList")
+    .SetUrl(url)
+    .SetHeight(550)
+    .SetPageSize(10)
+    .SetSortName("DeductAt")
+    .SetShowSearchButton(true)
+    .SetSortOrder(SortOrder.desc);
+    dataGrid.SetSearchScript("doShowSearch()");
+    dataGrid.SetShowAddButton(costDeductPrivilige.IsEnableAddManualTimeCostDeduct);
+    dataGrid.SetShowEditButton(costDeductPrivilige.IsEnableEditManualTimeCostDeduct);
+    dataGrid.SetShowDeleteButton(costDeductPrivilige.IsEnableDeleteManualTimeCostDeduct);
+    if (costDeductPrivilige.IsEnableAddManualTimeCostDeduct)
+    {
+        dataGrid.SetAddScript("doAddManualTimeCostDeduct('');");
+    }
+    if (costDeductPrivilige.IsEnableEditManualTimeCostDeduct)
+    {
+        dataGrid.SetEditScript("doEditManualTimeCostDeduct('');");
+        dataGrid.SetOnDblClickRow("doEditManualTimeCostDeduct(rowData.Id);");
+    }
+    if (costDeductPrivilige.IsEnableDeleteManualTimeCostDeduct)
+    {
+        dataGrid.SetDeleteScript("doDeleteManualTimeCostDeduct('');");
+    }
+    if (costDeductPrivilige.IsEnableExportExcelManualTimeCostDeduct)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportExcel();", IconCls = "icon-export", Id = "btnExportExcel", Text = "导出" });
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentName").SetWidth(280).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("年份", "CostYear").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("月份", "CostMonth").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用人次", "UsedAccount").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用机时", "UsedTime").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扣费时间", "DeductAt").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("金额", "Currency").SetWidth(130).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(500).SetAlign(Align.left));
+
+}
+@(dataGrid.ToMvcString()) 

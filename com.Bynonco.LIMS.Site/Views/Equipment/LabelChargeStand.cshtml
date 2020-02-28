@@ -1,0 +1,70 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+@model com.Bynonco.LIMS.Model.Business.EquipmentLabelChargeStand
+@{var rowSpan = Model.EquipmentAdditionChargeItems == null ? 2 : Model.EquipmentAdditionChargeItems.Count + 2;}
+ <div id="@("div" + Model.Id.ToString())" style="margin-top:10px;">
+     <table class="edit-info">
+        <tr>
+            <th>用户标签</th>
+            <td id="@("td" + Model.Id.ToString())">
+                @(Html.TokenInput(string.Format("LabelId_{0}",Model.Id.ToString()))
+                .SetUrl(Url.Action("GetEquipmentLableListByEquipmentId", "Equipment", new { EquipmentId = Model.EquipmentId }))
+                .SetPrePopulate(Model.EquipmentLabelJson)
+                .SetSingle(false)
+                .SetPreventDuplicates(true)
+                .SetWidth(300)
+                .ToMvcString())
+            </td>
+            <td rowspan="@rowSpan" style="text-align:right; padding-left:50px;">
+                @(Html.JLinkButton(string.Format("btnDelete_{0}", Model.Id.ToString()),"删除")
+                .SetPlain(true)
+                .SetIconCls("icon-remove")
+                .SetOnclick(string.Format("doDeleteEquipmentLabelChargeStand('{0}');return false;",Model.Id.ToString()))
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr class="selfdefinedchargestandard-price" style="@(Model.ChargeStandard.ChargeTypeEnum == com.Bynonco.LIMS.Model.Enum.ChargeType.None || Model.ChargeStandard.ChargeTypeEnum == com.Bynonco.LIMS.Model.Enum.ChargeType.SelfDefined ? "display:none" : "")">
+            <th>计费价格</th>
+            <td>
+                @(Html.JValidateBox(string.Format("StandardPrice_{0}", Model.Id.ToString()))
+                .SetWidth(300)
+                .SetValue(Model.StandardPrice == -1 ? "" : Model.StandardPrice.ToString())
+                .SetValidateType(ValidateType.number).ToMvcString())
+                <span>(元)</span>
+            </td>
+        </tr>
+        <tr class="selfdefinedchargestandard-price" style="@(Model.ChargeStandard.ChargeTypeEnum == com.Bynonco.LIMS.Model.Enum.ChargeType.None || Model.ChargeStandard.ChargeTypeEnum == com.Bynonco.LIMS.Model.Enum.ChargeType.SelfDefined ? "display:none" : "")">
+            <th>序号</th>
+            <td>
+                @(Html.JValidateBox(string.Format("OrderNo_{0}", Model.Id.ToString()))
+                .SetWidth(300)
+                .AddClass("f_bold f_red")
+                .SetValue(Model.OrderNo.ToString())
+                .SetValidateType(ValidateType.number).ToMvcString())
+                <span class="f_blue" style="font-weight:bold;"></span>
+            </td>
+        </tr>
+        @if (Model.EquipmentAdditionChargeItems != null && Model.EquipmentAdditionChargeItems.Count > 0)
+        {
+            foreach (var equipmentAdditionChargeItem in Model.EquipmentAdditionChargeItems)
+            {
+                if (equipmentAdditionChargeItem.IsStop) { continue; }
+                <tr>
+                    <th>@(equipmentAdditionChargeItem.Name)</th>
+                    <td>
+                        @(Html.JValidateBox(string.Format("AdditionChargeItemId_{0}_{1}", equipmentAdditionChargeItem.Id.ToString(), Model.Id))
+                        .SetWidth(300)
+                        .SetValue(Model.GetEquipmentAdditionChargeItemStandardPrice(equipmentAdditionChargeItem).ToString())
+                        .SetValidateType(ValidateType.number).ToMvcString())
+                        <span>(元)</span>
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#td" + "@(Model.Id.ToString())" + " ul.token-input-list-facebook").css("width", "303px");
+    });
+</script>

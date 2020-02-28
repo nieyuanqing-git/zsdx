@@ -1,0 +1,30 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSubject
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div class="edit-operate">
+    @{
+        var subjectPrivilige = Model == null ?
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name) :
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name, Model.Id, Convert.ToBoolean(ViewData["IsCooperative"]));
+     }
+    @Html.JLinkButton("btnSaveBasic", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick(string.Format("doSaveBasic('{0}');return false;", ViewData["IsCooperative"].ToString().ToLower())).SetVisible(subjectPrivilige.IsEnableSaveBasic).ToMvcString()
+    @Html.JLinkButton("btnDeleteBasic", "删除").SetIconCls("icon-cancel").SetPlain(true).SetVisible(subjectPrivilige.IsEnableDelete && Model != null).SetOnclick(string.Format("doDelete('{0}','{1}');return false;", Model == null ? "" : Model.Id.ToString(), ViewData["IsCooperative"].ToString().ToLower())).ToMvcString()
+    @Html.JLinkButton("btnBackBasic", "返回").SetIconCls("icon-back").SetPlain(true).SetOnclick("doBack();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSaveBasic(isCooperate) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBasic","Subject")',
+            data: $("#frmSubjectEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&isCooperative=" + isCooperate,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                doReload(msg, isCooperate);
+            }
+        });
+    }
+</script>

@@ -1,0 +1,74 @@
+﻿@model com.Bynonco.LIMS.Model.Business.DataSyncAndCommunicationSetting
+@using com.Bynonco.JqueryEasyUI.Core;
+@{  var dataCachePrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDataCachePrivilige(User.Identity.Name);}
+<p><span class="icon icon-doc"></span>数据缓存管理</p>
+<table class="edit-info">
+   <tr>
+        <th>刷新设备分类数据缓存</th>
+        <td>
+            @Html.JLinkButton("btnRefreshEquipmentCategoryDataCache", "刷新").SetPlain(true).SetOnclick("doRefreshEquipmentCategoryDataCache();").SetIconCls("icon-reload").SetVisible(dataCachePrivilige.IsEnableRefreshEquipmentCategoryDataCache).ToMvcString()
+        </td>
+   </tr>
+   <tr>
+        <th>刷新机构数据缓存</th>
+        <td>
+            @Html.JLinkButton("btnRefreshOrganizationDataCache", "刷新").SetPlain(true).SetOnclick("doRefreshOrganizationDataCache();").SetIconCls("icon-reload").SetVisible(dataCachePrivilige.IsEnableRefreshOrganizationDataCache).ToMvcString()
+        </td>
+   </tr>
+      <tr>
+        <th>刷新所有数据缓存</th>
+        <td>
+            @Html.JLinkButton("btnRefreshAllDataCache", "刷新").SetPlain(true).SetOnclick("doRefreshAllDataCache();").SetIconCls("icon-reload").SetVisible(dataCachePrivilige.IsEnableRefreshAllDataCache).ToMvcString()
+        </td>
+   </tr>
+</table>
+<script type="text/javascript">
+    function doRefreshEquipmentCategoryDataCache() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("RefreshEquipmentCategoryDataCache", "DataCache")' + "?time=" + new Date().getMilliseconds(),
+            data: {},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+    }
+    function doRefreshOrganizationDataCache() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("RefreshOrganizationDataCache", "DataCache")' + "?time=" + new Date().getMilliseconds(),
+            data: {},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+    }
+    function doRefreshAllDataCache() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("RefreshAllDataCache", "DataCache")' + "?time=" + new Date().getMilliseconds(),
+            data: {},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+            }
+        });
+    }
+</script>

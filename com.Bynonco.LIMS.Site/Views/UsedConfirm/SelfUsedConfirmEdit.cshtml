@@ -1,0 +1,206 @@
+﻿@model com.Bynonco.LIMS.Model.UsedConfirm
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Privilige;
+@{
+    var viewAppointment = (com.Bynonco.LIMS.Model.View.ViewAppointment)ViewData["ViewAppointment"];
+    var equipmentUseConditionList = ViewData["EquipmentUseConditionList"] != null ? (IList<EquipmentUseCondition>)ViewData["EquipmentUseConditionList"] : null;
+    var chargeStandard = ViewData["ChargeStandard"] == null ? null : (ChargeStandard)ViewData["ChargeStandard"];
+    var calcFeeTimeRule = ViewData["CalcFeeTimeRule"] == null ? null : (CalcFeeTimeRule)ViewData["CalcFeeTimeRule"];
+    var customer = com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer();
+    var isSampleCountReqired = customer.GetIsAppointmentSampleAmountRequired() || (chargeStandard != null && chargeStandard.ChargeTypeEnum == com.Bynonco.LIMS.Model.Enum.ChargeType.BySampleCount);
+    var isShowSampleNo = customer.GetIsShowAppointmentSampleInfo();
+    var isShowSampleCount = customer.GetIsShowAppointmentSampleInfo() || isSampleCountReqired;
+    var isShowSampleTarget = customer.GetIsShowAppointmentSampleTarget();
+    var isShowSampleStuff = customer.GetIsShowAppointmentSampleStuff();
+    var isShowSampleSize = customer.GetIsShowAppointmentSampleSize();
+    var selectSubjectProjectId = viewAppointment.SubjectProjectId;
+  }
+<script type="text/javascript">
+    function doInitComboDate(id) {
+        setTimeout(function () {
+            var val = $("#" + id).combobox("getValue");
+            if (val && val != "") {
+                $("#" + id).combobox("setText", val);
+            }
+        }, 100);
+    }
+</script>
+@Html.JTab("divSelfUsedConfirmTabs").SetBorder(false).ToMvcString()
+<div id="divSelfUsedConfirmEdit" style="overflow-x:hidden; width:450px; height:580px">
+<form id="frmUsedConfirmEdit" action="#">
+ <div id="divSelfUsedConfirmTabs">
+    <div title="基本信息" id="divSelfUsedConfirm" style="overflow-y:auto;overflow-x:hidden;">
+        @Html.Hidden("UsedConfirmId", Model == null || Model.Id == default(Guid) ? "" : Model.Id.ToString())
+        @Html.Hidden("AppointmentId", viewAppointment.Id)
+        <table class="edit-table" style="width:100%;height:100%">
+            <tr>
+                <th>使用者</th>
+                <td style="padding-left:2px">
+                    @Html.Hidden("UserId", viewAppointment.UserId)
+                    @viewAppointment.UserName
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>设备名称</th>
+                <td id="tdEquipmentId" style="padding-left:2px;">
+                    @Html.Hidden("EquipmentId", viewAppointment.EquipmentId)
+                    @viewAppointment.EquipmentName
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>课题组</th>
+                <td>
+                    @Html.Hidden("SubjectId",viewAppointment.SubjectId)
+                    @viewAppointment.SubjectName
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    项目名称
+                 </th>
+                <td>
+                    @Html.Hidden("SubjectProjectId", viewAppointment.SubjectProjectId)
+                    @viewAppointment.SubjectProjectName
+                </td>
+            </tr>
+            <tr>
+                <th>预约时间</th>
+                <td>@viewAppointment.BeginTimeStr ~ @viewAppointment.EndTimeStr</td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>使用开始时间</th>
+                <td id="tdUseBeginAt">
+                    <span  class="date">@(Html.JDateTimePicker("BeginAt").SetValue(Model.BeginAt.HasValue ? Model.BeginAt.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd")).SetWidth(121).ToMvcString())</span>
+                    <span class="time">@(Html.JComboBox("BeginAtHour").SetOnLoadSuccess("doInitComboDate('BeginAtHour');").SetWidth(40).SetData(ViewData["BeginAtHourJson"]).AddClass("time-fix").ToMvcString())</span><span>时</span>
+                    <span class="time">@(Html.JComboBox("BeginAtMinute").SetOnLoadSuccess("doInitComboDate('BeginAtMinute');").SetWidth(40).SetData(ViewData["BeginAtMinuteJson"]).AddClass("time-fix").ToMvcString())</span><span>分</span>
+                </td>
+            </tr>
+            <tr>
+                <th><span class="required">*</span>使用结束时间</th>
+                <td id="tdUseEndAt">
+                    <span class="date">@(Html.JDateTimePicker("EndAt").SetValue(Model.EndAt.HasValue ? Model.EndAt.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd")).SetWidth(121).ToMvcString())</span>
+                    <span class="time">@(Html.JComboBox("EndAtHour").SetOnLoadSuccess("doInitComboDate('EndAtHour');").SetWidth(40).SetData(ViewData["EndAtHourJson"]).AddClass("time-fix").ToMvcString())</span><span>时</span>
+                    <span class="time">@(Html.JComboBox("EndAtMinute").SetOnLoadSuccess("doInitComboDate('EndAtMinute');").SetWidth(40).SetData(ViewData["EndAtMinuteJson"]).AddClass("time-fix").ToMvcString())</span><span>分</span>
+                </td>
+            </tr>
+            <tr>
+                <th>计费标准</th>
+                <td>
+                    <span id="spanStandardPrice">
+                        @if (Model == null)
+                        {
+                            @("未定义计费标准")
+                        }
+                        else
+                        {
+                            @Model.UnitPriceStr
+                        }
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <th>计费时间规则</th>
+                <td>
+                    <span id="spanReadableExpression">
+                        @if (calcFeeTimeRule == null)
+                        {
+                            @("未定义计费时间规则")
+                        }
+                        else
+                        {
+                            @(!string.IsNullOrWhiteSpace(calcFeeTimeRule.ReadableExpression) ?
+                                calcFeeTimeRule.ReadableExpression :
+                                calcFeeTimeRule.Expression)
+                        }
+                    </span> 
+                </td>
+            </tr>
+            <tr id="trSampleCount" style="display:@(isShowSampleCount ? "" : "none");">
+                <th>
+                    @if (isSampleCountReqired)
+                    {
+                        <span class="required">*</span>
+                    }
+                    <span>样品数</span>
+                </th>
+                <td>
+                    @Html.TextBox("SampleCount", Model == null || !Model.SampleCount.HasValue ? "" : Model.SampleCount.Value.ToString(), new { onchange = "doGetUsedConfirmRelativeData(false);", style="width:150px"})
+                </td>
+            </tr>
+            <tr style="display:@(isShowSampleStuff ? "" : "none");">
+                <th>样品材料</th>
+                <td>@Html.JValidateBox("SampleStuff").SetValue(Model == null ? "" : Model.SampleStuff).ToMvcString()</td>
+            </tr>
+            <tr style="display:@(isShowSampleSize ? "" : "none");">
+                <th>样品尺寸</th>
+                <td>@Html.JValidateBox("SampleSize").SetValue(Model == null ? "" : Model.SampleSize).ToMvcString()</td>
+            </tr>
+            <tr style="display:@(isShowSampleTarget ? "" : "none");">
+                <th>样品目的</th>
+                <td>@Html.JValidateBox("Target").SetValue(Model == null ? "" : Model.Target).ToMvcString()</td>
+            </tr>
+            <tr>
+                <th>
+                    备注
+                </th>
+                <td>
+                    @Html.TextArea("Remark", Model == null ? "" : Model.Remark, 3, 55, null)
+                </td>
+            </tr>
+        </table>
+        <table id="tbEquipmentPartContainer" class="edit-table" style="margin-top:2px;width:100%;">
+            @Html.Partial("../Equipment/EquipmentPartContainer")
+        </table>
+        <table id="tbEquipmentUseConditionContainer" class="edit-table" style="margin-top:2px;width:100%;">
+            @if (equipmentUseConditionList != null && equipmentUseConditionList.Count > 0)
+            {
+                @Html.Partial("../Equipment/EquipmentUseConditionContainer", equipmentUseConditionList)
+            }
+        </table>
+    </div>
+    <div title="反馈信息" id ="divSelfUsedConfirmFeedBack">
+        <table class="edit-table" style="width:100%;height:100%">
+            @Html.Partial("UsedConfirmFeedBackForm")
+        </table>
+     </div>
+  </div>
+ </form>
+ <script type="text/javascript">
+     $(function () {
+         var isIE6 = jQuery.browser.msie && (jQuery.browser.version == "6.0") && !jQuery.support.style;
+         if (isIE6) {
+             $("#tdUseBeginAt span.date span.datebox").css("width", "82px");
+             $("#tdUseBeginAt span.date span.datebox INPUT").css("width", "82px");
+             $("#tdUseBeginAt span.date INPUT.easyui-datebox").css("width", "82px");
+             $("#tdUseBeginAt span.time INPUT.combo-text").css("width", "30px");
+             $("#tdUseEndAt span.date span.datebox").css("width", "82px");
+             $("#tdUseEndAt span.date span.datebox INPUT").css("width", "82px");
+             $("#tdUseEndAt span.date INPUT.easyui-datebox").css("width", "82px");
+             $("#tdUseEndAt span.time INPUT.combo-text").css("width", "30px");
+         }
+     });
+     function doSaveSelfUsedConfirm(editUsedConfirmDialog) {
+         var selectedDesOptionsIds = getEquipmentPartIds();
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("SelfSaveAppointmentUsedConfirm", "UsedConfirm")',
+             data: $("#frmUsedConfirmEdit").serialize() + "&EquipmentPartIds=" + selectedDesOptionsIds + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                     return false;
+                 }
+                 editUsedConfirmDialog.dialog('close');
+                 if (typeof (doSaveSelfUsedConfirmCallBack) == 'function') {
+                     doSaveSelfUsedConfirmCallBack();
+                 }
+             }
+         });
+     }
+</script>
+</div>

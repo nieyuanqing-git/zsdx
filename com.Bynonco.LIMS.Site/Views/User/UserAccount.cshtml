@@ -1,0 +1,67 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUser
+@using com.Bynonco.JqueryEasyUI.Core;
+<p><span class="icon icon-yen"></span>账户信息</p>
+<table class="edit-info">
+    <tr>
+        <th>用户类型</th>
+        <td id="tdTag">
+            @(Html.JComboBox("TagId")
+            .SetEditable(false)
+            .SetData(ViewData["TagJson"])
+            .SetWidth(255)
+            .ToMvcString())
+            <span class="required">必填</span>
+        </td>
+    </tr>
+    <tr id="trCreditLimit">
+        <th>信用额度</th>
+        <td id="tdCreditLimit">
+            @(Html.JComboBox("CreditLimitId")
+            .SetEditable(false)
+            .SetData(ViewData["CreditLimitJson"])
+            .SetWidth(255)
+            .ToMvcString())
+            <span class="required">必填</span>
+        </td>
+    </tr>
+    <tr class="hide" id="trRealCurrency">
+        <th>真实币</th>
+        <td>@(Model == null || !Model.RealCurrency.HasValue ? "" : Math.Round(Model.RealCurrency.Value,2).ToString())</td>
+    </tr>
+    <tr class="hide" id="trVirtualCurrency">
+        <th>虚拟币</th>
+        <td>@(Model == null || !Model.VirtualCurrency.HasValue ? "" : Math.Round(Model.VirtualCurrency.Value,2).ToString())</td>
+    </tr>
+    <tr>
+        <th>校级平台余额</th>
+        <td>@ViewData["XjCurrencyStr"]</td>
+    </tr>
+    @*<tr>
+        <th>校级平台欠款</th>
+        <td>@ViewData["XjDebtStr"]</td>
+    </tr>*@
+    <tr class="hide" id="trPreAlert">
+        <th>预警值</th>
+        <td>
+            @Html.JValidateBox("PreAlert").SetValue(Model == null || !Model.PreAlert.HasValue ? "" : Model.PreAlert.Value.ToString()).SetValidateType(ValidateType.number).SetWidth(250).ToMvcString()
+        </td>
+    </tr>
+    <tr class="hide" id="trUnUseable">
+        <th>不可使用值</th>
+        <td>
+            @Html.JValidateBox("UnUseable").SetValue(Model == null || !Model.UnUseable.HasValue ? "" : Model.UnUseable.Value.ToString()).SetValidateType(ValidateType.number).SetWidth(250).ToMvcString()
+        </td>
+    </tr>
+    <tr class="hide" id="trUnAppointment">
+        <th>不可预约值</th>
+        <td>
+            @Html.JValidateBox("UnAppointment").SetValue(Model == null || !Model.UnAppointment.HasValue ? "" : Model.UnAppointment.Value.ToString()).SetValidateType(ValidateType.number).SetWidth(250).ToMvcString()
+        </td>
+    </tr>
+    <tr class="hide" id="trUserAccountRemark">
+        <th>备注</th>
+        <td>
+            @Html.TextArea("UserAccountRemark", Model == null ? "" : Model.UserAccountRemark, new { style = "width:380px;height:60px;" })
+        </td>
+    </tr>
+</table>

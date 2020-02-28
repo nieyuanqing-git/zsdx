@@ -1,0 +1,110 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divAppointmentChartLineDialog" style="display:none;"></div>
+<div id="divAppointmentChartColumnDialog" style="display:none;"></div>
+<div id="divAppointmentChartPieDialog" style="display:none;"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var appointmentYear = $("#SearchYear").combobox("getValue");
+        var equipmentOrgId =  $("#SearchOrgId").val();
+        $("#tbAppointmentStatisticsList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbAppointmentStatisticsList").datagrid("load", { "AppointmentYear": appointmentYear, "EquipmentOrgId": equipmentOrgId });
+    }
+    function doExportExcel() {
+        var statisticsType = $("#StatisticsType").val();
+        var appointmentYear = $("#SearchYear").combobox("getValue"); ;
+        var equipmentOrgId =  $("#SearchOrgId").val();
+        var url = '@Url.Action("AppointmentExportExcel","Statistics")' + "?StatisticsType=" + statisticsType + "&AppointmentYear=" + appointmentYear + "&EquipmentOrgId=" + equipmentOrgId ;
+        window.open(url, '_blank');
+    }
+    function doSearchAppointmentByTotalType(equipmentId, totalType) {
+        var appointmentYear = $("#SearchYear").combobox("getValue");
+        $("#divAppointmentSearchDialog").datagrid('loadData', { total: 0, rows: [] });
+        $("#divAppointmentSearchDialog").load('@Url.Action("AppointmentSearchContainer", "Appointment")', { "equipmentId": equipmentId, "totalType": totalType ,"AppointmentYear" : appointmentYear}, function () {
+            doShowAppointmentSearchDialog();
+        });
+    }
+
+    var appointmentChartLineDialog;
+    function doShowAppointmentChartLine(equipmentId)
+    {
+        var appointmentYear = $("#SearchYear").combobox("getValue");
+        var equipmentOrgId =  $("#SearchOrgId").val();
+        var statisticsType = $("#StatisticsType").val();
+        var queryData = "StatisticsType=" + statisticsType + "&AppointmentYear=" + appointmentYear + "&EquipmentOrgId=" + equipmentOrgId + "&date=" + new Date().getMilliseconds();
+        if(equipmentId && equipmentId != "") queryData += "&EquipmentId=" + equipmentId;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: '@Url.Action("GetAppointmentChartLine","Statistics")',
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divAppointmentChartLineDialog").html(data);
+                ShowAppointmentChartLineDialog();
+                return false;
+            }
+        });
+    }
+    function ShowAppointmentChartLineDialog()
+    {
+        if(appointmentChartLineDialog)
+            appointmentChartLineDialog.dialog("destroy");
+        appointmentChartLineDialog = @(Html.JDialog("divChartFlashBox").SetTitle("设备预约情况曲线图").SetIconCls("icon-statistics").SetAutoDialog(false).SetModal(true).SetShowOkButton(false).SetCancelScript("appointmentChartLineDialog.dialog('close');return false;").ToMvcString())
+    }
+
+    var appointmentChartColumnDialog;
+    function doShowAppointmentChartColumn(equipmentId)
+    {
+        var appointmentYear = $("#SearchYear").combobox("getValue");
+        var equipmentOrgId =  $("#SearchOrgId").val();
+        var statisticsType = $("#StatisticsType").val();
+        var queryData = "StatisticsType=" + statisticsType + "&AppointmentYear=" + appointmentYear + "&EquipmentOrgId=" + equipmentOrgId + "&date=" + new Date().getMilliseconds();
+        if(equipmentId && equipmentId != "") queryData += "&EquipmentId=" + equipmentId;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: '@Url.Action("GetAppointmentChartColumn","Statistics")',
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divAppointmentChartColumnDialog").html(data);
+                ShowAppointmentChartColumnDialog();
+                return false;
+            }
+        });
+    }
+    function ShowAppointmentChartColumnDialog()
+    {
+        if(appointmentChartColumnDialog)
+            appointmentChartColumnDialog.dialog("destroy");
+        appointmentChartColumnDialog = @(Html.JDialog("divChartFlashBox").SetTitle("设备预约情况柱图").SetIconCls("icon-statistics").SetAutoDialog(false).SetModal(true).SetShowOkButton(false).SetCancelScript("appointmentChartColumnDialog.dialog('close');return false;").ToMvcString())
+    }
+    
+    var appointmentChartPieDialog;
+    function doShowAppointmentChartPie(equipmentId)
+    {
+        var appointmentYear = $("#SearchYear").combobox("getValue");
+        var statisticsType = $("#StatisticsType").val();
+        var equipmentOrgId =  $("#SearchOrgId").val();
+        var queryData = "StatisticsType=" + statisticsType + "&AppointmentYear=" + appointmentYear + "&EquipmentOrgId=" + equipmentOrgId + "&date=" + new Date().getMilliseconds();
+        if(equipmentId && equipmentId != "") queryData += "&EquipmentId=" + equipmentId;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: '@Url.Action("GetAppointmentChartPie","Statistics")',
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divAppointmentChartPieDialog").html(data);
+                ShowAppointmentChartPieDialog();
+                return false;
+            }
+        });
+    }
+    function ShowAppointmentChartPieDialog()
+    {
+        if(appointmentChartPieDialog)
+            appointmentChartPieDialog.dialog("destroy");
+        appointmentChartPieDialog = @(Html.JDialog("divChartFlashBox").SetTitle("设备预约情况饼图").SetIconCls("icon-statistics").SetAutoDialog(false).SetModal(true).SetShowOkButton(false).SetCancelScript("appointmentChartPieDialog.dialog('close');return false;").ToMvcString())
+    }
+</script>

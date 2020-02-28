@@ -1,0 +1,67 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var name = $("#txtQueryName").val();
+        if (name.trim() != "") {
+            queryExpression = "Name∽\"" + name.trim() + "\"";
+        }
+
+        var isStop = $("#cbxQueryIsStop").combobox("getValue");
+        if (isStop.trim() != "-1") {
+            var isStopStr = isStop == "0" ? "false" : "true";
+            queryExpression += (queryExpression == "" ? "IsStop=" + isStopStr : "*IsStop=" + isStopStr);
+        }
+        var selectedRoomId = $("#cbxQueryRoomId").val().trim();
+        if (selectedRoomId != "" && selectedRoomId != "@(default(Guid).ToString())") {
+            queryExpression += (queryExpression == "" ? ("LabRoomId=\"" + selectedRoomId + "\"") : ("*LabRoomId=\"" + selectedRoomId + "\""));
+        }
+        var selectedAnimalCategoryId = $("#cbxAnimalCategoryId").val().trim();
+        if (selectedAnimalCategoryId != "" && selectedAnimalCategoryId != "@(default(Guid).ToString())") {
+            queryExpression += (queryExpression == "" ? ("AnimalCategoryId=\"" + selectedAnimalCategoryId + "\"") : ("*AnimalCategoryId=\"" + selectedAnimalCategoryId + "\""));
+        }
+        var selectedAnimalFrameId = $("#cbxAnimalFrameId").val().trim();
+        if (selectedAnimalFrameId != "" && selectedAnimalFrameId != "@(default(Guid).ToString())") {
+            queryExpression += (queryExpression == "" ? ("AnimalFrameId=\"" + selectedAnimalFrameId + "\"") : ("*AnimalFrameId=\"" + selectedAnimalFrameId + "\""));
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#txtQueryName").val("");
+        $("#cbxQueryIsStop").combobox('setValue', '-1');
+        $("#cbxQueryRoomId").val('@Guid.Empty');
+        $("#cbxAnimalCategoryId").val('@Guid.Empty');
+        $("#cbxAnimalFrameId").val('@Guid.Empty');
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>名称</label>
+        @Html.JValidateBox("txtQueryName").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label>是否停用</label>
+        @Html.JComboBox("cbxQueryIsStop").SetEditable(false).SetWidth(155).SetData(ViewData["IsStopJson"]).ToMvcString()
+    </li>
+    <li>
+         <label>品种品系</label>
+         @Html.DropDownList("cbxAnimalCategoryId", ViewData["SearchAnimalCategorySelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["SearchAnimalCategorySelectListItem"], new { style = "width:155px" })
+    </li>
+    <li>
+         <label>所在架子</label>
+         @Html.DropDownList("cbxAnimalFrameId", ViewData["SearchAnimalFrameSelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["SearchAnimalFrameSelectListItem"], new { style = "width:155px" })
+    </li>
+    <li>
+         <label>所在房间</label>
+        @Html.DropDownList("cbxQueryRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px" })
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

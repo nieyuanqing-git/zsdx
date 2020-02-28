@@ -1,0 +1,19 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+<link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryZoom/css/jquery.jqzoom.css")" type="text/css">
+<script src="@Url.Content("~/JqueryPlugin/JqueryZoom/js/jquery.jqzoom-core.js")" type="text/javascript"></script>
+<link rel="stylesheet" href="@Url.Content("~/Content/equipment.css")" type="text/css" media="screen" />
+<style type="text/css">
+.info-pannel .tabs{background-color:#ECEDF1;}
+.info-pannel .info-box { width: 330px;}
+#divShowMarking,#divShowReview,#divShowAttachment{padding:0;}
+</style>
+<div class="layout-center-full">
+    <div class="info-pannel" style="border:1px solid #ccc;padding:10px;">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Partial("../NMP/ShowTopInfo")
+    </div>
+    <div class="info-pannel">
+        @Html.Partial("../NMP/ShowDetailTag")
+    </div>
+    @Html.Partial("../NMP/ScriptContainer")    
+</div>

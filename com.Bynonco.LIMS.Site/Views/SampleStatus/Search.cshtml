@@ -1,0 +1,50 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var name = $("#txtQueryName").val();
+        if (name.trim() != "") {
+            queryExpression = "Name∽\"" + name.trim() + "\"";
+        }
+
+        var isStop = $("#cbxQueryIsStop").combobox("getValue");
+        if (isStop.trim() != "-1") {
+            var isStopStr = isStop == "0" ? "false" : "true";
+            queryExpression += (queryExpression == "" ? "IsStop=" + isStopStr : "*IsStop=" + isStopStr);
+        }
+
+        var inputStr = $("#txtQueryInputStr").val();
+        if (inputStr.trim() != "") {
+            queryExpression += (queryExpression == "" ? "InputStr∽\"" + inputStr.trim() + "\"" : "*InputStr∽\"" + inputStr.trim() + "\"");
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#txtQueryName").val("");
+        $("#txtQueryInputStr").val("");
+        $("#cbxQueryIsStop").combobox('setValue', '-1');
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>名称</label>
+        @Html.JValidateBox("txtQueryName").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+     <li>
+        <label>助记符</label>
+        @Html.JValidateBox("txtQueryInputStr").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label>是否停用</label>
+        @Html.JComboBox("cbxQueryIsStop").SetEditable(false).SetWidth(155).SetData(ViewData["IsStopJson"]).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

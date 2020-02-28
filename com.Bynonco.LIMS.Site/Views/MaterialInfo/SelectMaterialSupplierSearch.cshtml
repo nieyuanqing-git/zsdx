@@ -1,0 +1,29 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateMaterialSupplierQueryExpress() {
+        var queryExpression = "";
+        var supplierName = $("#SearchSupplierName").val().trim();
+        if (supplierName != "") {
+            queryExpression = "SupplierName∽\"" + supplierName.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doResetSupplier() {
+        $("#SearchSupplierName").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>供应商</label>
+        @Html.JValidateBox("SearchSupplierName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSupplierSearch", "查询").SetOnclick("doSearchSupplier();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnSupplierReset", "清空").SetOnclick("doResetSupplier();").ToMvcString()
+        @Html.JLinkButton("btnSupplierClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,137 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateDeductQueryExpression() {
+        var queryExpression = "";
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+
+        var selectedStudent = $("#cbxQueryStudent").combobox("getValues");
+        var selectedStudentIds = selectedStudent.toString().split(",");
+        if (selectedStudentIds.length > 1 || (selectedStudentIds[0].trim() != "" && selectedStudentIds[0].trim() != "@(Guid.Empty.ToString())" && selectedStudentIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedStudentIds.length; i++) {
+                if (selectedStudentIds[i].trim() == "" || selectedStudentIds[i].trim() == "@(Guid.Empty.ToString())") { index++; continue; }
+                var queryExpressionTemp = "UserId=\"" + selectedStudentIds[i].trim() + "\"";
+                queryExpression += (i == index ? queryExpressionTemp : "+" + queryExpressionTemp);
+            }
+            queryExpression += ")";
+        }
+
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+
+        var labRoomXPath = $("#SearchLabRoomXPath").val().trim();
+        if (labRoomXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "LabRoomXPath→\"" + labRoomXPath + "\"";
+        }
+
+        var payerName = $("#SearchPayerName").val().trim();
+        if (payerName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "PayerName∽\"" + payerName + "\"";
+        }
+        var hasClossingAccount = $("#HasClossingAccount").combobox("getValue").trim();
+        if (hasClossingAccount != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "HasClossingAccount=" + hasClossingAccount;
+        }
+        var deductAtStart = $("#SearchDeductAtStart").datebox("getValue").trim();
+        if (deductAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DeductAt>\"" + deductAtStart + " 00:00:00" + "\"";
+        }
+        var deductAtEnd = $("#SearchDeductAtEnd").datebox("getValue").trim();
+        if (deductAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "DeductAt<\"" + deductAtEnd + " 23:59:59" + "\"";
+        }
+        var beginAtStart = $("#SearchBeginAtStart").datebox("getValue").trim();
+        if (beginAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt>\"" + beginAtStart + " 00:00:00" + "\"";
+        }
+        var beginAtEnd = $("#SearchBeginAtEnd").datebox("getValue").trim();
+        if (beginAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginAt<\"" + beginAtEnd + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doDeductReset() {
+        $("#SearchEquipmentName").val("");
+        $("#SearchUserName").val("");
+        $("#SearchPayerName").val("");
+        $("#HasClossingAccount").combobox("setValue", "");
+        $("#SearchLabRoomId").val("@Guid.Empty.ToString()");
+        $("#SearchLabRoomXPath").val("");
+        $("#cbxQueryStudent").combobox("setValue", "@Guid.Empty.ToString()");
+        $("#SearchDeductAtStart").datebox("setValue", "");
+        $("#SearchDeductAtEnd").datebox("setValue", "");
+        $("#SearchBeginAtStart").datebox("setValue", "");
+        $("#SearchBeginAtEnd").datebox("setValue", "");
+        return false;
+    }
+
+    function getDeductSearchLabRoomXPath(element) {
+        $("#SearchLabRoomXPath").val("");
+        var labRoomId = element.value;
+        if (labRoomId != "" && !labRoomId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labRoomId }, function (data) {
+                if (data && data != "")
+                    $("#SearchLabRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="width:75px;">状态</label>
+        @Html.JComboBox("HasClossingAccount").SetData(ViewData["HasClossingAccountJson"]).SetWidth(140).ToMvcString()
+    </li>
+    <li>
+        <label style="width:75px;">使用者</label>
+        @Html.JValidateBox("SearchUserName").SetWidth(135).ToMvcString()
+    </li>
+    <li>
+        <label style="width:75px;">课题组成员</label>
+        @Html.JComboBox("cbxQueryStudent").SetWidth(140).SetData(ViewData["StudentJson"]).SetMutiSelect(true).ToMvcString()
+    </li>
+    <li>
+        <label style="width:75px;">设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(135).ToMvcString()
+    </li>
+    <li>
+        <label style="width:75px;">放置地点</label>
+        @Html.DropDownList("SearchLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:140px;", onchange = "getDeductSearchLabRoomXPath(this);" })
+        @Html.Hidden("SearchLabRoomXPath")
+    </li>
+    <li>
+        <label style="width:75px;">付费人</label>
+        @Html.JValidateBox("SearchPayerName").SetWidth(135).ToMvcString()
+    </li>
+    <li>
+        <label style="width:75px">扣费开始时间</label>
+        @Html.JDateTimePicker("SearchDeductAtStart").SetWidth(140).ToMvcString()
+    </li>
+    <li>
+        <label style="width:75px">扣费结束时间</label>
+        @Html.JDateTimePicker("SearchDeductAtEnd").SetWidth(140).ToMvcString()
+    </li>
+    <li>
+        <label style="width:75px">使用开始时间</label>
+        @Html.JDateTimePicker("SearchBeginAtStart").SetWidth(140).ToMvcString()
+    </li>
+    <li>
+        <label style="width:75px">使用结束时间</label>
+        @Html.JDateTimePicker("SearchBeginAtEnd").SetWidth(140).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnDeductSearch", "查询").SetOnclick("doDeductSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnDeductReset", "清空").SetOnclick("doDeductReset();").ToMvcString()
+        @Html.JLinkButton("btnDeductClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,9 @@
+﻿@{
+    var version = ViewData["FileVersion"] == null ? "" : ViewData["FileVersion"].ToString().Trim();
+    var dateTime = DateTime.Now;
+    
+}
+<p id="p_cnzz" style='margin:0;'>
+    <span style="margin-right:10px;">@(version)</span> Copyright © @(dateTime.Year) <a href='http://www.bynonco.com' rel="noreferrer" target="_blank">广州佰能信息科技有限公司</a>.
+    @*<script src="http://s21.cnzz.com/stat.php?id=4977375&web_id=4977375&show=pic" type="text/javascript"></script>*@
+</p>

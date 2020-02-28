@@ -1,0 +1,321 @@
+﻿@model com.Bynonco.LIMS.Model.NMPUsedConfirm
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Privilige;
+@{
+    var isAutoCalsUsedConfirmFee = com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer().GetIsAutoCalUsedConfirmFee();
+    var usedConfirmPrivilige = Model != null ?
+       PriviligeFactory.GetNMPUsedConfirmPrivilige(User.Identity.Name, Model.Id) :
+       PriviligeFactory.GetNMPUsedConfirmPrivilige(User.Identity.Name);
+    var chargeStandard = ViewData["ChargeStandard"] == null ? null : (NMPChargeStandard)ViewData["ChargeStandard"];
+    var calcFeeTimeRule = ViewData["CalcFeeTimeRule"] == null ? null : (NMPCalcFeeTimeRule)ViewData["CalcFeeTimeRule"];
+    var isForAppointment = ViewData["IsForAppointment"] == null ? false : (bool)ViewData["IsForAppointment"];
+    var selectSubjectProjectId = Model==null || !Model.SubjectProjectId.HasValue ? "" : Model.SubjectProjectId.Value.ToString();
+    var isEnableCostDeduct = true;
+    var isSuperAdmin = (bool)ViewData["IsSuperAdmin"];
+    var isOnlySuperAdminEnableHandleMinuseCostDeduct = com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer().GetIsOnlySuperAdminEnableHandleMinuseCostDeduct();
+    if(isOnlySuperAdminEnableHandleMinuseCostDeduct  && !isSuperAdmin)
+    {
+        isEnableCostDeduct = false;
+    }
+  }
+  <script type="text/javascript">
+      function getSelectedSubjectProjectId() {
+          return '@selectSubjectProjectId';
+      }
+      function doInitComboDate(id) {
+          setTimeout(function () {
+              var val = $("#" + id).combobox("getValue");
+              if (val && val != "") {
+                  $("#" + id).combobox("setText", val);
+              }
+          }, 100);
+      }
+ </script>
+ @Html.Partial("../Subject/LoadSubjectProjectScript")
+ @Html.Partial("../NMP/NMPAdditionChargeScriptContainer")
+ <div id="divNMPUsedConfirmEdit" style="overflow-x:hidden; width:450px; height:520px">
+ <script type="text/javascript">
+     var isFinishLoaded = false;
+     function showErrorMsg(erroeMsg) {
+         erroeMsg = erroeMsg != "" && erroeMsg.indexOf("出错") != -1 ? erroeMsg : "";
+         $("#trErrorMsg").css("display", erroeMsg != "" ? "" : "none");
+         $("#spErrorMsg").html(erroeMsg);
+     }
+     function doGetNMPUsedConfirmRelativeData(isNMPEquipmentChanged) {
+         if (isFinishLoaded == true) {
+             var selectedUserId = $("#UserId").val().trim();
+             var selectedNMPEquipmentId = $("#NMPEquipmentId").val().trim();
+             if (selectedUserId == "" || selectedNMPEquipmentId == "") return;
+             $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+             $.ajax({
+                 type: "POST",
+                 url: '@Url.Action("GetNMPUsedConfirmRelativeData", "NMPUsedConfirm")',
+                 data: $("#frmNMPUsedConfirmEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+                 success: function (msg) {
+                     $.messager.progress('close');
+                     var data = eval("(" + msg + ")");
+                     generateCalFeeRelativeData(data);
+                     $("#SubjectId").combobox("loadData", data.Subjects ? data.Subjects : null);
+                     $("#spanStandardPrice").text(data.ChargeStandardExpression);
+                     $("#spanReadableExpression").text(data.CalFeeTimeRuleExpression);
+                     if (isNMPEquipmentChanged) {
+                         $("#tbNMPAdditionChargeContainer").html("");
+                         if (data.NMPAdditionChargeItemCount > 0) {
+                             doLoadNMPUsedConfirmAddtionChargeItems();
+                         }
+                     }
+                     showErrorMsg(data.ErrorMessage);
+                     if (data.ErrorMessage != "") {
+                         $("#CalcFee").val("");
+                         $("#RealFee").val("");
+                     } 
+                 }
+             });
+         }
+     }
+     function doLoadNMPUsedConfirmAddtionChargeItems() {
+         var selectedUserId = $("#UserId").val().trim();
+         var selectedNMPEquipmentId = $("#NMPEquipmentId").val().trim();
+         if (selectedUserId == "" || selectedNMPEquipmentId == "") return;
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("NMPUsedConfirmAdditionChargeContainer", "NMPUsedConfirm")',
+             data: $("#frmNMPUsedConfirmEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 $("#tbNMPAdditionChargeContainer").html(msg);
+             }
+         });
+     }
+     
+</script>
+
+<form id="frmNMPUsedConfirmEdit" action="#">
+    @Html.Hidden("IsAllowAccountMinuse", false)  
+    @Html.Hidden("NMPUsedConfirmId", Model == null || Model.Id == default(Guid) || isForAppointment ? "" : Model.Id.ToString())
+    @Html.Hidden("NMPAppointmentId", Model != null && Model.NMPAppointmentId.HasValue ? Model.NMPAppointmentId.ToString() : "")
+    @Html.Hidden("IsForAppointment", isForAppointment)
+    <table class="edit-table" style="width:100%;height:100%">
+        <tr id="trErrorMsg" style="display:none;">
+            <th colspan="3"><span id="spErrorMsg" style="color:Red;"></span></th>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>使用者</th>
+            <td id="tdUserId" style="padding-left:2px">
+                @Html.TokenInput("UserId").SetOnChange("doGetUsedConfirmRelativeData(false);").SetUrl(Url.Action("GetUserListByKeyWord", "User")).SetPrePopulate(ViewData["UserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserJson"].ToString()) ? null : ViewData["UserJson"].ToString()).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>工位设备名称</th>
+            <td id="tdNMPEquipmentId" style="padding-left:2px;">
+                <div class="float_l">
+                    <div style="float:left;">@Html.TokenInput("NMPEquipmentId").SetOnChange("doGetNMPUsedConfirmRelativeData(true);").SetUrl(Url.Action("GetUserManageViewNMPEquipmentListByKeyWord", "NMP")).SetPrePopulate(ViewData["NMPEquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["NMPEquipmentJson"].ToString()) ? null : ViewData["NMPEquipmentJson"].ToString()).ToMvcString()</div>
+                    <div style="clear:both;"></div>
+                </div>
+                
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>课题组</th>
+            <td>
+                @Html.JComboBox("SubjectId").SetOnChange("doGetNMPUsedConfirmRelativeData(false);" + "doOnSubjectChanged(newValue, oldValue);").SetData(ViewData["SubjectJson"]).SetWidth(230).SetDisabled(Model != null).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>
+                项目名称
+             </th>
+            <td>@Html.JComboBox("SubjectProjectId").SetWidth(230).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>使用开始时间</th>
+            <td id="tdUseBeginAt">
+                <span  class="date">@(Html.JDateTimePicker("BeginAt").SetWidth(121).SetOnChange(isAutoCalsUsedConfirmFee ? "doGetNMPUsedConfirmRelativeData(false);" : "").SetValue(Model != null && Model.BeginAt.HasValue ? Model.BeginAt.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd")).ToMvcString())</span>
+                <span class="time">@(Html.JComboBox("BeginAtHour").SetOnLoadSuccess("doInitComboDate('BeginAtHour');").SetOnChange(isAutoCalsUsedConfirmFee ? "doGetNMPUsedConfirmRelativeData(false);" : "").SetWidth(40).SetData(ViewData["BeginAtHourJson"]).AddClass("time-fix").ToMvcString())</span><span>时</span>
+                <span class="time">@(Html.JComboBox("BeginAtMinute").SetOnLoadSuccess("doInitComboDate('BeginAtMinute');").SetOnChange(isAutoCalsUsedConfirmFee ? "doGetNMPUsedConfirmRelativeData(false);" : "").SetWidth(40).SetData(ViewData["BeginAtMinuteJson"]).AddClass("time-fix").ToMvcString())</span><span>分</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>使用结束时间</th>
+            <td id="tdUseEndAt">
+                <span class="date">@(Html.JDateTimePicker("EndAt").SetWidth(121).SetOnChange(isAutoCalsUsedConfirmFee?"doGetNMPUsedConfirmRelativeData(false);":"").SetValue(Model != null && Model.EndAt.HasValue ? Model.EndAt.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd")).ToMvcString())</span>
+                <span class="time">@(Html.JComboBox("EndAtHour").SetOnLoadSuccess("doInitComboDate('EndAtHour');").SetWidth(40).SetOnChange(isAutoCalsUsedConfirmFee ? "doGetNMPUsedConfirmRelativeData(false);" : "").SetData(ViewData["EndAtHourJson"]).AddClass("time-fix").ToMvcString())</span><span>时</span>
+                <span class="time">@(Html.JComboBox("EndAtMinute").SetOnLoadSuccess("doInitComboDate('EndAtMinute');").SetOnChange(isAutoCalsUsedConfirmFee ? "doGetNMPUsedConfirmRelativeData(false);" : "").SetWidth(40).SetData(ViewData["EndAtMinuteJson"]).AddClass("time-fix").ToMvcString())</span><span>分</span>
+            </td>
+        </tr>
+        <tr>
+            <th>计费标准</th>
+            <td>
+                <span id="spanStandardPrice">
+                    @if (Model == null)
+                    {
+                        @("未定义计费标准")
+                    }
+                    else
+                    {
+                        @Model.UnitPriceStr
+                    }
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th>计费时间规则</th>
+            <td>
+                <span id="spanReadableExpression">
+                    @if (calcFeeTimeRule == null)
+                    {
+                        @("未定义计费时间规则")
+                    }
+                    else
+                    {
+                        @(!string.IsNullOrWhiteSpace(calcFeeTimeRule.ReadableExpression) ?
+                            calcFeeTimeRule.ReadableExpression :
+                            calcFeeTimeRule.Expression)
+                    }
+                </span> 
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>计费时长</th>
+            <td>
+                 @Html.TextBox("CalcDuration", Model == null ? "0" : (Model.CalcDuration * 60).ToString("0"), new { @readonly = "readonly", style = "width:150px" })@("分钟")
+                 @Html.JLinkButton("btnCalcDuration", "计费").SetPlain(true).SetIconCls("icon-trainning").SetOnclick("doTryCalcFee();return false;").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>
+                应收费
+            </th>
+            <td>
+                @Html.TextBox("CalcFee", Model == null ? "0" : Model.CalcFee.ToString("0.0"), new { @readonly = "readonly", style = "width:150px" })@("元")
+            </td>
+        </tr>
+        <tr>
+            <th>
+                实收费
+            </th>
+            <td>
+                @Html.TextBox("RealFee", Model == null || !Model.RealFee.HasValue ? "" : (Model.RealFee.Value + (Model.CostDeduct != null && Model.CostDeduct.CostDeductEquipmentOpenFunds != null && Model.CostDeduct.CostDeductEquipmentOpenFunds.Count > 0 ? Model.CostDeduct.CostDeductEquipmentOpenFunds.Sum(p => p.CalFee) : 0d)).ToString("0.0"), new { style = "width:150px" })@("元")
+            </td>
+        </tr>
+        @if (Model != null && Model.CostDeduct == null)
+        {
+            <tr>
+                <th>
+                    未扣费原因
+                </th>
+                <td>
+                    @Html.TextArea("WhyNotCostDeduct", Model == null || string.IsNullOrWhiteSpace(Model.WhyNotCostDeduct) ? "" : Model.WhyNotCostDeduct, 3, 55, null)
+                </td>
+            </tr>
+        }
+       
+        <tr>
+            <th>
+                备注
+            </th>
+            <td>
+                @Html.TextArea("Remark", Model == null ? "" : Model.Remark, 3, 55, null)
+            </td>
+        </tr>
+        
+    </table>
+    <table id="tbNMPAdditionChargeContainer" class="edit-table" style="margin-top:2px;width:100%;">
+            @Html.Partial("../NMP/NMPAdditionChargeContainer")
+    </table>
+    </form>
+ <script type="text/javascript">
+     $(function () {
+         $("#tdUserId ul.token-input-list-facebook").css("width", "230px");
+         $("#tdNMPEquipmentId ul.token-input-list-facebook").attr("style", "width: 230px; height:32px !important;");
+         var isIE6 = jQuery.browser.msie && (jQuery.browser.version == "6.0") && !jQuery.support.style;
+         if (isIE6) {
+             $("#tdUseBeginAt span.date span.datebox").css("width", "82px");
+             $("#tdUseBeginAt span.date span.datebox INPUT").css("width", "82px");
+             $("#tdUseBeginAt span.date INPUT.easyui-datebox").css("width", "82px");
+             $("#tdUseBeginAt span.time INPUT.combo-text").css("width", "30px");
+             $("#tdUseEndAt span.date span.datebox").css("width", "82px");
+             $("#tdUseEndAt span.date span.datebox INPUT").css("width", "82px");
+             $("#tdUseEndAt span.date INPUT.easyui-datebox").css("width", "82px");
+             $("#tdUseEndAt span.time INPUT.combo-text").css("width", "30px");
+         }
+         isFinishLoaded = true;
+     });
+     function doSaveNMPUsedConfirm(editNMPUsedConfirmDialog) {
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("SaveNMPUsedConfirm", "NMPUsedConfirm")',
+             data: $("#frmNMPUsedConfirmEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 if (msg.indexOf("出错") >= 0) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                     return false;
+                 }
+                 if (typeof (doSaveNMPUsedConfirmCallBack) == 'function') {
+                     doSaveNMPUsedConfirmCallBack(editNMPUsedConfirmDialog);
+                 }
+             }
+         });
+     }
+     function doChargeNMPUsedConfirm(editNMPUsedConfirmDialog) {
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("DirectNMPCostDeduct", "NMPUsedConfirm")',
+             data: $("#frmNMPUsedConfirmEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 var data = eval("(" + msg + ")");
+                 if (data.ErrorMessage.indexOf("出错") >= 0) {
+                     $.messager.show({ title: '提示', msg: data.ErrorMessage, showType: 'show' });
+                     return false;
+                 }
+                 showErrorMsg(data.ErrorMessage);
+                 if (data.IsCheckMoneyNotPass != true) {
+                     if (data.ErrorMessage == "" && typeof (doChargeNMPUsedConfirmCallBack) == 'function') {
+                         doChargeNMPUsedConfirmCallBack(editNMPUsedConfirmDialog);
+                     }
+                 }
+                 else if ('@(isEnableCostDeduct.ToString().ToLower())' == "true") {
+
+                     $.messager.confirm('提示', data.ErrorMessage + ",是否继续扣费?", function (r) {
+                         if (!r) return;
+                         $("#IsAllowAccountMinuse").val(true);
+                         return doChargeNMPUsedConfirm();
+                     });
+                 }
+                 else { $.messager.show({ title: '提示', msg: data.ErrorMessage, showType: 'show' }); }
+             }
+         });
+     }
+     function doTryCalcFee() {
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("CalcFeeNMPUsedConfirm","NMPUsedConfirm")',
+             data: $("#frmNMPUsedConfirmEdit").serialize()  + "&time=" + new Date().getMilliseconds(),
+             success: function (msg) {
+                 $.messager.progress('close');
+                 showErrorMsg(msg);
+                 if (msg && (msg.indexOf("出错") != -1)) return false;
+                 var data = eval("(" + msg + ")");
+                 generateCalFeeRelativeData(data);
+             }
+         });
+     }
+     function generateCalFeeRelativeData(data) {
+         $("#CalcDuration").val(data.Duration);
+         $("#RealFee").val(data.Fee);
+         $("#CalcFee").val(data.Fee);
+     }
+     function doOnNMPUsedConfirmAdditionChargeItemDataChanged() {
+         doGetNMPUsedConfirmRelativeData(false);
+     }
+</script>
+</div>

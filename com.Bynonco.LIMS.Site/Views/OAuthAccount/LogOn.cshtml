@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = "LogOn";
+}
+<h2>
+    LogOn</h2>
+@using (Html.BeginForm("DoLogOn","OAuthAccount"))
+{
+    <span>OpenId地址:</span>@Html.TextBox("userIdentifier", "/Op/Default.aspx")
+    <input id="btnSubmit" type="submit" value="Log On" />
+}
+<script>
+    document.getElementById("btnSubmit").click();
+</script>

@@ -1,0 +1,46 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+      #tbEquipmentInfo th{text-align:center;width:100px; padding: 2px 2px 2px 0;color:White;background-color:#666666}
+      #tbEquipmentInfo td{text-align:left;width:170px; padding: 2px 2px 2px 0;color:Black}
+</style>
+<table class="edit-info" id="tbEquipmentInfo">
+    <tr>
+        <th>联系人</th>
+        <td>@Model.Equipment.LinkManNames</td>
+        <th>联系电话</th>
+        <td>@Model.LinkTelNo</td>
+    </tr>
+    <tr>
+        <th>计费方式</th>
+        <td>@ViewData["ChargeTypeName"]</td>
+        <th>计费标准</th>
+        <td >@(ViewData["StandardPrice"] == null ? "" : ViewData["StandardPrice"].ToString() + "元")</td>
+    </tr>
+    <tr>
+        <th>放置地点</th>
+        <td colspan="3">@Model.RoomName</td>
+    </tr>
+    <tr>
+        <th>相关操作</th>
+        <td colspan="3">
+             @{
+                System.Text.StringBuilder sbOperate = new System.Text.StringBuilder();
+                if (!string.IsNullOrWhiteSpace(Model.SampleApplyOperate)) { sbOperate.Append(Model.SampleApplyOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.DetailOperate)) { sbOperate.Append(Model.DetailOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.ModifyOperate)) { sbOperate.Append(Model.ModifyOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.TranningApplyOperate)) { sbOperate.Append(Model.TranningApplyOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.ReportBrokenOperate)) { sbOperate.Append(Model.ReportBrokenOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.MarkingOperate)) { sbOperate.Append(Model.MarkingOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.FocusOperate)) { sbOperate.Append(Model.FocusOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.CancelFocusOperate)) { sbOperate.Append(Model.CancelFocusOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.ExaminationManageOperate)) { sbOperate.Append(Model.ExaminationManageOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.ApplyOperate)) { sbOperate.Append(Model.ApplyOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.CancelApplyOperate)) { sbOperate.Append(Model.CancelApplyOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.CameraPlayOperate)) { sbOperate.Append(Model.CameraPlayOperate); }
+                if (!string.IsNullOrWhiteSpace(Model.CameraPlayRecordOperate)) { sbOperate.Append(Model.CameraPlayRecordOperate); }
+            }
+            <div>@System.Web.Mvc.MvcHtmlString.Create(sbOperate.ToString())</div>
+        </td>
+    </tr>
+</table>

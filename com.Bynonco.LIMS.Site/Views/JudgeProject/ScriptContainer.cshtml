@@ -1,0 +1,249 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+<div id="divJudgeProjectDialog" style="display:none"></div>
+<div id="divJudgeProjectContentDialog" style="display:none"></div>
+<div id="divJudgeProjectViewDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        $('#tbJudgeProjectList').datagrid('loadData', { total: 0, rows: [] });
+        $("#tbJudgeProjectList").datagrid("reload");
+        return false;
+    }
+
+    function doSearchJudgeProjectContent(id) {
+        if(!id || id.trim()==""){
+           var selectedJudgeProject = $("#tbJudgeProjectList").datagrid("getSelected");
+           if(!selectedJudgeProject || selectedJudgeProject.Id=="" || selectedJudgeProject.Id.isDefaultGuid()) {
+              id = "";
+           }
+           else id = selectedJudgeProject.Id;
+        }
+        var queryExpression = "";
+        if(id && id != "") queryExpression  += (queryExpression == "" ? "" : "*") + "(JudgeProjectId=\"" + id  + "\")";
+        $("#tbJudgeProjectContentList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbJudgeProjectContentList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    function doOnJudgeProjectSelected(rowData){
+        doSearchJudgeProjectContent(rowData.Id);
+    }
+    
+
+    var judgeProjectDialog;
+    function doJudgeProjectDialog() {
+        if (judgeProjectDialog) {
+            judgeProjectDialog.dialog("destroy");
+        }
+        judgeProjectDialog =  @Html.JDialog("divJudgeProjectEdit").SetTitle("考核评价项目编辑").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("judgeProjectDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveJudgeProject();").ToMvcString();
+    }
+    function doAddJudgeProject(id) {
+       doAddOrEditJudgeProject(id);
+    }
+    function doEditJudgeProject(id) {
+       if(!id || id.trim()==""){
+           var selectedJudgeProject = $("#tbJudgeProjectList").datagrid("getSelected");
+           if(!selectedJudgeProject || selectedJudgeProject.Id=="" || selectedJudgeProject.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择考核评价项目", showType: 'show' });
+              return false;
+           }
+           id = selectedJudgeProject.Id;
+       }
+       doAddOrEditJudgeProject(id);
+    }
+    function doAddOrEditJudgeProject(id){
+        var url = '@Url.Action("Edit","JudgeProject")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divJudgeProjectDialog").load(url,function(){
+            doJudgeProjectDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveJudgeProject(){
+        if($("#frmJudgeProjectEdit").find("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        if ($("#frmJudgeProjectEdit").find("#Weight").val().trim() == "") {
+          $.messager.show({ title: '提示', msg: "权重为空", showType: 'show' });
+          return false;
+        }
+        if ($("#frmJudgeProjectEdit").find("#ProjectCent").val().trim() == "") {
+            $.messager.show({ title: '提示', msg: "分数为空", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("Save","JudgeProject")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmJudgeProjectEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                judgeProjectDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteJudgeProject(id){
+        if(!id || id.trim() == ""){
+              var selectedJudgeProject = $("#tbJudgeProjectList").datagrid("getSelected");
+                if(!selectedJudgeProject || selectedJudgeProject.Id.trim() == "" || selectedJudgeProject.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedJudgeProject.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "JudgeProject")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpath(xPath,compareTarget){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "JudgeProject")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false;
+   }
+   
+   
+    var judgeProjectContentDialog;
+    function doJudgeProjectContentDialog() {
+        if (judgeProjectContentDialog) {
+            judgeProjectContentDialog.dialog("destroy");
+        }
+        judgeProjectContentDialog =  @Html.JDialog("divJudgeProjectContentEdit").SetTitle("考核评价项目内容").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("judgeProjectContentDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveJudgeProjectContent();").ToMvcString();
+    }
+    function doAddJudgeProjectContent() {
+        var selectedJudgeProject = $("#tbJudgeProjectList").datagrid("getSelected");
+        if(!selectedJudgeProject || selectedJudgeProject.Id.trim() == "" || selectedJudgeProject.Id.isDefaultGuid()){
+            $.messager.show({ title: '提示', msg:"请选择要新增内容的项目", showType: 'show' });
+            return false;
+        }
+       doAddOrEditJudgeProjectContent('',selectedJudgeProject.Id);
+    }
+    function doEditJudgeProjectContent(id,judgeProjectId) {
+       if(!id || id.trim()=="" || !judgeProjectId || judgeProjectId.trim()=="" ){
+           var selectedJudgeProjectContent = $("#tbJudgeProjectContentList").datagrid("getSelected");
+           if(!selectedJudgeProjectContent || selectedJudgeProjectContent.Id=="" || selectedJudgeProjectContent.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择项目内容", showType: 'show' });
+              return false;
+           }
+           id = selectedJudgeProjectContent.Id;
+           judgeProjectId = selectedJudgeProjectContent.JudgeProjectId;
+       }
+       doAddOrEditJudgeProjectContent(id,judgeProjectId);
+    }
+    function doAddOrEditJudgeProjectContent(id,judgeProjectId){
+        var url = '@Url.Action("EditContent","JudgeProject")'+ "?id=" + id + "&JudgeProjectId=" + judgeProjectId + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divJudgeProjectContentDialog").load(url,function(){
+            doJudgeProjectContentDialog();
+            $.messager.progress('close');
+            var msg = $("#divJudgeProjectContentDialog").html();
+            if( msg.indexOf("出错,") != -1)
+                $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+        })
+        return false;
+    }
+    function doSaveJudgeProjectContent(){
+        if($("#frmJudgeProjectContentEdit").find("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+          return false;
+        }
+        if ($("#frmJudgeProjectContentEdit").find("#JudgeStandard").val().trim() == "") {
+          $.messager.show({ title: '提示', msg: "评分标准为空", showType: 'show' });
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("SaveContent","JudgeProject")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmJudgeProjectContentEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                judgeProjectContentDialog.dialog('close');
+                doSearchJudgeProjectContent();
+            }
+        });
+   }
+   function doDeleteJudgeProjectContent(id){
+        if(!id || id.trim() == ""){
+              var selectedJudgeProjectContent = $("#tbJudgeProjectContentList").datagrid("getSelected");
+                if(!selectedJudgeProjectContent || selectedJudgeProjectContent.Id.trim() == "" || selectedJudgeProjectContent.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedJudgeProjectContent.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteContent", "JudgeProject")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearchJudgeProjectContent();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpathContent(xPath,compareTarget,judgeProjectId){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPathContent", "JudgeProject")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget,"JudgeProjectId":judgeProjectId},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearchJudgeProjectContent();
+            }
+        });
+        return false;
+   }
+</script>

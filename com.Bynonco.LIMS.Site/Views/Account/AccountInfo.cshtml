@@ -1,0 +1,50 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUser
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    <div class="edit-box">
+        <p><span class="icon icon-yen"></span>账户信息</p>
+        <table class="edit-info">
+            <tr>
+                <th>用户类型</th>
+                <td id="tdTag">
+                    @(Model == null ? "" : Model.TagName)
+                </td>
+            </tr>
+            <tr>
+                <th>信用额度</th>
+                <td>
+                    @(Model == null ? "" : Model.CreditLimitName)
+                </td>
+            </tr>
+            <tr>
+                <th>真实币</th>
+                <td>@(Model == null || !Model.RealCurrency.HasValue ? "" : Model.RealCurrency.Value.ToString())</td>
+            </tr>
+            <tr>
+                <th>虚拟币</th>
+                <td>@(Model == null || !Model.VirtualCurrency.HasValue ? "" : Model.VirtualCurrency.Value.ToString())</td>
+            </tr>
+            <tr>
+                <th>预警值</th>
+                <td>@(Model == null || !Model.PreAlert.HasValue ? "" : Model.PreAlert.Value.ToString())</td>
+            </tr>
+            <tr>
+                <th>不可使用值</th>
+                <td>@(Model == null || !Model.UnUseable.HasValue ? "" : Model.UnUseable.Value.ToString())</td>
+            </tr>
+            <tr class="hide" id="trUnAppointment">
+                <th>不可预约值</th>
+                <td>@(Model == null || !Model.UnAppointment.HasValue ? "" : Model.UnAppointment.Value.ToString())</td>
+            </tr>
+            <tr>
+                <th>备注</th>
+                <td>
+                    @(Model == null ? "" : Model.UserAccountRemark)
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

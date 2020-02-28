@@ -1,0 +1,133 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+@{var equipmentPrivilige = Model == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.Id);}
+<div>@Html.Partial("AppointmentPriorityList")</div>    
+<div id="divAppointmentPriorityDialog" style="display:none"></div>
+<div style="display:none">@Html.Partial("../User/SelectUserNoPagingContainer")</div>
+<script type="text/javascript">
+    function doEditAppointmentPriority(){
+        var selectedRow = $("#tbAppointmentPriorityList").datagrid('getSelections');
+        if(selectedRow.length==0){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow.length>1)
+        {
+            $.messager.show({ title: '警告', msg: "请选择一项进行编辑", showType: 'show' });
+            return false;
+        }
+        if(selectedRow.length==1)doAddOrEditAppointmentPriority(selectedRow[0].Id);
+    }
+    function doAddOrEditAppointmentPriority(id) {
+        var equipmentId= $("#EquipmentId").val();
+        var url = '@Url.Action("EditAppointmentPriority","Equipment")' + "?id=" + id + "&date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId;
+        $("#divAppointmentPriorityDialog").load(url, function (data) {
+            doAppointmentPriorityDialog();
+        });
+        return false;
+    }
+    var appointmentPriorityDialog;
+    function doAppointmentPriorityDialog() {
+        if (appointmentPriorityDialog) {
+            appointmentPriorityDialog.dialog("destroy");
+        }
+        appointmentPriorityDialog =  @Html.JDialog("divAppointmentPriorityEdit").SetTitle("用户优先权信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("appointmentPriorityDialog.dialog('destroy');return false;").SetModal(true).SetOkScript(equipmentPrivilige.IsEnableSaveAppointmentPriority ? "doSaveAppointmentPriority();return false;" : "alter('无操作权限');").ToMvcString();
+    }
+    function doSaveAppointmentPriority() {
+        var equipmentId= $("#EquipmentId").val();
+        var workdays = getWorkDays();
+        var workTimes = getSelectedWorkTimeIds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveAppointmentPriority","Equipment")',
+            data: $("#frmAppointmentPriorityEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId + "&WorkDays=" + workdays + "&WorkTimes=" + workTimes,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                appointmentPriorityDialog.dialog('destroy');
+                doAppointmentPrioritySearch();
+            }
+        });
+    }
+    function doDeleteAppointmentPriority(){
+        var selectedRows = $('#tbAppointmentPriorityList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteAppointmentPriority","Equipment")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                             $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doAppointmentPrioritySearch();
+                    }
+                });
+            });
+        }
+    }
+    function doAppointmentPrioritySearch() {
+        $("#tbAppointmentPriorityList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbAppointmentPriorityList").datagrid("reload");
+        return false;
+    }
+    function onBusinessTypeChange() {
+        if ($('#tbSelectAppointmentPriorityUsers .token-input-list-facebook').length === 0)return;
+        var businessType = $('#BusinessType').combobox('getValue');
+        var url = '';
+        switch (parseInt(businessType)) {
+            case 1:
+                url='@Url.Action("GetSubjectListByKeyWord", "Subject")';
+                break;
+            case 2:
+                url='@Url.Action("GetLabOrganizationListByKeyWord", "LabOrganization")';
+                break;
+            case 3:
+                url='@Url.Action("GetTagListByKeyWord", "UserTag")';
+                break;
+            case 4:
+                url='@Url.Action("GetUserTypeListByKeyWord", "UserType")';
+                break;
+            case 5:
+                url='@Url.Action("GetWorkGroupListByKeyWord", "WorkGroup")';
+                break;
+
+            default:
+                url = '@Url.Action("GetUserListByKeyWord", "User")';
+                break;
+        }
+        $('#tbSelectAppointmentPriorityUsers .token-input-list-facebook').remove();
+        $('#AppointmentPriorityUserIds').tokenInput('init',url, {
+            queryParam:'keyWord',
+            searchDelay:300,
+            minChars:1,
+            propertyToSearch:'text',
+            crossDomain:false,
+            hintText:'请输入查询关键字',
+            noResultsText:'未找到符合提交的记录',
+            searchingText:'正在查询…',
+            deleteText:'×',
+            theme:'facebook',
+            resultsFormatter:function(item){return "<li>" + item.text + "</li>";},
+            tokenFormatter:function(item){return "<li><p>" + item.text + "</p></li>";},
+            tokenValue:'id'
+        });
+        $("#tbSelectAppointmentPriorityUsers ul.token-input-list-facebook").css("width", "600px");
+    }
+</script>

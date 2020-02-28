@@ -1,0 +1,39 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    
+    var nmpPrivilige = Model != null ?
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.Id);
+    var dataGrid = Html.JDataGrid("tbNMPEquipment")
+            .SetUrl(Url.Action("GetGridViewNMPEquipmentList", "NMP", new { time = DateTime.Now.Millisecond.ToString() }))
+            .AddQueryParam("queryExpression", string.Format("NMPId=\"{0}\"", Model == null ? default(Guid).ToString() : Model.Id.ToString()))
+            .SetHeight(650)
+            .SetPageSize(20)
+            .SetSortName("Name")
+            .SetShowAddButton(nmpPrivilige.IsEnableAddNMPEquipment);
+            if (nmpPrivilige.IsEnableAdd)
+            {
+                dataGrid.SetAddScript("doAddOrEditNMPEquipment('');");
+            }
+            if (nmpPrivilige.IsEnableDeleteNMPEquipment)
+            {
+                dataGrid.SetDeleteScript("doDeleteNMPEquipment('');");
+            }
+            dataGrid.SetShowDeleteButton(true);
+            if (nmpPrivilige.IsEnableEditNMPEquipment)
+            {
+                dataGrid.SetOnDblClickRow("doAddOrEditNMPEquipment(rowData.Id);");
+                dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetWidth(50).SetAlign(Align.center));
+            }
+            dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+            .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("工位名称", "NMPName").SetWidth(150).SetAlign(Align.left))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("工位关联仪器名称", "NameFormatStr").SetWidth(150).SetAlign(Align.left))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("Oid", "Oid").SetWidth(100).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("固定资产编号", "Label").SetWidth(100).SetAlign(Align.center))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在单位", "OrganizationName").SetWidth(150).SetAlign(Align.left))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在房间", "RoomName").SetWidth(150).SetAlign(Align.left))
+            .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("门禁", "DoorName").SetWidth(150).SetAlign(Align.left))
+            .SetShowSearchButton(false);
+  }
+  @(dataGrid.ToMvcString())    

@@ -1,0 +1,65 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentOpenTrainingQueryExpress() {
+        var queryExpression = "";
+        var name = $("#SearchName").val().trim();
+        if (name != "") {
+            queryExpression = "Name∽\"" + name.trim() + "\"";
+        }
+        var equipmentName = $("#SearchEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentName∽\"" + equipmentName.trim() + "\"";
+        }
+        var equipmentOrgName = $("#SearchEquipmentOrgName").val().trim();
+        if (equipmentOrgName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentOrgName∽\"" + equipmentOrgName.trim() + "\"";
+        }
+        var adminUserName = $("#SearchAdminUserName").val().trim();
+        if (adminUserName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "AdminUserName∽\"" + adminUserName.trim() + "\"";
+        }
+        var purpose = $("#SearchPurpose").val().trim();
+        if (purpose != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Purpose∽\"" + purpose.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doResetEquipmentOpenTraining() {
+        $("#SearchName").val("");
+        $("#SearchEquipmentName").val("");
+        $("#SearchEquipmentOrgName").val("");
+        $("#SearchAdminUserName").val("");
+        $("#SearchPurpose").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>培训名称</label>
+        @Html.JValidateBox("SearchName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>仪器名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>所属机构</label>
+        @Html.JValidateBox("SearchEquipmentOrgName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>培训负责人</label>
+        @Html.JValidateBox("SearchAdminUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>目的意义</label>
+        @Html.JValidateBox("SearchPurpose").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentOpenTrainingSearch", "查询").SetOnclick("doSearchEquipmentOpenTraining();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentOpenTrainingReset", "清空").SetOnclick("doResetEquipmentOpenTraining();").ToMvcString()
+        @Html.JLinkButton("btnEquipmentOpenTrainingClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

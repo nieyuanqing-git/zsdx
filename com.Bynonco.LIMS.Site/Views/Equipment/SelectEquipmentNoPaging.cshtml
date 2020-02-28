@@ -1,0 +1,80 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var limitEquipmentIdList = ViewData["LimitEquipmentIdList"];
+}
+<script type="text/javascript">
+    function changeTag(obj, tagId) {
+        $("#divShowSelectGridList").addClass("hide");
+        $("#divSelectEquipmentTokenInput").addClass("hide");
+        $(".tabs li").removeClass("tabs-selected");
+        $(obj).parent().addClass("tabs-selected");
+        $("#" + tagId).removeClass("hide");
+        return false;
+    }
+    function doGetSelectEquipmentCount() {
+        var length = $("#SelectEquipmentId").tokenInput("get").length;
+        $("#spSelectEquipmentCount").empty();
+        $("#spSelectEquipmentCount").append(length.toString());
+    }
+    function doOnSelectEquipmentNoPagingOnCheck(rowIndex, rowData) {
+        if (!rowData) return;
+        var id = rowData.Id;
+        if ($("#SelectEquipmentId").val().indexOf(id) != -1) return;
+        var name = rowData.Name;
+        var model = rowData.Model;
+        if (model && model != "") name += "(" + model + ")";
+        $("#SelectEquipmentId").tokenInput("add", { id: id, text: name });
+    }
+    function doOnSelectEquipmentNoPagingOnUncheck(rowIndex, rowData) {
+        if (!rowData) return;
+        $("#SelectEquipmentId").tokenInput("remove", { id: rowData.Id });
+    }
+    function doOnSelectEquipmentNoPagingOnCheckAll(rows) {
+        if (!rows) return;
+        for (var i = 0; i < rows.length; i++) {
+            var id = rows[i].Id;
+            if ($("#SelectEquipmentId").val().indexOf(id) != -1) continue;
+            var name = rows[i].Name;
+            var model = rows[i].Model;
+            if (model && model != "") name += "(" + model + ")";
+            $("#SelectEquipmentId").tokenInput("add", { id: id, text: name });
+        }
+    }
+    function doOnSelectEquipmentNoPagingOnUncheckAll(rows) {
+        if (!rows) return;
+        for (var i = 0; i < rows.length; i++) {
+            $("#SelectEquipmentId").tokenInput("remove", { id: rows[i].Id });
+        }
+    }
+</script>
+<div id="divSelectEquipmentDialog">
+     <div class="z-panel-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../Equipment/Search")
+        </div>
+    </div>
+    <ul style="border-bottom:0;background-color:#fff;" class="tabs">
+        <li class="tabs-selected"><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divShowSelectGridList');doInitSelectedEquipments();"><span class="tabs-title">选择列表</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divSelectEquipmentTokenInput')"><span class="tabs-title">已选列表 <span id='spSelectEquipmentCount'></span></span><span class="tabs-icon"></span></a></li>
+    </ul>
+    <div style='height:380px;overflow-y:auto;overflow-x:hidden;' id='divSelectEquipmentTokenInput' class='hide'>
+        @(Html.TokenInput("SelectEquipmentId")
+        .SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment"))
+        .SetSingle(false)
+        .SetWidth(600)
+        .SetOnAdd("doGetSelectEquipmentCount();")
+        .SetOnChange("doGetSelectEquipmentCount();")
+        .SetOnDelete("doGetSelectEquipmentCount();")
+        .SetPrePopulate(ViewData["ViewEquipmentListJson"] == null || string.IsNullOrWhiteSpace(ViewData["ViewEquipmentListJson"].ToString()) ? null : ViewData["ViewEquipmentListJson"].ToString())
+        .ToMvcString())
+    </div>
+    <div id='divShowSelectGridList' style='height:380px;overflow:hidden;'>
+        @Html.Partial("../Equipment/SelectEquipmentNoPagingList")
+    </div>
+</div>
+<script type="text/javascript">
+     $(function () {
+         $("#divSelectEquipmentTokenInput ul.token-input-list-facebook").css("width", "600px");
+         doGetSelectEquipmentCount();
+     });
+</script>

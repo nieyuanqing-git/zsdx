@@ -1,0 +1,39 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.View;
+@using com.Bynonco.LIMS.Model.Enum;
+<style type="text/css">
+    #tbSampleResult td input{width:135px}
+</style>
+@{
+    var sampleItemResults = ViewData["SampleItemResult"]==null ? null : (IList<SampleItemResult>)ViewData["SampleItemResult"];
+    var sampleRoleStr = ViewData["SampleRoleStr"].ToString();
+}
+@if (sampleItemResults != null && sampleItemResults.Count > 0)
+  {
+      <form id="frmSampleResult">
+          <table id="tbSampleResult" class="edit-table"  style="width:773px;">
+              @foreach(var sampleItemResult in sampleItemResults)
+              {
+                <tr>
+                    <th>分析编号</th>
+                    <td>
+                        @Html.TextBox(sampleItemResult.Id.ToString() + "~SerialNo", sampleItemResult.SerialNo, new { @readonly="readonly" })
+                        @Html.Hidden(sampleItemResult.Id.ToString() + "~RowNo", sampleItemResult.RowNo)
+                        @Html.Hidden(sampleItemResult.Id.ToString() + "~Id", sampleItemResult.Id)
+                        @Html.Hidden(sampleItemResult.Id.ToString() + "~SampleApplyId", sampleItemResult.SampleApplyId)
+                        @Html.Hidden(sampleItemResult.Id.ToString() + "~SampleItemId", sampleItemResult.SampleItemId)
+                    </td>
+                    <th> 样品编号</th>
+                    <td>
+                            @Html.TextBox(sampleItemResult.Id.ToString() + "~SampleNo", sampleItemResult.SampleNo)
+                    </td>
+                    <th>备注</th>
+                    <td>
+                        @Html.TextBox(sampleItemResult.Id.ToString() + "~Remark", sampleItemResult.Remark)
+                    </td>
+                </tr>
+              }  
+        </table> 
+    </form>
+}

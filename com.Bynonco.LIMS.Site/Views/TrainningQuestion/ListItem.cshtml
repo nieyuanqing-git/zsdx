@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var trainningQuestionPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetTrainningQuestionPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbTrainningQuestionItemList")
+       .SetUrl(Url.Action("GetGridTrainningQuestionItemList", "TrainningQuestion"))
+       .SetHeight(230)
+       .SetSortName("XPath")
+       .SetPageSize(5)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false);
+    if (trainningQuestionPrivilige.IsEnableAdjustXPath)
+    {
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向上", "UpOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+        dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("向下", "DownOperate").SetSortable(false).SetWidth(30).SetAlign(Align.center));
+    }
+    dataGrid.SetShowAddButton(trainningQuestionPrivilige.IsEnableEdit);
+    dataGrid.SetShowEditButton(trainningQuestionPrivilige.IsEnableEdit);
+    if (trainningQuestionPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetAddScript("doAddTrainningQuestionItem();");
+       dataGrid.SetEditScript("doEditTrainningQuestionItem('');");
+       dataGrid.SetOnDblClickRow("doEditTrainningQuestionItem(rowData.Id,rowData.TrainningQuestionId);");
+    }
+    dataGrid.SetShowDeleteButton(trainningQuestionPrivilige.IsEnableDelete);
+    if (trainningQuestionPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteTrainningQuestionItem('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("", "ItemValue").SetSortable(false).SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("选项", "ItemTextNoHTML").SetSortable(false).SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否正确答案", "IsCorrectStr").SetSortable(false).SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetSortable(false).SetWidth(60).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString())

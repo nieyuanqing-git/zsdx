@@ -1,0 +1,60 @@
+﻿@model IList<com.Bynonco.LIMS.Model.View.ViewSchoolEquipment>
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+<style type="text/css">
+ul.Icon-EquipmentList a.l-btn-color{display: inline-block;margin-bottom: 2px;}
+</style>
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerDirectorName = customer == null ? "负责人" : customer.GetEquipmentDirectorName();
+    var customerLinkMenName = customer == null ? "联系" : customer.GetEquipmentLinkMenName();
+    DataGridSettings dataGridSettings = (DataGridSettings)ViewData["DataGridSettings"];
+    if (Model != null && Model.Count() > 0)
+    {
+        var paginationTop = Html.JPagination("PageEquipmentListTop")
+            .SetTotal(dataGridSettings.Total)
+            .SetPageSize(dataGridSettings.PageSize)
+            .SetPageNumber(dataGridSettings.PageIndex)
+            .SetOnSelectPage("doSelectPageTop(pageNumber, pageSize);");
+        @(paginationTop.ToMvcString()) 
+        <ul class='Icon-EquipmentList'>
+        @for (int i = 0; i < Model.Count(); i++)
+        {
+            var item = Model[i];
+            <li class='@(i % 2 == 0 ? "" : "alt-row") @(i == 0 ? "first-row" : "") border-b'>
+                @Html.Partial("../Equipment/SPPaginationItemForIcon", item)
+            </li>
+        }
+        </ul>
+        var pagination = Html.JPagination("PageEquipmentList")
+                    .SetTotal(dataGridSettings.Total)
+                    .SetPageSize(dataGridSettings.PageSize)
+                    .SetPageNumber(dataGridSettings.PageIndex)
+                    .SetOnSelectPage("doSelectPage(pageNumber, pageSize);");
+        @(pagination.ToMvcString()) 
+    }
+    else
+    {
+        <p>没有相关设备信息</p>
+    }
+    
+}
+<script type="text/javascript">
+    $(function () {
+        $(".detail-pannel").mouseover(function () {
+            $(this).find(".list-right .button-box").css("display", "block");
+        });
+        $(".detail-pannel").mouseout(function () {
+            $(this).find(".list-right .button-box").css("display", "none");
+        });
+        try {
+            if (typeof (eval("setEquimentListFix")) == "function") {
+                setEquimentListFix();
+            }
+        } catch (e) {
+        }
+    });
+  
+</script>
+

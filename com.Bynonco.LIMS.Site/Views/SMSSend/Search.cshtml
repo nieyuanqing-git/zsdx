@@ -1,0 +1,68 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateSMSSendQueryExpress() {
+        var queryExpression = "";
+        var receiveUserName = $("#SearchReceiveUserName").val().trim();
+        if (receiveUserName != "") {
+            queryExpression = "ReceiveUserName∽\"" + receiveUserName.trim() + "\"";
+        }
+        var mobilePhoneNo = $("#SearchMobilePhoneNo").val().trim();
+        if (mobilePhoneNo != "") {
+            queryExpression += (queryExpression== "" ? "" : "*") +  "MobilePhoneNo=\"" + mobilePhoneNo.trim() + "\"";
+        }
+        var startTime = $("#SearchSendDateStartTime").datebox("getValue").trim();
+        if (startTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "SendDate>\"" + startTime + "\"";
+        }
+        var endTime = $("#SearchSendDateEndTime").datebox("getValue").trim();
+        if (endTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "SendDate<\"" + endTime + " 23:59:59\"";
+        }
+        var status = $("#SearchStatus").combobox("getValue");
+        if (status != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+        }
+        return queryExpression;
+    }
+    function doReset() {
+        $("#SearchSendUserName").val("");
+        $("#SearchMobilePhoneNo").val("");
+        $("#SearchSendDateStartTime").datebox("setValue", "");
+        $("#SearchSendDateEndTime").datebox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>接收人</label>
+        @Html.JValidateBox("SearchReceiveUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>接收手机</label>
+        @Html.JValidateBox("SearchMobilePhoneNo").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>开始时间</label>
+        @Html.JDateTimePicker("SearchSendDateStartTime").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchSendDateEndTime").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>状态</label>
+        @(Html.JComboBox("SearchStatus")
+            .SetEditable(false)
+            .SetData(ViewData["SearchStatusJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSMSSendSearch", "查询").SetOnclick("doSearchSMSSend();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnSMSSendReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnSMSSendClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

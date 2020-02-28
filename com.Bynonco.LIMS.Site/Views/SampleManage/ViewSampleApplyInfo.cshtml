@@ -1,0 +1,245 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewSampleApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.View;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var attachmentJson = ViewData["AttachmentJson"] == null ? "null" : ViewData["AttachmentJson"];
+    var viewSampleTestRecordList = ViewData["ViewSampleTestRecordList"] != null ? (IList<ViewSampleTestRecord>)ViewData["ViewSampleTestRecordList"] : null;
+    var testerNames = viewSampleTestRecordList != null && viewSampleTestRecordList.Count > 0 ? string.Join(",", viewSampleTestRecordList.Distinct().Select(p => p.TesterName)) : Model.TesterNames;
+    var loginUserId = ViewData["LoginUserId"] != null ? (Guid)ViewData["LoginUserId"] : Guid.Empty;
+    var userEquipmentPrivilige =(UserEquipmentPrivilige) ViewData["UserEquipmentPrivilige"];
+    var applicantName = !Model.IsSecret || userEquipmentPrivilige.IsEnableLookSecretInfo || loginUserId == Model.ApplicantId ? Model.ApplicantName : "***";
+    var telephoneNo = !Model.IsSecret || userEquipmentPrivilige.IsEnableLookSecretInfo || loginUserId == Model.ApplicantId ? Model.TelephoneNo : "***";
+    var organizationName = !Model.IsSecret || userEquipmentPrivilige.IsEnableLookSecretInfo || loginUserId == Model.ApplicantId ? Model.OrganizationName : "***";
+    var contactAddress = !Model.IsSecret || userEquipmentPrivilige.IsEnableLookSecretInfo || loginUserId == Model.ApplicantId ? Model.ContactAddress : "***";
+    var subjectName = !Model.IsSecret || userEquipmentPrivilige.IsEnableLookSecretInfo || loginUserId == Model.ApplicantId ? Model.SubjectName : "***";
+    var email = !Model.IsSecret || userEquipmentPrivilige.IsEnableLookSecretInfo || loginUserId == Model.ApplicantId ? Model.Email : "***";
+    bool isForQrCode = ViewData["IsForQrCode"]!=null?(bool)ViewData["IsForQrCode"]:false;
+}
+@if (isForQrCode)
+{
+     @Html.JTab("divViewSampleApplyInfoTabs").SetBorder(false).SetWidth(750).ToMvcString()
+}
+else
+{
+    @Html.JTab("divViewSampleApplyInfoTabs").SetBorder(false).SetWidth(750).SetHeight(575).ToMvcString()
+}
+
+<div id="divViewSampleApplyInfo" style="overflow-x:hidden;overflow-y:auto">
+    <div id="divViewSampleApplyInfoTabs" >
+        <div title="基本信息" style="overflow-x:hidden;">
+            <table id="tbSampleApplyInfoView" class="edit-table" style="width:100%">
+            <tr>
+                <th>选择仪器</th>
+                <td colspan="3" style="width:550px">
+                    @Html.TextBox("EquipmentNames", Model.EquipmentNames, new { style = "width:550px;border-style:none;background-color:White;" })
+                </td>
+            </tr>
+            <tr>
+                <th>委托人</th>
+                <td>
+                   <span id="ApplicantName">@applicantName</span>
+                </td>
+                <th>联系电话</th>
+                <td>
+                    <span id="TelephoneNo">@telephoneNo</span>
+                </td>
+            </tr>
+            <tr>
+                <th>电子邮箱</th>
+                <td>
+                    <span id="Email">@email</span>
+                </td>
+                <th>委托单位</th>
+                <td>
+                    <span id="OrganizationName">@organizationName</span>
+                </td>
+            </tr>
+            <tr>
+                <th>地址及邮编</th>
+                <td colspan="3">
+                    <span id="ContactAddress">@contactAddress</span>
+               </td>
+            </tr>
+            <tr>
+                <th>支付方式</th>
+                <td>
+                    <span id="PaymentMethodName">@Model.PaymentMethodName</span>
+                </td>
+                <th>类型</th>
+                <td><span id="TagName">@(Model.SampleApply.Applicant != null ? Model.SampleApply.Applicant.TagName : "")</span></td> 
+            </tr>
+            <tr>
+                <th>送样单号</th>
+                <td><span id="SampleNo">@Model.SampleNo </span></td>
+                <th>送样时间</th>
+                <td><span id="ExpectSendDate">@Model.ExpectSendDateStr </span></td>
+            </tr>
+            <tr>
+                <th>样品数量</th>
+                <td><span id="Quatity">@Model.Quatity </span> &nbsp &nbsp 实际完成数量:@Model.RealQuatityStr</td>
+                 <th>期望完成时间</th>
+                 <td><span id="ExpectResultDate">@Model.ExpectResultDateStr </span></td>
+            </tr>
+            <tr>
+                <th>课题组名称</th>
+                <td>
+                    @Html.TextBox("subjectName", subjectName, new { style = "width:245px;border-style:none;background-color:White;", title = subjectName })
+                </td>
+                <th>项目名称</th>
+                <td>
+                   <span>@Model.SubjectProjectName</span>
+                </td>
+            </tr>
+            <tr>
+                <th>实际完成时间</th>
+                <td><span id="FinishDate">@Model.FinishDateStr </span></td>
+                <th>来样状态</th>
+                <td>
+                        @if (string.IsNullOrWhiteSpace(Model.SampleStatusReamrk))
+                        {
+                    
+                            <span id="SmapleStatusName">@Model.SmapleStatusName</span>
+                        }
+                        else
+                        {
+                    
+                            <span id="SampleStatusReamrk">@Model.SampleStatusReamrk</span>
+                        } 
+                </td>
+            
+            </tr>
+            <tr>
+                 <th>样品处理</th>
+                 <td><span id="TestConditionName">@Model.TestConditionName </span></td>
+                 <th>取件方式</th>
+                 <td><span id="GetResultWayName">@Model.GetResultWayName </span></td>
+            </tr>
+            <tr>
+                <th>使用性质</th>
+                <td>@Model.UseNatureStr</td>
+                <th>样品名称</th>
+                <td >@Html.TextBox("Description", Model.Description, new { style = "border-style:none;background-color:White;" })</td>
+            </tr>
+            <tr>
+                <th>是否加急</th>
+                <td><span id="IsUrgentNickName">@Model.IsUrgentNickName </span></td>
+                <th>是否保密</th>
+                <td><span id="IsSecretNickName">@Model.IsSecretNickName </span></td>
+            </tr>
+             <tr>
+                <th>前处理方式</th>
+                <td colspan="3" style="vertical-align:middle">
+                    <span style="vertical-align:middle;">由机组前处理:</span>
+                    <span id="IsNeedHandleNickName">@Model.IsNeedHandleNickName </span>
+                </td>
+            </tr>
+             <tr>
+                <th>检测项目</th>
+                <td colspan="3" style="width:550px;"> 
+                    @Html.TextBox("SampleItemName", Model.SampleItemName, new { style = "width:550px;border-style:none;background-color:White;", title = Model.SampleItemNames })
+                </td>
+            </tr>
+            <tr>
+                <th>状态</th>
+                <td><span id="StatusName">@Model.SampleStatus.ToCnName() </span></td>
+                <th>预计完成时间</th>
+                <td><span id="PredictResultTime">@Model.PredictResultTimeStr </span></td>
+            </tr>
+             <tr>
+                <th>计费方式</th>
+                <td><span id="ChargeCategoryName">@Model.ChargeCategoryName </span></td>
+                <th>收费金额</th>
+                <td><span id="Price">@ViewData["PriceStr"]</span> &nbsp;&nbsp;&nbsp;&nbsp; 单价:@Model.SampleApply.SampleItem.UnitPrice</td>
+            </tr>
+            <tr>
+                <th>测试人</th>
+                <td colspan="3" style="width:550px;">@Html.TextBox("TesterNames",testerNames,
+                                                     new { style = "width:550px;border-style:none;background-color:White;", title = Model.TesterNames })
+                </td>
+            </tr>
+            <tr>
+                <th>检测条件及要求</th>
+                <td colspan="3" style="width:650px;"> 
+                    @Html.TextArea("TestDemand", Model.TestDemand, new { rows = "3", style = "width:650px;height:50px;border-style:none;background-color:White;overflow:auto" })
+                </td>
+            </tr>
+            <tr>
+                <th>备注</th>
+                <td colspan="3" style="width:650px;"> 
+                    @Html.TextArea("Remark", Model.Remark, new { rows = "3", style = "width:650px;height:50px;border-style:none;background-color:White;overflow:auto" })
+                </td>
+            </tr>
+        </table>
+   </div>
+   
+    @if (!com.Bynonco.LIMS.BLL.Business.Customer.Factory.CustomerFactory.GetCustomer().GetIsHideChargeInfoWhenViewSampleApplyDetail() && Model.SampleApply.SampleApplyChargeItems != null && Model.SampleApply.SampleApplyChargeItems.Count > 0)
+    {
+        <div title="收费信息">
+            <div style="overflow:hidden; padding:10px;height:300px">
+                <table class="edit-table" style="width:100%">
+                    @foreach (var sampleApplyChargeItem in Model.SampleApply.SampleApplyChargeItems)
+                    {
+                        <tr>
+                            <th>收费项目</th>
+                            <td>@(sampleApplyChargeItem.GetChargeItem() != null ? sampleApplyChargeItem.GetChargeItem().Name : "")</td>
+                            <th>数量</th>
+                            <td>@sampleApplyChargeItem.Quantity</td>
+                            <th>费用(元)</th>
+                            <td>@(sampleApplyChargeItem.Price * sampleApplyChargeItem.Quantity)</td>
+                            <th>备注</th>
+                            <td>@sampleApplyChargeItem.Remark</td>
+                        </tr>
+                    }
+                    <tr>
+                            <th>合计</th>
+                            <td>共 @Model.SampleApply.SampleApplyChargeItems.Count 个项目</td>
+                            <th>总数量</th>
+                            <td>@Model.SampleApply.SampleApplyChargeItems.Sum(p => p.Quantity)</td>
+                            <th>总费用(元)</th>
+                            <td>@Model.SampleApply.SampleApplyChargeItems.Sum(p => p.Price * p.Quantity)</td>
+                            <th></th>
+                            <td></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    }  
+        @if (Model.SampleApply.SampleApplyParameters != null && Model.SampleApply.SampleApplyParameters.Count > 0)
+        {
+            <div title="参数信息">
+                <div style="overflow:hidden; padding:10px">
+                    <table class="edit-table" style="width:100%">
+                        @foreach (var sampleApplyParameter in Model.SampleApply.SampleApplyParameters)
+                        {
+                            <tr>
+                                <th>@sampleApplyParameter.SampleParameter.Name</th>
+                                <td>@Html.Partial("DataDictHtmlString", new DataDictModel(sampleApplyParameter.SampleParameter, sampleApplyParameter != null ? sampleApplyParameter.Val : null, null))</td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        }
+       
+        @if (Model.SampleApply.SampleApplyAttachments != null && Model.SampleApply.SampleApplyAttachments.Count > 0)
+        {
+            <div title="附件信息">
+                <div style="width:580px;height:300px; padding:10px;overflow:hidden">@Html.Partial("SampleApplyAttachmentList")</div>
+            </div>
+        }
+        @if (Model.IsNeedFeedBack && Model.FeedbackTime.HasValue && Model.SampleApply.SampleFeedBackAttachments != null && Model.SampleApply.SampleFeedBackAttachments.Count > 0)
+        {
+            <div title="反馈信息">
+                <div style="width:580px;padding:10px;overflow:hidden">@Html.Partial("SampleFeedBackAttachmentList")</div>
+                <div style="width:580px;padding:10px;overflow:hidden">备注: @Model.SampleApply.FeedbackRemark</div>
+            </div>
+        }
+        <div title="报告号信息">
+            @Html.Partial("SampleApplyReportNumberContainer")
+        </div>
+    </div>
+</div>
+

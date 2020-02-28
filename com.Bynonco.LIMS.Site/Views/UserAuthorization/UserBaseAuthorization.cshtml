@@ -1,0 +1,102 @@
+﻿@model com.Bynonco.LIMS.Model.User
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var userAuthorizationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserAuthorizationPrivilige(User.Identity.Name);
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsRegistryCard = customer == null ? false : customer.GetIsRegistryCard();
+}
+<div class="edit-box">
+    <form id="frmUserBaseAuthorizationEdit" action="#">
+        @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+        <table class="edit-info">
+            <tr>
+                <th>是否授权管理员</th>
+                <td>
+                    @Html.CheckBox("IsAdmin", Model == null || !Model.IsAdmin.HasValue ? false : Model.IsAdmin.Value)
+                </td>
+            </tr>
+            @if (customerIsRegistryCard)
+            {
+                <tr>
+                    <th>是否特权卡</th>
+                    <td>
+                        @Html.CheckBox("IsRegistryCard", Model == null || !Model.IsRegistryCard.HasValue ? false : Model.IsRegistryCard.Value)
+                    </td>
+                </tr>
+            }
+            <tr>
+                <th valign="top">授权管理机构</th>
+                <td>
+                <div id='divLabOrganizationAdminNote' class='@(Model == null || !Model.IsAdmin.HasValue || !Model.IsAdmin.Value ? "" : "hide")'>
+                    (选中 [是否授权管理员] 显示授权管理机构)
+                </div>
+                <div id='divLabOrganizationAdminList' class='@(Model == null || !Model.IsAdmin.HasValue || !Model.IsAdmin.Value ? "hide" : "")'>
+                 @(Html.JTree("ulLabOrganizationAdminList")
+                    .SetData(ViewData["LabOrganizationAdminJson"])
+                    .SetCheckBox(true)
+                    .SetCollapseAll(false)
+                    .SetExpandAll(true)
+                    .SetCasecadeCheck(false)
+                    .SetExpandAll(true)
+                    .SetOnLoadSuccess("setTimeout('doLabOrganizationAdminLoadSuccess();', 500);")
+                    .ToMvcString()
+                )
+                </div>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div class="edit-operate">
+        @if (userAuthorizationPrivilige.IsEnableSaveUserBaseAuthorization)
+        {
+            @Html.JLinkButton("btnSaveUserBaseAuthorization", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveUserBaseAuthorization();return false;").ToMvcString()
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    function doUserLabOrganizationReset() {
+        $('#ulLabOrganizationAdminList').tree('reload');
+        return true;
+    }
+    function doSaveUserBaseAuthorization() {
+        var ids = '';
+        var nodesCheck = $('#ulLabOrganizationAdminList').tree('getChecked');
+        for (var i = 0; i < nodesCheck.length; i++) {
+            if (!nodesCheck[i].id.isDefaultGuid()) {
+                if (ids != '') ids += ',';
+                ids += nodesCheck[i].id;
+            }
+        }
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveUserBaseAuthorization","UserAuthorization")',
+            data: $("#frmUserBaseAuthorizationEdit").serialize() + "&LabOrganizationId=" + ids + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                else
+                    $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doLabOrganizationAdminLoadSuccess() {
+        $('#ulLabOrganizationAdminList').tree('expandAll');	
+    }
+    $(function () {
+        $("#IsAdmin").click(function () {
+            if ($("#IsAdmin").attr('checked') == undefined) {
+                $("#divLabOrganizationAdminList").addClass("hide");
+                $("#divLabOrganizationAdminNote").removeClass("hide");
+            }
+            else {
+                $("#divLabOrganizationAdminList").removeClass("hide");
+                $("#divLabOrganizationAdminNote").addClass("hide");
+            }
+
+        });
+    });
+</script>

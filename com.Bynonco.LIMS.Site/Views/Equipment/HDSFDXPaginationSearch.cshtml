@@ -1,0 +1,32 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+ul.search li {padding: 0;}
+</style>
+<form id="frmSearchCondition" action="#">
+<ul class="search">
+    <li style="padding: 5px 0 5px 15px">
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(100).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>资产编号</label>
+        @Html.JValidateBox("SearchEquipmentLabel").SetWidth(100).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>设备功能</label>
+        @Html.JValidateBox("SearchScopeOfApplication").SetWidth(100).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label style="vertical-align:top;">机构名称</label>
+        @Html.DropDownList("SearchOrgId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:105px",onchange = "doEquipmentSearch();"})
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentSearch", "查询").SetOnclick("doEquipmentSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnEquipmentReset", "清空").SetOnclick("doEquipmentReset();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+</form>
+@Html.Partial("../Equipment/PaginationSearchScripts")

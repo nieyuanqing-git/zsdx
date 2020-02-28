@@ -1,0 +1,31 @@
+﻿@model com.Bynonco.LIMS.Model.TrainningQuestionItem
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    bool isYesNo = ViewData["IsYesNo"] == null ? false : (bool)ViewData["IsYesNo"];
+}
+<div id="divTrainningQuestionItemEdit" style="width:@(isYesNo ? "300" : "750")px;">
+ <form id="frmTrainningQuestionItemEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("TrainningQuestionId", Model == null ? (ViewData["TrainningQuestionId"] == null ? "" : ViewData["TrainningQuestionId"].ToString()) : Model.TrainningQuestionId.ToString())
+    <table id="tdTrainningQuestionItemEdit" class="edit-table">
+         <tr>
+            <th>是否答案</th>
+            <td>
+                @Html.CheckBox("IsCorrect", Model == null ? false : Model.IsCorrect)
+                @Html.JValidateBox("XPath").SetValue(Model == null ? "" : Model.XPath).SetWidth(200).SetDisabled(true).AddClass("hide").ToMvcString()
+            </td>
+            <th class='@(isYesNo ? "hide" : "")'>是否停用</th>
+            <td class='@(isYesNo ? "hide" : "")'>
+                @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+        <tr class='@(isYesNo ? "hide" : "")'>
+            <th>选项</th>
+            <td colspan="3" style="height:405px;">
+                @Html.EditorFor(m => m.ItemTextHTML)
+                @Html.Hidden("ItemTextNoHTML")
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

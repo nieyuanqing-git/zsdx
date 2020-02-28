@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateDoorQueryExpress() {
+        var queryExpression = "";
+        var doorName = $("#SearchDoorName").val().trim();
+        if (doorName != "") {
+            queryExpression = "(Name∽\"" + doorName.trim() + "\")";
+        }
+        var doorIP = $("#SearchDoorIP").val().trim();
+        if (doorIP != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "IP=\"" + doorIP.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doDoorReset() {
+        $("#SearchDoorName").val("");
+        $("#SearchDoorIP").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>名称</label>
+        @Html.JValidateBox("SearchDoorName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>IP</label>
+        @Html.JValidateBox("SearchDoorIP").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnDoorSearch", "查询").SetOnclick("doDoorSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnDoorReset", "清空").SetOnclick("doDoorReset();").ToMvcString()
+        @Html.JLinkButton("btnDoorClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

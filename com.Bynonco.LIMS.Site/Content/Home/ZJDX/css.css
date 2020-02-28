@@ -1,0 +1,119 @@
+﻿body {
+    background: url("images/bg.gif") repeat scroll left top #FFFFFF;
+}
+.main-box-full {
+    padding: 8px;
+    width: 987px;
+}
+
+.banner-box { background: none;height: 160px;}
+.banner-box .logo-box {float: left; height: 70px;padding: 3px 0 0 15px;}
+.banner-box .top-search-box {float: right;height: 58px;padding-top: 15px;width: 410px;}
+.banner-box .top-search-box .search-input-box {background: url("images/bg-top-search.png") no-repeat scroll left top;}
+.body-inner {background: url("images/bg-inner.gif") repeat-y scroll left top #FFFFFF;}
+.body-top .body-inner {background:url("images/bg-top-login.gif") repeat-x scroll left top #eee;}
+
+.menu-rolling{background: url("images/menu-rolling.gif") no-repeat scroll left top #FFFFFF;height:33px;margin-left:3px;width:997px;}
+.menu-rolling .menu-title{line-height:33px; font-size:15px; color:#fff;font-weight:bold;margin-left:20px;}
+.menu-rolling a.menu-title:hover{text-decoration:underline;}
+
+#scroller_container {width: 820px;height: 33px;overflow: hidden;}
+/* CSS Hack Safari */
+#dummy {;# }
+#scroller_container {overflow: auto;}
+#scroller_container .scroller{line-height:33px; font-size:15px; color:#fff;margin-left:10px;}
+#scroller_container a.scroller:hover{text-decoration:underline;}
+.search-box-right{float:right;width:200px}
+
+.quick-link-box-top{height:30px;padding:20px 0 0 20px;}
+.quick-link-box-top a{height:28px;line-height:28px;display:block;float:left;margin-left:10px;text-align:center;}
+.quick-link-box-top a.quick-link{background: url("images/quick-link.gif") no-repeat scroll left top; width:126px;}
+.quick-link-box-top a.appointment-link{background: url("images/appointment.gif") no-repeat scroll left top; width:126px;}
+.quick-link-box-top a.button-top{background: url("images/button.gif") no-repeat scroll left top; width:83px;padding:1px 15px 7px 0;height:20px;line-height:20px;font-size:14px;font-weight:bold;}
+.quick-link-box-top a.current{color:#008B03;}
+
+.content-box {padding: 0;}
+.content-box h2{font-size: 13px;font-weight: normal;height: 21px;line-height: 21px;margin: 0;padding: 0 15px;color:#800000;}
+.content-left-box-723{float:left;width:723px;overflow:hidden;}
+.content-left-box-473{float:left;width:473px;overflow:hidden;}
+.content-left-box-254{float:left;width:254px;overflow:hidden;}
+.content-right-box-254{float:right;width:254px;overflow:hidden;}
+h2.title-723 {background: url("images/title-723.gif") no-repeat scroll left top;width: 693px;}
+.content-723{ width:721px; height:220px;overflow-y:auto;border:1px solid #DDDDDD;border-top:0;margin-bottom:10px;}
+h2.title-473 {background: url("images/title-473.gif") no-repeat scroll left top;width: 443px;}
+.content-473{ width:471px; height:220px;overflow-y:auto;border:1px solid #DDDDDD;border-top:0;margin-bottom:10px;}
+h2.title-254 {background: url("images/title-254.gif") no-repeat scroll left top;width: 224px;}
+.content-254{ width:252px; height:220px;overflow-y:auto;border:1px solid #DDDDDD;border-top:0;margin-bottom:10px;}
+
+
+.home-equipment-list{}
+.home-equipment-list li{float:left; width:108px;height:100px; padding-left:5px;padding-top:8px;}
+.home-equipment-list li .equipment-icon-box{width:106px;height:79px;border:1px solid #E7E7E7; border-bottom:0;}
+.home-equipment-list li .equipment-icon-box img{width:106px;height:79px;cursor:pointer;}
+.home-equipment-list li .equipment-link-box{width:106px;height:18px;border:1px solid #EFE8CA;text-align:center;background-color:#fefde7;}
+
+
+.bottom-menu{background: url("images/bottom-menu.gif") no-repeat scroll left top #FFFFFF;height:31px;margin:10px 0 10px 3px;width:997px;}
+.bottom-menu .menu-title{line-height:31px; font-size:14px; color:#fff;font-weight:bold;margin-left:20px;}
+.bottom-menu a.menu-title:hover{text-decoration:underline;}
+
+.footer {background: none;margin:0;}
+/* dock - top Download by http://www.codefans.net*/
+.dock {
+	position: relative; 
+	height: 50px; 
+	text-align: center;
+}
+.dock-container {
+	position: absolute;
+	height: 50px;
+	padding-left: 20px;
+}
+a.dock-item {
+	display: block;
+	width: 40px;
+	color: #000;
+	position: absolute;
+	top: 0px;
+	text-align: center;
+	text-decoration: none;
+	font: bold 12px Arial, Helvetica, sans-serif;
+}
+.dock-item img {
+	border: none; 
+	margin: 5px 10px 0px; 
+	width: 100%; 
+}
+.dock-item span {
+	display: none; 
+	padding-left: 20px;
+}
+
+/* dock2 - bottom */
+#dock2 {
+
+}
+.dock-container2 {
+	position: absolute;
+	height: 50px;
+	padding-left: 20px;
+}
+a.dock-item2 {
+	display: block; 
+	font: bold 12px Arial, Helvetica, sans-serif;
+	width: 40px; 
+	color: #000; 
+	bottom: 0px; 
+	position: absolute;
+	text-align: center;
+	text-decoration: none;
+}
+.dock-item2 span {
+	display: none;
+	padding-left: 20px;
+}
+.dock-item2 img {
+	border: none; 
+	margin: 5px 10px 0px; 
+	width: 100%; 
+}

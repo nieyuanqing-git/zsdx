@@ -1,0 +1,21 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateSJ6QueryExpress() {
+        var queryExpression = "";
+        return queryExpression;
+    }
+   
+    function doReset() {
+        return false;
+    }
+</script>
+<ul class="search">
+    <li class="button">
+        @Html.JLinkButton("btnSearchSJ6", "查询").SetOnclick("doSJ6Search();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnResetSJ6", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnCloseSJ6", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

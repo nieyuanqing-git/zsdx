@@ -1,0 +1,28 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    Layout = ViewBag.Layout;
+    var isUnLoadEquipmentFirst = ViewData["IsUnLoadEquipmentFirst"] == null ? false : bool.Parse(ViewData["IsUnLoadEquipmentFirst"].ToString());
+    var customer = CustomerFactory.GetCustomer();
+    var customerSearch = customer == null ? "" : customer.GetEquipmentManageSearch();
+    customerSearch = customerSearch == "" ? "../Equipment/PaginationSearch" : customerSearch;
+}
+@if (!isUnLoadEquipmentFirst)
+{
+    <div class="search-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial(customerSearch)
+        </div>
+    </div>
+}
+<div class="layout-center-full">
+    @if (isUnLoadEquipmentFirst)
+    {
+    <div style='padding-bottom:5px;border:1px solid #D3D3D3;border-bottom:0;'>
+        @Html.Partial(customerSearch)
+    </div>
+    }
+    <div>
+        @Html.Partial("../Equipment/PaginationListContainer")
+    </div>
+</div>

@@ -1,0 +1,17 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../SampleManage/SampleApplySearch")</div>
+</div>
+<div>@Html.Partial("../SampleManage/SampleApplyQueryList")</div>
+<div style="display:none">@Html.Partial("SampleApplyScriptContainer")</div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbSampleList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+</script>

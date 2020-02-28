@@ -1,0 +1,81 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentSemesterCost
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divEquipmentSemesterCostEdit"> 
+<form id="frmEquipmentSemesterCost" action="#">
+    @Html.Hidden("Id",Model == null ? "" : Model.Id.ToString())
+    <table id="tbEquipmentSemesterCostEdit" class="edit-table" style='width:640px;'>
+        <tr>
+            <th><span class="required">*</span>学期</th>
+            <td>
+                @Html.Hidden("SemesterId", ViewData["SemesterId"] == null ? "" : ViewData["SemesterId"].ToString())
+                @(ViewData["SemesterName"] == null ? "" : ViewData["SemesterName"].ToString())
+            </td>
+            <th>状态</th>
+            <td>@(Model == null ? EquipmentSemesterCostStatus.WaittingAudit.ToCnName() : Model.StatusEnum.ToCnName())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器设备</th>
+            <td id="tdEquipmentIds" colspan='5'>
+                 @(Html.TokenInput("EquipmentId")
+                        .SetUrl(Url.Action("GetEquipmentGroupManageViewEquipmentListByKeyWord", "Equipment"))
+                        .SetSingle(true)
+                        .SetWidth(400)
+                        .SetPrePopulate(ViewData["EquipmentJson"] == null || string.IsNullOrWhiteSpace(ViewData["EquipmentJson"].ToString()) ? null : ViewData["EquipmentJson"].ToString())
+                        .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>对内收入</th>
+            <td>
+                 @Html.JValidateBox("EarningInternal").SetValue(Model == null ? "" : Model.EarningInternal.ToString()).SetWidth(100).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+            <th><span class="required">*</span>对外收入</th>
+            <td>
+                 @Html.JValidateBox("EarningExternal").SetValue(Model == null ? "" : Model.EarningExternal.ToString()).SetWidth(100).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+            <th>合计</th>
+            <td style='width:100px;'>
+                 <span id='spEarningTotal'>@(Model == null ? "" : Model.EarningTotal.ToString())</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器返卡</th>
+            <td>
+                 @Html.JValidateBox("ReturnEquipment").SetValue(Model == null ? "" : Model.ReturnEquipment.ToString()).SetWidth(100).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+            <th><span class="required">*</span>中心返卡</th>
+            <td>
+                 @Html.JValidateBox("ReturnCenter").SetValue(Model == null ? "" : Model.ReturnCenter.ToString()).SetWidth(100).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+            <th>合计</th>
+            <td style='width:100px;'>
+                 <span id='spReturnTotal'>@(Model == null ? "" : Model.ReturnTotal.ToString())</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>仪器提成</th>
+            <td>
+                 @Html.JValidateBox("CommissionEquipment").SetValue(Model == null ? "" : Model.CommissionEquipment.ToString()).SetWidth(100).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+            <th><span class="required">*</span>中心提成</th>
+            <td>
+                 @Html.JValidateBox("CommissionCenter").SetValue(Model == null ? "" : Model.CommissionCenter.ToString()).SetWidth(100).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+            <th>合计</th>
+            <td style='width:100px;'>
+                 <span id='spCommissionTotal'>@(Model == null ? "" : Model.CommissionTotal.ToString())</span>
+            </td>
+        </tr>
+        <tr>
+            <th>仪器提成<br />备注</th>
+            <td colspan='5'>@Html.TextArea("CommissionEquipmentRemark", Model == null ? "" : Model.CommissionEquipmentRemark, new { style = "width:96%;height:80px" })</td>
+        </tr>
+        <tr>
+            <th>中心提成<br />备注</th>
+            <td colspan='5'>@Html.TextArea("CommissionCenterRemark", Model == null ? "" : Model.CommissionCenterRemark, new { style = "width:96%;height:80px" })</td>
+        </tr>
+    </table>
+  </form>
+</div>

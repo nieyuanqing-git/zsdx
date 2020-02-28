@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var TemperatureHumiditySetupPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetTemperatureHumiditySetupPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbTemperatureHumiditySetupList")
+       .SetUrl(Url.Action("GetViewGridTemperatureHumiditySetupList", "TemperatureHumidity"))
+       .SetHeight(650)
+       .SetSortName("Name")
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(TemperatureHumiditySetupPrivilige.IsEnableEdit);
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doControlIndex('');", IconCls = "icon-control", Id = "btnControlIndex", Text = "监控" });
+    if (TemperatureHumiditySetupPrivilige.IsEnableEdit)
+    {
+        dataGrid.SetEditScript("doEditTemperatureHumiditySetup();");
+        dataGrid.SetOnDblClickRow("doEditTemperatureHumiditySetup(rowData.Id);");
+    }
+
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "Name").SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("资产编号", "Label").SetWidth(80).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(250).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("温度下限", "LowerTemperature").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("温度上限", "UpperTemperature").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("温度波动值", "OffsetTemperature").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("湿度下限", "LowerHumidity").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("湿度上限", "UpperHumidity").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("湿度波动值", "OffsetHumidity").SetWidth(80).SetAlign(Align.center));
+    dataGrid.SetSearchScript("doShowSearch()");
+ }
+@(dataGrid.ToMvcString())

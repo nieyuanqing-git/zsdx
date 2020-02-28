@@ -1,0 +1,218 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentImport
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divEquipmentImportEdit"> 
+<form id="frmEquipmentImport" action="#">
+    @Html.Hidden("Id",Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style='width:640px;'>
+        <tr>
+            <th><span class='required'>*</span>设备名称</th>
+            <td>
+                 @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(150).ToMvcString()
+            </td>
+            <th><span class="required">*</span>资产编号</th>
+            <td>
+                @Html.JValidateBox("Label").SetValue(Model == null ? "" : Model.Label).SetWidth(150).ToMvcString()
+            </td>
+            <th><span class="required">*</span>型号</th>
+            <td>
+                @Html.JValidateBox("Model").SetValue(Model == null ? "" : Model.Model).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>所属单位</th>
+            <td>
+                 @Html.JValidateBox("OrgName").SetValue(Model == null ? "" : Model.OrgName).SetWidth(150).SetValidateType(ValidateType.required).ToMvcString()
+            </td>
+            <th><span class="required">*</span>放置地点</th>
+            <td>
+                @Html.JValidateBox("RoomName").SetValue(Model == null ? "" : Model.RoomName).SetWidth(150).ToMvcString()
+            </td>
+            <th>规格</th>
+            <td>
+                @Html.JValidateBox("Specifications").SetValue(Model == null ? "" : Model.Specifications).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>产地</th>
+            <td>
+                @Html.JValidateBox("ProductionArea").SetValue(Model == null ? "" : Model.ProductionArea).SetWidth(150).ToMvcString()
+            </td>
+            <th>厂家</th>
+            <td>
+                @Html.JValidateBox("Factory").SetValue(Model == null ? "" : Model.Factory).SetWidth(150).ToMvcString()
+            </td>
+            <th>所属品牌</th>
+            <td>
+                @Html.JValidateBox("Brand").SetValue(Model == null ? "" : Model.Brand).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>出产编号</th>
+            <td>
+                @Html.JValidateBox("ProductionNo").SetValue(Model == null ? "" : Model.ProductionNo).SetWidth(150).ToMvcString()
+            </td>
+            <th>供应商</th>
+            <td>
+                @Html.JValidateBox("Supplier").SetValue(Model == null ? "" : Model.Supplier).SetWidth(150).ToMvcString()
+            </td>
+            <th>价格</th>
+            <td>
+                @Html.JValidateBox("UnitPrice").SetValue(Model == null || !Model.UnitPrice.HasValue ? "" : Math.Round(Model.UnitPrice.Value,2).ToString()).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>设备来源</th>
+            <td>
+                 @(Html.JComboBox("ComeFrom")
+                    .SetData(ViewData["ComeFromJson"])
+                    .SetWidth(155)
+                    .ToMvcString())
+            </td>
+            <th>购买日期</th>
+            <td>
+                @Html.JDateTimePicker("BuyDate").SetValue(Model == null ? "" : Model.BuyDate.HasValue ? Model.BuyDate.Value.ToString("yyyy-MM-dd") : "").SetWidth(155).ToMvcString()
+            </td>
+            <th>使用性质</th>
+            <td>
+                 @(Html.JComboBox("UseDirection")
+                    .SetData(ViewData["UseDirectionJson"])
+                    .SetWidth(155)
+                    .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>所属分类</th>
+            <td>
+                @Html.JValidateBox("CategoryName").SetValue(Model == null ? "" : Model.CategoryName).SetWidth(150).ToMvcString()
+            </td>
+            <th>负责人</th>
+            <td>
+                @Html.JValidateBox("AdminUserNane").SetValue(Model == null ? "" : Model.AdminUserNane).SetWidth(150).ToMvcString()
+            </td>
+            <th>联系人</th>
+            <td>
+                @Html.JValidateBox("LinkUserName").SetValue(Model == null ? "" : Model.LinkUserName).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>联系电话</th>
+            <td>
+                @Html.JValidateBox("LinkTelNo").SetValue(Model == null ? "" : Model.LinkTelNo).SetWidth(150).ToMvcString()
+            </td>
+            <th>联系邮箱</th>
+            <td>
+                @Html.JValidateBox("AdminEmail").SetValue(Model == null ? "" : Model.AdminEmail).SetWidth(150).ToMvcString()
+            </td>
+            <th>是否大型设备</th>
+            <td>
+                 @(Html.JComboBox("IsLargeScaleEquipment")
+                    .SetData(ViewData["IsLargeScaleEquipmentJson"])
+                    .SetWidth(155)
+                    .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>当前状态</th>
+            <td>
+                 @(Html.JComboBox("Status")
+                    .SetData(ViewData["StatusJson"])
+                    .SetWidth(155)
+                    .ToMvcString())
+            </td>
+            <th>使用方式</th>
+            <td>
+                 @(Html.JComboBox("UseType")
+                    .SetData(ViewData["UseTypeJson"])
+                    .SetWidth(155)
+                    .ToMvcString())
+            </td>
+            <th>最大可预约天数</th>
+            <td>
+                @Html.JValidateBox("AppointmentDays").SetValue(Model == null || !Model.AppointmentDays.HasValue ? "" : Model.AppointmentDays.Value.ToString()).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+         <th>每周工作日</th>
+            <td>
+                @Html.JValidateBox("WorkDays").SetValue(Model == null ? "" : Model.WorkDays).SetWidth(150).ToMvcString()
+            </td>
+            <th>预约时间单位</th>
+            <td>
+                @Html.JValidateBox("AppointmentTimeStep").SetValue(Model == null || !Model.AppointmentTimeStep.HasValue ? "" : Model.AppointmentTimeStep.Value.ToString()).SetWidth(150).ToMvcString()
+            </td>
+            <th>预约开放时间段</th>
+            <td>
+                @Html.JValidateBox("WorkHours").SetValue(Model == null ? "" : Model.WorkHours).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>计费方式</th>
+            <td>
+                 @(Html.JComboBox("ChargeType")
+                    .SetData(ViewData["ChargeTypeJson"])
+                    .SetWidth(155)
+                    .ToMvcString())
+            </td>
+            <th>计费价格</th>
+            <td>
+                @Html.JValidateBox("StandardPrice").SetValue(Model == null || !Model.StandardPrice.HasValue ? "" : Math.Round(Model.StandardPrice.Value, 2).ToString()).SetWidth(150).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>是否培训才可使用</th>
+            <td>
+                 @(Html.JComboBox("IsNeedTranningBeforeUse")
+                    .SetData(ViewData["IsNeedTranningBeforeUseJson"])
+                    .SetWidth(155)
+                    .ToMvcString())
+            </td>
+            <th>预约是否需要审核</th>
+            <td>
+                 @(Html.JComboBox("IsAppointmentNeedAudit")
+                    .SetData(ViewData["IsAppointmentNeedAuditJson"])
+                    .SetWidth(155)
+                    .ToMvcString())
+            </td>
+            <th>是否接受送样</th>
+            <td>
+                 @(Html.JComboBox("IsAcceptSampleTest")
+                    .SetData(ViewData["IsAcceptSampleTestJson"])
+                    .SetWidth(155)
+                    .ToMvcString())
+            </td>
+        </tr>
+    </table>
+    <ul style="border-bottom:0;background-color:#fff;margin-top:10px;" class="tabs">
+        <li class="tabs-selected"><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divQualification');"><span class="tabs-title">主要规格及技术指标</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divScopeOfApplication')"><span class="tabs-title">主要功能及特色</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divSpecimenNotice')"><span class="tabs-title">样本检测注意事项</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divUseNotice')"><span class="tabs-title">设备使用相关说明</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divRemark')"><span class="tabs-title">备注</span><span class="tabs-icon"></span></a></li>
+    </ul>
+    <div style='height:100px;overflow:hidden;' id='divQualification' class='GroupTag'>
+        @Html.TextArea("Qualification", Model == null ? "" : Model.Qualification, new { style = "width:96%;height:90px;", placeholder = "(请输入主要规格及技术指标)" })
+    </div>
+    <div style='height:100px;' id='divScopeOfApplication' class='GroupTag hide'>
+        @Html.TextArea("ScopeOfApplication", Model == null ? "" : Model.ScopeOfApplication, new { style = "width:96%;height:90px;", placeholder = "(请输入主要功能及特色)" })
+    </div>
+    <div style='height:100px;' id='divSpecimenNotice' class='GroupTag hide'>
+        @Html.TextArea("SpecimenNotice", Model == null ? "" : Model.SpecimenNotice, new { style = "width:96%;height:90px;", placeholder = "(请输入样本检测注意事项)" })
+    </div>
+    <div style='height:100px;' id='divUseNotice' class='GroupTag hide'>
+        @Html.TextArea("UseNotice", Model == null ? "" : Model.UseNotice, new { style = "width:96%;height:90px;", placeholder = "(请输入设备使用相关说明)" })
+    </div>            
+    <div style='height:100px;' id='divRemark' class='GroupTag hide'>
+        @Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:96%;height:90px;", placeholder = "(请输入备注)" })
+    </div> 
+  </form>
+    <script type="text/javascript">
+        function changeTag(obj, tagId) {
+            $(".GroupTag").addClass("hide");
+            $(".tabs li").removeClass("tabs-selected");
+            $(obj).parent().addClass("tabs-selected");
+            $("#" + tagId).removeClass("hide");
+            return false;
+        }
+    </script>
+</div>

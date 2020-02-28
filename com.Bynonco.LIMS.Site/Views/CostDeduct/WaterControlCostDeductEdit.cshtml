@@ -1,0 +1,128 @@
+﻿@model com.Bynonco.LIMS.Model.WaterControlCostDeduct
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Privilige;
+@{
+    var onChangedScript = Model == null ? "getWaterControlCostDeductRelativeData();" : "";
+    var selectSubjectProjectId = Model == null || !Model.SubjectProjectId.HasValue ? "" : Model.SubjectProjectId.Value.ToString();
+ }
+ <script type="text/javascript">
+     function getSelectedSubjectProjectId() {
+         return '@selectSubjectProjectId';
+     }
+</script>
+@Html.Partial("../Subject/LoadSubjectProjectScript")
+<div id="divWaterControlCostDeductEdit" style="overflow:hidden">
+    <form id="frmWaterControlCostDeductEdit" action="#">
+        @Html.Hidden("IsAllowAccountMinuse",false)  
+        @Html.Hidden("WaterControlCostDeductId", Model == null ? "" : Model.Id.ToString())
+        <table class="edit-table">
+            <tr>
+                <th>名目</th>
+                <td>
+                    @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(200).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>使用者</th>
+                <td id="tdUserId">
+                   <div style="padding-left:2px">
+                       @(Html.TokenInput("UserId")
+                            .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                            .SetSingle(true)
+                            .SetWidth(200)
+                            .SetOnChange(onChangedScript)
+                            .SetPrePopulate(ViewData["UserJson"] == null || string.IsNullOrWhiteSpace(ViewData["UserJson"].ToString()) ? null : ViewData["UserJson"].ToString())
+                            .ToMvcString())
+                   </div>
+                </td>
+            </tr>
+            <tr>
+                <th>课题组</th>
+                <td>
+                    @Html.JComboBox("SubjectId").SetData(ViewData["SubjectJson"]).SetOnChange("doOnSubjectChanged(newValue, oldValue);").SetWidth(205).SetDisabled(Model != null).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    项目名称
+                 </th>
+                <td>@Html.JComboBox("SubjectProjectId").SetWidth(205).SetEditable(false).ToMvcString()</td>
+            </tr>
+            <tr>
+                <th>扣费时间</th>
+                <td>
+                    @Html.JDateTimePicker("DeductTime").SetWidth(205).SetValue(Model == null || !Model.DeductTime.HasValue ? DateTime.Now.ToString("yyyy-MM-dd") : Model.DeductTime.Value.ToString("yyyy-MM-dd")).ToMvcString()
+                    <span class="required">必填</span>
+                </td>
+            </tr>
+            <tr>
+                <th>金额</th>
+                <td>
+                    @Html.JValidateBox("Money").SetValue(Model == null ? "0" : Model.Money.ToString("0.00")).SetWidth(200).SetValidateType(ValidateType.number).ToMvcString()
+                    <span>元</span>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    备注
+                </th>
+                <td>
+                    @Html.TextArea("Remark", Model == null ? "" : Model.Remark, 3, 50, null)
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdUserId ul.token-input-list-facebook").css("width", "203px");
+    });
+    function getWaterControlCostDeductRelativeData() {
+        var selectedUser = $("#UserId").tokenInput("get");
+        if (!selectedUser || selectedUser == "") return;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetWaterControlCostDeductRelativeData","CostDeduct")',
+            data: $("#frmWaterControlCostDeductEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                var data = eval("(" + msg + ")");
+                if (msg.ErrorMessage && (msg.ErrorMessage.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg.ErrorMessage, showType: 'show' });
+                }
+                $("#SubjectId").combobox("loadData", data.Subjects ? data.Subjects : null);
+            }
+        });
+    }
+    function doSaveWaterControlCostDeduct() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveWaterControlCostDeduct","CostDeduct")',
+            data: $("#frmWaterControlCostDeductEdit").serialize() + "&time=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                var data = eval("(" + msg + ")");
+                if (data.IsCheckMoneyNotPass != true) {
+                    if (data.ErrorMessage != "") {
+                        $.messager.show({ title: '提示', msg: data.ErrorMessage, showType: 'show' });
+                        return false;
+                    }
+                    else if (typeof (doSaveWaterControlCostDeductCallBack) == 'function') doSaveWaterControlCostDeductCallBack(); 
+                }
+                else {
+                    $.messager.confirm('提示', data.ErrorMessage + ",是否继续扣费?", function (r) {
+                        if (!r) return;
+                        $("#IsAllowAccountMinuse").val(true);
+                        return doSaveWaterControlCostDeduct();
+                    });
+                }
+            }
+        });
+    }
+</script>

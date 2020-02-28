@@ -1,0 +1,114 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{var delinquencyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDelinquencyPrivilige(User.Identity.Name);}
+<div id="divPunishDetailDialog" style="display:none"></div>
+<div id="divResendDialog" style="display:none"></div>
+<div id="divBatchExecResultDialog" style="display:none"></div>
+<script type="text/javascript">
+    var punishDetailDialog;
+    function doViewPunish(id){
+        $("#divPunishDetailDialog").load('@Url.Action("PunishDetail","Delinquency")',{"id":id},function(){
+            doShowViewPunishDialog();
+        });
+    }
+    function doShowViewPunishDialog() {
+        if (punishDetailDialog) {
+            punishDetailDialog.dialog("destroy");
+        }
+        punishDetailDialog =  @Html.JDialog("divPunishDetail").SetTitle("处罚明细").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("punishDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("punishDetailDialog.dialog('close');return false;").ToMvcString();
+    }
+
+    var resendDialog;
+    function doSendPunishMessage(id){
+        $("#divResendDialog").load('@Url.Action("Resend","Delinquency")',{"id":id},function(){
+            doShowResendDialog(id);
+        });
+    }
+    function doShowResendDialog(id) {
+        if (resendDialog) {
+            resendDialog.dialog("destroy");
+        }
+        resendDialog =  @Html.JDialog("divResend").SetTitle("重发信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("resendDialog.dialog('close');return false;").SetModal(true).SetOkScript(delinquencyPrivilige.IsEnableResend?"doResend(id);return false;":"alert('无操作权限')").ToMvcString();
+    }
+    function doResend(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Send","Delinquency")',
+            data:{"id":id,"date":new Date().getMilliseconds()},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                resendDialog.dialog('close');
+            }
+        });
+    }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbPunishRecordList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    var batchExecResultDialog;
+    function showBatchExecResult(result){
+        if(batchExecResultDialog) batchExecResultDialog.dialog('close');
+        $("#divBatchExecResultDialog").html(result);
+        batchExecResultDialog = @(Html.JDialog("divBatchExecResult").SetTitle("批量操作结果").SetAutoDialog(false).SetOkScript("batchExecResultDialog.dialog('close');").SetCancelScript("batchExecResultDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+    }
+    function doBatchBatchStopPunish(){
+        var ids = generateSelectedIds();
+        if(ids==""){
+            $.messager.show({ title: '提示', msg: '请选择要操作的项', showType: 'show' });
+            return ;
+        }
+        $.messager.confirm('提示', '确认停止?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("BatchStopPunish", "Delinquency")',
+                data: {"ids":ids},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doPunishSearch();
+                    showBatchExecResult(msg);
+                }
+            });
+       });
+    }
+    function doStopPunish(id){
+         $.messager.confirm('提示', '确认结束?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("StopPunish", "Delinquency")',
+                data:{"date": new Date().getMilliseconds(),"id": id },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                    }
+                    doPunishSearch();
+                }
+            });
+        });
+    }
+    function doPunishSearch(){
+        var queryExpression = generatePunishExpression();
+        $("#tbPunishRecordList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbPunishRecordList").datagrid("load",{ "queryExpression": queryExpression.trim() });
+        return false
+    }
+</script>

@@ -1,0 +1,25 @@
+﻿@{
+    var limitMaterialSupplierIdList = ViewData["LimitMaterialSupplierIdList"];
+}
+<div id="divSelectMaterialSupplierDialog">
+     <div class="y-panel-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../MaterialInfo/SelectMaterialSupplierSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("../MaterialInfo/SelectMaterialSupplierNoPagingList")</div>
+</div>
+<script type="text/javascript">
+    function doMaterialSupplierSearch() {
+        var queryExpression = generateMaterialSupplierQueryExpress();
+        var rows = $('#tbSelectMaterialSupplierNoPagingList').datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = rows.length -1; i >=0 ; i--) {
+                $('#tbSelectMaterialSupplierNoPagingList').datagrid("deleteRow",i);
+            }
+        }
+        $("#tbSelectMaterialSupplierNoPagingList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSelectMaterialSupplierNoPagingList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+</script>

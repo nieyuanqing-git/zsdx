@@ -1,0 +1,78 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var delinquencyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDelinquencyPrivilige(User.Identity.Name);
+}
+<div>@Html.Partial("DelinquencyRuleList")</div>    
+<div id="divDelinquencyRuleDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditDelinquencyRule(){
+        var selectedRow = $("#tbDelinquencyRuleList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditDelinquencyRule(selectedRow.Id);
+    }
+    function doAddOrEditDelinquencyRule(id) {
+        var url = '@Url.Action("EditDelinquencyRule","Delinquency")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divDelinquencyRuleDialog").load(url, function (data) {
+            doDelinquencyRuleDialog();
+        });
+        return false;
+    }
+    var delinquencyRuleDialog;
+    function doDelinquencyRuleDialog() {
+        if (delinquencyRuleDialog) {
+            delinquencyRuleDialog.dialog("destroy");
+        }
+        delinquencyRuleDialog =  @Html.JDialog("divDelinquencyRuleEdit").SetTitle("处罚规则信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("delinquencyRuleDialog.dialog('close');return false;").SetModal(true).SetOkScript(delinquencyPrivilige.IsEnableSaveDelinquencyRule ? "doSaveDelinquencyRule();return false;" : "alter('无操作权限');").ToMvcString();
+    }
+    function doSaveDelinquencyRule() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveDelinquencyRule","Delinquency")',
+            data: $("#frmDelinquencyRuleEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                delinquencyRuleDialog.dialog('close');
+                doDelinquencyRuleSearch();
+            }
+        });
+    }
+    function doDeleteDelinquencyRule(){
+        var selectedRows = $('#tbDelinquencyRuleList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteDelinquencyRule", "Delinquency")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                             $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doDelinquencyRuleSearch();
+                    }
+                });
+            });
+        }
+    }
+     function doDelinquencyRuleSearch() {
+        $("#tbDelinquencyRuleList").datagrid("reload");
+        return false;
+    }
+</script>

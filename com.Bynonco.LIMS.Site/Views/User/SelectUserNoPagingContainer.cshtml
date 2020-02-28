@@ -1,0 +1,120 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSelectUser" style="display:none"></div>
+<script type="text/javascript">
+    var selectUserDialog;
+    var curSelectUserEelement; 
+    function doSelectUserDialog(selectUserEelement) {
+        curSelectUserEelement = selectUserEelement;
+        if(selectUserDialog){
+            selectUserDialog.dialog("destroy");
+        }
+        var queryExpression = generateSelectedUserQueryExpression(selectUserEelement);
+
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelectUser").load('@Url.Action("SelectUserNoPaging","User")',{"queryExpression":queryExpression,"time":new Date().getMilliseconds()},function(){
+            $.messager.progress('close');
+            selectUserDialog =  @Html.JDialog("divSelectUserDialog").SetTitle("选择用户").SetOnClose("selectUserDialog.dialog('destroy');return false;").SetCancelScript("selectUserDialog.dialog('destroy');return false;").SetAutoDialog(false).SetOkScript("getSelectedUsers();").SetIconCls("icon-search").ToMvcString()
+        });
+        return false;
+    }
+    function doSelectUserIsLeamsAddDialog(selectUserEelement) {
+        curSelectUserEelement = selectUserEelement;
+        if(selectUserDialog){
+            selectUserDialog.dialog("destroy");
+        }
+        var queryExpression = generateSelectedUserQueryExpression(selectUserEelement);
+
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelectUser").load('@Url.Action("SelectUserNoPagingIsLeamsAdd","User")',{"queryExpression":queryExpression,"time":new Date().getMilliseconds()},function(){
+            $.messager.progress('close');
+            selectUserDialog =  @Html.JDialog("divSelectUserDialog").SetTitle("选择用户").SetOnClose("selectUserDialog.dialog('destroy');return false;").SetCancelScript("selectUserDialog.dialog('destroy');return false;").SetAutoDialog(false).SetOkScript("getSelectedUsers();").SetIconCls("icon-search").ToMvcString()
+        });
+        return false;
+    }
+    function generateSelectedUserQueryExpression(selectUserEelement) {
+        var selectedUserIds = document.getElementById(selectUserEelement).value;
+        if (selectedUserIds.trim() == "") return "";
+        var selectedUserIdsArray = selectedUserIds.split(",");
+        if (!selectedUserIdsArray || selectedUserIdsArray.length == 0) return "";
+        var queryExpression = "(";
+        for (var i = 0; i < selectedUserIdsArray.length; i++) {
+            queryExpression += queryExpression == "(" ? "Id=\"" + selectedUserIdsArray[i] + "\"" : "+" + "Id=\"" + selectedUserIdsArray[i] + "\"";
+        }
+        queryExpression += ")";
+        return queryExpression;
+    }
+    function doShowUserSelectList() {
+        var queryExpression = generateSelectedUserQueryExpression("SelectUserId");
+        if(queryExpression == "") queryExpression = "Id=null";
+        $("#tbSelectUserNoPagingList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSelectUserNoPagingList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+    function doUserEmptySlecet()
+    {
+        $.messager.confirm('提示', '确认清空所有选择设备?', function (r) {
+            if (!r) return;
+            $("#SelectUserId").tokenInput("clear");
+            doInitSelectedUsers() ;
+        });
+    }
+    function getSelectedUsers() {
+        var selectedUserJsonArray = new Array();
+         var selectedUserIds = "";
+         var selectedUserNames = "";
+         var isEnableSelectSampleSendTime = "false";
+         var selectedUsers = $("#SelectUserId").tokenInput("get");
+         if (selectedUsers && selectedUsers!="" && selectedUsers.length > 0) {
+             for (var i = 0; i < selectedUsers.length; i++) {
+                 selectedUserIds += (selectedUserIds == "" ? "" : ",") + selectedUsers[i].id;
+                 selectedUserNames += (selectedUserNames == "" ? "" : ",") + selectedUsers[i].text;
+                 selectedUserJsonArray[i] = {Id:selectedUsers[i].Id, Name:selectedUsers[i].text};
+             }
+         }
+         if(selectUserDialog)selectUserDialog.dialog("destroy");
+         if(typeof(getSelectedUserCallBack) == 'function')getSelectedUserCallBack(selectedUserNames,selectedUserIds,selectedUserJsonArray);
+    }
+    function doInitSelectedUsers() {
+        var selectedUserIds = $("#SelectUserId").val();
+        var rows = $("#tbSelectUserNoPagingList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (selectedUserIds.indexOf(rows[i].Id) != -1)
+                    $("#tbSelectUserNoPagingList").datagrid("selectRow", i);
+                else 
+                    $("#tbSelectUserNoPagingList").datagrid("unselectRow", i);
+                
+            }
+        }
+    }
+
+    function doSelectAllSearch()
+    {
+        var queryExpression = generateQueryExpress();
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetViewUserList", "User")',
+            data: "queryExpression=" + queryExpression,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (!msg) return;
+                for (var i = 0; i < msg.length; i++) {
+                    var item = msg[i];
+                    var organizationName = item.OrganizationName;
+                    var id = item.Id;
+                    var label = item.Label;
+                    var name = item.UserName;
+                    if (organizationName && organizationName != "" && label && label != "") 
+                        name += "[" + organizationName + "," + label + "]";
+                    else if (label && label != "") 
+                        name += "[" + label + "]";
+                    $("#SelectUserId").tokenInput("add", { id: id, text: name });
+                }
+                doInitSelectedUsers();
+            }
+        });
+        
+    }
+</script>

@@ -1,0 +1,20 @@
+﻿@model List<com.Bynonco.LIMS.Model.View.ViewSssJ>
+@using com.Bynonco.LIMS.Utility;
+           
+<table style="width:350px;" border="0" cellpadding="0" cellspacing="2">
+    <tbody>
+    @for (int i = 0; Model != null && i < Model.Count(); i++)
+    {
+        var item = Model[i];
+        var cutName = ShortcutStringUtility.GetSubString(@item.iceName, 14, "..");
+        
+    <tr>
+        <td style="width: 100px;">@cutName</td>
+        <td style="width:30px">温度:</td>
+        <td style="background-color:#006599;color:yellow;padding:0 5px;">@(item.tempe)℃</td>
+        <td style="width:70px;">&nbsp;&nbsp;报警 <span class="@(string.IsNullOrEmpty(item.bjId) ? "icon-circle-grey" : "icon-circle-red")" style="margin-left:5px;padding-left: 20px;">&nbsp;</span></td>
+        <td style="width:60px">通讯 <span class="@(item.txzt == 1 ? "icon-circle-green" : "icon-circle-red")" style="margin-left:5px;padding-left: 20px;">&nbsp;</span></td>
+    </tr>
+    }
+    </tbody>
+</table>

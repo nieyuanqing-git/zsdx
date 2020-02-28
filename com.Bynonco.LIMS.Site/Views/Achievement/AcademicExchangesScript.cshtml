@@ -1,0 +1,120 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbAcademicExchangesList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbAcademicExchangesList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    var academicExchangesDialog;
+    function doAcademicExchangesDialog() {
+        if (academicExchangesDialog) {
+            academicExchangesDialog.dialog("destroy");
+        }
+        academicExchangesDialog =  @Html.JDialog("divAcademicExchangesEdit").SetTitle("学术交流信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("academicExchangesDialog.dialog('destroy');return false;").SetOnClose("academicExchangesDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveAcademicExchanges();").ToMvcString();
+    }
+    function doAddOrEditAcademicExchanges(id,type){
+        if(!type || type.trim()=="") 
+        {
+            $.messager.show({ title: '提示', msg:"未找到学术交流类型，请刷新重试",showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("AcademicExchangesEdit","Achievement")'+ "?id=" + id + "&AcademicType=" + type + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAcademicExchangesDialog").load(url,function(){
+            $.messager.progress('close');
+            doAcademicExchangesDialog();
+        })
+        return false;
+    }
+    function doAddAcademicExchanges(id,type) {
+       doAddOrEditAcademicExchanges(id,type);
+    }
+    function doEditAcademicExchanges(id,type) {
+       if(!id || id.trim()==""){
+           var selectedAcademicExchanges = $("#tbAcademicExchangesList").datagrid("getSelected");
+           if(!selectedAcademicExchanges || selectedAcademicExchanges.Id=="" || selectedAcademicExchanges.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择学术交流信息", showType: 'show' });
+              return false;
+           }
+           id = selectedAcademicExchanges.Id;
+       }
+       doAddOrEditAcademicExchanges(id,type);
+    }
+    function doSaveAcademicExchanges(){
+        if ($("#AcademicType").combobox("getValue").trim() == "") {
+            $.messager.show({ title: '提示', msg:"交流类型为空",showType: 'show' });
+            return false;
+        }
+        if ($("#ExchangesTime").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入时间",showType: 'show' });
+            return false;
+        }
+        if ($("#ExchangesAddress").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入地点",showType: 'show' });
+            return false;
+        }
+        if ($("#AcademicName").val().trim() == "" || !$("#AcademicName").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"请输入"+$("#AcademicName").closest('td').prev().text(),showType: 'show' });
+            return false;
+        }
+        if ($("#ExchangesContent").val().trim() == "" || !$("#ExchangesContent").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg:"请输入交流内容",showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AcademicExchangesSave","Achievement")' ,
+            data: $("#frmAcademicExchangesEdit").serialize() + "&attamentFiles=" + generateAttachmentFiles() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                academicExchangesDialog.dialog('destroy');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteAcademicExchanges(id){
+        if(!id || id.trim() == ""){
+              var selectedAcademicExchanges = $("#tbAcademicExchangesList").datagrid("getSelected");
+                if(!selectedAcademicExchanges || selectedAcademicExchanges.Id.trim() == "" || selectedAcademicExchanges.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedAcademicExchanges.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AcademicExchangesDelete", "Achievement")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function doAcademicExchangesExportExcel(type)
+    {
+        if(!type || type.trim()=="") 
+        {
+            $.messager.show({ title: '提示', msg:"未找到学术交流类型，请刷新重试",showType: 'show' });
+            return false;
+        }
+        var url='@Url.Action("AcademicExchangesExportExcel","Achievement")' + "?AcademicType=" + type + "&date=" + new Date().getMilliseconds();
+        window.open(url,'_blank');
+    }
+</script>
+ 

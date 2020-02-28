@@ -1,0 +1,22 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;           
+<style type="text/css">
+    .times-operate-box ul li{float:left;}
+</style>
+@{
+    var tipType = ViewData["TipType"] == null ? "" : Html.Encode(ViewData["TipType"]).ToString().Trim().ToLower();
+    var customer = CustomerFactory.GetCustomer();
+    var isShowEquipmentNameCss = customer.GetIsShowEquipmentNameCss();
+}
+@if (Model != null && isShowEquipmentNameCss)
+{
+    <div id="divAppointmentTimesContainer@(Model.Id.ToString() + tipType)" style="width:520px;height:360px;">
+        <p style="text-align:center; padding-top:150px;"><img src="@Url.Content("~/Content/images/loading.gif")" alt="Loading"/></p>
+    </div>
+    <script type="text/javascript">
+        $(function () {
+                loadTipEquipmentAppointmentTimes('@(Model.Id)','@tipType');
+        });
+    </script>
+}

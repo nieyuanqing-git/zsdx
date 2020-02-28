@@ -1,0 +1,18 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+}
+<div id='divSJ3StatisticsUsedHourList' style='@(isPopDialog ? "width:800px;" : "")'>
+     <div class="search-grid hide" style="width:280px">
+        <div class="search-inner-box">
+            @Html.Partial("../SJ3StatisticsUsedHour/Search")
+        </div>
+    </div>
+    <div class="layout-center-full">
+        @Html.Partial("../SJ3StatisticsUsedHour/List")
+    </div>    
+    @Html.Partial("../SJ3StatisticsUsedHour/ScriptContainer")
+</div>

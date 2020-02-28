@@ -1,0 +1,211 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-left">
+    @Html.Partial("../DictCodeType/DictCodeTypeList")
+</div>
+<div class="layout-center-right">
+    @Html.Partial("../DictCodeType/DictCodeList")
+</div>
+<div class="clear-both"></div>
+
+<div id="divDictCodeTypeDialog" style="display:none"></div>
+<div id="divDictCodeDialog" style="display:none"></div>
+<script type="text/javascript">
+    //-------------------  字典分类 -------------------------//
+    function doDictCodeTypeSearch() {
+        $('#tbDictCodeTypeList').treegrid('loadData', { total: 0, rows: [] });
+        $("#tbDictCodeTypeList").treegrid("reload");
+        doDictCodeSearch();
+    } 
+    var dictCodeTypeDialog;
+    function doDictCodeTypeDialog() {
+        if (dictCodeTypeDialog) {
+            dictCodeTypeDialog.dialog("destroy");
+        }
+        dictCodeTypeDialog = @Html.JDialog("divDictCodeTypeEdit").SetTitle("辅助字典分类信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("dictCodeTypeDialog.dialog('close');return false;").SetModal(true).SetOkScript("doDictCodeTypeSave();").ToMvcString();
+    }
+    function doAddOrEditDictCodeType(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("EditDictCodeType","DictCodeType")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divDictCodeTypeDialog").load(url,function(){
+            $.messager.progress('close');
+            doDictCodeTypeDialog();
+        })
+        return false;
+    }
+    function doAddDictCodeType(id) {
+       doAddOrEditDictCodeType(id);
+    }
+    function doEditDictCodeType(id) {
+       if(!id || id.trim()==""){
+           var selectedDictCodeType = $("#tbDictCodeTypeList").treegrid("getSelected");
+           if(!selectedDictCodeType || selectedDictCodeType.Id=="" || selectedDictCodeType.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: '请选择要编辑的项', showType: 'show' });
+              return false;
+           }
+           id = selectedDictCode.Id;
+       }
+       doAddOrEditDictCodeType(id);
+    }
+    function doDictCodeTypeSave() {
+        if ($("#Code").val().trim() == "" || !$("#Code").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg: '请输入代码', showType: 'show' });
+            return false;
+        }
+        if ($("#Name").val().trim() == "" || !$("#Name").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg: '请输入名称', showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","DictCodeType")',
+            data: $("#frmDictCodeTypeEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                dictCodeTypeDialog.dialog('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doDictCodeTypeSearch();
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doDictCodeTypeDelete() {
+        var selectedDictCodeType = $("#tbDictCodeTypeList").treegrid("getSelected");
+        if(!selectedDictCodeType || selectedDictCodeType.Id=="" || selectedDictCodeType.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        var id = selectedDictCodeType.Id;
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","DictCodeType")',
+                data: "ids=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doDictCodeTypeSearch();
+                    $.messager.show({ title: '提示', msg: "删除成功", showType: 'show' });
+                }
+            });
+        });
+        return false;
+    }
+    function doOnDictCodeTypeSelected(rowData){
+        var queryExpression = "DictCodeTypeId=\"" + rowData.Id  + "\"";
+        $("#tbDictCodeList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbDictCodeList").datagrid("load", { "queryExpression": queryExpression});
+    }
+    //---------------------------------字典明细----------------------------//
+    function doDictCodeSearch() {
+        $("#tbDictCodeList").datagrid("reload");
+    } 
+    var dictCodeDialog;
+    function doDictCodeDialog() {
+        if (dictCodeDialog) {
+            dictCodeDialog.dialog("destroy");
+        }
+        dictCodeDialog = @Html.JDialog("divDictCodeEdit").SetTitle("辅助字典项目信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("dictCodeDialog.dialog('close');return false;").SetModal(true).SetOkScript("doDictCodeSave();").ToMvcString();
+    }
+    function doAddDictCode() {
+        var selectedDictCodeType = $("#tbDictCodeTypeList").treegrid("getSelected");
+        if(!selectedDictCodeType || selectedDictCodeType.Id=="" || selectedDictCodeType.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择辅助分类", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("EditDictCode","DictCodeType")' + "?date=" + new Date().getMilliseconds();
+        $("#divDictCodeDialog").load(url,function(){
+            $.messager.progress('close');
+            doDictCodeDialog();
+        })
+        return false;
+        
+    }
+    function doEditDictCode(id) {
+       if(!id || id.trim()==""){
+           var selectedDictCode = $("#tbDictCodeList").datagrid("getSelected");
+           if(!selectedDictCode || selectedDictCode.Id=="" || selectedDictCode.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择要编辑的项", showType: 'show' });
+              return false;
+           }
+           id = selectedDictCode.Id;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("EditDictCode","DictCodeType")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divDictCodeDialog").load(url,function(){
+            $.messager.progress('close');
+            doDictCodeDialog();
+        })
+        return false;
+    }
+    function doDictCodeSave() {
+        if ($("#Code_DictCode").val().trim() == "" || !$("#Code_DictCode").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg: "请输入代码", showType: 'show' });
+            return false;
+        }
+        if ($("#Name_DictCode").val().trim() == "" || !$("#Name_DictCode").validatebox("isValid")) {
+            $.messager.show({ title: '提示', msg: "请输入名称", showType: 'show' });
+            return false;
+        }
+        if ($("#DictCodeTypeId").val().trim() == "") {
+            $.messager.show({ title: '提示', msg: "字典分类为空,请刷新重试", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveDictCodes","DictCodeType")',
+            data: $("#frmDictCodeEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                dictCodeDialog.dialog('close');
+                doDictCodeSearch();
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doDictCodeDelete() {
+        var selectedDictCodes = $("#tbDictCodeList").datagrid("getSelections");
+        if(!selectedDictCodes || selectedDictCodes.length==0){
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteDictCodes","DictCodeType")',
+                data: "ids=" + selectedDictCodes[0].Id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: "删除成功", showType: 'show' });
+                    doDictCodeSearch();
+                }
+            });
+        });
+        return false;
+    }
+</script>

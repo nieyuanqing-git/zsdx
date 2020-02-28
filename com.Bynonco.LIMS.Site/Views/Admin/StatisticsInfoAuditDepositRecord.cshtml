@@ -1,0 +1,27 @@
+﻿@model com.Bynonco.LIMS.Model.Business.StatisticsInfo
+@if (Model != null && (Model.IsShowManageAuditWaittingDepositRecord || Model.IsShowPersonalAuditWaittingDepositRecord))
+{
+    <p><span class="icon icon-yen">&nbsp;</span>存款</p>
+    <table class="edit-info admin-statistics">
+        @if (Model.IsShowManageAuditWaittingDepositRecord)
+        {
+            <tr>
+                <td class='col-first'><span class="icon icon-globe" title='管理相关' style='margin-right: 0;'>&nbsp;</span></td>
+                <th><a href="#" onclick="doLoadAuditWaittingDepositRecord();return false;">存款申请</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadAuditWaittingDepositRecord();return false;">@Model.AuditWaittingDepositRecord</a>
+                </td>
+            </tr>
+        }
+        @if (Model.IsShowPersonalAuditWaittingDepositRecord)
+        {
+            <tr class='@(Model.IsShowManageAuditWaittingDepositRecord ? "nofirst" : "")'>
+                <td class='col-first'><span class="icon icon-user" title='个人相关' style='margin-right: 0;'>&nbsp;</span></td>
+                <th><a href="#" onclick="doLoadPersonalAuditWaittingDepositRecord();return false;">个人存款申请</a></th>
+                <td class="col-last">
+                    <a href="#" onclick="doLoadPersonalAuditWaittingDepositRecord();return false;">@Model.PersonalAuditWaittingDepositRecord</a>
+                </td>
+            </tr>
+        }
+    </table>
+}

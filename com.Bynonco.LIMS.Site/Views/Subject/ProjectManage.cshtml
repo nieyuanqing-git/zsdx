@@ -1,0 +1,205 @@
+﻿@model com.Bynonco.LIMS.Model.Subject
+@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum; 
+@using com.Bynonco.LIMS.Model;
+@{
+    Layout = ViewBag.Layout;
+    var isCooperative = ViewData["IsCooperative"] != null ? Convert.ToBoolean(ViewData["IsCooperative"]) : false;
+    var subjectPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetSubjectPrivilige(User.Identity.Name, Model.Id, isCooperative);
+    var scientificProjects = Model.Projects != null ? Model.Projects.Where(p => p.ProjectTypeEnum == com.Bynonco.LIMS.Model.Enum.SubjectProjectType.Scientific && !p.IsDelete) : null;
+    var educationProjects = Model.Projects != null ? Model.Projects.Where(p => p.ProjectTypeEnum == com.Bynonco.LIMS.Model.Enum.SubjectProjectType.Education && !p.IsDelete) : null;
+    var societyProjects = Model.Projects != null ? Model.Projects.Where(p => p.ProjectTypeEnum == com.Bynonco.LIMS.Model.Enum.SubjectProjectType.Society && !p.IsDelete) : null;
+    bool isPop = ViewData["IsPop"] == null ? false : (bool)ViewData["IsPop"];
+}
+<style type="text/css">
+    .edit-box .edit-table th{background-color:#F0F4F6;font-weight:bold;}
+</style>
+<div style="@(isPop ? "width:600px;height:550px;" : "")" id="divProjectManage" class="@(isPop ? "" : "layout-center-full")">
+    <form id="frmSubjectProject">
+    @Html.Hidden("SubjectId", Model == null ? "" : Model.Id.ToString())
+    <div  class="edit-box" style='padding:15px;overflow-x:auto;'>
+        <p>
+            <b>@com.Bynonco.LIMS.Model.Enum.SubjectProjectType.Scientific.ToCnName()</b>
+            @if (subjectPrivilige.IsEnableAddScientificProject)
+            {
+               @Html.JLinkButton("btnAddScientificProject", "新增").SetOnclick(string.Format("doAddProject('{0}','{1}','divScientificProjects');", (int)com.Bynonco.LIMS.Model.Enum.SubjectProjectType.Scientific, Model.Id)).SetIconCls("icon-add").SetPlain(true).ToMvcString()
+            }
+        </p>
+
+        <table cellpadding="0" cellspacing="0" border="0" class="edit-table" id="divScientificProjects">
+            <tr>
+                <th style='width:20px;'></th>
+                <th>名称</th>
+                <th>项目编号</th>
+                <th>项目来源</th>
+                <th>项目领域</th>
+                <th>开始时间</th>
+                <th>结束时间</th>
+                <th>描述</th>
+            </tr>
+            @if (scientificProjects != null && scientificProjects.Count() > 0)
+            {
+                foreach (var scientificProject in scientificProjects)
+                {
+                    @Html.Partial("../Subject/ProjectEdit", scientificProject);
+                }
+            }
+            else
+            {
+                @Html.Partial("../Subject/ProjectEdit", new SubjectProject() { Id = Guid.NewGuid(), ProjectTypeEnum = SubjectProjectType.Scientific, SubjectId = Model.Id })
+            }
+        </table>
+        <p>
+            <b>@com.Bynonco.LIMS.Model.Enum.SubjectProjectType.Education.ToCnName()</b>
+            @if (subjectPrivilige.IsEnableAddEducationProject)
+            {
+               @Html.JLinkButton("btnAddEducationProject", "新增").SetOnclick(string.Format("doAddProject('{0}','{1}','divEducationProjects');", (int)com.Bynonco.LIMS.Model.Enum.SubjectProjectType.Education, Model.Id)).SetIconCls("icon-add").SetPlain(true).ToMvcString()
+            }
+        </p>
+        <table cellpadding="0" cellspacing="0" border="0" class="edit-table" id='divEducationProjects'>
+            <tr>
+                <th style='width:20px;'></th>
+                <th>名称</th>
+                <th>项目编号</th>
+                <th>项目来源</th>
+                <th>项目领域</th>
+                <th>教材</th>
+                <th>教材名称</th>
+                <th style='width:50px;'>人数</th>
+                <th>开始时间</th>
+                <th>结束时间</th>
+                <th>描述</th>
+            </tr>
+             @if (educationProjects != null && educationProjects.Count() > 0)
+             {
+                 foreach (var educationProject in educationProjects)
+                 {
+                    @Html.Partial("../Subject/ProjectEdit", educationProject)
+                 }
+             }
+             else
+             {
+                @Html.Partial("../Subject/ProjectEdit", new SubjectProject() { Id = Guid.NewGuid(), ProjectTypeEnum = SubjectProjectType.Education, SubjectId = Model.Id })
+             }
+        </table>
+        <p>
+            <b>@com.Bynonco.LIMS.Model.Enum.SubjectProjectType.Society.ToCnName()</b>
+            @if (subjectPrivilige.IsEnableAddSocietyProject)
+            {
+                @Html.JLinkButton("btnAddSocietyProject", "新增").SetOnclick(string.Format("doAddProject('{0}','{1}','divEducationSocietys');", (int)com.Bynonco.LIMS.Model.Enum.SubjectProjectType.Society, Model.Id)).SetIconCls("icon-add").SetPlain(true).ToMvcString()
+            }
+        </p>
+        <table cellpadding="0" cellspacing="0" border="0" class="edit-table" id='divEducationSocietys'>
+            <tr>
+                <th style='width:20px;'></th>
+                <th>名称</th>
+                <th>项目编号</th>
+                <th>项目来源</th>
+                <th>项目领域</th>
+                <th>开始时间</th>
+                <th>结束时间</th>
+                <th>描述</th>
+            </tr>
+            @if (societyProjects != null && societyProjects.Count() > 0)
+            {
+                foreach (var societyProject in societyProjects)
+                {
+                    @Html.Partial("../Subject/ProjectEdit", societyProject);
+                }
+            }
+            else
+            {
+                @Html.Partial("../Subject/ProjectEdit", new SubjectProject() { Id = Guid.NewGuid(), ProjectTypeEnum = SubjectProjectType.Society, SubjectId = Model.Id })
+            }
+        </table>
+    </div>
+    @if (!isPop)
+    {
+        <div style="padding:10px 0 10px 200px;">
+            @Html.JLinkButton("btnSaveSubjectProject", "保存").SetOnclick(string.Format("doSaveProject('{0}');", Model.Id)).SetIconCls("icon-save").SetVisible(subjectPrivilige.IsEnableSaveProject).ToMvcString()
+        </div>
+    }
+    </form>
+</div>
+<script type="text/javascript">
+    function doAddProject(projectType,subjectId,elementId) {
+        var url = "";
+        switch (projectType) {
+            case "@(((int)SubjectProjectType.Scientific).ToString())":
+                url = '@Url.Action("AddScientificProject", "Subject")'
+                break;
+            case "@(((int)SubjectProjectType.Education).ToString())":
+                url = '@Url.Action("AddEducationProject", "Subject")'
+                break;
+            case "@(((int)SubjectProjectType.Society).ToString())":
+                url = '@Url.Action("AddSocietyProject", "Subject")'
+                break;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: url + "?date=" + new Date().getMilliseconds(),
+            data: { "projectType": projectType, "subjectId": subjectId },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $("#" + elementId).append(msg);
+            }
+        }); 
+    }
+    function doDeleteSubjectProject(id, projectType) {
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            var url = "";
+            switch (projectType) {
+                case "@(((int)SubjectProjectType.Scientific).ToString())":
+                    url = '@Url.Action("DeleteScientificProject", "Subject")'
+                    break;
+                case "@(((int)SubjectProjectType.Education).ToString())":
+                    url = '@Url.Action("DeleteEducationProject", "Subject")'
+                    break;
+                case "@(((int)SubjectProjectType.Society).ToString())":
+                    url = '@Url.Action("DeleteSocietyProject", "Subject")'
+                    break;
+            }
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: url + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    var willDelEelement = document.getElementById(id);
+                    willDelEelement.parentNode.removeChild(willDelEelement);
+                }
+            });
+        });
+    }
+    function doSaveProject(subjectId) {
+        if (!subjectId || subjectId == "") {
+            subjectId = $("#SubjectId").val();
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveProject", "Subject")' + "?date=" + new Date().getMilliseconds(),
+            data: $("#frmSubjectProject").serialize() + "&subjectId=" + subjectId,
+            success: function (msg) {
+                $.messager.progress('close');
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                if (typeof (doGetSubjcetProjectRelativeData) == 'function') doGetSubjcetProjectRelativeData();
+                if (addSubjectProjectDialog) {
+                    addSubjectProjectDialog.dialog("destroy");
+                }
+            }
+        });
+    }
+</script>

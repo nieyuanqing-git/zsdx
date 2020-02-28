@@ -1,0 +1,27 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+    var dataGrid = Html.JDataGrid("tbSelectDoorNoPagingList")
+        .SetUrl(ViewData["Url"].ToString())
+        .AddQueryParam("queryExpression", queryExpression == null ? "" : queryExpression.ToString().Trim())
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(false)
+        .SetWidth(800)
+        .SetHeight(450)
+        .SetPagination(false)
+        .SetSortName("Name")
+        .SetOnLoadSuccess("doInitSelectedDoors();")
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("门", "Name").SetWidth(150).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在地点", "LabOrganizationName").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("IP", "IP").SetWidth(100).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("控制端口", "Port").SetWidth(60).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("离线授权", "OfflineRecordNumNickName").SetWidth(60).SetAlign(Align.center).SetSortable(false));
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchZPanel();", IconCls = "icon-search", Id = "btnGridSearchZPanel", Text = "搜索" });
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDoorSearch();", IconCls = "icon-reload", Id = "btnReload", Text = "显示全部" });
+ }
+ @(dataGrid.ToMvcString())

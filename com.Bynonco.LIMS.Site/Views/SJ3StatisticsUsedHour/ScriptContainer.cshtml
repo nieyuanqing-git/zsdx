@@ -1,0 +1,103 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var sJ3StatisticsId = ViewData["SJ3StatisticsId"] == null ? "" : ViewData["SJ3StatisticsId"].ToString();
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+}
+<div id="divSJ3StatisticsUsedHourDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateSJ3StatisticsUsedHourQueryExpress();
+        if('@(queryExpression)' != "")
+            queryExpression += (queryExpression == "" ? "" : "*") + '@(queryExpression)';
+        $("#tbSJ3StatisticsUsedHourList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSJ3StatisticsUsedHourList").datagrid("load", { "queryExpression": queryExpression.trim(), "equipmentId": '@equipmentId' , "SJ3StatisticsId": '@sJ3StatisticsId'});
+        return false;
+    }
+    function doEditSJ3StatisticsUsedHour(id){
+        if(!id || id.trim()==""){
+           var selectedRow = $("#tbSJ3StatisticsUsedHourList").datagrid("getSelected");
+           if(!selectedRow || selectedRow.Id=="" || selectedRow.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要编辑的项", showType: 'show' });
+              return false;
+           }
+           id = selectedRow.Id;
+        }
+        doAddOrEditSJ3StatisticsUsedHour(id);
+    }
+    function doAddOrEditSJ3StatisticsUsedHour(id) {
+        var sJ3StatisticsId = '@sJ3StatisticsId'
+        var equipmentId = '@equipmentId'
+        var url = '@Url.Action("Edit","SJ3StatisticsUsedHour")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        if(equipmentId != "") url += "&EquipmentId=" + equipmentId;
+        if(sJ3StatisticsId != "") url += "&SJ3StatisticsId=" + sJ3StatisticsId;
+        if((!id || id.trim()=="") && (equipmentId == "" || sJ3StatisticsId=="")){
+            $.messager.show({ title: '提示', msg: "设备为空,无法新增设备培训", showType: 'show' });
+        }
+        else{
+            $("#divSJ3StatisticsUsedHourDialog").load(url, function (data) {
+                doSJ3StatisticsUsedHourDialog();
+            })
+        }
+        return false;
+    }
+    var sJ3StatisticsUsedHourDialog;
+    function doSJ3StatisticsUsedHourDialog() {
+        if (sJ3StatisticsUsedHourDialog) {
+            sJ3StatisticsUsedHourDialog.dialog("destroy");
+        }
+        sJ3StatisticsUsedHourDialog =  @Html.JDialog("divSJ3StatisticsUsedHourEdit").SetTitle("设备培训信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("sJ3StatisticsUsedHourDialog.dialog('destroy');return false;").SetOnClose("sJ3StatisticsUsedHourDialog.dialog('destroy');return false;").SetModal(true).SetOkScript("doSaveSJ3StatisticsUsedHour();return false;").ToMvcString();
+    }
+    function doSaveSJ3StatisticsUsedHour() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","SJ3StatisticsUsedHour")',
+            data: $("#frmSJ3StatisticsUsedHourEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                sJ3StatisticsUsedHourDialog.dialog('close');
+                doSearch();
+            }
+        });
+    }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbSJ3StatisticsUsedHourList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDeleteSJ3StatisticsUsedHour(ids){
+         var deleteIds = !ids || ids.trim() == "" ? generateSelectedIds().toString() : ids;
+        if (deleteIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","SJ3StatisticsUsedHour")',
+                data:{"date": new Date().getMilliseconds(),"Ids": deleteIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+    }
+    
+</script>

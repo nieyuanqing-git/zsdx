@@ -1,0 +1,66 @@
+﻿@model IEnumerable<com.Bynonco.LIMS.Model.ExchangeFairyland>
+@{
+    var isManageLabOrganization = ViewData["IsManageLabOrganization"] == null ? false : bool.Parse(ViewData["IsManageLabOrganization"].ToString());
+    var loginUser = ViewData["LoginUser"] == null ? null : (com.Bynonco.LIMS.Model.User)ViewData["LoginUser"];
+}
+           
+@if(Model!=null&&Model.Count()>0)
+{
+    foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @if (item.IsTop)
+                { 
+                    <img alt="置顶" src="@Url.Content("~/Content/images/top.gif")" title="置顶" />
+                }
+            </td>
+            <td class="thead-title">
+                <a href="@Url.Action("Reattachment", "ExchangeFairyland", new { id = item.Id })" title="@item.Title">@(item.Title.Length > 33 ? item.Title.Substring(0, 33) + "..." : item.Title)</a>
+            </td>
+            <td>@(item.ExchangeFairylandCommentList == null ? 0 : item.ExchangeFairylandCommentList.Count)</td>
+            <td>@item.Creator.Name</td>
+            <td>@item.CreateTime</td>
+            <td style="width:30px;">
+                @if(isManageLabOrganization)
+                {
+                    if (item.IsTop)
+                    { 
+                        <a href="@Url.Action("IsTopOrNot", "ExchangeFairyland", new { id = item.Id, isTop = 1 })">
+                            <img src="@Url.Content("~/Content/images/down.gif")" alt="" title="取消置顶" />
+                        </a>
+                    }
+                    else
+                    { 
+                        <a href="@Url.Action("IsTopOrNot", "ExchangeFairyland", new { id = item.Id, isTop = 0 })">
+                            <img src="@Url.Content("~/Content/images/top.gif")" alt="" title="置顶" />
+                        </a>
+                    }
+                }
+                else{
+                    @:&nbsp;
+                }
+            </td>
+            <td style="width:30px;">
+                @if(isManageLabOrganization || (loginUser != null && item.CreatorId == loginUser.Id))
+                {
+                    <a href="javascript:void(0);" onclick="doDeleteOriginal('@Url.Action("Delete", "ExchangeFairyland", new { id = item.Id })')">
+                        <img src="@Url.Content("~/JqueryPlugin/JqueryEasyUI/themes/icons/icon-delete.png")" alt="" title="删除" />
+                    </a>
+                }
+                else{
+                    @:&nbsp;
+                }
+          </td>
+       </tr>
+    }
+}
+<script type="text/javascript">
+    $(function(){
+        if (@(Model.Count())<6)
+        {
+            $("#showMoreDiv").css("display", "none");
+        }
+        $("#originalTable tr:even").addClass("alt-row");
+    });
+</script>

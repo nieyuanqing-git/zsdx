@@ -1,0 +1,58 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@model com.Bynonco.LIMS.Model.View.ViewEquipment
+<p><span class="icon icon-yang"></span>送样设置</p>
+<table class="edit-info">
+    <tr>
+        <th>是否接收送样</th>
+        <td>
+            @Html.RadioButton("UseDefaultIsAcceptSampleTest", new { }, Model != null && Model.UseDefaultIsAcceptSampleTest.HasValue && Model.UseDefaultIsAcceptSampleTest.Value)
+            系统默认
+            @Html.RadioButton("UseDefaultIsAcceptSampleTest", new { }, Model == null || !Model.UseDefaultIsAcceptSampleTest.HasValue || !Model.UseDefaultIsAcceptSampleTest.Value)
+            @(Html.JComboBox("IsAcceptSampleTest")
+            .SetWidth(80)
+            .SetData(ViewData["IsAcceptSampleTestJson"])
+            .SetEditable(false).ToMvcString())
+        </td>      
+    </tr>
+    <tr>
+        <th>是否选择送样时间</th>
+        <td>
+            @Html.CheckBox("IsEnableSelectSampleSendTime", Model.IsEnableSelectSampleSendTime == null ? false : Model.IsEnableSelectSampleSendTime, new { onclick = "doHandleSampleSendTime();" })
+        </td>
+    </tr>
+    <tr  class="sampleSendSetting" style='display:@(Model.IsEnableSelectSampleSendTime ? "" : "none")'>
+        <th>
+            送样时间间隔
+        </th>
+        <td>
+            @Html.TextBox("SampleSendTimeInerval", Model.SampleSendTimeInerval, new { onchange = "doAppointmentTimeStepChanged('SampleSendTimeInerval','divSampleSendTimes');" })
+            分钟,((1440 / 时间间隔) % 4)= 0 or 时间间隔=720
+        </td>
+    </tr>
+    <tr class="sampleSendSetting" style='display:@(Model.IsEnableSelectSampleSendTime ? "" : "none")'>
+        <th>送样开放天数</th>
+        <td>
+            @Html.TextBox("SampleEnableSendDays", Model.SampleEnableSendDays)
+        </td>
+    </tr>
+    <tr class="sampleSendSetting" style='display:@(Model.IsEnableSelectSampleSendTime ? "" : "none")'>
+        <th>送样开放工作日</th>
+        <td>
+             @Html.Partial("WorkDays")
+        </td>
+    </tr>
+    <tr class="sampleSendSetting" style='display:@(Model.IsEnableSelectSampleSendTime ? "" : "none")'>
+        <th>
+            送样时间范围
+        </th>
+        <td>
+            <div id="divSampleSendTimes">@Html.Partial("AppointmentTimesOfDay")</div>
+        </td>
+    </tr>
+</table>
+<script type="text/javascript">
+    function doHandleSampleSendTime() {
+        var showStr = $("#IsEnableSelectSampleSendTime").attr("checked") ? "" : "none";
+        $(".sampleSendSetting").css("display", showStr);
+    }
+</script>

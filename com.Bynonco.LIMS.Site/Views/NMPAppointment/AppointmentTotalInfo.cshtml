@@ -1,0 +1,40 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.View;
+<style type="text/css">
+    .div-appointmenTotal {font-weight:bold;margin-bottom:5px}
+    .table-appointmenTotal{border:1px solid #A0A0A0; border-collapse:collapse; padding-left:5px; width:600px}
+    .table-appointmenTotal tr th{border:1px solid #A0A0A0;line-height:20px; text-align:center;font-weight:bold;color:#555555}
+    .table-appointmenTotal tr td{border:1px solid #A0A0A0;line-height:20px; padding:5px}
+</style>
+@{
+    var appointmentTimes = (IList<DateTimeScope>)ViewData["AppointmentTimes"];
+    var viewNMP = (ViewNMP)ViewData["ViewNMP"];
+    var viewNMPEquipment = (ViewNMPEquipment)ViewData["ViewNMPEquipment"];
+    var viewUser = (ViewUser)ViewData["ViewUser"];
+    var delinquencyCategories = (IList<DelinquencyCategory>)ViewData["DelinquencyCategories"];
+    var delinquencyRules = (IList<DelinquencyRule>)ViewData["DelinquencyRules"];
+ }
+<p>1.工位概要</p>
+<table class="table-appointmenTotal">
+    <tr>
+        <th>工位名称</th>
+        <td>@viewNMP.Name</td>
+        <th>工位设备</th>
+        <td>@viewNMPEquipment.Name</td>
+    </tr>
+    <tr>
+        <th>资产编号</th>
+        <td>@viewNMPEquipment.Label</td>
+        <th>所在单位</th>
+        <td>@viewNMP.OrganizationName</td>
+    </tr>
+     <tr>
+        <th>所在房间</th>
+        <td>@viewNMPEquipment.RoomName</td>
+        <th>所在门禁</th>
+        <td>@viewNMP.DoorName</td>
+    </tr>
+</table>
+@Html.Partial("../Appointment/AppointmentTotalInfoCommond")
+

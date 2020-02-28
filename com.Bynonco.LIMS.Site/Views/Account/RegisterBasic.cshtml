@@ -1,0 +1,608 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var userSelectEquipmentTypeValue = ViewData["userSelectEquipmentTypeValue"] == null ? "" : ViewData["userSelectEquipmentTypeValue"].ToString().Trim();
+    var userSelectEquipmentTypeName = ViewData["UserSelectEquipmentTypeName"] == null ? "" : ViewData["UserSelectEquipmentTypeName"].ToString().Trim();
+    var userSelectEquipmentMode = ViewData["SelectEquipmentMode"] == null ? "" : ViewData["SelectEquipmentMode"].ToString();
+    bool isSchoolInnerOrOuterLoginMode = ViewData["IsSchoolInnerOrOuterLoginMode"] != null && ViewData["IsSchoolInnerOrOuterLoginMode"].ToString().ToLower() == "true" ? true : false;
+    bool iscasLoginMode = ViewData["IsCasLoginMode"] != null && ViewData["IsCasLoginMode"].ToString().ToLower() == "true" ? true : false;
+
+    var customer = CustomerFactory.GetCustomer();
+    var customerIsRegistUserUploadCertificatePhoto = customer == null ? false : customer.GetIsRegistUserUploadCertificatePhoto();
+    var customerIsUserWorkTeam = customer == null ? false : customer.GetIsUserWorkTeam();
+    var customerIsRegistUserUploadRelativePic = customer == null ? false : customer.GetIsRegistUserUploadRelativePic();
+    var customerIsRegistUserAnimalExperimentInfo = customer == null ? false : customer.GetIsRegistUserAnimalExperimentInfo();
+    var customerIsNJYKDRegistNoteInfo = customer == null ? false : customer.GetIsNJYKDRegistNoteInfo();
+    var customerIsRegistTutorMoneyCard = customer == null ? false : customer.GetIsRegistTutorMoneyCard();
+    var customerIsUserManageSubjectProject = customer == null ? false : customer.GetIsUserManageSubjectProject();
+    
+    bool isShowRegisterTypeInner = ViewData["IsRegisterTypeInner"] == null || ViewData["IsRegisterTypeInner"].ToString().Trim() != "1" ? false : true;
+    bool isShowRegisterTypeOut = ViewData["IsRegisterTypeOut"] == null || ViewData["IsRegisterTypeOut"].ToString().Trim() != "1" ? false : true;
+    isShowRegisterTypeInner = !isShowRegisterTypeInner && !isShowRegisterTypeOut ? true : isShowRegisterTypeInner;
+    var loginPattern = ViewData["LoginPattern"] == null ? "" : ViewData["LoginPattern"].ToString().Trim();
+    var loginPatternErrorMsg = ViewData["LoginPatternErrorMsg"] == null ? "" : ViewData["LoginPatternErrorMsg"].ToString().Trim();
+    var schoolType = ViewData["SchoolType"] == null ? "" : ViewData["SchoolType"].ToString().Trim();
+
+    var userPhotoFileType = ViewData["UserPhotoFileType"] == null ? "" : ViewData["UserPhotoFileType"].ToString().Trim();
+    userPhotoFileType = userPhotoFileType == "" ? "" : "后缀名:" + userPhotoFileType;
+    var userPhotoFileSizeLimited = ViewData["UserPhotoFileSizeLimited"] == null ? "" : ViewData["UserPhotoFileSizeLimited"].ToString().Trim();
+    userPhotoFileSizeLimited = userPhotoFileSizeLimited == "" ? "" : "图片不大于" + userPhotoFileSizeLimited;
+    var uploadUserPhotoTip = string.IsNullOrWhiteSpace(userPhotoFileType) ? "" : userPhotoFileType;
+    uploadUserPhotoTip += string.IsNullOrWhiteSpace(uploadUserPhotoTip) || string.IsNullOrWhiteSpace(userPhotoFileSizeLimited) ? userPhotoFileSizeLimited : ";" + userPhotoFileSizeLimited;
+    bool isShowEquipment = ViewData["IsShowEquipment"] == null || ViewData["IsShowEquipment"].ToString().Trim() != "1" ? false : true;
+}
+@Html.Partial("../Account/RegisterScriptContainer")
+@Html.Hidden("SelectEquipmentMode", userSelectEquipmentMode)
+<div id="divRegisterType">
+    <div class="register_type">
+        @if (isShowRegisterTypeInner)
+        {
+            <input type="radio" id="RegisterTypeInner" name="RegisterTypeSelect" value="0" @(!isShowRegisterTypeOut ? "checked='true'" : "") />
+            <span style="margin-right:20px;font-size: 16px;">@(schoolType)内注册</span>
+        }
+        @if (isShowRegisterTypeOut)
+        {
+            <input type="radio" id="RegisterTypeOut" name="RegisterTypeSelect" value="1" @(!isShowRegisterTypeInner ? "checked=''" : "") />
+            <span style="font-size: 16px;">@(schoolType)外注册</span>
+        }
+        @if (!isShowRegisterTypeInner || !isShowRegisterTypeOut)
+        { 
+            <script type="text/javascript">
+                $(function () {
+                    $("#divRegisterType").addClass('hide');
+                    $("#divUserInfo").removeClass('hide');
+                    setTimeout("doRegisterTypeSelect();", 1000);
+                });
+            </script>
+        }
+    </div>
+    <div class="edit-operate-center" >
+        <a href="javascript:void(0);" onclick="doRegisterTypeSelect();return false;" class="botton">
+            <span>
+                <span>下一步</span>
+            </span>
+        </a>
+    </div>
+    <div id="errorRegisterType" class="notification error hide" >
+	    <div>请选择注册类型</div>
+    </div>
+</div>
+<div id="divUserInfo" class="hide">
+@if (customerIsNJYKDRegistNoteInfo)
+{
+<div class="notification blue-box" >
+	<div><span style='color:red;font-size:16px;'>南医大用户，导师先注册，学生才能注册并选定自己导师。<br />请不要重复注册，忘记密码请联系管理员。</span></div>
+</div>
+}
+<div id="errorEmptyOutLabOrganization" class="notification error hide" >
+	<div>系统没有配置默认@(schoolType)外注册单位（辅助字典->用户管理->校外单位）</div>
+</div>
+<div id="errorEmptyOutUserType" class="notification error hide" >
+	<div>系统没有配置默认@(schoolType)外注册人员身份（辅助字典->用户管理->校外身份）</div>
+</div>
+@if (isSchoolInnerOrOuterLoginMode || iscasLoginMode)
+{
+    <div class="notification attention">
+		<div>@(schoolType)内用户无需注册，请使用公共数据库帐号和密码进行登录。</div>
+	</div>
+}
+<form id="frmUserRegister" action="#">
+
+<div class="edit-info @(!isShowRegisterTypeInner || !isShowRegisterTypeOut ? "hide" : "")">
+    <div class="tit"><em>*</em>注册类型</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @(Html.JComboBox("RegisterType")
+                    .SetData(ViewData["RegisterTypeJson"])
+                    .SetDisabled(true)
+                    .SetWidth(233)
+                    .ToMvcString())
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请选择用户属性</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+
+<div class="edit-info" id='divUserTypeBox'>
+    <div class="tit"><em>*</em>用户身份</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong  id="UserTypeBox">
+                @(Html.JComboTree("UserTypeId")
+                    .SetData(ViewData["UserTypeJson"])
+                    .SetOnChange("doOnUserTypeChange();")
+                    .SetMultiple(false)
+                    .SetDisabled(Model != null && Model.UserTypeId.HasValue)
+                    .SetWidth(233)
+                    .SetExpandAll(true)
+                    .SetOnCheck("objfocus(this);")
+                    .SetOnLoadSuccess("setTimeout('doOnUserTypeLoadSuccess();', 500);")
+                    .ToMvcString())
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请选择用户身份(父级身份不可选)</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+@if (customerIsUserWorkTeam)
+{
+<div class="edit-info">
+    <div class="tit">所属团队</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @(Html.JComboBox("UserWorkTeam")
+                    .SetData(ViewData["UserWorkTeamJson"])
+                    .SetDisabled(false)
+                    .SetRequired(false)
+                    .SetEditable(false)
+                    .SetWidth(233)
+                    .ToMvcString())
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+    </div>
+</div>
+}
+<p class="title">1. 登录信息</p>
+<div class="edit-info">
+    <div class="tit"><em>*</em>登录名</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("Label").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        @if (!string.IsNullOrWhiteSpace(loginPatternErrorMsg))
+        {
+            <div class="tips hide"><span>@loginPatternErrorMsg</span></div>
+        }
+        <div class="errormt hide"><i></i><span id="infoLoginNameMsg">请输入登录名</span></div>
+        <div class="success hide"><i class="checking" id="icoLoginNameMsg"></i></div>
+    </div>
+</div>
+<div class="edit-info">
+    <div class="tit"><em>*</em>密码</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("LoginPassword").SetWidth(230).SetHeight(27).SetPasswordMode(true).SetValidateType(ValidateType.minLength).AddParam("6").AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请输入至少6位密码</span></div>
+        <div class="pw-weight"><span class="w0"></span></div>
+    </div>
+</div>
+<div class="edit-info">
+    <div class="tit"><em>*</em>确定密码</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("ConfirmPassword").SetWidth(230).SetHeight(27).SetPasswordMode(true).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>密码不一致</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<p class="title">2. 个人信息</p>
+<div class="edit-info">
+    <div class="tit"><em>*</em>姓名</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("UserName").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="tips hide">输入真实名称，便于管理员审核。</div>
+        <div class="errormt hide"><i></i><span>请输入姓名</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info">
+    <div class="tit"><em class='hide'>*</em>性别</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @(Html.JComboBox("Sex")
+                .SetEditable(false)
+                .SetData(ViewData["SexJson"])
+                .SetWidth(233)
+                .SetHeight(27)
+                .ToMvcString())
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请选择性别</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info">
+    <div class="tit"><em>*</em>证件类型</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong id="tdCertificateType">
+                @(Html.JComboBox("CertificateTypeId")
+                .SetEditable(false)
+                .SetData(ViewData["CertificateTypeJson"])
+                .SetWidth(233)
+                .SetHeight(27)
+                .SetOnSelect("objfocus(this);")
+                .SetOnChange("setTimeout('doOnCertificateTypeChange();', 500);")
+                .ToMvcString())
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请选择证件类型</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info">
+    <div class="tit"><em>*</em><span id='CertificateTypeName'>证件号码</span></div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("IdentityCardNo").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span id="infoIdentityCardNoMsg">请输入证件号码</span></div>
+        <div class="success hide"><i class="pass" id="icoIdentityCardNoMsg"></i></div>
+    </div>
+</div>
+@if (customerIsRegistUserUploadCertificatePhoto)
+{
+<div class="edit-info">
+    <div class="tit"><span>证件图片</span></div>
+    <div class="bdmain">
+        <div class="text-box" style="border:0;background:none;">
+            <strong style='background:none;'>
+                <input id="fileCertificatePhoto" type="file" name="fileCertificatePhoto" class="addfile" onchange="ajaxFileUploadCertificatePhoto();return false;"/>
+                <br /><span id='fileCertificatePhotoPath' style='font-weight:normal;'>(物理学院请上传图片或附件)</span>
+                @Html.Hidden("CertificatePhoto")
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="tips" id='fileCertificatePhotoTips'>物理学院：需要提供校园卡与身份证的正反面复印件</div>
+        <div class="success hide" id='fileCertificatePhotoSuccess'><i class="pass"></i></div>
+    </div>
+</div>
+}
+<div class="edit-info" id="divOrganization">
+    <div class="tit"><em>*</em>单位机构</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong id="OrganizationBox">
+                @Html.DropDownList("OrganizationId", (IEnumerable<SelectListItem>)ViewData["OrganizationSelectListItem"], new { style = "width:233px;", @class = "textinp", onchange = "doOnOrganizationChange();" })
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="tips hide" id="CollaborateOrganizationTip"><span >合作单位是指，与中心签订“实验场地使用协议”，或与中心有共研项目及共建平台的单位</span></div>
+        <div class="errormt hide"><i></i><span>请选择单位机构</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info hide" id="divOtherOrganization">
+    <div class="tit"><em>*</em>单位名称</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("OtherOrganization").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请输入单位机构</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+@if (customerIsRegistTutorMoneyCard)
+{
+<div class="edit-info hide" id="divMoneyCard">
+    <div class="tit">经费卡号</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("MoneyCard").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+</div>
+}
+<div class="edit-info hide" id="divJobtitle">
+    <div class="tit"><em class='hide'>*</em>职称</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("Jobtitle").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请输入职称</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info hide" id="divGrade">
+    <div class="tit"><em class='hide'>*</em>年级</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("Grade").SetWidth(230).SetHeight(27).SetRequired(true).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请输入年级</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info hide" id="divSpeciality">
+    <div class="tit"><em class='hide'>*</em>专业</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("Speciality").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请输入专业</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info hide" id="divTutor">
+    <div class="tit"><em id='emTutor'>*</em>导师</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @(Html.TokenInput("TutorId")
+                    .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+                    .SetSingle(true)
+                    .SetWidth(230)
+                    .AddClass("textinp")
+                    .SetOnAdd("objfocus(this);")
+                    .SetOnChange("doTutorChange()")
+                    .ToMvcString())
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请输入选择导师</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+@if (customerIsNJYKDRegistNoteInfo)
+{
+<div class="notification blue-box hide"  id="divTutorNote">
+	<div><span style='color:red;'>选择导师提示：南医大研究所请正确选择自己的导师，如没有导师名字请联系系统管理员 88662029-801.<br /><span style='padding-left:90px;'>非南医大学生请选“其他高校人员”</span></span></div>
+</div>
+}
+<div class="edit-info hide" id="divSubject">
+    <div class="tit"><em>*</em>课题组</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("Subject").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请输入课题组</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info hide" id="divResearchDirection">
+    <div class="tit"><em class='hide'>*</em>研究方向</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("ResearchDirection").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请输入研究方向</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<div class="edit-info hide" id="divThesisTopic">
+    <div class="tit"><em class='hide'>*</em>拟研究论文题目</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("ThesisTopic").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请输入题目</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+@if (customerIsRegistUserAnimalExperimentInfo)
+{
+    <div class="edit-info" id="divAnimalExperimentNum">
+        <div class="tit"><em>*</em>动物实验伦理编号</div>
+        <div class="bdmain">
+            <div class="text-box">
+                <strong>
+                    @Html.JValidateBox("AnimalExperimentNum").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+                </strong>
+            </div>
+        </div>
+        <div class="msg">
+            <div class="tips">由数字、字母、横杠等组成</div>
+            <div class="errormt hide"><i></i><span  id="infoAnimalExperimentNumMsg">请输入动物实验伦理编号</span></div>
+            <div class="success hide"><i class="pass" id="icoAnimalExperimentNumMsg"></i></div>
+        </div>
+    </div>
+    <div class="edit-info" id="divAnimalExperimentName">
+        <div class="tit"><em>*</em>实验名称</div>
+        <div class="bdmain">
+            <div class="text-box">
+                <strong>
+                    @Html.JValidateBox("AnimalExperimentName").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+                </strong>
+            </div>
+        </div>
+        <div class="msg">
+            <div class="errormt hide"><i></i><span>请输入实验名称</span></div>
+            <div class="success hide"><i class="pass"></i></div>
+        </div>
+    </div>
+}
+@if (((!isSchoolInnerOrOuterLoginMode && !iscasLoginMode) || userSelectEquipmentTypeValue != "1") && isShowEquipment)
+{
+<div class="edit-info hide" id="divEquipmentList">
+    <div class="tit">
+        @if (userSelectEquipmentTypeValue != "1")
+        {
+            <em>*</em>
+        }
+        设备
+    </div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("EquipmentNames").SetWidth(230).SetHeight(27).AddClass("textinp").SetReadOnly(true).ToMvcString()
+                @Html.Hidden("EquipmentIds")
+            </strong>
+        </div>
+        <div id="divSelectEquipmentType" style="margin-top:5px;color:#A0A0A0;padding-left:5px;font-size:12px;">
+            <span>@userSelectEquipmentTypeName</span>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请选择设备</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+}
+@if (customerIsRegistUserUploadRelativePic)
+{
+    <div class="edit-info">
+        <div class="tit"><em>*</em><span>用户头像</span></div>
+        <div class="bdmain">
+            <div class="text-box" style="border:0;background:none;">
+                <strong style='background:none;'>
+                    <input id="fileRelativePic" type="file" name="fileRelativePic" class="addfile" onchange="ajaxFileUploadRelativePic();return false;"/>
+                    <br />
+                    <img id="fileRelativePicPath" src="" class='hide' width="50px" height="50px;" style="margin-top:5px;"/>
+                    @Html.Hidden("RelativePic")
+                </strong>
+            </div>
+        </div>
+        <div class="msg">
+            @if (!string.IsNullOrWhiteSpace(uploadUserPhotoTip))
+            {
+                <div class="tips" id='fileRelativePicTips'>@uploadUserPhotoTip</div>
+            }
+            <div class="errormt hide" id='fileRelativePicError'><i></i><span>请上传头像</span></div>
+            <div class="success hide" id='fileRelativePicSuccess'><i class="pass"></i></div>
+        </div>
+    </div>
+}
+@if (customerIsUserManageSubjectProject)
+{
+    <div id="divRegisterSubjectProject" class='hide'>
+    @Html.Partial("../Account/RegisterSubjectProject", null)
+    </div>
+}
+<p class="title">3. 联系方式</p>
+<div class="edit-info">
+    <div class="tit"><em>*</em>邮箱</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("Email").SetWidth(230).SetHeight(27).AddClass("textinp").SetValidateType(ValidateType.email).ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span id="infoEmailMsg">请输入邮箱</span></div>
+        <div class="success hide"><i class="pass" id="icoEmailMsg"></i></div>
+    </div>
+</div>
+<div class="edit-info">
+    <div class="tit"><em>*</em>手机</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("PhoneNumber").SetWidth(230).SetHeight(27).AddClass("textinp").SetValidateType(ValidateType.mobileTelephoneNo).ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span id="infoPhoneNumberMsg">请输入手机</span></div>
+        <div class="success hide"><i class="pass" id="icoPhoneNumberMsg"></i></div>
+    </div>
+</div>
+<div class="edit-info">
+    <div class="tit"><em class='hide'>*</em>固话</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("FixedPhone").SetWidth(230).SetHeight(27).AddClass("textinp").SetValidateType(ValidateType.fixTelephoneNo).ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="tips hide"><span id="infoFixedPhoneTip">格式"xxx-xxx-xxxxxxxx-xxx",区号和分机号非必须,固话长度6到8位</span></div>
+        <div class="errormt hide"><i></i><span id="infoFixedPhoneMsg">固话格式不正确</span></div>
+        <div class="success hide"><i class="pass" id="icoFixedPhoneMsg"></i></div>
+    </div>
+</div>
+<div class="edit-info">
+    <div class="tit"><em class='hide'>*</em>联系地址</div>
+    <div class="bdmain">
+        <div class="text-box">
+            <strong>
+                @Html.JValidateBox("ContactAddress").SetWidth(230).SetHeight(27).AddClass("textinp").ToMvcString()
+            </strong>
+        </div>
+    </div>
+    <div class="msg">
+        <div class="errormt hide"><i></i><span>请选择联系地址</span></div>
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+<p class="title">4. 仪器预约使用协议</p>
+<div style='height:150px;border:1px solid #ccc; padding:5px;overflow-y:auto;margin:0 50px;'>
+@System.Web.Mvc.MvcHtmlString.Create(ViewData["Agreement"] == null ? "" : ViewData["Agreement"].ToString())
+
+</div>
+<div class="edit-info" style="margin-top:10px;">
+    <div class="tit">&nbsp;</div>
+    <div class="bdmain">
+        @Html.CheckBox("IsReadAgreement")
+        <span>我同意 </span><a href="javascript:;" onclick="ShowAgreement();">《仪器预约使用协议》</a>
+    </div>
+    <div class="msg">
+        <div class="success hide"><i class="pass"></i></div>
+    </div>
+</div>
+</form>
+</div>
+@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")
+<div style="display:none;">@Html.Partial("../Account/Agreement")</div>

@@ -1,0 +1,186 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.LIMS.Utility;
+
+@{
+    var equipmentAppointmentTimes = ViewData["EquipmentAppointmentTimes"] != null ? (EquipmentAppointmentTimes)ViewData["EquipmentAppointmentTimes"] : null;
+    var isSingleSelect = ViewData["IsSingleSelect"] == null ? "false" : Convert.ToBoolean(ViewData["IsSingleSelect"]).ToString().ToLower();
+    var appointmentStep = equipmentAppointmentTimes.AppointmentStep;
+    var times = equipmentAppointmentTimes.TimeScopeCount;
+    var beingHour = equipmentAppointmentTimes.BeginHour;
+    var endHour = equipmentAppointmentTimes.EndHour;
+    var beginHourTime = equipmentAppointmentTimes.AppoitmentTimes.First().BeginTime;
+    var endHourTime = equipmentAppointmentTimes.AppoitmentTimes.Last(p => p.BeginTime.Date == equipmentAppointmentTimes.AppoitmentTimes.First().BeginTime.Date).EndTime;
+    var beginDate = equipmentAppointmentTimes.AppoitmentTimes.First().BeginTime.Date;
+    var endDate = equipmentAppointmentTimes.AppoitmentTimes.Last().EndTime.Date;
+    var totalDays = (int)(endDate - beginDate).TotalDays;
+}
+<link rel="stylesheet" href="@Url.Content("~/Content/book.css")" type="text/css" media="screen" />
+@if (equipmentAppointmentTimes != null)
+{
+    var headIndex = 0;
+    @Html.Hidden("AppointmentStep", appointmentStep)
+    <div id="divAppointmentTimes" style="height: 350px;overflow: scroll;width: 100%;">
+        <table id="tbAppointmentTimes" class="book" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td class="date" rowspan="2" style="text-align: center;">
+                        <div class="nowrap">时间段</div>
+                    </td>
+                    @for (var i = beginHourTime; i <= endHourTime; i = i.AddMinutes(appointmentStep * 2))
+                    {
+                        headIndex++;
+                        if (i.Minute == 0)
+                        {
+                            <td colspan='2' style='text-align:left;'> @string.Format("{0:HH}", i)</td>
+                        }
+                        else
+                        {
+                            <td colspan='2' style='text-align:left;'> @string.Format("{0:HH:mm}", i)</td>
+                        }
+                    }
+                    @if (headIndex == 1)
+                    {
+                        var showHeadEndTime = (endHourTime - beginHourTime).Days == 1 ? endHourTime.AddSeconds(-1) : endHourTime;
+                        <td colspan='2' style='text-align:left;'>@string.Format(showHeadEndTime.Minute != 0 ? "{0:HH:mm}" : "{0:HH}", showHeadEndTime)</td>
+                    }
+                    <td></td>
+                </tr>
+                <tr>
+                   @{
+                    int split = 1;
+                    for (var i = beginHourTime; i < endHourTime; i = i.AddMinutes(appointmentStep * 2))
+                    {
+                        if (split % 2 == 0)
+                        {
+                            if (i.AddMinutes(appointmentStep * 2) < endHourTime)
+                            {
+                                <td colspan='2'><img src='../../Content/images/top_scale_white.gif' /></td>
+                            }
+                            else
+                            {
+                                <td colspan='2'><img src='../../Content/images/top_scale_white_last.gif' /></td>
+                            }
+                        }
+                        else
+                        {
+                            if (i.AddMinutes(appointmentStep * 2) < endHourTime)
+                            {
+                                <td colspan='2'><img src='../../Content/images/top_scale_black.gif' /></td>
+                            }
+                            else
+                            {
+                                <td colspan='2'><img src='../../Content/images/top_scale_black_last.gif' /></td>
+                            }
+                        }
+                        ++split;
+                    }
+                    }
+                </tr>
+                @for (int i = 0; i <= totalDays; i++)
+                {
+                    var curDate = beginDate.AddDays(i);
+                    var appointmentTimes = equipmentAppointmentTimes.AppoitmentTimes.Where(p => p.BeginTime.Date == curDate.Date).OrderBy(p => p.BeginTime);
+                    if (appointmentTimes != null && appointmentTimes.Count() > 0)
+                    {
+                        var firstAppointmentTime = appointmentTimes.First();
+                        var lastAppointmentTime = appointmentTimes.Last();
+                        <tr>
+                            <td class="date">
+                                <div class="nowrap">@(curDate.ToString("MM月dd日"))(周 @(WeekDayUtility.GetWeekDayCnName(curDate.DayOfWeek)))</div>
+                            </td>
+                            @for (int j = 0; firstAppointmentTime.BeginTime.AddMinutes(appointmentStep * j) < lastAppointmentTime.EndTime; j++)
+                            {
+                                var beginTime = firstAppointmentTime.BeginTime.AddMinutes(appointmentStep * j);
+                                var endTime = firstAppointmentTime.BeginTime.AddMinutes(appointmentStep * (j + 1));
+                                if (curDate.Date != endTime.Date && endTime.ToString("HH:mm") != "00:00")
+                                {
+                                    continue;
+                                }
+                                var appointmentTime = equipmentAppointmentTimes.AppoitmentTimes.FirstOrDefault(p => p.BeginTime == beginTime);
+                                if (appointmentTime == null)
+                                {
+                                    appointmentTime = new EquipmentAppointmentTime()
+                                    {
+                                        BeginTime = beginTime,
+                                        EndTime = endTime,
+                                        IsRepareTime = false,
+                                        IsSingleSelect = false,
+                                        Remark = "休息时间",
+                                        Status = EquipmentAppointmentTimeStatus.Invalid
+                                    };
+                                }
+                                var className = appointmentTime.ClassName;
+                                var id = string.Format("{0}", appointmentTime.BeginTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                                var time = appointmentTime.BeginTime.ToString("HH:mm");
+                                var date = appointmentTime.BeginTime.ToString("yyyy-MM-dd");
+                                var endDateStr = appointmentTime.BeginTime.AddMinutes(appointmentStep).ToString("yyyy-MM-dd");
+                                var endTimeStr = appointmentTime.BeginTime.AddMinutes(appointmentStep).ToString("HH:mm");
+                                var title = appointmentTime.Remark;
+                                var tip = string.IsNullOrWhiteSpace(appointmentTime.TipRemark) ? "" : appointmentTime.TipRemark;
+                                var isSingleSelectStr = appointmentTime.IsSingleSelect.ToString().ToLower();
+                                <td id="@id" time="@time" date="@date" endDate="@endDateStr" endTime="@endTimeStr"  rowno="@(i * times + j)" title="@title" tip="@tip" isSingleSelect="@isSingleSelectStr" class="@className" onclick="doSelectAppointmentTime(this);"></td>
+                            }
+                        </tr>
+                    }
+                }
+                <tr>
+                    <td class="date" rowspan="2" style="text-align: center;">
+                        <div class="nowrap">时间段</div>
+                    </td>
+                    @{
+                split = 1;
+                for (var i = beginHourTime; i < endHourTime; i = i.AddMinutes(appointmentStep * 2))
+                {
+                    if (split % 2 == 0)
+                    {
+                        if (i.AddMinutes(appointmentStep * 2) < endHourTime)
+                        {
+                                    <td colspan='2'><img src='../../Content/images/bottom_scale_white.gif' /></td>
+                        }
+                        else
+                        {
+                                    <td colspan='2'><img src='../../Content/images/bottom_scale_white_last.gif' /></td>
+                        }
+                    }
+                    else
+                    {
+                        if (i.AddMinutes(appointmentStep * 2) < endHourTime)
+                        {
+                                    <td colspan='2'><img src='../../Content/images/bottom_scale_black.gif' /></td>
+                        }
+                        else
+                        {
+                                    <td colspan='2'><img src='../../Content/images/bottom_scale_black_last.gif' /></td>
+                        }
+                    }
+                    ++split;
+                }
+                    }
+                </tr>
+                <tr>
+                    @{
+                var footerIndex = 0;
+                for (var i = beginHourTime; i <= endHourTime; i = i.AddMinutes(appointmentStep * 2))
+                {
+                    footerIndex++;
+                    if (i.Minute == 0)
+                    {
+                                    <td colspan='2' style='text-align:left;'>@string.Format("{0:HH}", i)</td>
+                    }
+                    else
+                    {
+                                    <td colspan='2' style='text-align:left;'>@string.Format("{0:HH:mm}", i)</td>
+                    }
+                }
+                if (footerIndex == 1)
+                {
+                    var showFootEndTime = (endHourTime-beginHourTime).Days==1?endHourTime.AddSeconds(-1):endHourTime;
+                    <td colspan='2' style='text-align:left;'>@string.Format(showFootEndTime.Minute != 0 ? "{0:HH:mm}" : "{0:HH}", showFootEndTime)</td>
+                }
+                     }
+                <td></td>
+                </tr>
+        </table>
+    </div>
+}

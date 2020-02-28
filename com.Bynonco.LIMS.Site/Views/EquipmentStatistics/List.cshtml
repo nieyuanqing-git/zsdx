@@ -1,0 +1,73 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerLabOrganizationName = customer == null ? "所属机构" : customer.GetLabOrganizationName();
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tbEquipmentStatisticsList').datagrid({
+            columns: [[
+            
+            { title: '预约汇总', colspan: 2, align: 'center' },
+            { title: '使用汇总', colspan: 2, align: 'center' },
+            { title: '送样汇总', colspan: 6, align: 'center' },
+            { title: '扣费汇总', colspan: 4, align: 'center' }
+            ], [
+            { title: '次数', field: 'TotalAppointmentCountStr', width: 60, align: 'center' },
+            { title: '机时', field: 'TotalAppointmentHoursStr', width: 70, align: 'center' },
+            { title: '次数', field: 'TotalUsedCountStr', width: 60, align: 'center' },
+            { title: '机时', field: 'TotalUsedHoursStr', width: 70, align: 'center' },
+            
+            { title: '申请单数', field: 'TotalSampleApplyQuatityStr', width: 60, align: 'center' },
+            { title: '样品数', field: 'TotalSampleQuatityStr', width: 60, align: 'center' },
+            { title: '实际样品数', field: 'TotalSampleRealQuatityStr', width: 70, align: 'center' },
+            { title: '总真实币', field: 'TotalSampleRealCurrencyFeeStr', width: 70,  align: 'center' },
+            { title: '总虚拟币', field: 'TotalSampleVirtualCurrencyFeeStr', width: 70, align: 'center' },
+            { title: '总金额', field: 'TotalSampleFeeStr', width: 70, align: 'center' },
+
+            { title: '次数', field: 'TotalCostDeductCountStr', width: 70, align: 'center' },
+            { title: '实际用时', field: 'TotalCostUsedHourStr', width: 70, align: 'center' },
+            { title: '计费时长', field: 'TotalCalcDurationStr', width: 70, align: 'center' },
+            { title: '总费用', field: 'TotalCurrencyStr', width: 70, align: 'center' }
+            ]],
+            frozenColumns: [[
+                { title: '设备名称', field: 'EquipmentName', width: 120, rowspan: 2, align: 'left', sortable: true },
+                { title: '@(customerLabOrganizationName)', field: 'EquipmentOrgName', width: 120, rowspan: 2, align: 'left', sortable: true }
+                ]],
+            url: '/EquipmentStatistics/GetGridEquipmentStatistics',
+            loadMsg: '数据加载中,请稍候……',
+            pageNumber: 1,
+            pageSize: 15,
+            pageList: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+
+            height: 600,
+            iconCls: 'icon-save',
+            collapsed: false,
+            collapsible: true,
+            remoteSort: true,
+            sortName: 'EquipmentName',
+            sortOrder: 'asc',
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            fitColumns: false,
+            striped: true,
+            nowrap: true,
+            method: 'post',
+            pagePosition: 'bottom', 
+            toolbar: [
+            {
+                id: 'btnExportExcelEquipmentStatistics',
+                text: '导出',
+                disabled: false,
+                iconCls: 'icon-export',
+                handler: function () {
+                    doExportExcelEquipmentStatistics();
+                }
+            }],
+            showFooter: false
+        });
+    });
+</script>
+<table id="tbEquipmentStatisticsList"></table>

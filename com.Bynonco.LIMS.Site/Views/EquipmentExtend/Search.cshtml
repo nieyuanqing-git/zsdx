@@ -1,0 +1,44 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateEquipmentExtendQueryExpress() {
+        var queryExpression = "";
+        var name = $("#txtQueryName").val();
+        if (name.trim() != "") {
+            queryExpression = "Name∽\"" + name.trim() + "\"";
+        }
+
+
+        var Label = $("#txtQueryLabel").val();
+        if (Label.trim() != "") {
+            queryExpression += (queryExpression == "" ? "Label∽\"" + Label.trim() + "\"" : "*Label∽\"" + Label.trim() + "\"");
+        }
+        return queryExpression;
+    }
+
+    function doResetEquipmentExtend() {
+        $("#txtQueryName").val("");
+        $("#txtQueryLabel").val("");
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label>名称</label>
+        @Html.JValidateBox("txtQueryName").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+     <li>
+        <label>资产编号</label>
+        @Html.JValidateBox("txtQueryLabel").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    @*<li>
+        <label>是否停用</label>
+        @Html.JComboBox("cbxQueryIsStop").SetEditable(false).SetWidth(155).SetData(ViewData["IsStopJson"]).ToMvcString()
+    </li>*@
+    <li class="button">
+        @Html.JLinkButton("btnSearchEquipmentExtend", "查询").SetOnclick("doSearchEquipmentExtend();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnResetEquipmentExtend", "清空").SetOnclick("doResetEquipmentExtend();").ToMvcString()
+        @Html.JLinkButton("btnCloseEquipmentExtend", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

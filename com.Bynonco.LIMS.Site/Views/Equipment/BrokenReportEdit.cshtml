@@ -1,0 +1,81 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentBrokenReport
+@using com.Bynonco.JqueryEasyUI.Core;
+@{var equipmentPrivilige = Model == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.EquipmentId);}
+<div id="divEquipmentBrokenReportEdit">
+<form id="frmEquipmentBrokenReportEdit" action="#">
+    @Html.Hidden("EquipmentBrokenReportId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style="width:470px">
+        <tr>
+            <th>设备名称</th>
+            <td id="tdEquipmentId">
+                <div style='float:left;'>
+                @(Html.TokenInput("EquipmentId")
+                .SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment"))
+                .SetSingle(true)
+                .SetPrePopulate(ViewData["EquipmentJson"] == null ? null : ViewData["EquipmentJson"].ToString()).ToMvcString())
+                </div>
+                <div style='float:left;' class='@(ViewData["EquipmentJson"] == null ? "" : "hide")'>
+                    @Html.JLinkButton("btnClearEquipmentId", "").SetIconCls("icon-cancel").SetPlain(true).SetOnclick("$('#EquipmentId').tokenInput('clear');;return false;").ToMvcString()
+                </div>
+                <div class='clear-both'></div>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                报告人
+            </th>
+            <td id="tdCreatorId">
+                @(Html.TokenInput("CreatorId")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetSingle(true)
+                .SetPrePopulate(ViewData["CreatorJson"] == null ? null : ViewData["CreatorJson"].ToString()).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>故障描述<span class="required">*</span></th>
+            <td> @(Html.TextArea("Description", Model == null || Model.Id == default(Guid) ? "" : Model.Description, new { style = "font-size:12px;height:100px;font-weight:normal;width:96%" }))</td>
+        </tr>
+        <tr>
+            <th>报障时间</th>
+            <td>@(Model != null ? Model.CreateTime.ToString() : DateTime.Now.ToString())</td>
+        </tr>
+    </table>
+ </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdEquipmentId ul.token-input-list-facebook").css("width", "285px");
+        $("#tdCreatorId ul.token-input-list-facebook").css("width", "285px");
+    });
+    function doSaveEquipmentBrokenReport() {
+        if ($("#EquipmentId").val() == "") {
+            $.messager.show({ title: '提示', msg: "报障设备为空", showType: 'show' });
+            return false;
+        }
+        if ($("#Description").val() == "") {
+            $.messager.show({ title: '提示', msg: "故障描述为空", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBrokenReport","Equipment")',
+            data: $("#frmEquipmentBrokenReportEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1 || msg.indexOf("成功") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    if (msg.indexOf("出错") != -1) return false;
+                }
+                equipmentBrokenReportDialog.dialog('close');
+                try {
+                    if (typeof (eval("doEquipmentBrokenReportSearch")) == "function")
+                        doEquipmentBrokenReportSearch();
+                }
+                catch (e) { }
+            }
+        });
+    }
+</script>

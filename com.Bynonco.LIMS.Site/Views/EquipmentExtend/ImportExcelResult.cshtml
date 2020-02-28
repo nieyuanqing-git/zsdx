@@ -1,0 +1,56 @@
+﻿@model IList<com.Bynonco.LIMS.Model.ImportCersEquipmnet>
+@{var errorMessage = ViewData["errorMessage"] == null ? "" : ViewData["errorMessage"];}
+<style type="text/css">
+    .edit-table td{text-align:center;}
+    #divImportExcelResult{padding-bottom:10px;overflow-y:auto;}
+</style>
+@if (Model != null && Model.Count() > 0)
+{
+    
+    var susuccee = Model.Where(p => p.Ishandled.Value).Count();
+    var error = Model.Where(p => !p.Ishandled.Value).Count();
+    var total = Model.Count();
+    <p>导入结果: 成功[@(susuccee)],  失败[@(error)], 总共[@(total)]</p>
+    <table border='1' cellpadding='0' cellspacing='0' class="edit-table" style='width:700px;'>
+        <tr>
+            <th>序号</th>
+            <th>结果</th>
+            <th>校内仪器编号</th>
+            <th>中文名称</th> 
+            <th>错误信息</th>            
+        </tr>
+    @for (int i = 0; i < Model.Count(); i++)
+    {
+        var item = Model[i];
+        <tr>
+            <td>@(i+1)</td>
+            <td style='@(item.Ishandled.Value ? "" : "color:red")'>
+                @(item.Ishandled.Value ? "成功" : "失败") 
+            </td>
+            <td>@(item.Label)</td>
+            <td>@(item.Name)</td>
+            <td>@(item.ErrorMessage)</td>
+        </tr>
+    }
+    </table>
+    <script type="text/javascript">
+        $(function () {
+            $("#divImportExcelResult").removeAttr("height");
+            var t_height = $("#divImportExcelResult").height();
+            if (t_height > 500) {
+                $("#divImportExcelResult").attr("height", "500px");
+            }
+        });
+    </script>
+}
+else
+{   if (errorMessage != "")
+    { 
+        <p>@(errorMessage)</p>
+    }
+    else
+    { 
+        <p>无法找到任何可导入的仪器信息</p>
+    }
+    
+}

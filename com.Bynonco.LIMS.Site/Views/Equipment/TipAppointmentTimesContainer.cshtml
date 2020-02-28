@@ -1,0 +1,28 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@if (Model != null)
+{
+    var tipType = ViewData["TipType"] == null ? "" : Html.Encode(ViewData["TipType"]).ToString().Trim().ToLower();
+    @Html.Hidden("WeekIndex" + Model.Id + tipType, ViewData["WeekIndex"])
+    <div class="times-operate-box">
+        <ul>
+            <li style="padding-left:85px">
+                @Html.JLinkButton("btnDataScope" + Model.Id + tipType, string.Format("{0}～{1}", ViewData["AppoinmentBeginDate"].ToString(), ViewData["AppoinmentEndDate"]).ToString()).SetPlain(true).AddClass("f_bold").AddClass("f_13").SetOnclick("loadTipEquipmentAppointmentTimes('" + Model.Id + "','" + tipType + "');return false;").ToMvcString()
+            </li>
+            <li style="padding-left:30px">
+                @Html.JLinkButton("btnPreviousWeek" + Model.Id + tipType, "<<上周").SetPlain(true).AddClass("f_bold").SetOnclick("doTipGeneratePreviousWeekAppointmentTimes('" + Model.Id + "','" + tipType + "');return false;").ToMvcString()
+            </li>
+            <li>
+                @Html.JLinkButton("btnCurWeek" + Model.Id + tipType, "本周").SetPlain(true).AddClass("f_bold").SetOnclick("doTipGenerateCurWeekAppointmentTimes('" + Model.Id + "','" + tipType + "');return false;").SetDisabled(ViewData["WeekIndex"] == null || ViewData["WeekIndex"].ToString() == "0").ToMvcString()
+            </li>
+            <li>
+                @Html.JLinkButton("btnNextWeek" + Model.Id + tipType, "下周>>").SetPlain(true).AddClass("f_bold").SetOnclick("doTipGenerateNextWeekAppointmentTimes('" + Model.Id + "','" + tipType + "');return false;").ToMvcString()
+            </li>
+            <div class="clear-both"></div>
+        </ul>
+    </div>
+    <div>@Html.Partial("../Equipment/AppointmentTimes")</div>
+    <div style="margin-top:5px">@Html.Partial("../Equipment/AppointmentTimesDescription")</div>
+    <div style="margin-top:5px">@Html.Partial("../Equipment/AppointmentTimesDescriptionExtend")</div>
+}
+

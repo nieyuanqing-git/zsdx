@@ -1,0 +1,95 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.LIMS.Utility;
+<link rel="stylesheet" href="@Url.Content("~/Content/book.css")" type="text/css" media="screen" />
+<style type="text/css">
+    #tbAppointmentTimes,#tbAppointmentTimesHead{border-collapse:collapse;}
+    #tbAppointmentTimes tr th,#tbAppointmentTimesHead tr th{border:1px solid #ccc;text-align:center; font-weight:bold;padding:2px;width:50px;}
+    #tbAppointmentTimesHead tr td{border:1px solid #ccc;width:50px;padding:2px;}
+    #tbAppointmentTimes tr td{border:1px solid #ccc;width:50px;padding:2px; line-height:22px}
+    .bgcolor-white{background-color:White}
+    .bg-transparent{background-color:transparent}
+</style>
+@{
+    var equipmentAppointmentTimes = ViewData["EquipmentAppointmentTimes"] != null ? (EquipmentAppointmentTimes)ViewData["EquipmentAppointmentTimes"] : null;
+    var isSingleSelect = ViewData["IsSingleSelect"] == null ? "false" : Convert.ToBoolean(ViewData["IsSingleSelect"]).ToString().ToLower();
+ }
+@if (equipmentAppointmentTimes != null)
+{
+    var days = (equipmentAppointmentTimes.EndDate.Value - equipmentAppointmentTimes.BeginDate.Value).TotalDays;
+    var beginDate = equipmentAppointmentTimes.BeginDate.Value;
+    var times = equipmentAppointmentTimes.TimeScopeCount;
+    var appointmentStep = equipmentAppointmentTimes.AppointmentStep;
+    @Html.Hidden("AppointmentStep", appointmentStep)
+    <div>
+        <div id="divAppointmentTimesHead" style="overflow:auto">
+            <table  id="tbAppointmentTimesHead" class="book">
+                <tr>
+                    <th style="padding-bottom:0px;border-top:none;width:85px;background:transparent url(../../JqueryPlugin/JqueryEasyUI/themes/default/images/thBg.png) no-repeat scroll 0 0">预约时间段</th>
+                    @for (var i = 0; i < days; i++)
+                    {
+                        var curDate = beginDate.AddDays(i);
+                        <td style="padding-bottom:0px;font-weight:bold;border-top:none;color:Black;text-align:center;background:transparent url(../../JqueryPlugin/JqueryEasyUI/themes/default/images/thBg.png) no-repeat scroll 0 0">
+                            @curDate.ToString("MM.dd")
+                            <br />
+                            @if (curDate.DayOfWeek == DayOfWeek.Sunday || curDate.DayOfWeek == DayOfWeek.Saturday)
+                            {
+                                <span style="color:red">@WeekDayUtility.GetWeekDayCnName(curDate.DayOfWeek)</span>
+                            }
+                            else
+                            {
+                                @WeekDayUtility.GetWeekDayCnName(curDate.DayOfWeek)
+                            }
+                        </td>
+                    }
+                </tr>
+            </table>
+        </div>
+        <div id="divAppointmentTimes" style='overflow:auto;@(equipmentAppointmentTimes.AppoitmentTimes.Count > 100 ? "height:250px" : "")'>
+            <table id="tbAppointmentTimes" class="book">
+                @for (var j = 0; j < times; j++)
+                {
+                    var timeFind = equipmentAppointmentTimes.AppoitmentTimes.FirstOrDefault(p => p.BeginTime.ToShortTimeString() == beginDate.AddMinutes(j * appointmentStep).ToShortTimeString());
+                    if (timeFind != null)
+                    {
+                        var timeScope = string.Format("{0}-{1}",
+                                    beginDate.AddMinutes(j * appointmentStep).ToString("HH:mm"),
+                                    beginDate.AddMinutes((j + 1) * appointmentStep).ToString("HH:mm"));
+                        <tr id="tr_@(j.ToString())" onmousemove="doOnMouseOver('@j.ToString()');" onmouseout="doOnMouseOut('@j.ToString()');">
+                            <td title="@timeScope"  style="font-weight:bold;text-align:center;color:Black;width:85px;@(j == 0 ? "border-top:0 none white" : "")">
+                                @timeScope
+                            </td>
+                            @for (var i = 0; i < days; i++)
+                            {
+                                var curDate = beginDate.AddDays(i);
+                                var curBeginTime = curDate.AddMinutes(j * appointmentStep);
+                                var curEndTime = curBeginTime.AddMinutes(appointmentStep);
+                                var appoitmentTime = equipmentAppointmentTimes.AppoitmentTimes.FirstOrDefault(p => p.BeginTime == curBeginTime);
+                                var className = appoitmentTime.ClassName;
+                                var id = string.Format("{0}", curBeginTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                                var time = curBeginTime.ToString("HH:mm");
+                                var date = curBeginTime.ToString("yyyy-MM-dd");
+                                var endDate = curBeginTime.AddMinutes(appointmentStep).ToString("yyyy-MM-dd");
+                                var endTime = curBeginTime.AddMinutes(appointmentStep).ToString("HH:mm");
+                                var title = appoitmentTime.Remark;
+                                var tip = string.IsNullOrWhiteSpace(appoitmentTime.TipRemark)?"":appoitmentTime.TipRemark;
+                                var isSingleSelectStr = appoitmentTime.IsSingleSelect.ToString().ToLower();
+                                <td id="@id" date="@date" time="@time" endDate="@endDate" endTime="@endTime"  rowno="@(i * times + j)" title="@title" tip="@tip" isSingleSelect="@isSingleSelectStr" class="@className" style="@(j == 0 ? "border-top:0 none white;":"")" onclick="doSelectAppointmentTime(this);"></td>
+                            }
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            var isChrome = window.navigator.userAgent.toLowerCase().indexOf("chrome") != -1 && window.navigator.userAgent.toLowerCase().indexOf("chromeframe") == -1;
+            var newWidth = $("#tbAppointmentTimesHead").width() + (isChrome ? 8 * 16 : 22);
+            if (!newWidth || newWidth < 520) newWidth = 520;
+            $("#divAppointmentTimesHead").width(newWidth);
+            $("#divAppointmentTimes").width(newWidth);
+        });  
+    </script>
+}
+

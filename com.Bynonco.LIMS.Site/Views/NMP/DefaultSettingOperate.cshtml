@@ -1,0 +1,25 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<div class="edit-operate">
+    @Html.JLinkButton("btnSaveDefaultSetting", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("btnSaveDefaultSetting();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function btnSaveDefaultSetting() {
+        var workDays = getWorkDays();
+        var workTimes = getSelectedWorkTimeIds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveDefaultSetting","NMP")' + "?date=" + new Date().getMilliseconds(),
+            data: $("#frmDefaultSettingEdit").serialize() + "&WorkDays=" + workDays + "&WorkTimes=" + workTimes,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+</script>

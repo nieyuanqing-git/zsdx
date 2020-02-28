@@ -1,0 +1,46 @@
+﻿@model com.Bynonco.LIMS.Model.Business.CollegeUploadSetting
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Guid id = ViewData["Id"] != null ? (Guid)ViewData["Id"] : Guid.NewGuid();
+    Guid? orgId = null;
+    if (Model != null) 
+    {
+        orgId = Model.CollegeId;
+    }
+ }
+<tr id='@("trCollegeUploadSetting_" + id)' class="@id">
+    <th>组织机构<span class="required">*</span></th>
+    <td>
+        @Html.DropDownList("CollegeUploadSetting_OrgId_" + id, com.Bynonco.LIMS.MVC.MvcControlDataAssistant.GenerateOrganizationSelectListItem(orgId, true,true), new { style = "width:205px" }) 
+    </td>
+</tr>
+<tr class="@id">
+    <th>用户名<span class="required">*</span></th>
+    <td>
+        @Html.JValidateBox("CollegeUploadSetting_UserName_" + id).SetValue(Model != null ? Model.UserName : "").SetWidth(200).ToMvcString()
+    </td>
+</tr>
+<tr class="@id">
+    <th>密码<span class="required">*</span></th>
+    <td>
+        @Html.JValidateBox("CollegeUploadSetting_Password_" + id).SetValue(Model != null ? Model.Password : "").SetWidth(200).ToMvcString()
+    </td>
+</tr>
+<tr class="@id">
+    <th>是否上传设备信息</th>
+    <td>@Html.CheckBox("CollegeUploadSetting_IsAutoUploadEquipmentInfo_"+ id,Model != null ? Model.IsAutoUploadEquipmentInfo : false,new { onclick = string.Format("doOnIsAutoUploadEquipmentInfoChanged(this,'{0}');",id) })</td>
+</tr>
+<tr id='@("trUploadEquipmentInfoURL_" +  id)' style='display:@(Model != null && Model.IsAutoUploadEquipmentInfo?"":"none")' class="@id">
+    <th>上传设备信息URL<span class="required">*</span></th>
+    <td>
+        @Html.JValidateBox("CollegeUploadSetting_UploadEquipmentInfoURL_" + id).SetValue(Model != null ? Model.UploadEquipmentInfoURL : "").SetWidth(200).ToMvcString()
+    </td>
+</tr>
+<tr id='@("trUploadEquipmentInfoDel_" +  id)'  class="@id">
+    <th colspan="3" style="text-align:center;">
+        @Html.JLinkButton("btnCollegeUploadSettingDelete_" + id ,"删除").SetPlain(true).SetIconCls("icon-remove").SetOnclick(string.Format("doDeleteCollegeUploadSetting('{0}');",id)).ToMvcString()
+    </th>
+</tr>
+<tr class="@id">
+     <th colspan="3">&nbsp</th>
+</tr>

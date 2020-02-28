@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../OpenFundApply/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+    <ul class="tabs" style="border-bottom:0;">
+        <li class="tabs-selected" status=''><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">全部</span><span class="tabs-icon"></span></a></li>
+        <li status='@((int)OpenFundApplyStatus.AuditWaitting)'><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">等待审核</span><span class="tabs-icon"></span></a></li>
+        <li status='@((int)OpenFundApplyStatus.AuditPass)'><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">审核通过</span><span class="tabs-icon"></span></a></li>
+        <li status='@((int)OpenFundApplyStatus.AuditReject)'><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">审核不通过</span><span class="tabs-icon"></span></a></li>
+        <li status='@((int)OpenFundApplyStatus.BalanceClosed)'><a class="tabs-inner" href="javascript:void(0)"><span class="tabs-title">已结算</span><span class="tabs-icon"></span></a></li>
+    </ul>
+    @Html.Partial("../OpenFundApply/List")
+</div>
+@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")
+@Html.Partial("../OpenFundApply/ScriptContainer")
+@Html.Partial("../OpenFundApply/ImportExcelScriptContainer")
+<script type="text/javascript">
+    $(function () {
+        $(".tabs li").click(function () {
+            $(".tabs li").attr("class", "");
+            $(this).attr("class", "tabs-selected");
+            doApplySearch('');
+        });
+    });
+</script>

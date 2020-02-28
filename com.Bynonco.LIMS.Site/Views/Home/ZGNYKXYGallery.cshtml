@@ -1,0 +1,54 @@
+﻿@{
+    var articleList = ViewData["PicArticleList"] == null ? null : (IList<com.Bynonco.LIMS.Model.Article>)ViewData["PicArticleList"];
+    var orgXPath = ViewData["OrgXpath"] as string;
+}
+<ul id="myGallery">
+    @{
+        if(articleList != null && articleList.Count() > 0)
+        {
+            for (int i = 0 ;i < articleList.Count() && i < 8; i++ )
+            {
+                var article = articleList[i];
+                string relativePic = article.RelativePic;
+                if(relativePic != "")
+                {
+                    relativePic = relativePic.IndexOf(",") != -1 ? relativePic.Substring(0, relativePic.IndexOf(",")) : relativePic; 
+                    <li><img class='gallery-img' src="@Url.Content("~" + relativePic)" alt="@article.Title" title="@article.Title" data-description="" href='@Url.Action("Show", "Article", new { id = article.Id, ArticleCategoryId = article.ArticleCategoryId, XPath = orgXPath  })'/></li>
+                }
+            }
+        }
+        else
+        {
+            <li><img class='gallery-img'  src="@Url.Content("~/Content/images/Logo.png")" title='' href='#' alt="Logo" /></li>
+        }
+    }
+</ul>
+<script type="text/javascript">
+    $(function () {
+        $('#myGallery').galleryView({
+            transition_speed: 1000,
+            transition_interval: 3000,
+            panel_width: 360,
+            panel_height: 200,
+            panel_animation: 'crossfade',
+            show_infobar: false,
+            autoplay: true,
+            enable_overlays: true,
+            filmstrip_style: 'showall',
+            filmstrip_position: 'right',
+            frame_width: 65,
+            frame_height: 48,
+
+            frame_opacity: 0.7,
+            show_filmstrip_nav: false
+        });
+        $(".gv_galleryWrap").css("width", "500px");
+        $(".gv_gallery").css("width", "500px");
+        $(".gv_filmstripWrap").css("width", "135px");
+        $(".gv_filmstripWrap").css("height", "200px");
+        $(".gv_filmstrip").css("width", "135px");
+        $(".gv_filmstrip").css("height", "200px");
+        
+        
+    });
+</script>

@@ -1,0 +1,45 @@
+﻿@model com.Bynonco.LIMS.Model.TrainningMaterial
+@using com.Bynonco.JqueryEasyUI.Core; 
+<script type="text/javascript">
+    function doOnNameChanged() {
+        $("#InputStr").val("");
+    }
+    </script>
+<div id="divTrainningMaterialEdit" style="width:750px;">
+ <form id="frmTrainningMaterialEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdTrainningMaterialEdit" class="edit-table"  style="width:700px;">
+        <tr>
+            <th><span class="required">* </span>名称</th>
+            <td colspan="5">
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(500).ToMvcString()
+                @Html.JValidateBox("XPath").SetValue(Model == null ? "" : Model.XPath).SetWidth(200).SetDisabled(true).AddClass("hide").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>类型</th>
+            <td>
+                @(Html.JComboTree("TrainningTypeId")
+                .SetData(ViewData["TrainningTypeJson"])
+                .SetValue(Model == null ? (ViewData["TrainningTypeId"] == null ? "" : ViewData["TrainningTypeId"].ToString()) : Model.TrainningTypeId.ToString())
+                .SetMultiple(false)
+                .SetDisabled(Model != null)
+                .SetWidth(205).SetRequired(false).SetExpandAll(true).ToMvcString())
+            </td>
+            <th>助记符</th>
+            <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(200).ToMvcString()</td>
+            <th>是否停用</th>
+            <td>
+                @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+        <tr>
+            <th>内容</th>
+            <td colspan="5" style="height:405px;">
+                @Html.EditorFor(m => m.ContentHTML)
+                @Html.Hidden("ContentNotHTML")
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

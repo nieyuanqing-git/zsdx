@@ -1,0 +1,51 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@using com.Bynonco.LIMS.Model.Enum;
+@model List<com.Bynonco.LIMS.Model.SampleItemLabelChargeStandard>
+ <div id="@("div" + Model.First().RelationId.ToString())" style="margin-top:10px;">
+     <table class="edit-info">
+        <tr>
+            <th>用户标签</th>
+            <td id="@("td" + Model.First().RelationId.ToString())">
+                @(Html.TokenInput(string.Format("LabelId_{0}", Model.First().RelationId.ToString()))
+                .SetUrl(Url.Action("GetSampleItemLableListBySampleItemId", "SampleItemLabel", new { SampleItemId = Model.First().SampleItemId }))
+                .SetPrePopulate(Newtonsoft.Json.JavaScriptConvert.SerializeObject(!Model.Any(p => p.SampleItemLabel == null) ? Model.Select(p => p.SampleItemLabel).Select(p => new { id = p.Id, text = p.Name }) : null))
+                .SetSingle(false)
+                .SetPreventDuplicates(true)
+                .SetWidth(300)
+                .ToMvcString())
+            </td>
+            <td style="text-align:right; padding-left:30px;">
+                @(Html.JLinkButton(string.Format("btnDelete_{0}",Model.First().RelationId.ToString()),"")
+                .SetPlain(true)
+                .SetIconCls("icon-remove")
+                .SetOnclick(string.Format("doDeleteSampleItemLabelChargeStandard('{0}');return false;", Model.First().RelationId.ToString()))
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>计费价格</th>
+            <td>
+                @(Html.JValidateBox(string.Format("StandardPrice_{0}", Model.First().RelationId.ToString()))
+                .SetWidth(300)
+                .SetValue(Model.First().StandardPrice == -1 ? "" : Model.First().StandardPrice.ToString())
+                .SetValidateType(ValidateType.number).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>序号</th>
+            <td>
+                @(Html.JValidateBox(string.Format("OrderNo_{0}", Model.First().RelationId.ToString()))
+                .SetWidth(300)
+                .AddClass("f_bold f_red")
+                .SetValue(Model.First().OrderNo.ToString())
+                .SetValidateType(ValidateType.number).ToMvcString())
+                <span class="f_blue" style="font-weight:bold;"></span>
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#td" + "@(Model.First().RelationId.ToString())" + " ul.token-input-list-facebook").css("width", "303px");
+    });
+</script>

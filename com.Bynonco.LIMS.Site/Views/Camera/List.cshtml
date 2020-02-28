@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var cameraPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCameraPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbCameraList")
+        .SetUrl(Url.Action("GetGridCameraList", "Camera"))
+        .SetHeight(550)
+        .SetSortName("Name")
+        .SetSortOrder(SortOrder.desc)
+        .SetPageSize(10)
+        .SetMutiSelect(true)
+        .SetSingleSelect(false)
+        .SetShowRefreshButton(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(true)
+        .SetSearchScript("doShowSearch();")
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图标", "Icon").SetWidth(45).SetAlign(Align.center).SetSortable(false))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "NameStr").SetWidth(255).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "CameraTypeStr").SetWidth(100).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("IP", "IPStr").SetWidth(100).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("云台端口", "Port").SetWidth(60).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在房间", "RoomName").SetWidth(150).SetAlign(Align.center))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("超时时间(毫秒)", "LoginTimeOut").SetWidth(100).SetAlign(Align.center));
+    
+    dataGrid.SetShowAddButton(cameraPrivilige.IsEnableAdd);
+    if (cameraPrivilige.IsEnableAdd)
+    {
+        dataGrid.SetAddScript("doAddCamera()");
+    }
+    dataGrid.SetShowEditButton(false);
+    if (cameraPrivilige.IsEnableEdit)
+    {
+        dataGrid.SetOnDblClickRow("doEditCamera(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(cameraPrivilige.IsEnableDelete);
+    if (cameraPrivilige.IsEnableDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteCamera();");
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doCameraPlay();", IconCls = "icon-camera", Id = "btnCameraPlay", Text = "监控" });
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doViewCameraHelp();", IconCls = "icon-help", Id = "btnShowHelp", Text = "美电贝尔客户端" });
+}
+@(dataGrid.ToMvcString())

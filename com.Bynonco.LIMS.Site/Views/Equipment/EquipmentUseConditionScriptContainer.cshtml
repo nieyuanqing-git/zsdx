@@ -1,0 +1,70 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.LIMS.Model.Enum;
+<div id="divEditUsedConfirmEquipmentUseCondtionDiaglog">
+    <table class="edit-table" style="width:100%;">
+        <tr>
+            <th><span class="required">*</span>数量</th>
+            <td>@Html.JValidateBox("txtUsedConfirmEquipmentUseCondtionAmount").ToMvcString()</td>
+        </tr>
+        <tr>
+            <th><span class="required">*</span>价格(元)</th>
+            <td>@Html.JValidateBox("txtUsedConfirmEquipmentUseCondtionPrice").ToMvcString()</td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    var editUsedConfirmEquipmentUseCondtionDiaglog;
+    function doEditUsedConfirmEquipmentUseCondtion(equipmentUseCondtionId) {
+        $.messager.progress({ title: '提示', msg: '正在加载数据,请稍候……' });
+        var amount = $("#hidUsedConfirmEquipmentUseConditionAmount" + equipmentUseCondtionId).val();
+        var price = $("#hidUsedConfirmEquipmentUseConditionPrice" + equipmentUseCondtionId).val();
+        $("#txtUsedConfirmEquipmentUseCondtionAmount").val(amount);
+        $("#txtUsedConfirmEquipmentUseCondtionPrice").val(price);
+        editUsedConfirmEquipmentUseCondtionDiaglog = @Html.JDialog("divEditUsedConfirmEquipmentUseCondtionDiaglog").SetTitle("编辑运行参数").SetIconCls("icon-Edit").SetAutoDialog(false).SetOkScript("doAcceptUsedConfirmEquipmentUseCondtion(equipmentUseCondtionId);").SetCancelScript("editUsedConfirmEquipmentUseCondtionDiaglog.dialog('close');return false;").SetModal(true).ToMvcString();
+        $.messager.progress("close");
+    }
+    function doAcceptUsedConfirmEquipmentUseCondtion(equipmentUseCondtionId){
+        var amount = $("#txtUsedConfirmEquipmentUseCondtionAmount").val();
+        var price = $("#txtUsedConfirmEquipmentUseCondtionPrice").val();
+        var originalAmout= $("#hidOriginalUsedConfirmEquipmentUseConditionAmount" + equipmentUseCondtionId).val();
+        var originalPrice = $("#hidOriginalUsedConfirmEquipmentUseConditionPrice" + equipmentUseCondtionId).val();
+        var whichValuesCharge = $("#hidUsedConfirmEquipmentUseConditionWichValuesCharge" + equipmentUseCondtionId).val().trim();
+        var val = getDataDictValue(equipmentUseCondtionId).trim();
+        if(amount.trim() == ""){
+            $.messager.show({ title: '提示', msg: "数量为空", showType: 'show' });
+            return false;
+        }
+        if(!amount.isPositiveInt()){
+            $.messager.show({ title: '提示', msg: "数量非法", showType: 'show' });
+            return false;
+        }
+        if(price.trim() == ""){
+            $.messager.show({ title: '提示', msg: "价格为空", showType: 'show' });
+            return false;
+        }
+        if(!price.isPositiveFloat()){
+            $.messager.show({ title: '提示', msg: "价格非法", showType: 'show' });
+            return false;
+        }
+        if(whichValuesCharge!="" && val!=whichValuesCharge){
+            $.messager.show({ title: '提示', msg: "值为:【" +whichValuesCharge +  "】才进行扣费", showType: 'show' });
+            price = 0;
+        }
+        var isUsedConfirmEquipmentUseConditionAmountChanged = originalAmout!= amount && parseInt(originalAmout)!= parseInt(amount);
+        var isUsedConfirmEquipmentUseConditionPriceChanged = originalPrice != price  && parseFloat(originalPrice)!= parseInt(price);
+        $("#hidUsedConfirmEquipmentUseConditionAmountChanged" + equipmentUseCondtionId).val(isUsedConfirmEquipmentUseConditionPriceChanged);
+        $("#hidUsedConfirmEquipmentUseConditionPriceChanged" + equipmentUseCondtionId).val();
+        $("#hidUsedConfirmEquipmentUseConditionAmount" + equipmentUseCondtionId).val(amount);
+        $("#hidUsedConfirmEquipmentUseConditionPrice" + equipmentUseCondtionId).val(price);
+        $("#spanUsedConfirmEquipmentUseConditionAmount" + equipmentUseCondtionId).html(amount);
+        $("#spanUsedConfirmEquipmentUseConditionPrice" + equipmentUseCondtionId).html(price);
+        editUsedConfirmEquipmentUseCondtionDiaglog.dialog("close");
+        if(isUsedConfirmEquipmentUseConditionAmountChanged || isUsedConfirmEquipmentUseConditionPriceChanged){
+            if(typeof(doOnUsedConfirmEquipmentUseConditionDataChanged)=='function'){
+                doOnUsedConfirmEquipmentUseConditionDataChanged();
+            }
+        }
+    }
+</script>

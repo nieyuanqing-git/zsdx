@@ -1,0 +1,51 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbSJ1StatisticsList")
+       .SetUrl(Url.Action("GetViewSJ1StatisticsList", "Statistics"))
+       .SetHeight(600)
+       .SetSortName("StatisticsNum")
+       .SetSortOrder(SortOrder.desc)
+       .SetPagination(false)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowRefreshButton(false);
+    dataGrid.SetShowAddButton(statisticsPrivilige.IsEnableSJ1StatisticsAdd);
+    dataGrid.SetOnSelect("doOnSJ1StatisticsSelected(rowData);");
+    dataGrid.SetOnLoadSuccess("setTimeout('doOnSJ1StatisticsLoadSuccess();', 1000);");
+    if (statisticsPrivilige.IsEnableSJ1StatisticsAdd)
+    {
+        dataGrid.SetAddScript("doAddSJ1Statistics();");
+    }
+    dataGrid.SetShowEditButton(false);
+    dataGrid.SetOnSelect("doOnSJ1StatisticsSelected(rowData);");
+    dataGrid.SetShowDeleteButton(statisticsPrivilige.IsEnableSJ1StatisticsDelete);
+    if (statisticsPrivilige.IsEnableSJ1StatisticsDelete)
+    {
+        dataGrid.SetDeleteScript("doDeleteSJ1Statistics('');");
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("统计编号", "StatisticsNum").SetWidth(130).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusNickName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建人", "CreaterName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("创建时间", "CreateTimeStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改人", "UpdateUserName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("修改时间", "UpdateTimeStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核人", "AuditUserName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("审核时间", "AuditTimeStr").SetWidth(80).SetAlign(Align.center));
+    if (statisticsPrivilige.IsEnableSJ1StatisticsAudit)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchXPanel();", IconCls = "icon-ok", Id = "btnGridSearchXPanel", Text = "审核" });
+    }
+    if (statisticsPrivilige.IsEnableSJ1StatisticsExportDoc || statisticsPrivilige.IsEnableSJ1StatisticsExportTxt)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSJ1StatisticsExportTxt();", IconCls = "icon-export", Id = "btnSJ1StatisticsExportTxt", Text = "导出" });
+    }
+
+}
+@(dataGrid.ToMvcString())
+<script type="text/javascript">
+    function doOnSJ1StatisticsLoadSuccess() {
+    }
+</script>

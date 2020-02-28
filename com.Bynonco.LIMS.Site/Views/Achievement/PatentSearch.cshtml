@@ -1,0 +1,54 @@
+﻿ @using com.Bynonco.JqueryEasyUI.Core;
+ <script type="text/javascript">
+     function generateQueryExpress() {
+         var queryExpression = "";
+         var patentName = $("#SearchPatentName").val();
+         if (patentName.trim() != "") {
+             queryExpression = "PatentName∽\"" + patentName.trim() + "\"";
+         }
+         var patentNum = $("#SearchPatentNum").val();
+         if (patentNum.trim() != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "PatentNum∽\"" + patentNum.trim() + "\"";
+         }
+         var patentBelongToType = $("#SearchPatentBelongToType").combobox("getValue");
+         if (patentBelongToType != "") {
+             queryExpression += (queryExpression == "" ? "" : "*") + "PatentBelongTo=\"" + patentBelongToType + "\"";
+         }
+         return queryExpression;
+     }
+
+     function doReset() {
+         $("#SearchPatentName").val("");
+         $("#SearchPatentNum").val("");
+         $("#SearchPatentBelongToType").combobox("setValue", "");
+     }
+</script>
+<ul class="search">
+    <li>
+        <label>专利名称</label>
+        @Html.JValidateBox("SearchPatentName").SetWidth(150).ToMvcString()
+    </li>
+     <li>
+        <label>专利号</label>
+        @Html.JValidateBox("SearchPatentNum").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>专利所属</label>
+        @(Html.JComboBox("SearchPatentBelongToType")
+            .SetData(ViewData["PatentBelongToTypeJson"])
+            .SetWidth(155)
+            .SetMutiSelect(false)
+            .SetEditable(false)
+            .ToMvcString())
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+
+

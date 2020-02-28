@@ -1,0 +1,24 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewMaterialInputItem
+@using com.Bynonco.JqueryEasyUI.Core; 
+
+@if (Model != null)
+{
+    var infoId = Model.MaterialInfoId;
+    <tr id='tr_@(infoId)'>
+        <td style='text-align:center;'>
+            @Html.Hidden("Id_" + infoId, Model == null ? "" : Model.Id.ToString())
+            @Html.Hidden("MaterialPurchaseItemId_" + infoId, Model == null || !Model.MaterialPurchaseItemId.HasValue ? "" : Model.MaterialPurchaseItemId.Value.ToString())
+            <div class='@(Model.MaterialPurchaseItemId.HasValue ? "hide" : "")'>
+                @Html.JLinkButton("btnRemoveMaterialInputItem_" + infoId, "").SetDisabled(Model.MaterialPurchaseItemId.HasValue).SetIconCls("icon-delete").SetPlain(true).SetOnclick("doRemoveMaterialInputItem('" + infoId + "');return false;").ToMvcString()
+            </div>
+        </td>
+        <td>@(Model.Name)</td>
+        <td style='text-align:center;'>@(Model.UnitValue)</td>
+        <td style='text-align:center;'>@(Model.StockValue)</td>
+        <td style='text-align:center;'>@(Model.WarningValue)</td>
+        <td class='@(!Model.MaterialPurchaseItemId.HasValue ? "hide" : "")' style='text-align:center;'>@(Model.PurchaseValue.HasValue ? Math.Round(Model.PurchaseValue.Value,2).ToString() : "--")</td>
+        <td>
+            @Html.JValidateBox("InputValue_" + infoId).SetValue(Model == null ? "" : Model.InputValue.ToString()).SetWidth(70).ToMvcString()
+        </td>
+    </tr>
+}

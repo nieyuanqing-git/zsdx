@@ -1,0 +1,22 @@
+﻿@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../EquipmentImport/Search")</div>
+</div>
+<div class="layout-center-full">
+    <div style='border:1px solid #ccc;border-bottom:0;'>
+    <table class="edit-table">
+        <tr>
+            <th>导入Excel</th>
+            <td>
+                <input id="fileEquipmentExcel" type="file" name="fileEquipmentExcel" class="addfile" onchange="ajaxFileUploadEquipmentExcel();return false;"/>
+            </td>
+            <td style='color:red'>（选择Excel文件进行导入）</td>
+            <td>模板：<a href='@Url.Content("~/ImportEquipment.xls")' target="_blank" style='text-decoration:underline;'>点击这里下载</a></td>
+        </tr>
+    </table>
+    </div>
+    <div>@Html.Partial("../EquipmentImport/List")</div>
+</div>
+@Html.Partial("../EquipmentImport/ScriptContainer")

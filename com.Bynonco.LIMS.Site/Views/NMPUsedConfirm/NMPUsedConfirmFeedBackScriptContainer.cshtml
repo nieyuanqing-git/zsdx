@@ -1,0 +1,36 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var nmpUsedConfirmPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPUsedConfirmPrivilige(User.Identity.Name);}
+<div id="divAddNMPFeedBackDialog" style="display:none"></div>
+<script type="text/javascript">
+    var addNMPFeedBackDialog;
+    function doAddNMPUsedConfirmFeedBack(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("EditNMPUsedConfirmFeedBack","NMPUsedConfirm")';
+        if(addNMPFeedBackDialog){
+            addNMPFeedBackDialog.dialog("destroy");
+        }
+        $("#divAddNMPFeedBackDialog").load(url, { "usedConfirmId": id, "time": new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            addNMPFeedBackDialog = @(Html.JDialog("divNMPUsedConfirmFeedBack").SetTitle("工位使用反馈信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("addNMPFeedBackDialog.dialog('close');return false;").SetModal(true).SetOkScript(nmpUsedConfirmPrivilige.IsEnableSaveNMPFeedBack ? "doSaveNMPUsedConfirmFeedBack();return false;" : "alert('无操作权限');").ToMvcString());
+        });
+    }
+    function doSaveNMPUsedConfirmFeedBack(){
+        $.messager.progress({ title: '提示', msg: '正在提交数据,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveNMPUsedConfirmFeedBack","NMPUsedConfirm")'+ "?time=" + new Date().getMilliseconds(),
+            data: $("#frmNMPUsedConfirmFeedBackEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress("close");
+                if (msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                addNMPFeedBackDialog.dialog('close');
+                if(typeof(doSaveNMPUsedConfirmFeedBackCallBack)=='function')doSaveNMPUsedConfirmFeedBackCallBack();
+
+            }
+        });
+        return false;
+    }
+</script>

@@ -1,0 +1,17 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+
+@{
+    ViewBag.Title = Model == null ? "工位浏览" : Model.Name;
+    Layout = "~/Views/Shared/_OneColumnLayout.cshtml";
+}
+@section ImportCssAndJs
+{
+    <link rel="stylesheet" href="@Url.Content("~/JqueryPlugin/JqueryZoom/css/jquery.jqzoom.css")" type="text/css">
+    <script src="@Url.Content("~/JqueryPlugin/JqueryZoom/js/jquery.jqzoom-core.js")" type="text/javascript"></script>
+}
+@section MainFull
+{
+    <div class="content-box" style="background:none;padding:0;">
+        @Html.Partial("../NMP/ShowInfoContainer")
+    </div>
+}

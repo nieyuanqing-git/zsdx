@@ -1,0 +1,88 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model.View;
+@{
+    var sampleStatues = ViewData["SampleStatuses"] == null ? null : (IList<SampleStatus>)ViewData["SampleStatuses"];
+    var dataGridSettings = (DataGridSettings)ViewData["DataGridSettings"];
+    var isCurUserValidate = (bool)ViewData["IsCurUserValidate"];
+    var curUser = ViewData["CurUser"] != null ? (User)ViewData["CurUser"] : null;
+ }
+<script type="text/javascript">
+    $(function () {
+        $("#divPaging").pagination({
+            total: "@dataGridSettings.Total",
+            pageSize: "@dataGridSettings.PageSize",
+            pageNumber: "@dataGridSettings.PageIndex",
+            onSelectPage: function (pageNumber, pageSize) {
+                $(this).pagination('loading');
+                doSearch();
+                $(this).pagination('loaded');
+            }
+        });
+    });
+    function navigate(url){
+        ajaxActionLink(url, "Loading", "layoutCenterBox", ajaxloadsuccess, dialogOpen);
+        return false;
+    }
+</script>
+<div>
+    @if (isCurUserValidate)
+    {
+        if (sampleStatues != null && sampleStatues.Count > 0)
+        {
+            var index = -1;
+            foreach (var sampleStatus in sampleStatues)
+            {
+                index++;
+                var sampleItems = sampleStatus.GetSampleItems();
+                var noBottomBorder = sampleStatus.Id != sampleStatues.Last().Id ? "border-bottom:none;" : "";
+            <div class="panel-header" style='background-color:@(index % 2 == 0 ? "#F8F8F8" : "transparent");line-height:25px;@noBottomBorder'>
+               <div>
+                  <div>
+                     <table style="width:100%">
+                        <tr>
+                            <th style="text-align:left;font-weight:bold;font-size:12px">
+                               <span>@sampleStatus.Name</span>
+                            </th>
+                        </tr>
+                     </table>
+                     <div style="clear:both"></div>
+                   </div>
+               </div>
+               <div style="margin-left:10px; margin-top:8px"> 
+                    @if (sampleItems != null && sampleItems.Count > 0)
+                    {
+                        var sampleItemIndex = -1;
+                        IList<string> lstSampleNames = new List<string>();
+                        foreach (var sampleItem in sampleItems)
+                        {
+                            if (lstSampleNames.Any(p => p == sampleItem.Name))
+                            {
+                                continue;
+                            }
+                            lstSampleNames.Add(sampleItem.Name);
+                            sampleItemIndex++;
+                            var navigateUrl = Url.Action("EquipmentSampleItemsIndex", "EquipmentSampleItems", new { SampleStatusId = sampleStatus.Id, SampleItemName = sampleItem.Name });
+                            <span style="font-weight:normal;display:inline-block; padding-left:@(sampleItemIndex == 0 ? "0px" : "10px")">
+                                <a style="font-weight:bold;font-size:12px;background-color: #F87B00;border-radius:10px;color: #FFFFFF;display: inline-block;margin: 0 2px 2px 0;padding: 0 10px;text-decoration: none;" href="javascript:void(0)" onclick="navigate('@navigateUrl');return false;" title="@sampleItem.Directions">
+                                    @sampleItem.Name
+                                </a>
+                            </span>
+                        }
+                    }
+              </div>
+            </div>
+            }
+        }
+        else
+        {
+        <p style="color:Red;font-weight:bold">没有相关设备项目信息</p>
+        }
+    }
+    else
+    {
+        <p style="color:Red;font-weight:bold;">@(string.Format("您当前的状态【{0}】,不允许进行送样预约.", curUser.UserStatusEnum.ToCnName()))</p>
+    }
+</div>
+<div id="divPaging" class="easyui-panel pagination"></div>

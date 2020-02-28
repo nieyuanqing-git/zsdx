@@ -1,0 +1,168 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@using com.Bynonco.LIMS.IBLL;
+@using com.Bynonco.LIMS.BLL;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerDirectorName = customer == null ? "负责人" : customer.GetEquipmentDirectorName();
+    IDictCodeBLL dictCodeBLL = BLLFactory.CreateDictCodeBLL();
+    var isFuzzyQuery = dictCodeBLL.GetDictCodeBoolValueByCode("FuzzyQuery", "IsFuzzyQuery"); //是否模糊查询
+}
+<style type="text/css">
+ul.search li {padding: 0;}
+ul.search li.token-input-input-token-facebook {padding: 0;}
+</style>
+<form id="frmSearchCondition" action="#">
+@if (isFuzzyQuery.HasValue && isFuzzyQuery.Value)
+{ 
+    <ul class="search">
+    <li style="padding: 5px 0 5px 15px">
+        <label>模糊查询</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>资产编号</label>
+        @Html.JValidateBox("SearchEquipmentLabel").SetWidth(150).ToMvcString()
+    </li>
+     <li style="padding: 5px 0 5px 15px">
+        <label>IP地址</label>
+        @Html.JValidateBox("SearchIP").SetWidth(150).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label style="vertical-align:top;">组织机构</label>
+        @Html.DropDownList("SearchOrgId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:155px" })
+    </li>
+    @*<li style="padding: 5px 0 5px 15px">
+        <label style="vertical-align:top;">放置地点</label>
+        @Html.DropDownList("SearchRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px" })
+    </li>*@
+    @*<li style="padding: 5px 0 5px 15px">
+        <label>设备分类</label>
+        @Html.DropDownList("SearchEquipmentCategoryId", (IEnumerable<SelectListItem>)ViewData["SearchEquipmentCategoryelectListItem"], new { style = "width:155px" })
+    </li>*@
+    <li style="padding: 5px 0 5px 15px">
+        <label>控制方式</label>
+        @(Html.JComboBox("SearchControllerTypeValue")
+            .SetEditable(true)
+            .SetData(ViewData["EquipmentControllerTypeJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+  @*  <li style="padding: 5px 0 5px 15px">
+        <label>设备功能</label>
+        @Html.JValidateBox("SearchScopeOfApplication").SetWidth(150).ToMvcString()
+    </li>*@
+  @*   <li style="padding: 5px 0 5px 15px">
+        <label>技术指标</label>
+        @Html.JValidateBox("SearchQualification").SetWidth(150).ToMvcString()
+    </li>*@
+    <li style="padding: 5px 0 5px 15px">
+        <label>购买时间</label>
+        @Html.JDateTimePicker("SearchBuyDateBegin").SetWidth(155).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchBuyDateEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label style="vertical-align: top;">@customerDirectorName</label>
+        <span class="combo" id="spSearchDirector" style="width: 153px;border:0;">
+        @(Html.TokenInput("SearchDirectorId")
+            .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+            .SetSingle(true)
+            .SetWidth(155)
+            .ToMvcString())
+        </span>
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentSearch", "查询").SetOnclick("doEquipmentSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnEquipmentReset", "清空").SetOnclick("doEquipmentReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    
+    <div class="clear-both"></div>
+    </ul>
+    }
+else
+{
+    <ul class="search">
+    <li style="padding: 5px 0 5px 15px">
+        <label>设备名称</label>
+        @Html.JValidateBox("SearchEquipmentName").SetWidth(150).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>资产编号</label>
+        @Html.JValidateBox("SearchEquipmentLabel").SetWidth(150).ToMvcString()
+    </li>
+     <li style="padding: 5px 0 5px 15px">
+        <label>IP地址</label>
+        @Html.JValidateBox("SearchIP").SetWidth(150).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label style="vertical-align:top;">组织机构</label>
+        @Html.DropDownList("SearchOrgId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:155px" })
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label style="vertical-align:top;">放置地点</label>
+        @Html.DropDownList("SearchRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px" })
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>设备分类</label>
+        @Html.DropDownList("SearchEquipmentCategoryId", (IEnumerable<SelectListItem>)ViewData["SearchEquipmentCategoryelectListItem"], new { style = "width:155px" })
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>控制方式</label>
+        @(Html.JComboBox("SearchControllerTypeValue")
+            .SetEditable(true)
+            .SetData(ViewData["EquipmentControllerTypeJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>设备功能</label>
+        @Html.JValidateBox("SearchScopeOfApplication").SetWidth(150).ToMvcString()
+    </li>
+     <li style="padding: 5px 0 5px 15px">
+        <label>技术指标</label>
+        @Html.JValidateBox("SearchQualification").SetWidth(150).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>购买时间</label>
+        @Html.JDateTimePicker("SearchBuyDateBegin").SetWidth(155).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchBuyDateEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label style="vertical-align: top;">@customerDirectorName</label>
+        <span class="combo" id="spSearchDirector" style="width: 153px;border:0;">
+        @(Html.TokenInput("SearchDirectorId")
+            .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+            .SetSingle(true)
+            .SetWidth(155)
+            .ToMvcString())
+        </span>
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnEquipmentSearch", "查询").SetOnclick("doEquipmentSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnEquipmentReset", "清空").SetOnclick("doEquipmentReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    
+    <div class="clear-both"></div>
+    </ul>
+}
+<div class="clear-both"></div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#spSearchDirector ul.token-input-list-facebook").css("width", "150px");
+        if ('@(isFuzzyQuery.ToString().ToLower())' == 'true') {
+            $("#SearchEquipmentName").attr("placeholder", "名称,地点,分类,技术指标,功能");
+        }
+    });
+</script>
+@Html.Partial("../Equipment/PaginationSearchScripts")

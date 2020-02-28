@@ -1,0 +1,94 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function changeTag(obj, tagId) {
+        $("#divShowSelectGridList").addClass("hide");
+        $("#divSelectUserTokenInput").addClass("hide");
+        $(".tabs li").removeClass("tabs-selected");
+        $(obj).parent().addClass("tabs-selected");
+        $("#" + tagId).removeClass("hide");
+        return false;
+    }
+    function doGetSelectUserCount() {
+        var length = $("#SelectUserId").tokenInput("get").length;
+        $("#spSelectUserCount").empty();
+        $("#spSelectUserCount").append(length.toString());
+    }
+    function doOnSelectUserNoPagingOnCheck(rowIndex, rowData) {
+        if (!rowData) return;
+        var id = rowData.Id;
+        if ($("#SelectUserId").val().indexOf(id) != -1) return;
+        var name = rowData.UserName;
+        var organizationName = rowData.OrganizationName;
+        var label = rowData.Label;
+        if (organizationName && organizationName != "" && label && label != "") name += "[" + organizationName + "," + label + "]";
+        else if (label && label != "") name += "[" + label + "]";
+
+        $("#SelectUserId").tokenInput("add", { id: id, text: name });
+    }
+    function doOnSelectUserNoPagingOnUncheck(rowIndex, rowData) {
+        if (!rowData) return;
+        $("#SelectUserId").tokenInput("remove", { id: rowData.Id });
+    }
+    function doOnSelectUserNoPagingOnCheckAll(rows) {
+        if (!rows) return;
+        for (var i = 0; i < rows.length; i++) {
+            var id = rows[i].Id;
+            if ($("#SelectUserId").val().indexOf(id) != -1) continue;
+            var name = rows[i].UserName;
+            var organizationName = rows[i].OrganizationName;
+            var label = rows[i].Label;
+            if (organizationName && organizationName != "" && label && label != "") name += "[" + organizationName + "," + label + "]";
+            else if (label && label != "") name += "[" + label + "]";
+            $("#SelectUserId").tokenInput("add", { id: id, text: name });
+        }
+    }
+    function doOnSelectUserNoPagingOnUncheckAll(rows) {
+        if (!rows) return;
+        for (var i = 0; i < rows.length; i++) {
+            $("#SelectUserId").tokenInput("remove", { id: rows[i].Id });
+        }
+    }
+</script>
+<div id="divSelectUserDialog" style="width:620px;">
+    <div class="z-panel-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../User/Search")
+        </div>
+    </div>
+    <ul style="border-bottom:0;background-color:#fff;" class="tabs">
+        <li class="tabs-selected"><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divShowSelectGridList');doInitSelectedUsers();"><span class="tabs-title">选择列表</span><span class="tabs-icon"></span></a></li>
+        <li><a href="javascript:void(0)" class="tabs-inner" onclick="changeTag(this,'divSelectUserTokenInput')"><span class="tabs-title">已选列表 <span id='spSelectUserCount'></span></span><span class="tabs-icon"></span></a></li>
+    </ul>
+    <div style='height:550px;overflow-y:auto;overflow-x:hidden;' id='divSelectUserTokenInput' class='hide'>
+        @(Html.TokenInput("SelectUserId")
+        .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+        .SetSingle(false)
+        .SetWidth(600)
+        .SetOnAdd("doGetSelectUserCount();")
+        .SetOnChange("doGetSelectUserCount();")
+        .SetOnDelete("doGetSelectUserCount();")
+        .SetPrePopulate(ViewData["ViewUserListJson"] == null || string.IsNullOrWhiteSpace(ViewData["ViewUserListJson"].ToString()) ? null : ViewData["ViewUserListJson"].ToString())
+        .ToMvcString())
+    </div>
+    <div id='divShowSelectGridList' style='height:550px;overflow:hidden;'>
+        @Html.Partial("../User/SelectUserNoPagingList")
+    </div>
+</div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        var url = $("#tbSelectUserNoPagingList").datagrid("options").url;
+        var pos = url.indexOf("?");
+        if ( pos!= -1) {
+            url = url.substring(0,pos);
+            $("#tbSelectUserNoPagingList").datagrid("options").url = url;
+        }
+        $("#tbSelectUserNoPagingList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSelectUserNoPagingList").datagrid("load", { "queryExpression": queryExpression.trim(), "time": new Date().getMilliseconds() });
+        return false;
+    }
+    $(function () {
+         $("#divSelectUserTokenInput ul.token-input-list-facebook").css("width", "550px");
+         doGetSelectUserCount();
+     });
+</script>

@@ -1,0 +1,24 @@
+﻿@{
+    var isTurtor = ViewData["IsTurtor"] != null && (bool)ViewData["IsTurtor"] ? true : false;
+    var isUserWorkScope = ViewData["IsUserWorkScope"] != null && (bool)ViewData["IsUserWorkScope"] ? true : false;
+}
+<div class="panel-header">
+    <div class="menu-type">
+        <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnShowIcon" hidefocus="true" onclick="doShowPersonalTrainning();return false;">
+            <span class="l-btn-left"><span class="l-btn-text icon-user" style="padding-left: 20px;">个人设备培训</span></span>
+        </a>
+        @if (isTurtor)
+        {
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnShowList" hidefocus="true" onclick="doShowTurtorTrainning();return false;">
+                <span class="l-btn-left"><span class="l-btn-text icon-subject icon-subject-unselect" style="padding-left: 20px;">课题成员培训</span></span>
+            </a>
+        }
+        @if (isUserWorkScope)
+        {
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnAdd" hidefocus="true" onclick="doShowEquipmentTrainning('');return false;">
+                <span class="l-btn-left"><span class="l-btn-text icon-globe icon-globe-unselect " style="padding-left: 20px;">管理相关培训</span></span>
+            </a>
+        }
+    </div>
+    <div class="clear-both"></div>
+</div>

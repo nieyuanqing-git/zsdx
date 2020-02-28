@@ -1,0 +1,58 @@
+﻿body{background: url("images/home-bg.gif") repeat-x scroll left top #F4F4F4;}
+.top{background:url("images/home-bg-top.jpg") no-repeat center top;}
+.top-box{background:url("images/home-bg-top-box.jpg") no-repeat left top;}
+.main-box-left .title-left{background:url("images/home-title-left.jpg") no-repeat left top;}
+.main-box-full h2.title-full{background:url("images/home-title-full.gif") no-repeat left top;}
+.main-box-left-l h2.title-left{background:url("images/home-title-left-l.jpg") no-repeat left top;}
+.main-box-left-s .title-left{background:url("images/home-title-left-s.jpg") no-repeat left top;}
+.main-box-left-xs .title-left{background:url("images/home-title-left-xs.jpg") no-repeat left top;}
+.main-box-right .title-right{background:url("images/home-title-right.jpg") no-repeat left top;}
+.main-box-right-l .title-right{background:url("images/home-title-right-l.jpg") no-repeat left top;}
+.main-box-right-s .title-right{background:url("images/home-title-right-s.jpg") no-repeat left top;}
+.main-box-right-xl .title-right{background:url("images/home-title-right-xl.jpg") no-repeat left top;}
+.search-box .edit-info input.botton, .edit-box .edit-info input.botton { background: url("images/submit.gif") no-repeat scroll 0 3px transparent;}
+
+/**
+ *  Horizontal Buttons
+ */
+.jcarousel-skin-tango .jcarousel-next-horizontal {background: transparent url("images/next-horizontal.png") no-repeat 0 0;}
+.jcarousel-skin-tango .jcarousel-direction-rtl .jcarousel-next-horizontal {background-image: url("images/prev-horizontal.png");}
+.jcarousel-skin-tango .jcarousel-next-horizontal:hover,
+.jcarousel-skin-tango .jcarousel-next-horizontal:focus {background-position: -32px 0;}
+.jcarousel-skin-tango .jcarousel-next-horizontal:active {background-position: -64px 0;}
+.jcarousel-skin-tango .jcarousel-next-disabled-horizontal,
+.jcarousel-skin-tango .jcarousel-next-disabled-horizontal:hover,
+.jcarousel-skin-tango .jcarousel-next-disabled-horizontal:focus,
+.jcarousel-skin-tango .jcarousel-next-disabled-horizontal:active {background-position: -96px 0;}
+
+.jcarousel-skin-tango .jcarousel-prev-horizontal {background: transparent url("images/prev-horizontal.png") no-repeat 0 0;}
+.jcarousel-skin-tango .jcarousel-direction-rtl .jcarousel-prev-horizontal {background-image: url("images/next-horizontal.png");}
+.jcarousel-skin-tango .jcarousel-prev-horizontal:hover, 
+.jcarousel-skin-tango .jcarousel-prev-horizontal:focus {background-position: -32px 0;}
+.jcarousel-skin-tango .jcarousel-prev-horizontal:active {background-position: -64px 0;}
+.jcarousel-skin-tango .jcarousel-prev-disabled-horizontal,
+.jcarousel-skin-tango .jcarousel-prev-disabled-horizontal:hover,
+.jcarousel-skin-tango .jcarousel-prev-disabled-horizontal:focus,
+.jcarousel-skin-tango .jcarousel-prev-disabled-horizontal:active {background-position: -96px 0;}
+
+
+/**
+ *  Vertical Buttons
+ */
+.jcarousel-skin-tango .jcarousel-next-vertical {background: transparent url("images/next-vertical.png") no-repeat 0 0;}
+.jcarousel-skin-tango .jcarousel-next-vertical:hover,
+.jcarousel-skin-tango .jcarousel-next-vertical:focus {background-position: 0 -32px;}
+.jcarousel-skin-tango .jcarousel-next-vertical:active {background-position: 0 -64px;}
+.jcarousel-skin-tango .jcarousel-next-disabled-vertical,
+.jcarousel-skin-tango .jcarousel-next-disabled-vertical:hover,
+.jcarousel-skin-tango .jcarousel-next-disabled-vertical:focus,
+.jcarousel-skin-tango .jcarousel-next-disabled-vertical:active {background-position: 0 -96px;}
+
+.jcarousel-skin-tango .jcarousel-prev-vertical {background: transparent url("images/prev-vertical.png") no-repeat 0 0;}
+.jcarousel-skin-tango .jcarousel-prev-vertical:hover,
+.jcarousel-skin-tango .jcarousel-prev-vertical:focus {background-position: 0 -32px;}
+.jcarousel-skin-tango .jcarousel-prev-vertical:active {background-position: 0 -64px;}
+.jcarousel-skin-tango .jcarousel-prev-disabled-vertical,
+.jcarousel-skin-tango .jcarousel-prev-disabled-vertical:hover,
+.jcarousel-skin-tango .jcarousel-prev-disabled-vertical:focus,
+.jcarousel-skin-tango .jcarousel-prev-disabled-vertical:active {background-position: 0 -96px;}

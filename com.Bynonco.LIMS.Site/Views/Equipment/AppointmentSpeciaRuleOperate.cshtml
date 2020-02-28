@@ -1,0 +1,47 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@{var equipmentPrivilige = Model == null ?
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, Model.Id);}
+<div class="edit-operate">
+    @Html.JLinkButton("btnSaveAppointmentSpeciaRule", "保存").SetIconCls("icon-save").SetPlain(true).SetOnclick("doSaveAppointmentSpeciaRule();return false;").SetVisible(equipmentPrivilige.IsEnableSaveAppointmentSpeciaRule).ToMvcString()
+    @Html.JLinkButton("btnDeleteAppointmentSpeciaRule", "删除").SetIconCls("icon-cancel").SetPlain(true).SetVisible(equipmentPrivilige.IsEnableDeleteAppointmentSpeciaRule && Model != null).SetOnclick("doDeleteAppointmentSpeciaRule();return false;").ToMvcString()
+</div>
+<script type="text/javascript">
+    function doSaveAppointmentSpeciaRule() {
+        var equipmentId = $("#EquipmentId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveAppointmentSpeciaRule","Equipment")' + "?date=" + new Date().getMilliseconds() ,
+            data: $("#frmAppointmentSpeciaRuleEdit").serialize() + "&EquipmentId=" + equipmentId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doDeleteAppointmentSpeciaRule() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var appointmentSpeciaRuleId = $("#AppointmentSpeciaRuleId").val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteAppointmentSpeciaRule","Equipment")' + "?date=" + new Date().getMilliseconds() + "&AppointmentSpeciaRuleId=" + appointmentSpeciaRuleId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                doReload($("#EquipmentId").val());
+            }
+        });
+        return false;
+    }
+</script>

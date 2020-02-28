@@ -1,0 +1,26 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = "~/Views/Shared/_OneColumnLayout.cshtml";
+    ViewBag.Title = "首页";
+}
+@section ImportCssAndJs
+{
+    <script type="text/javascript">
+        $(function () {
+            $("#divTopLogin").css("display","block");
+            $("#divTopLogin").css("left", "-210px");
+            $("#divTopLogin").css("top", "130px");
+
+            $(".pop-userinfo-box").css("display", "block");
+            $(".pop-userinfo-box").css("left", "-170px");
+            $(".pop-userinfo-box").css("top", "130px");
+           
+        });
+    </script>
+}
+@section MainFull
+{
+    <div style="height:476px;" class='bg-NJSFDX'>
+    
+    </div>
+}

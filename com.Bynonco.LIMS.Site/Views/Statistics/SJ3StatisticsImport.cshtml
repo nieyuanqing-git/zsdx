@@ -1,0 +1,37 @@
+﻿@model com.Bynonco.LIMS.Model.SJ3Statistics
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+}
+<div id="divSJ3StatisticsImport"  style="width:560px;">
+@if (Model != null)
+{
+<form id="frmImportExcel" action="#">
+    @Html.Hidden("Id",Model.Id.ToString())
+    <table class="edit-table" style="width:520px;">
+        <tr>
+            <th>导入Excel</th>
+            <td>
+                <input id="fileSJ3StatisticsExcel" type="file" name="fileUserExcel" class="addfile" onchange="ajaxFileUploadSJ3StatisticsExcel();return false;"/>
+            </td>
+            <th>模板下载</th>
+            <td>
+                <a href='@Url.Content("~/ImportSJ3.xls")' target="_blank">Excel模板下载</a>
+            </td>
+        </tr>
+    </table>
+    <div id='divImportExcelResult'>
+        <p>帮助：</p>
+        <p>1. SJ3导入采用Excel模板导入，下载：<a href='@Url.Content("~/ImportSJ3.xls")' target="_blank" style='text-decoration:underline;'>Excel模板下载</a></p>
+    </div>
+  </form>
+}
+else
+{
+    <table class="edit-table" style="width:520px;">
+        <tr>
+            <th>无效数据</th>
+        </tr>
+    </table>
+}
+</div>

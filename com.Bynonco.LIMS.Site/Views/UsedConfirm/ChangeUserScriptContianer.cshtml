@@ -1,0 +1,38 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divUsedConfirmChangeUserDialog"  style="display:none"></div>
+<script type="text/javascript">
+    var usedConfirmChangeUserDialog;
+    function doChangeUsedConfirmUser(id) {
+       if (usedConfirmChangeUserDialog) {
+            usedConfirmChangeUserDialog.dialog("destroy");
+       }
+       if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择使用记录", showType: 'show' });
+            return false;
+       }
+       $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ChangeUser","UsedConfirm")';
+        $("#divViewUsedConfirmDetailDialog").load(url, { "id": id, "time": new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            usedConfirmChangeUserDialog =  @Html.JDialog("divUsedConfirmChangeUser").SetTitle("更改使用人").SetIconCls("icon-user").SetAutoDialog(false).SetCancelScript("usedConfirmChangeUserDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveChangeUsedConfirmUser();").ToMvcString();
+        });
+        return false;
+    }
+    function doSaveChangeUsedConfirmUser(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveChangeUser","UsedConfirm")' ,
+            data: $("#frmUsedConfirmChangeUser").serialize() +  "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                usedConfirmChangeUserDialog.dialog('close');
+            }
+        });
+   }
+</script>

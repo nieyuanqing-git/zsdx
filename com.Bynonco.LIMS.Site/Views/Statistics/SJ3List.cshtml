@@ -1,0 +1,91 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tbSJ3List').datagrid({
+            columns: [[
+            { title: '仪器编号', field: 'Label', width: 80, rowspan: 2, align: 'center' },
+            { title: '分类号', field: 'CategoryCode', width: 80, rowspan: 2, align: 'center' },
+            { title: '仪器名称', field: 'Name', width: 110, rowspan: 2, align: 'left' },
+            { title: '单价', field: 'UnitPrice', width: 80, rowspan: 2, sortable: true, align: 'center' },
+            { title: '型号', field: 'Model', width: 80, rowspan: 2, sortable: true, align: 'center' },
+            { title: '规格', field: 'Specifications', width: 80, rowspan: 2, sortable: true, align: 'center' },
+            { title: '使用机时', colspan: 4, align: 'center' },
+            { title: '测验数', field: 'SampleItemCount', width: 80, rowspan: 2, sortable: true, align: 'center' },
+            { title: '培训人员数', colspan: 3, align: 'center' },
+            { title: '教学实验<br />项目数', field: 'ProjectEducation', width: 80, rowspan: 2, sortable: true, align: 'center' },
+            { title: '科研<br />项目数', field: 'ProjectScientificResearch', width: 80, rowspan: 2, sortable: true, align: 'center' },
+            { title: '社会服务<br />项目数', field: 'ProjectSocialServices', width: 80, rowspan: 2, sortable: true, align: 'center' },
+            { title: '获奖情况', colspan: 2, align: 'center' },
+            { title: '发明专利', colspan: 2, align: 'center' },
+            { title: '论文情况', colspan: 2, align: 'center' },
+            { title: '负责人姓名', field: 'AdminName', width: 80, rowspan: 2, sortable: true, align: 'center' }
+            ], [
+            { title: '教学', field: 'UsedHourEducation', width: 60, sortable: true, align: 'center' },
+            { title: '科研', field: 'UsedHourScientificResearch', width: 60, sortable: true, align: 'center' },
+            { title: '社会服务', field: 'UsedHourSocialServices', width: 80, sortable: true, align: 'center' },
+            { title: '其中开发使用机时', field: 'UsedHourOpen', width: 100, sortable: true, align: 'center' },
+            { title: '学生', field: 'TrainingStudent', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '教师', field: 'TrainingTutor', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '其他', field: 'TrainingOther', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '国家级', field: 'AwardsCountry', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '省部级', field: 'AwardsProvince', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '教师', field: 'PatentTutor', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '学生', field: 'PatentStudent', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '三大检索', field: 'ThesisThreeSearch', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '核心刊物', field: 'ThesisPublication', width: 60, rowspan: 2, sortable: true, align: 'center' }
+
+            ]],
+            frozenColumns: [[
+                { field: 'ck',checkbox: true, rowspan: 3},
+                { title: '状态', field: 'AuditStatusNickName', rowspan: 3, sortable: true, align: 'center'},
+                { title: '学校代码', field: 'SchoolCode', rowspan: 3, sortable: true, align: 'center'}
+                ]],
+            url: '/Statistics/GetGridViewSJ3List',
+            loadMsg: '数据加载中,请稍候……',
+            pageNumber: 1,
+            pageSize: 15,
+            pageList: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+
+            height: 600,
+            iconCls: 'icon-save',
+            collapsed: false,
+            collapsible: true,
+            remoteSort: true,
+            sortName: 'Label',
+            sortOrder: 'asc',
+            singleSelect: false,
+            rownumbers: true,
+            pagination: true,
+            fitColumns: false,
+            striped: true,
+            nowrap: true,
+            method: 'post',
+            pagePosition: 'bottom', 
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ3Edit ? "onDblClickRow: function(rowIndex, rowData){ doEditSJ3(rowData.Id); },":"")
+            toolbar: [
+            {
+                id: 'btnGridSearch',
+                text: '搜索',
+                disabled: false,
+                iconCls: 'icon-search',
+                handler: function () {
+                    $('#btnGridSearch').linkbutton('enable');
+                    doShowSearch();
+                }
+            }
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ3Add && false? ",{id: 'btnSJ3Add',text: '新增',disabled: false,iconCls: 'icon-add',handler: function () { $('#btnSJ3Add').linkbutton('enable'); doAddSJ3();}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ3Edit ? ",{id: 'btnSJ3Edit',text: '编辑',disabled: false,iconCls: 'icon-edit',handler: function () { $('#btnSJ3Edit').linkbutton('enable'); doEditSJ3('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ3Delete && false ? ",{id: 'btnSJ3Delete',text: '删除',disabled: false,iconCls: 'icon-cancel',handler: function () { $('#btnSJ3Delete').linkbutton('enable'); doDeleteSJ3('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ3AuditPass ? ",{id: 'btnSJ3AuditPass',text: '审核通过',disabled: false,iconCls: 'icon-pass',handler: function () { $('#btnSJ3AuditPass').linkbutton('enable'); doAuditPassSJ3('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ3AuditReject ? ",{id: 'btnSJ3AuditReject',text: '审核不通过',disabled: false,iconCls: 'icon-no',handler: function () { $('#btnSJ3AuditReject').linkbutton('enable'); doAuditRejectSJ3('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ3AuditWaitting ? ",{id: 'btnSJ3AuditWaitting',text: '置为待审',disabled: false,iconCls: 'icon-info',handler: function () { $('#btnSJ3AuditWaitting').linkbutton('enable'); doAuditWaittingSJ3('');}}":"")
+            ,{id: 'btnSJ3Reload',text: '刷新',disabled: false,iconCls: 'icon-reload',handler: function () { $('#btnSJ3Reload').linkbutton('enable'); doSJ3Search('');}}
+            ],
+            showFooter: false
+        });
+    });
+</script>
+<table id="tbSJ3List"></table>

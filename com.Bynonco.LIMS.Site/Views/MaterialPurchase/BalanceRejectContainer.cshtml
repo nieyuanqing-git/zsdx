@@ -1,0 +1,15 @@
+﻿@model com.Bynonco.LIMS.Model.MaterialPurchase
+<div id="divMaterialPurchaseBalanceReject">
+    @Html.Partial("../MaterialPurchase/ViewInfo",Model)
+    <form id="frmMaterialPurchaseBalanceReject" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tdMaterialPurchaseBalanceReject" class="edit-table"  style="width:730px;height:auto">
+    <tr>
+        <th>报销入库意见</th>
+        <td colspan='3'>
+            @Html.TextArea("AuditBalanceRemark", Model == null ? "" : Model.AuditBalanceRemark, new { style = "width:96%;height:80px" })
+        </td>
+    </tr>
+    </table>
+    </form>
+</div>

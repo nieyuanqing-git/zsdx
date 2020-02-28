@@ -1,0 +1,126 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var nmpUsedConfirmPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPUsedConfirmPrivilige(User.Identity.Name);}
+@Html.Partial("../NMPUsedConfirm/NMPUsedConfirmFeedBackScriptContainer")
+@Html.Partial("../UsedConfirm/ChangeUserScriptContianer")
+<div id="divViewNMPUsedConfirmDetailDialog" style="display:none"></div>
+<div id="divEditNMPUsedConfirmDialog"  style="display:none"></div>
+<div id="divUseControlSettingDialog"  style="display:none"></div>
+<style type="text/css">
+.edit-box p {
+    border-bottom: 1px dotted #A0A0A0;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 30px;
+}
+.edit-box .icon {
+    height: 16px;
+    line-height: 16px;
+    margin-right: 5px;
+    padding-bottom: 2px;
+    padding-right: 16px;
+    width: 16px;
+}
+</style>
+<script type="text/javascript">
+    var viewNMPUsedConfirmDetailDialog;
+    function doViewNMPUsedConfirmDetail(id, appointmentId) {
+        //使用记录
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewNMPUsedConfirmDetail","NMPUsedConfirm")';
+        if(viewNMPUsedConfirmDetailDialog){
+            viewNMPUsedConfirmDetailDialog.dialog("destroy");
+        }
+        $("#divViewNMPUsedConfirmDetailDialog").load(url, { "id": id, "time": new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            viewNMPUsedConfirmDetailDialog = @(Html.JDialog("divNMPUsedConfirmDetail").SetTitle("工位使用记录详细信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("viewNMPUsedConfirmDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewNMPUsedConfirmDetailDialog.dialog('close');return false;").ToMvcString());
+        });
+    } 
+    var editNMPUsedConfirmDialog;
+    function doEditNMPUsedConfirm(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = (id!=""?'@Url.Action("EditNMPUsedConfirm","NMPUsedConfirm")':'@Url.Action("AddNMPUsedConfirm","NMPUsedConfirm")');
+        
+        if(editNMPUsedConfirmDialog){
+            editNMPUsedConfirmDialog.dialog("destroy");
+        }
+        $("#divEditNMPUsedConfirmDialog").load(url + "?time=" + new Date().getMilliseconds(),{ "id": id}, function (data) {
+            $.messager.progress('close');
+            editNMPUsedConfirmDialog = @(Html.JDialog("divNMPUsedConfirmEdit")
+                                     .SetTitle("使用记录信息")
+                                     .AddButton(new ToolBarButton() { Handler = "doChargeNMPUsedConfirm(editNMPUsedConfirmDialog);return false;", Id = "btnChargeNMPUsedConfirm", Text = "扣费", IconCls = "icon-yen",Disabled = !nmpUsedConfirmPrivilige.IsEnableDirectNMPCostDeduct })
+                                     .AddButton(new ToolBarButton() { Handler = "doSaveNMPUsedConfirm(editNMPUsedConfirmDialog);return false;", Id = "btnSaveNMPUsedConfirm", Text = "保存", IconCls = "icon-ok" ,Disabled = !nmpUsedConfirmPrivilige.IsEnableSaveNMPUsedConfirm})
+                                     .SetIconCls("icon-save")
+                                     .SetAutoDialog(false)
+                                     .SetShowOkButton(false)
+                                     .SetCancelScript("editNMPUsedConfirmDialog.dialog('close');return false;")
+                                     .SetModal(true).ToMvcString());
+            $("#divNMPUsedConfirmEdit").parent().children(".window-header").children(".panel-title").text(id.trim() == "" ? "新增工位使用记录信息" : "编辑工位使用记录信息");
+        });
+    }
+    function doDeleteNMPUsedConfirm(id){
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteNMPUsedConfirm","NMPUsedConfirm")',
+                    data:{"ids":id},
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && (msg.indexOf("出错") != -1)) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        if (typeof (doDeleteNMPUsedConfirmCallBack) == 'function') doDeleteNMPUsedConfirmCallBack();
+                    }
+                });
+        });
+    }
+    function doBatchDeleteNMPUsedConfirm(gridName){
+        var selectedNMPUsedConfirms = $("#" + gridName).datagrid("getSelections");
+        if(!selectedNMPUsedConfirms || selectedNMPUsedConfirms.length == 0){
+             $.messager.show({ title: '提示', msg:"请选择要删除的项" , showType: 'show' });
+             return;
+        }
+        var length = selectedNMPUsedConfirms.length;
+        var selectedIds = "";
+        for(var i = 0;i < length; i++){
+            selectedIds += selectedIds == "" ? selectedNMPUsedConfirms[i].Id : "," + selectedNMPUsedConfirms[i].Id;
+        }
+        doDeleteNMPUsedConfirm(selectedIds);
+    }
+
+    var useControlSettingDialog;
+    function doUseControlSettingDialog() {
+        if (useControlSettingDialog) {
+            useControlSettingDialog.dialog("destroy");
+        }
+        useControlSettingDialog =  @(Html.JDialog("divUseControlSetting")
+        .SetTitle("工位设备使用控制")
+        .SetIconCls("icon-save")
+        .SetAutoDialog(false)
+        .SetModal(true)
+        .SetShowOkButton(false)
+        .SetShowCancelButton(false)
+        .SetOnClose("useControlSettingDialog.dialog('destroy');return false;")
+        .AddButton(new ToolBarButton() { Handler = "doSaveUseControlSetting();return false;", Id = "toolBtnSaveUseControlSetting", Text = "保存", IconCls = "icon-save",Disabled = false })
+        .AddButton(new ToolBarButton() { Handler = "useControlSettingDialog.dialog('destroy');return false;", Id = "toolBtnCloseUseControlSetting", Text = "关闭", IconCls = "icon-cancel",Disabled = false })
+        .ToMvcString());
+    }
+    function doUseControlSetting(id) {
+       if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg:"请选择设备", showType: 'show' });
+            return false;
+       }
+       var url = '@Url.Action("UseControlSettingContrainer","Equipment")'+ "?id=" + id + "&isPop=true&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divUseControlSettingDialog").load(url,function(){
+            $.messager.progress('close');
+            doUseControlSettingDialog();
+        })
+        return false;
+    }
+
+</script>
+
+

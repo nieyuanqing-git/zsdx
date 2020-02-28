@@ -1,0 +1,89 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var costDeductPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetCostDeductPrivilige(User.Identity.Name);}
+<div id="divManualTimeCostDeductDialog" style=" display:none"></div>
+<div id="divManualTimeCostDeductInfoDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doManualTimeDeductSearch() {
+        var queryExpression = generateManualTimeDeductQueryExpression();
+        $("#tbManualTimeCostDeductList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbManualTimeCostDeductList").datagrid("load", { "queryExpression": queryExpression});
+        return false;        
+    }
+    function doExportManualTimeCostDeductList(payerId) {
+        var newQueryExpression = generateManualDeductQueryExpression();
+        var url = '@Url.Action("ExportManualTimeCostDeductList", "CostDeduct")'+ "?userId=" + '@(ViewData["UserId"] != null ? ViewData["UserId"].ToString() : "")'+ "&isManage=" + '@(ViewData["IsManage"]== null ? "": ViewData["IsManage"].ToString().ToLower())' + "&queryExpression=" + newQueryExpression.trim() + "&payerId=" + payerId +  "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    function doAddManualTimeCostDeduct(id) {
+       doAddOrEditManualTimeCostDeduct(id);
+    }
+    function doEditManualTimeCostDeduct(id) {
+       if(!id || id.trim()==""){
+           var selectedManualTimeCostDeduct = $("#tbManualTimeCostDeductList").datagrid("getSelected");
+           if(!selectedManualTimeCostDeduct || selectedManualTimeCostDeduct.Id=="" || selectedManualTimeCostDeduct.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择数据", showType: 'show' });
+              return false;
+           }
+           id = selectedManualTimeCostDeduct.Id;
+       }
+       doAddOrEditManualTimeCostDeduct(id);
+    }
+
+    var manualTimeCostDeductDialog;
+    function doAddOrEditManualTimeCostDeduct(id) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        if(manualTimeCostDeductDialog){
+            manualTimeCostDeductDialog.dialog("destroy");
+        }
+        var url = (id!=""?'@Url.Action("EditManualTimeCostDeduct","CostDeduct")':'@Url.Action("AddManualTimeCostDeduct","CostDeduct")');
+        $("#divManualTimeCostDeductDialog").load(url, { "id": id, time: new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            manualTimeCostDeductDialog = @Html.JDialog("divManualTimeCostDeductEdit").SetTitle("编辑手工计时扣费信息").AddButton(new ToolBarButton() { Handler = "doSaveManualTimeCostDeduct();return false;", Id = "btnManualTimeCostDeduct", Text = "保存", IconCls = "icon-yen",Disabled = !costDeductPrivilige.IsEnableSaveManualTimeCostDeduct }).SetIconCls("icon-save").SetAutoDialog(false).SetShowOkButton(false).SetCancelScript("manualTimeCostDeductDialog.dialog('destroy');return false;").SetModal(true).ToMvcString()
+        });
+    }    
+    function doDeleteManualTimeCostDeduct(id){
+        $.messager.confirm('提示', '是否确认删除?', function (r) {
+            if (!r) return;
+        var mutiIds = generateSelectedIds().toString();
+        if (mutiIds == null || mutiIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要批量删除的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("DeleteManualTimeCostDeduct", "CostDeduct")'+ "?ids=" + mutiIds + "&date=" + new Date().getMilliseconds();
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: { "ids": mutiIds , "date" : new Date().getMilliseconds()},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }              
+                doManualTimeDeductSearch(true);
+            }
+        })
+        });
+    }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbManualTimeCostDeductList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doSaveManualCostDeductCallBack(){
+         manualTimeCostDeductDialog.dialog("destroy")
+         doManualTimeDeductSearch(true);
+    }
+
+    function doExportExcel()
+    {
+        var queryExpression = generateManualTimeDeductQueryExpression();
+        var url='@Url.Action("ExportExcel","CostDeduct")' + "?queryExpression=" + queryExpression + "&date=" + new Date().getMilliseconds();
+        window.open(url,'_blank');
+    }
+</script>

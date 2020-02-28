@@ -1,0 +1,77 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+ul.search li.token-input-input-token-facebook {padding: 0;}
+</style>
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var searchTutorId = $("#SearchTutorId").val().trim();
+        if (searchTutorId != "") {
+            queryExpression = "UserId=\"" + searchTutorId.trim() + "\"";
+        }
+        var applyDateStart = $("#SearchApplyDateStart").datebox("getValue").trim();
+        if (applyDateStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyDate>\"" + applyDateStart + "\"";
+        }
+        var applyDateEnd = $("#SearchApplyDateEnd").datebox("getValue").trim();
+        if (applyDateEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "ApplyDate<\"" + applyDateEnd + " 23:59:59\"";
+        }
+        var hasChecked = $("#SearchHasChecked").combobox("getValue");
+        if (hasChecked == "0")
+            queryExpression += (queryExpression == "" ? "" : "*") + "HasChecked=false";
+        else if (hasChecked == "1")
+            queryExpression += (queryExpression == "" ? "" : "*") + "HasChecked=true";
+        return queryExpression;
+    }
+
+    function doReset() {
+        $('#SearchTutorId').tokenInput('clear')
+        $("#SearchApplyDateStart").datebox("setValue", "");
+        $("#SearchApplyDateEnd").datebox("setValue", "");
+        $("#SearchHasChecked").combobox("setValue", "");
+        return false;
+    }
+    
+</script>
+<ul class="search">
+    <li style="padding: 5px 0 5px 15px">
+        <label style="vertical-align: top;">存款人</label>
+        <span class="combo" id="spSearchTutor" style="width: 153px;border:0;">
+        @(Html.TokenInput("SearchTutorId")
+            .SetUrl(Url.Action("GetTutorListByKeyWord", "User"))
+            .SetSingle(true)
+            .SetWidth(155)
+            .ToMvcString())
+        </span>
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>申请时间</label>
+        @Html.JDateTimePicker("SearchApplyDateStart").SetWidth(155).ToMvcString()
+    </li>
+    <li style="padding: 5px 0 5px 15px">
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchApplyDateEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>已审核</label>
+        @(Html.JComboBox("SearchHasChecked")
+            .SetEditable(false)
+            .SetData(ViewData["YesOrNotJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearchDepositRecordOpenFund();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+<script type="text/javascript">
+    $(function () {
+        $("#spSearchTutor ul.token-input-list-facebook").css("width", "150px");
+    });
+</script>

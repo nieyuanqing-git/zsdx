@@ -1,0 +1,16 @@
+﻿<div id="divPunishSearch" style= "width:800px;height:615px;overflow:hidden">
+    <div class="search-grid hide">
+        <div class="search-inner-box">
+            @Html.Partial("../Delinquency/UserPunishActionSearch")
+        </div>
+    </div>
+    <div>@Html.Partial("PunishActionList")</div>  
+</div>
+<script type="text/javascript">
+    function doUserPunishSearch() {
+        var queryExpression = generateUserPunishExpression();
+        $("#tbPunishRecordList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbPunishRecordList").datagrid("load", { "queryExpression": queryExpression.trim() });
+        return false
+    }
+</script>

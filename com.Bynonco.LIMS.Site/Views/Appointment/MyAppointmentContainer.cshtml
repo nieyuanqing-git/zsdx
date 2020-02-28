@@ -1,0 +1,15 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Partial("../Appointment/MyAppointmentHeader")
+<div class="search-grid hide appointment-search">
+    <div class="search-inner-box">
+        @Html.Partial("../Appointment/AppointmentSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    <div id="divAppointmentRecordList"></div>
+</div>
+@Html.Partial("../Appointment/ScriptContainer")
+@Html.Partial("../Appointment/MyAppointmentScript")

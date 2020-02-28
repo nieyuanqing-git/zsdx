@@ -1,0 +1,249 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSJ3StatisticsImportDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSJ3StatisticsSearch() {
+        doCloseSearch();
+        $("#tbSJ3StatisticsList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSJ3StatisticsList").datagrid("load");
+        doSJ3Search();
+    }
+    function doAddSJ3Statistics() {
+        var unitPrice = $("#AddUnitPrice").val();
+        var startAt = $("#AddStartAt").datebox("getValue").trim();
+        var endAt = $("#AddEndAt").datebox("getValue").trim();
+        $.messager.confirm('提示', '确认新增贵重仪器设备表统计(SJ3)?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ3StatisticsAdd", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                data: { UnitPrice : unitPrice,StartAt: startAt, EndAt: endAt },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ3StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doDeleteSJ3Statistics(id) {
+        id = doGetSJ3StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认删除选中记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ3StatisticsDelete", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ3StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSJ3StatisticsAuditPass(id) {
+        id = doGetSJ3StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要审核通过的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认审核通过选中记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ3StatisticsAuditPass", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ3StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSJ3StatisticsAuditReject(id) {
+        id = doGetSJ3StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要审核不通过的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认审核不通过选中记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ3StatisticsAuditReject", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ3StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSJ3StatisticsAuditWaitting(id) {
+        id = doGetSJ3StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要置为待审的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认置为待审选中记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SJ3StatisticsAuditWaitting", "Statistics")' + "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSJ3StatisticsSearch();
+                }
+            });
+        });
+        return false;
+    }
+    function doSJ3StatisticsExportDoc(id) {
+        id = doGetSJ3StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要导出Doc的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认选中记录导出Doc?', function (r) {
+            if (!r) return;
+            var queryData = "id=" + id;
+            var url = '@Url.Action("SJ3StatisticsExportDoc","Statistics")' + '?' + queryData
+            window.open(url, '_blank');
+        });
+        return false;
+    }
+    function doSJ3StatisticsExportTxt(id) {
+        id = doGetSJ3StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要导出Txt的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认选中记录导出Txt?', function (r) {
+            if (!r) return;
+            var queryData = "id=" + id;
+            var url = '@Url.Action("SJ3StatisticsExportTxt","Statistics")' + '?' + queryData
+            window.open(url, '_blank');
+        });
+        return false;
+    }
+    function doSJ3StatisticsExportExcel(id) {
+        id = doGetSJ3StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要导出Excel的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认选中记录导出Excel?', function (r) {
+            if (!r) return;
+            var queryData = "id=" + id;
+            var url = '@Url.Action("SJ3StatisticsExportExcel","Statistics")' + '?' + queryData
+            window.open(url, '_blank');
+        });
+        return false;
+    }
+    function doGetSJ3StatisticsSelected(id) {
+        if (!id || id.trim() == "") {
+            var selectedSJ3Statistics = $("#tbSJ3StatisticsList").datagrid("getSelected");
+            if (!selectedSJ3Statistics || selectedSJ3Statistics.Id.trim() == "" || selectedSJ3Statistics.Id.isDefaultGuid()) {
+                return "";
+            }
+            id = selectedSJ3Statistics.Id;
+        }
+        return id;
+    }
+    function doOnSJ3StatisticsSelected(rowData) {
+        var queryExpression = generateSJ3QueryExpress();
+        queryExpression += (queryExpression == "" ? "" : "*") + "SJ3StatisticsId=\"" + rowData.Id + "\"";
+        $("#tbSJ3List").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSJ3List").datagrid("load", { "queryExpression": queryExpression });
+    }
+
+    var sJ3StatisticsImportDialog;
+    function doSJ3StatisticsImportDialog() {
+        if (sJ3StatisticsImportDialog) {
+            sJ3StatisticsImportDialog.dialog("destroy");
+        }
+        sJ3StatisticsImportDialog =  @Html.JDialog("divSJ3StatisticsImport").SetTitle("导入贵重仪器设备表(SJ3)").SetIconCls("icon-import").SetAutoDialog(false).SetCancelScript("sJ3StatisticsImportDialog.dialog('destroy');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    function doImportSJ3Statistics(id) {
+        id = doGetSJ3StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "请选择要导入Excel的项", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("SJ3StatisticsImport","Statistics")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSJ3StatisticsImportDialog").load(url,function(){
+            doSJ3StatisticsImportDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+     function ajaxFileUploadSJ3StatisticsExcel() {
+        var id = $("#frmImportExcel").find("#Id").val();
+        if (!id || id.trim() == "") id = doGetSJ3StatisticsSelected(id);
+        if (!id || id.trim() == "") {
+            $.messager.show({ title: '提示', msg: "无效SJ3统计报表", showType: 'show' });
+            return false;
+        }
+               $("#fileSJ3StatisticsExcel").ajaxStart(function () {
+            $.messager.progress({ title: '提示', msg: '正在读取Excel,请稍候……' });
+        });
+        var file = $("#fileSJ3StatisticsExcel").val();
+        if (!doValidatesSJ3StatisticsExcel(file)) return false;
+        $.ajaxFileUpload({
+            url: '@Url.Action("UploadSJ3StatisticsImportExcel", "Statistics")' + "?id=" + id + "&date=" + new Date().getMilliseconds(),
+            secureuri: false,
+            dataType: 'HTML',
+            fileElementId: 'fileSJ3StatisticsExcel',
+            success: function (data, status) {
+                $.messager.progress('close');
+                $.messager.show({ title: '提示', msg: data, showType: 'show' });
+                sJ3StatisticsImportDialog.dialog("destroy");
+                doSJ3Search();
+            },
+            error: function (data, status, e){
+                $.messager.show({ title: '提示', msg: "添加失败", showType: 'show' });
+            }
+        });
+        return false;
+    }
+    function doValidatesSJ3StatisticsExcel(file) {
+        if (file == "") {
+            $.messager.show({ title: '提示', msg: "请选择要上传的文件", showType: 'show' });
+            return false;
+        }
+        return true;
+    }
+</script>

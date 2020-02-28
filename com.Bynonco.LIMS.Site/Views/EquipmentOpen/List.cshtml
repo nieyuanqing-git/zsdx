@@ -1,0 +1,49 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentUndergraduateOpenPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentUndergraduateOpenPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEquipmentUndergraduateOpenList")
+    .SetUrl(Url.Action("GetGridManageViewEquipmentUndergraduateOpenList", "EquipmentOpen"))
+    .SetHeight(600)
+    .SetPageSize(10)
+    .SetSortName("EquipmentName")
+    .SetShowPrintButton(false)
+    .SetShowSearchButton(true)
+    .SetShowAddButton(false)
+    .SetShowEditButton(false)
+    .SetShowDeleteButton(false)
+    .SetShowRefreshButton(false)
+    .SetMutiSelect(true)
+    .SetSingleSelect(false)
+    .SetSearchScript("doShowSearch();");
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("学期编码", "SemesterId").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(52).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "EquipmentNameStr").SetWidth(250).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "StatusStr").SetWidth(70).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("规格型号", "EquipmentModel").SetWidth(70).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所属机构", "EquipmentOrgName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("放置地点", "EquipmentRoomName").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备运行成本", "StandardPriceStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系人", "LinkManNames").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("联系电话", "LinkTelNo").SetWidth(90).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("开放方式", "OpenTypeStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备主要功能简介", "ScopeOfApplication").SetWidth(300).SetAlign(Align.left));
+    if (equipmentUndergraduateOpenPrivilige.IsEnableAdd) 
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAddEquipmentUndergraduateOpen();", IconCls = "icon-add", Id = "btnAddEquipmentUndergraduateOpen", Text = "新增" });
+    }
+    if (equipmentUndergraduateOpenPrivilige.IsEnableAudit) 
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAuditEquipmentUndergraduateOpen();", IconCls = "icon-pass", Id = "btnAuditEquipmentUndergraduateOpen", Text = "审核" });
+    }
+    if (equipmentUndergraduateOpenPrivilige.IsEnableAudit && equipmentUndergraduateOpenPrivilige.IsEnableDelete)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDeleteEquipmentUndergraduateOpen();", IconCls = "icon-cancel", Id = "btnDeleteEquipmentUndergraduateOpen", Text = "删除" });
+    }
+    if (equipmentUndergraduateOpenPrivilige.IsEnableExportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportExcelEquipmentUndergraduateOpen();", IconCls = "icon-export", Id = "btnExportExcelEquipmentUndergraduateOpen", Text = "导出" });
+    }
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearchEquipmentUndergraduateOpen();", IconCls = "icon-reload", Id = "btnSearchEquipmentUndergraduateOpen", Text = "刷新" });
+  }
+  @(dataGrid.ToMvcString())

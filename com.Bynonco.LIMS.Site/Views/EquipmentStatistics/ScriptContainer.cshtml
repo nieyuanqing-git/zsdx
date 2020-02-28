@@ -1,0 +1,169 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divAppointmentSearchDialog" style="display:none"></div>
+<div id="divViewCostDeductStatisticsDialog" style="display:none"></div>
+<div id="divViewUsedConfirmStatisticsDialog" style="display:none"></div>
+<div id="divViewSampleApplyStatisticsDialog" style="display:none"></div>
+@Html.Partial("../Statistics/AppointmentScriptContainer")
+<script type="text/javascript">
+    function doSearchEquipmentStatistics() {
+        var userId = $("#frmEquipmentStatisticsSearch").find("#SearchUserId").val();
+        var organizationId = $("#frmEquipmentStatisticsSearch").find("#SearchOrganizationId").val();
+        var roomId = $("#frmEquipmentStatisticsSearch").find("#SearchRoomId").val();
+        var startTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsStartTime").datebox("getValue");
+        var endTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsEndTime").datebox("getValue");
+        var startUnitPrice = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsStartUnitPrice").val();
+        var endUnitPrice = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsEndUnitPrice").val();
+        var equipmentIds = $("#frmEquipmentStatisticsSearch").find("#SearchEquipmentId").val();
+
+        $("#tbEquipmentStatisticsList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentStatisticsList").datagrid("load", { "UserId": userId, "OrgId": organizationId, "RoomId": roomId, "StartAt": startTime, "EndAt": endTime, "StartUnitPrice": startUnitPrice, "EndUnitPrice": endUnitPrice, "EquipmentIds": equipmentIds });
+    }
+
+     function doShowViewAppointmentStatistics(equipmentId) {
+       if(!equipmentId || equipmentId.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择设备", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("AppointmentSearchContainer","Appointment")' + "?equipmentId=" + equipmentId;
+        var userId = $("#frmEquipmentStatisticsSearch").find("#SearchUserId").val();
+        var startTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsStartTime").datebox("getValue");
+        var endTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsEndTime").datebox("getValue");
+        if(userId != "") url += "&userId=" + userId;
+        if(startTime != "") url += "&startAt=" + startTime;
+        if(endTime != "") url += "&endAt=" + endTime;
+
+        $("#divAppointmentSearchDialog").load(url, function () {
+            doShowAppointmentSearchDialog();
+        });
+    }
+
+    function doShowViewCostDeductStatistics(equipmentId) 
+    {
+        if(!equipmentId || equipmentId.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择设备", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("CostDeductContainer","EquipmentStatistics")';
+        var queryData = "equipmentId=" + equipmentId;
+         var userId = $("#frmEquipmentStatisticsSearch").find("#SearchUserId").val();
+        var startTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsStartTime").datebox("getValue");
+        var endTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsEndTime").datebox("getValue");
+        if(userId != "") queryData += "&userId=" + userId;
+        if(startTime != "") queryData += "&startAt=" + startTime;
+        if(endTime != "") queryData += "&endAt=" + endTime;
+        $("#divViewCostDeductStatisticsDialog").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divViewCostDeductStatisticsDialog").html(data);
+                ShowViewCostDeductStatisticsDialog();
+                return false;
+            }
+        });
+    } 
+    var viewCostDeductStatisticsDialog;
+    function ShowViewCostDeductStatisticsDialog()
+    {
+        if(viewCostDeductStatisticsDialog)
+            viewCostDeductStatisticsDialog.dialog("destroy");
+        viewCostDeductStatisticsDialog = @(Html.JDialog("divViewCostDeductStatistics").SetTitle("详情").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewCostDeductStatisticsDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewCostDeductStatisticsDialog.dialog('close');return false;").ToMvcString());
+    }
+
+    function doShowViewUsedConfirmStatistics(equipmentId) 
+    {
+        if(!equipmentId || equipmentId.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择设备", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("UsedConfirmContainer","EquipmentStatistics")';
+        var queryData = "equipmentId=" + equipmentId;
+         var userId = $("#frmEquipmentStatisticsSearch").find("#SearchUserId").val();
+        var startTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsStartTime").datebox("getValue");
+        var endTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsEndTime").datebox("getValue");
+        if(userId != "") queryData += "&userId=" + userId;
+        if(startTime != "") queryData += "&startAt=" + startTime;
+        if(endTime != "") queryData += "&endAt=" + endTime;
+        $("#divViewUsedConfirmStatisticsDialog").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divViewUsedConfirmStatisticsDialog").html(data);
+                ShowViewUsedConfirmStatisticsDialog();
+                return false;
+            }
+        });
+    } 
+    var viewUsedConfirmStatisticsDialog;
+    function ShowViewUsedConfirmStatisticsDialog()
+    {
+        if(viewUsedConfirmStatisticsDialog)
+            viewUsedConfirmStatisticsDialog.dialog("destroy");
+        viewUsedConfirmStatisticsDialog = @(Html.JDialog("divViewUsedConfirmStatistics").SetTitle("详情").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewUsedConfirmStatisticsDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewUsedConfirmStatisticsDialog.dialog('close');return false;").ToMvcString());
+    }
+
+    function doShowViewSampleApplyStatistics(equipmentId) 
+    {
+        if(!equipmentId || equipmentId.trim()==""){
+            $.messager.show({ title: '提示', msg: "请选择设备", showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("SampleApplyContainer","EquipmentStatistics")';
+        var queryData = "equipmentId=" + equipmentId;
+         var userId = $("#frmEquipmentStatisticsSearch").find("#SearchUserId").val();
+        var startTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsStartTime").datebox("getValue");
+        var endTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsEndTime").datebox("getValue");
+        if(userId != "") queryData += "&userId=" + userId;
+        if(startTime != "") queryData += "&startAt=" + startTime;
+        if(endTime != "") queryData += "&endAt=" + endTime;
+        $("#divViewSampleApplyStatisticsDialog").empty();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            data: queryData,
+            url: url,
+            success: function (data) {
+                $.messager.progress('close');
+                $("#divViewSampleApplyStatisticsDialog").html(data);
+                ShowViewSampleApplyStatisticsDialog();
+                return false;
+            }
+        });
+    } 
+    var viewSampleApplyStatisticsDialog;
+    function ShowViewSampleApplyStatisticsDialog()
+    {
+        if(viewSampleApplyStatisticsDialog)
+            viewSampleApplyStatisticsDialog.dialog("destroy");
+        viewSampleApplyStatisticsDialog = @(Html.JDialog("divViewSampleApplyStatistics").SetTitle("详情").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("viewSampleApplyStatisticsDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewSampleApplyStatisticsDialog.dialog('close');return false;").ToMvcString());
+    }
+    function doExportExcelEquipmentStatistics()
+    {
+        var userId = $("#frmEquipmentStatisticsSearch").find("#SearchUserId").val();
+        var organizationId = $("#frmEquipmentStatisticsSearch").find("#SearchOrganizationId").val();
+        var roomId = $("#frmEquipmentStatisticsSearch").find("#SearchRoomId").val();
+        var startTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsStartTime").datebox("getValue");
+        var endTime = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsEndTime").datebox("getValue");
+        var startUnitPrice = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsStartUnitPrice").val();
+        var endUnitPrice = $("#frmEquipmentStatisticsSearch").find("#SearchStatisticsEndUnitPrice").val();
+        var equipmentIds = $("#frmEquipmentStatisticsSearch").find("#SearchEquipmentId").val();
+
+        var queryData = "userId=" + userId ;
+        queryData += "&OrgId=" + organizationId;
+        queryData += "&RoomId=" + roomId;
+        queryData += "&StartAt=" + startTime;
+        queryData += "&EndAt=" + endTime;
+        queryData += "&StartUnitPrice=" + startUnitPrice;
+        queryData += "&EndUnitPrice=" + endUnitPrice;
+        queryData += "&EquipmentIds=" + equipmentIds;
+        var url = '@Url.Action("ExportExcel","EquipmentStatistics")' + '?' + queryData
+        window.open(url, '_blank');
+    }   
+</script>

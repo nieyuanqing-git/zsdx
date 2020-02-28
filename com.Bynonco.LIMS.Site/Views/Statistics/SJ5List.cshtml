@@ -1,0 +1,76 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var statisticsPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetStatisticsPrivilige(User.Identity.Name);
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tbSJ5List').datagrid({
+            columns: [[
+            { title: '人员编号', field: 'UserNum', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '实验室编号', field: 'ExperimentRoomNum', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '实验室名称', field: 'ExperimentRoomName', width: 100, rowspan: 2, sortable: true, align: 'center' },
+            { title: '姓名', field: 'UserName', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '性别', field: 'Sex', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '出生年月', field: 'Birthday', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '所属学科', field: 'Subject', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '专业技术职务', field: 'Speciality', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '文化程度', field: 'Degree', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '专家类别', field: 'ProfessorType', width: 60, rowspan: 2, sortable: true, align: 'center' },
+            { title: '国内培训', colspan: 4, align: 'center' },
+            { title: '国外培训', colspan: 2, align: 'center' }
+            ],[
+            { title: '学历教育实践', field: 'DomesticTeachingHours', width: 100, sortable: true, align: 'center' },
+            { title: '非学历教育实践', field: 'DomesticUnTeachingHours', width: 100, sortable: true, align: 'center' },
+            { title: '学历教育实践', field: 'ForeignTeachingHours', width: 100, sortable: true, align: 'center' },
+            { title: '非学历教育实践', field: 'ForeignUnTeachingHours', width: 100, sortable: true, align: 'center' }
+            ]],
+            frozenColumns: [[
+                { field: 'ck', checkbox: true, rowspan: 3 },
+                { title: '状态', field: 'AuditStatusNickName', rowspan: 3, sortable: true, align: 'center' },
+                { title: '学校代码', field: 'SchoolCode', rowspan: 3, sortable: true, align: 'center' }
+                ]],
+            url: '/Statistics/GetGridViewSJ5List',
+            loadMsg: '数据加载中,请稍候……',
+            pageNumber: 1,
+            pageSize: 20,
+            pageList: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+
+            height: 650,
+            iconCls: 'icon-save',
+            collapsed: false,
+            collapsible: true,
+            remoteSort: true,
+            sortOrder: 'asc',
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            fitColumns: false,
+            striped: true,
+            nowrap: true,
+            method: 'post',
+            pagePosition: 'bottom',
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ5Edit ? "onDblClickRow: function(rowIndex, rowData){ doEditSJ5(rowData.Id); },":"")
+            toolbar: [
+            {
+                id: 'btnGridSearch',
+                text: '搜索',
+                disabled: false,
+                iconCls: 'icon-search',
+                handler: function () {
+                    $('#btnGridSearch').linkbutton('enable');
+                    doShowSearch();
+                }
+            }
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ5Add ? ",{id: 'btnSJ5Add',text: '新增',disabled: false,iconCls: 'icon-add',handler: function () { $('#btnSJ5Add').linkbutton('enable'); doAddSJ5();}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ5Edit ? ",{id: 'btnSJ5Edit',text: '编辑',disabled: false,iconCls: 'icon-edit',handler: function () { $('#btnSJ5Edit').linkbutton('enable'); doEditSJ5('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ5Delete && false ? ",{id: 'btnSJ5Delete',text: '删除',disabled: false,iconCls: 'icon-cancel',handler: function () { $('#btnSJ5Delete').linkbutton('enable'); doDeleteSJ5('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ5AuditPass ? ",{id: 'btnSJ5AuditPass',text: '审核通过',disabled: false,iconCls: 'icon-pass',handler: function () { $('#btnSJ5AuditPass').linkbutton('enable'); doAuditPassSJ5('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ5AuditReject ? ",{id: 'btnSJ5AuditReject',text: '审核不通过',disabled: false,iconCls: 'icon-no',handler: function () { $('#btnSJ5AuditReject').linkbutton('enable'); doAuditRejectSJ5('');}}":"")
+            @System.Web.Mvc.MvcHtmlString.Create(statisticsPrivilige.IsEnableSJ5AuditWaitting ? ",{id: 'btnSJ5AuditWaitting',text: '置为待审',disabled: false,iconCls: 'icon-info',handler: function () { $('#btnSJ5AuditWaitting').linkbutton('enable'); doAuditWaittingSJ5('');}}":"")
+            ,{id: 'btnSJ5Reload',text: '刷新',disabled: false,iconCls: 'icon-reload',handler: function () { $('#btnSJ5Reload').linkbutton('enable'); doSJ5Search('');}}
+            ],
+            showFooter: false
+        });
+    });
+</script>
+<table id="tbSJ5List"></table>

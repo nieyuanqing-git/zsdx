@@ -1,0 +1,18 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<style type="text/css">
+    #tbSelectChangeEquipment th{width:80px;text-align:center; padding:5px 5px 5px 2px; line-height:20px; font-weight:bold}
+    #tbSelectChangeEquipment td{text-align:left; padding: 5px 5px 5px 0px;line-height:20px}
+</style>
+@Html.Hidden("ChangeAppointmentId", ViewData["ChangeAppointmentId"])
+<div id="divSelectChangeEquipment">
+    <table class="edit-table" id="tbSelectChangeEquipment" style="width:600px">
+        <tr>
+            <th>当前预约设备</th>
+            <td class="f_bold">@ViewData["EquipmentName"]</td>
+        </tr>
+        <tr>
+            <th>选择替换设备</th>
+            <td>@Html.JComboBox("SelectedChangeEquipmentId").SetData(ViewData["EquipmentComboJson"]).SetWidth(500).ToMvcString()</td>
+        </tr>
+    </table>
+</div>

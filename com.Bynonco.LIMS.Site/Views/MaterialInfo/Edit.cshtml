@@ -1,0 +1,208 @@
+﻿@model com.Bynonco.LIMS.Model.MaterialInfo
+@using com.Bynonco.LIMS.Model.View; 
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var materialSupplierList = ViewData["ViewMaterialSupplierList"] == null ? null : (List<ViewMaterialSupplier>)ViewData["ViewMaterialSupplierList"];
+}
+<div id="divMaterialInfoEdit">
+ <form id="frmMaterialInfoEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdMaterialInfoEdit" class="edit-table"  style="width:730px;height:auto">
+        <tr>
+            <th><span class="required">* </span>名称</th>
+            <td>
+                @Html.JValidateBox("Name").SetOnChange("doOnNameChanged();").SetValue(Model == null ? "" : Model.Name).SetWidth(150).ToMvcString()
+            </td>
+            <th><span class="required">* </span>规格</th>
+            <td>
+                @Html.JValidateBox("Model").SetValue(Model == null ? "" : Model.Model).SetWidth(150).ToMvcString()
+            </td>
+             <th><span class="required">* </span>编号</th>
+            <td>
+                @Html.JValidateBox("Label").SetValue(Model == null ? "" : Model.Label).SetWidth(150).SetValidateType(ValidateType.required).SetInvalidMessage("请输入固定资产编号").ToMvcString()
+            </td>
+        </tr>
+        <tr class='hide'>
+            <th>助记符</th>
+            <td>@Html.JValidateBox("InputStr").SetValue(Model == null ? "" : Model.InputStr).SetWidth(150).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>库存量</th>
+            <td>
+                @Html.JValidateBox("StockValue").SetValue(Model == null ? "" : Model.StockValue.ToString("0.00")).SetWidth(150).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的库存量").ToMvcString()
+            </td>
+            <th><span class="required">* </span>警告线</th>
+            <td>
+                @Html.JValidateBox("WarningValue").SetValue(Model == null ? "" : Model.WarningValue.ToString("0.00")).SetWidth(150).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的警告线").ToMvcString()
+            </td>
+            <th><span class="required">* </span>计量单位</th>
+            <td>
+                @(Html.JComboBox("Unit")
+                .SetEditable(true)
+                .SetData(ViewData["UnitJson"])
+                .SetWidth(85)
+                .ToMvcString())<span class="required" style='margin-left:5px;'>(可输入)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>领用单价</th>
+            <td>
+                @Html.JValidateBox("UnitPrice").SetValue(Model == null ? "" : Model.UnitPrice.ToString("0.00")).SetWidth(150).SetValidateType(ValidateType.number).SetInvalidMessage("请输入合法的价格").ToMvcString()
+            </td>
+            <th><span class="required">* </span>价格单位</th>
+            <td colspan='3'>
+                @(Html.JComboBox("PriceType")
+                .SetEditable(false)
+                .SetData(ViewData["PriceTypeJson"])
+                .SetWidth(155)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>所属分类</th>
+            <td id="tdMaterialCategoryId">
+                @(Html.JComboTree("MaterialCategoryId")
+                .SetData(ViewData["MaterialCategoryJson"])
+                .SetValue(Model == null ? "" : Model.MaterialCategoryId.ToString())
+                .SetMultiple(false)
+                .SetWidth(155).SetRequired(false).SetExpandAll(true).ToMvcString())
+            </td>
+            <th>负责人</th>
+            <td id="tdAdmins" colspan='3'>
+                @(Html.TokenInput("MaterialAdmins")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["MaterialAdminsJson"] == null || string.IsNullOrWhiteSpace(ViewData["MaterialAdminsJson"].ToString()) ? null : ViewData["MaterialAdminsJson"].ToString())
+                .SetSingle(false)
+                .SetWidth(239)
+                .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>所属单位</th>
+            <td id="tdOrgId">
+                @Html.DropDownList("OrganizationId", (IEnumerable<SelectListItem>)ViewData["OrganizationSelectListItem"], new { style = "width:155px;height:23px;", onchange = "doOnOranizationChanged(this);" })
+            </td>
+             <th><span class="required">* </span>放置地点</th>
+            <td id="tdRoomId" colspan='3'>
+                @Html.DropDownList("RoomId", ViewData["LabRoomSelectListItem"] == null ? new List<SelectListItem>() : (IEnumerable<SelectListItem>)ViewData["LabRoomSelectListItem"], new { style = "width:405px;height:23px;" })
+            </td>
+        </tr>
+        <tr>
+            <th>是否停用</th>
+            <td id="tdIsStop" colspan='5'>
+                 @Html.CheckBox("IsStop", Model == null ? false : Model.IsStop)
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='5'>@Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:96%;height:18px" })</td>
+        </tr>
+        <tr>
+            <th>推荐供应商</th>
+            <td colspan='5'>
+                @Html.JLinkButton("btnSelectSupplier", "新增").SetIconCls("icon-add").SetPlain(true).SetOnclick("doSelectSupplier();return false;").ToMvcString()
+                @Html.Hidden("SupplierIds", Model == null ? "" : Model.SupplierIds)
+                <table id="tbMaterialSupplierList" cellpadding="0" cellspacing="0" border="0" class="edit-table">
+                    <tr>
+                        <th style='width:30px;'></th>
+                        <th style='width:200px'>供应商名称</th>
+                        <th style='width:80px;'>联系人</th>
+                        <th style='width:80px;'>联系电话</th>
+                        <th style='width:100px;'><span class="required">* </span>推荐价格</th>
+                        <th style='width:80px;'>是否默认</th>
+                    </tr>
+                    @if (materialSupplierList != null && materialSupplierList.Count() > 0)
+                    {
+                        foreach (var item in materialSupplierList)
+                        {
+                            @Html.Partial("../MaterialInfo/SupplierEdit", item)
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th style='height:50px;'>图片上传</th>
+            <td colspan ='5'>
+                <input id="fileMaterialInfoLogo" type="file" name="fileMaterialInfoLogo" class="addfile" onchange="ajaxFileUploadMaterialInfoLogo();return false;"/>
+                <img id="imgMaterialInfoLogo" src='@(Model == null || Model.RelativePic == "" ? "" : Url.Content("~/" + Model.RelativePic))' style='height:30px;' alt='耗材图片'/>
+                @Html.Hidden("RelativePic", Model == null ? "" : Model.RelativePic)
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdAdmins ul.token-input-list-facebook").css("width", "302px");
+    });
+    function doOnNameChanged() {
+        $("#InputStr").val("");
+    }
+    function doOnOranizationChanged(element) {
+        var orgId = element.value;
+        var roomElement = document.getElementById("RoomId");
+        if (orgId != '@Guid.Empty.ToString()') {
+            roomElement.options.length = 0;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetLabRoomListByOrgId","LabOrganization")',
+            data: { "orgId": orgId, "time": new Date().getMilliseconds() },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg != "") {
+                    var rooms = eval(msg);
+                    if (rooms.length == 0) return;
+                    for (var i = 0; i < rooms.length; i++) {
+                        var option = document.createElement("OPTION");
+                        roomElement.options.add(option);
+                        option.text = rooms[i].Text;
+                        option.value = rooms[i].Value;
+                    }
+                }
+            }
+        });
+        return false;
+    }
+    function getSelectedSuppliersCallBack(selectedSupplierNames, selectedSupplierIds, selectedSupplierJsonArray) {
+        $("#SupplierIds").val('');
+        if (selectedSupplierIds != "") {
+            var selectedSupplierIdsArray = selectedSupplierIds.split(",");
+            var selectedSupplierNamesArray = selectedSupplierNames.split(",");
+            if (!selectedSupplierIdsArray || selectedSupplierIdsArray.length == 0 || !selectedSupplierNamesArray || selectedSupplierNamesArray.length == 0) return;
+            for (var i = 0; i < selectedSupplierIdsArray.length && i < selectedSupplierNamesArray.length; i++) {
+                var supplierIds = $("#SupplierIds").val();
+                supplierIds += (supplierIds == "" ? "" : ",") + selectedSupplierIdsArray[i];
+                $("#SupplierIds").val(supplierIds);
+                doAddMaterialSupplier(selectedSupplierIdsArray[i]);
+            }
+        }
+    }
+    function doSelectSupplier() {
+        doSelectSupplierDialog('SupplierIds');
+        return false;
+    }
+    function doAddMaterialSupplier(supplierId) {
+        if (!supplierId || supplierId == "") return;
+        if ($("#Id_" + supplierId).length > 0) return;
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("GetViewMaterialSupplierItem","MaterialInfo")',
+            data: { "supplierId": supplierId, "materialInfoId": $("#Id").val() },
+            success: function (data) {
+                $("#tbMaterialSupplierList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemoveMaterialSupplier(supplierId) {
+        if (!supplierId || supplierId == "") return;
+        $("#tr_" + supplierId).remove();
+        var supplierIds = $("#SupplierIds").val();
+        supplierIds = supplierIds.replace("," + supplierId, "").replace(supplierId + ",", "").replace(supplierId, ",")
+        $("#SupplierIds").val(supplierIds);
+    }
+</script>

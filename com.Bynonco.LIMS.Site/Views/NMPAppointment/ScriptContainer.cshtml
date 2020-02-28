@@ -1,0 +1,204 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divNMPAppointmentPunishConfirmDialog" style="display:none"></div>
+<div id="divNMPAppointmentRepealConfirmDialog" style="display:none"></div>
+<div id="divNMPAppointmentAuditDialog" style="display:none"></div>
+<div id="divAddNMPAppointmentUsedConfirmDialog" style="display:none"></div>
+<div id="divSelfAddNMPAppointmentUsedConfirmDialog" style="display:none"></div>
+<div id="divNMPAppointmentDetailInfoDialog" style="display:none"></div>
+<div style="display:none;">
+    <div id="divNMPAppointmentAuditResultContainer" style="width:450px"></div>
+</div>
+<script type="text/javascript">
+    var nmpAppointmentDetailInfoDialog;
+    function doShowNMPAppointmentDetailInfo(appointmentId){
+        var url= '@Url.Action("AppointmentDetailInfo","NMPAppointment")';
+        if(nmpAppointmentDetailInfoDialog) {
+            nmpAppointmentDetailInfoDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divNMPAppointmentDetailInfoDialog").load(url, { "appointmentId":appointmentId, "date": new Date().getMilliseconds() }, function () {
+            nmpAppointmentDetailInfoDialog = @(Html.JDialog("divAppointmentDetailInfoContainer").SetTitle("工位预约详细信息").SetAutoDialog(false).SetOkScript("nmpAppointmentDetailInfoDialog.dialog('close');").SetCancelScript("nmpAppointmentDetailInfoDialog.dialog('close');").SetIconCls("icon-save").ToMvcString());
+            $.messager.progress('close');
+        });
+    }
+    var selfAddNMPAppointmentUsedConfirmDialog;
+    function doSelfAddNMPAppointmentUsedConfirm(appointmentId){
+        var url= '@Url.Action("SelfAddAppointmentUsedConfirm","NMPUsedConfirm")';
+        if(selfAddNMPAppointmentUsedConfirmDialog) {
+            selfAddNMPAppointmentUsedConfirmDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelfAddNMPAppointmentUsedConfirmDialog").load(url, { "appointmentId": appointmentId, "time": new Date().getMilliseconds() }, function (data) {
+           selfAddUsedConfirmDialog = @(Html.JDialog("divSelfUsedConfirmEdit")
+                                     .SetTitle("编辑工位使用记录信息")
+                                     .SetIconCls("icon-save")
+                                     .AddButton(new ToolBarButton() { Handler = "doSaveSelfUsedConfirm(selfAddNMPAppointmentUsedConfirmDialog);return false;", Id = "btnSaveSelfNMPAppointmentUsedConfirm", Text = "保存", IconCls = "icon-ok" })
+                                     .SetAutoDialog(false)
+                                     .SetShowOkButton(false)
+                                     .SetCancelScript("selfAddNMPAppointmentUsedConfirmDialog.dialog('close');return false;")
+                                     .SetModal(true).ToMvcString())
+            $.messager.progress('close');
+            
+        });
+    }
+    var addNMPAppointmentUsedConfirmDialog;
+    function doAddNMPAppointmentUsedConfirm(id){
+        var url= '@Url.Action("EditAppointmentNMPUsedConfirm","NMPUsedConfirm")';
+        if(addNMPAppointmentUsedConfirmDialog) {
+            addNMPAppointmentUsedConfirmDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAddNMPAppointmentUsedConfirmDialog").load(url, { "appointmentId": id, "time": new Date().getMilliseconds() }, function () {
+            $.messager.progress('close');
+            addNMPAppointmentUsedConfirmDialog = @(Html.JDialog("divNMPUsedConfirmEdit")
+                                     .SetTitle("编辑工位使用记录信息")
+                                     .SetIconCls("icon-save")
+                                     .AddButton(new ToolBarButton() { Handler = "doChargeNMPUsedConfirm();return false;", Id = "btnChargeNMPAppointmentUsedConfirm", Text = "扣费", IconCls = "icon-yen" })
+                                     .AddButton(new ToolBarButton() { Handler = "doSaveNMPUsedConfirm();return false;", Id = "btnSaveNMPAppointmentUsedConfirm", Text = "保存", IconCls = "icon-ok" })
+                                     .SetAutoDialog(false)
+                                     .SetShowOkButton(false)
+                                     .SetCancelScript("addNMPAppointmentUsedConfirmDialog.dialog('close');return false;")
+                                     .SetModal(true).ToMvcString())
+        });
+    }
+   
+
+    var nmpAppointmentAuditDialog;
+    function doAuditNMPAppointment(appointmentIds,appointmentAuditType){
+        if(appointmentIds.trim() == ""){
+            $.messager.show({ title: '提示', msg: "请选择要审核的项", showType: 'show' });
+            return;
+        }
+        var url= '@Url.Action("AuditAppointmentContainer","NMPAppointment")';
+        if(nmpAppointmentAuditDialog) {
+            nmpAppointmentAuditDialog.dialog("destroy");
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divNMPAppointmentAuditDialog").load(url, { "AppointmentIds":appointmentIds,"appointmentAuditType":appointmentAuditType, "date": new Date().getMilliseconds() }, function () {
+            nmpAppointmentAuditDialog = @(Html.JDialog("divAppointmentAuditContainert").SetTitle("工位预约审核").SetAutoDialog(false).SetOkScript("execNMPAppointmentAudit(appointmentAuditType);").SetCancelScript("nmpAppointmentAuditDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+            $.messager.progress('close');
+        });
+    }
+    var nmpAppointmentAuditResultDialog;
+    function showNMPAppointmentAuditResult(result){
+        $("#divNMPAppointmentAuditResultContainer").html(result);
+        nmpAppointmentAuditResultDialog = @(Html.JDialog("divNMPAppointmentAuditResultContainer").SetTitle("位预约审核结果").SetAutoDialog(false).SetOkScript("nmpAppointmentAuditResultDialog.dialog('close');").SetCancelScript("nmpAppointmentAuditResultDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+    }
+    function execNMPAppointmentAudit(appointmentAuditType) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("AuditAppointment", "NMPAppointment")',
+            data: $("#frmNMPAppointmentAudit").serialize() + "&appointmentAuditType=" + appointmentAuditType +   "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                doNMPAppointmentSearch();
+                showNMPAppointmentAuditResult(msg);
+                $.messager.progress('close');
+                nmpAppointmentAuditDialog.dialog("close");
+            }
+        });
+    }
+    function doNMPAppointmentAuditBatch(appointmentAuditType,tableId){
+        var selectedRows =!tableId|| tableId==""? $('#tbNMPAppointmentSearchList').datagrid("getSelections"):$('#' + tableId).datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            for(var i = 0;i < selectedRows.length;i++){
+                ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+            }
+            doAuditNMPAppointment(ids,appointmentAuditType);
+        }
+    }
+    function doCancleNMPAppointment(id) {
+        $.messager.confirm('提示', '确认取消预约?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("CancelAppointment","NMPAppointment")',
+                data: {"AppointmentId":id,"date":new Date().getMilliseconds()},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doNMPAppointmentSearch();
+                }
+             });
+        });
+    }
+   
+    function doRegisterBreakNMPAppointment(id) {
+        $.messager.confirm('提示', '确认登记为爽约?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("RegisterBreakAppointment","NMPAppointment")',
+                data: {"AppointmentId":id,"date":new Date().getMilliseconds()},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    try
+                    {
+                         if (msg && msg.indexOf("出错") != -1 && msg.length >= 2 && msg.substr(0,2) == "出错") {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                         }
+                    }
+                    catch(e){}
+                    doNMPAppointmentSearch();
+                    if(msg && msg!=""){
+                        $("#divNMPAppointmentPunishConfirmDialog").html(msg);
+                        doShowPunishConfirmDialog();
+                    }
+                }
+             });
+        });
+    }
+    function doPunishConfirmCallBack(){
+        doNMPAppointmentSearch();
+    }
+    function doCancelRegisterBreakNMPAppointment(id) {
+         $.messager.confirm('提示', '确认撤消爽约?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("CancelRegisterBreakAppointmentConfirm","NMPAppointment")',
+                data: {"AppointmentId":id,"date":new Date().getMilliseconds()},
+                success: function (msg) {
+                    $.messager.progress('close');
+                    try
+                    {
+                         if (msg && msg.indexOf("出错") != -1 && msg.length >= 2 && msg.substr(0,2) == "出错") {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                         }
+                    }
+                    catch(e){}
+                    doNMPAppointmentSearch();
+                    if(msg && msg!=""){
+                        $("#divNMPAppointmentRepealConfirmDialog").html(msg);
+                        doShowRepealConfirmDialog();
+                    }
+                }
+             });
+        });
+    }
+    function doRepealConfirmCallBack(){
+        doNMPAppointmentSearch();
+    }
+    function doNMPAppointmentSearch() {
+        var queryExpression = generateAppointmentTotalQueryExpression();
+        $("#tbNMPAppointmentSearchList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbNMPAppointmentSearchList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    function doSaveNMPUsedConfirmCallBack() {
+        doNMPAppointmentSearch();
+        addNMPAppointmentUsedConfirmDialog.dialog("close");
+    }
+    function doChargeNMPUsedConfirmCallBack() {
+        doNMPAppointmentSearch();
+        addNMPAppointmentUsedConfirmDialog.dialog("close");
+    }
+</script>

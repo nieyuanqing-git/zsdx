@@ -1,0 +1,50 @@
+﻿@model IList<com.Bynonco.LIMS.Model.EthicsApplyAnimalData>
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@{bool isShowAllowRelativeAmount = (bool)ViewData["IsShowAllowRelativeAmount"];}
+<div id="divAnimalDatas" style="overflow:hidden; margin:0; padding:0;">
+    @Html.Partial("../AnimalAppointment/AppointmentScriptContainer")
+    @if (!isShowAllowRelativeAmount)
+    {
+        <p style="background-color: #F7F7F7; width:100%; padding:0; margin:0;">
+            @(Html.JLinkButton("btnAddAnimalData", "新增").SetOnclick(string.Format("doAddAnimalData({0});return false;", isShowAllowRelativeAmount.ToString().ToLower())).SetIconCls("icon-add").SetPlain(true).ToMvcString())
+        </p>
+    }
+    @if (Model != null && Model.Count > 0)
+    {
+        foreach (var ethicsApplyAnimalData in Model)
+        {
+            @Html.Partial("AnimalData", ethicsApplyAnimalData)
+        }
+
+    }
+    else
+    {
+        @Html.Partial("AnimalData", null)
+    }
+</div>
+<script type="text/javascript">
+    function doDeleteAnimalData(id) {
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $("#div" + id).remove();
+        });
+    }
+    function doAddAnimalData(isShowAllowRelativeAmount) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AddAnimalData","EthicsApply")',
+            data: {"isShowAllowRelativeAmount":isShowAllowRelativeAmount, "date": new Date().getMilliseconds() },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                $("#divAnimalDatas").append(msg);
+            }
+        });
+        return false;
+    }
+</script> 

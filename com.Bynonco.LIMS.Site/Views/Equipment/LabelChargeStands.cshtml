@@ -1,0 +1,58 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model.Business;
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divLabelChargeStandards"> 
+   <p class="f_red"  style="font-weight:normal;border:none;">
+        <span style="padding-left:100px; display:block;">
+                重要!!!!!!!!!!!!!!!如果用户同时符合多个用户标签,序号将决定计费标准优先级,<br />
+                如果序号相同,用户标签类型决定计费标准优先级,用户标签类型优先级如下:<br />
+        </span>
+        <span class="f_blue" style="padding-left:100px;">
+            1.@(LabelType.User.ToCnName() + ">>")
+            2.@(LabelType.Suject.ToCnName() + ">>")
+            3.@(LabelType.Organization.ToCnName() + ">>")
+            4.@(LabelType.Tag.ToCnName())
+        </span>
+    </p>
+    @if(Model != null && Model.Equipment.LabelChargeStandards != null && Model.Equipment.LabelChargeStandards.Count() > 0)
+    {
+        var labelChargeStandards = Model.Equipment.LabelChargeStandards.OrderBy(p => p.RelationId);
+        Guid? preRelationId = null;
+        foreach (var labelChargeStandard in labelChargeStandards)
+        {
+            if (preRelationId == labelChargeStandard.RelationId) { continue; }
+            preRelationId = labelChargeStandard.RelationId;
+            @Html.Partial("LabelChargeStand", new EquipmentLabelChargeStand(Guid.NewGuid(), Model.Id, Model.Equipment.ChargeStandard, labelChargeStandard, Model.Equipment.AdditionChargeItems, Model.Equipment.LabelAddtionChargeItems, Model.Equipment.LabelChargeStandards));
+        }
+
+    }
+</div>
+<script type="text/javascript">
+    function doDeleteEquipmentLabelChargeStand(id) {
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $("#div" + id).remove();
+        });
+    }
+    function doAddEquipmentLabelChargeStand() {
+        var equipmentId = $("#EquipmentId").val().trim();
+        if (equipmentId == "") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AddEquipmentLabelChargeStand","Equipment")',
+            data: { "EquipmentId": equipmentId, "date": new Date().getMilliseconds() },
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                $("#divLabelChargeStandards").append(msg);
+            }
+        });
+        return false;
+    }
+</script>

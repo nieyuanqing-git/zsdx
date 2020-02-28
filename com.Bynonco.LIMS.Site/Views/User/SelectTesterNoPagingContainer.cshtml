@@ -1,0 +1,58 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divSelectTester" style="display:none"></div>
+<script type="text/javascript">
+    var selectTesterDialog;
+    function doSelectTesterDialog(equipmentIdsElement,sampleItemIdsElement,isValidate) {
+        var selectedEquipmentIds = document.getElementById(equipmentIdsElement).value;
+        var selectedSampleItemIds ="";
+        var selectedSampleItemIdsElement = document.getElementsByName(sampleItemIdsElement);
+        if(selectedSampleItemIdsElement.length>0){
+            for(var i=0;i<selectedSampleItemIdsElement.length;i++){
+                selectedSampleItemIds+= selectedSampleItemIds == "" ? selectedSampleItemIdsElement[i].value : "," +  selectedSampleItemIdsElement[i].value;
+            }
+        }
+        if(isValidate){
+            if(selectedEquipmentIds==""){
+                $.messager.show({ title: '提示', msg: "请选择设备", showType: 'show' });
+                return;
+            }
+            if(selectedSampleItemIds==""){
+                $.messager.show({ title: '提示', msg: "请选择项目", showType: 'show' });
+                return;
+            }
+        }
+        if(selectTesterDialog)selectTesterDialog.dialog("destroy");
+        var url = '@Url.Action("SelectTesterNoPagingContainer","User")' + "?equipmentIds=" + selectedEquipmentIds + "&sampleItemIds=" + selectedSampleItemIds+ "&time=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divSelectTester").load(url,function(){
+             $.messager.progress('close');
+             selectTesterDialog = @(Html.JDialog("divSelectTesterDialog").SetTitle("选择测试人").SetCancelScript("selectTesterDialog.dialog('close');return false;").SetAutoDialog(false).SetOkScript("getSelectedTesters();").SetIconCls("icon-search").ToMvcString());
+        });
+        return false;
+    }
+
+    function doInitSelectedTesters(){
+        var selectedTesterIds = $("#SelectedTesterIds").val();
+        if (selectedTesterIds.trim() == "") return;
+        var rows = $("#tbSelectTesterList").datagrid("getRows");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                if (selectedTesterIds.toString().indexOf(rows[i].UserId.toString()) != -1)
+                    $("#tbSelectTesterList").datagrid("selectRow", i);
+            }
+        }
+    }
+    function getSelectedTesters(){
+         var selectedTesterIds = "";
+         var selectedTesterNames = "";
+         var selectedTesters = $("#tbSelectTesterList").datagrid("getSelections");
+         if (selectedTesters && selectedTesters.length > 0) {
+             for (var i = 0; i < selectedTesters.length; i++) {
+                 selectedTesterIds += selectedTesterIds == "" ? selectedTesters[i].UserId.toString() : "," + selectedTesters[i].UserId.toString();
+                 selectedTesterNames += selectedTesterNames == "" ? selectedTesters[i].UserName.toString() : "," + selectedTesters[i].UserName.toString();
+             }
+         }
+         if(selectTesterDialog) selectTesterDialog.dialog("close"); 
+         if(typeof(getSelectedTestersCallBack)=='function')getSelectedTestersCallBack(selectedTesterNames,selectedTesterIds);
+    }
+</script>

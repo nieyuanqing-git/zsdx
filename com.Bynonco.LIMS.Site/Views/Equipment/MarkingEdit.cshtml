@@ -1,0 +1,81 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentMarking
+@using com.Bynonco.JqueryEasyUI.Core;
+@{var equipmentPrivilige = Model == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name,Model.EquipmentId);}
+<div id="divEquipmentMarkingEdit">
+<form id="frmEquipmentMarkingEdit" action="#">
+    @Html.Hidden("EquipmentMarkingId", Model == null ? "" : Model.Id.ToString())
+    <table class="edit-table" style="width:470px">
+        <tr>
+            <th>设备名称</th>
+            <td>
+                @Html.Hidden("EquipmentIdTemp", Model == null ? "" : Model.EquipmentId.ToString())
+                @Html.JValidateBox("EquipmentName").SetValue(Model == null  ? "" : Model.EquipmentName).SetWidth(280).SetDisabled(true).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>
+                评论人
+            </th>
+            <td id="tdCreatorId">
+                @(Html.TokenInput("CreatorId")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetSingle(true)
+                .SetPrePopulate(ViewData["CreatorJson"] == null ? null : ViewData["CreatorJson"].ToString()).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>日期</th>
+            <td>
+                @Html.JDateTimePicker("CreateTime").SetWidth(285).SetValue(Model == null || Model.Id == default(Guid) ? DateTime.Now.ToString("yyyy-MM-dd") : Model.CreateTime.ToString("yyyy-MM-dd")).SetDisabled(true).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>
+                评分<span class="required">*</span>
+            </th>
+            <td>
+                <div id="Score"></div> 
+            </td>
+        </tr>
+        <tr>
+            <th>内容</th>
+            <td> @(Html.TextArea("Remark", Model == null || Model.Id == default(Guid) ? "" : Model.Remark, new { style = "font-size:12px;height:100px;font-weight:normal;width:392px" }))</td>
+        </tr>
+        </table>
+ </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdCreatorId ul.token-input-list-facebook").css("width", "285px");
+        $("#Score").raty({ width: 280, round: { down: .25, full: .5, up: .75 }, score: "@(Model == null || Model.Id == default(Guid)? 0: Model.Score)" });
+    });
+    function doSaveEquipmentMarking() {
+        var equipmentId = $("#EquipmentIdTemp").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveEquipmentMarking","Equipment")',
+            data: $("#frmEquipmentMarkingEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&EquipmentId=" + equipmentId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && (msg.indexOf("出错") != -1 || msg.indexOf("成功") != -1)) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    if (msg.indexOf("出错") != -1) return false;
+                }
+                equipmentMarkingDialog.dialog('close');
+                try {
+                    if (typeof (eval("doEquipmentMarkingSearch")) == "function")
+                        doEquipmentMarkingSearch();
+                }
+                catch (e) { }
+                try {
+                    if (typeof (eval("doSaveEquipmentMarkingSuccess")) == "function")
+                        doSaveEquipmentMarkingSuccess();
+                }
+                catch (e) { }
+            }
+        });
+    }
+</script>

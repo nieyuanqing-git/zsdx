@@ -1,0 +1,141 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateAnimalQueryExpress() {
+        var queryExpression = "";
+        var name = $("#txtQueryName").val();
+        if (name.trim() != "") {
+            queryExpression = "Name∽\"" + name.trim() + "\"";
+        }
+
+        var isStop = $("#cbxQueryIsStop").combobox("getValue");
+        if (isStop.trim() != "-1") {
+            var isStopStr = isStop == "0" ? "false" : "true";
+            queryExpression += (queryExpression == "" ? "IsStop=" + isStopStr : "*IsStop=" + isStopStr);
+        }
+        var sex = $("#cbxQuerySex").combobox("getValue").trim();
+        if (sex.trim() != "-1") {
+            var sexStr = sex == "0" ? "false" : "true";
+            queryExpression += (queryExpression == "" ? "Sex=" + sexStr : "*Sex=" + sexStr);
+        }
+        var inputStr = $("#txtQueryInputStr").val();
+        if (inputStr.trim() != "") {
+            queryExpression += (queryExpression == "" ? "InputStr∽\"" + inputStr.trim() + "\"" : "*InputStr∽\"" + inputStr.trim() + "\"");
+        }
+        var code = $("#txtQueryCode").val();
+        if (code.trim() != "") {
+            queryExpression += (queryExpression == "" ? "Code∽\"" + code.trim() + "\"" : "*Code∽\"" + code.trim() + "\"");
+        }
+        var cageName = $("#txtQueryCageName").val();
+        if (cageName.trim() != "") {
+            queryExpression += (queryExpression == "" ? "AnimalCageName∽\"" + cageName.trim() + "\"" : "*AnimalCageName∽\"" + cageName.trim() + "\"");
+        } 
+        var ethicsNo = $("#txtQueryEthicsNo").val();
+        if (ethicsNo.trim() != "") {
+            queryExpression += (queryExpression == "" ? "EthicsNo∽\"" + ethicsNo.trim() + "\"" : "*EthicsNo∽\"" + ethicsNo.trim() + "\"");
+        }
+        var ownerName = $("#txtQueryOwnerName").val();
+        if (ownerName.trim() != "") {
+            queryExpression += (queryExpression == "" ? "OwnerName∽\"" + ownerName.trim() + "\"" : "*OwnerName∽\"" + ownerName.trim() + "\"");
+        }
+        var animalCategoryId = $("#SearchAnimalCategoryId").val().trim();
+        if (animalCategoryId != "" && animalCategoryId != '@Guid.Empty.ToString()') {
+            queryExpression += (queryExpression == "" ? "AnimalCategoryId=\"" + animalCategoryId + "\"" : "*AnimalCategoryId=\"" + animalCategoryId + "\"");
+        }
+        var status = $("#SearchStatus").combobox("getValue").trim();
+        if (status != "" && status != "-1") {
+            queryExpression += (queryExpression == "" ? "Status=\"" + status + "\"" : "*Status=\"" + status + "\"");
+        }
+        var searchStatus = $("#SearchStoreStatus").combobox("getValue").trim();
+        if (searchStatus != "" && searchStatus != "-1") {
+            queryExpression += (queryExpression == "" ? "StoreStatus=\"" + searchStatus + "\"" : "*StoreStatus=\"" + searchStatus + "\"");
+        }
+
+        var selectedStudent = $("#cbxQueryStudent").combobox("getValues");
+        var selectedStudentIds = selectedStudent.toString().split(",");
+        if (selectedStudentIds.length > 1 || (selectedStudentIds[0].trim() != "" && selectedStudentIds[0].trim() != "@(Guid.Empty.ToString())" && selectedStudentIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedStudentIds.length; i++) {
+                if (selectedStudentIds[i].trim() == "" || selectedStudentIds[i].trim() == "@(Guid.Empty.ToString())") { index++; continue; }
+                var queryExpressionTemp = "OwnerId=\"" + selectedStudentIds[i] + "\"" + ")";
+                queryExpression += (i == index ? queryExpressionTemp : "*" + queryExpressionTemp);
+            }
+            queryExpression += ")";
+        }
+        return queryExpression;
+    }
+
+    function doAnimalReset() {
+        $("#txtQueryName").val("");
+        $("#txtQueryInputStr").val("");
+        $("#txtQueryCode").val("");
+        $("#txtQueryEthicsNo").val("");
+        $("#txtQueryOwnerName").val("");
+        $("#txtQueryCageName").val("");
+        $("#cbxQueryIsStop").combobox('setValue', '-1');
+        $("#cbxQuerySex").combobox('setValue', '-1');
+        $("#SearchAnimalCategoryId").val('@Guid.Empty.ToString()');
+        $("#SearchStatus").combobox("setValue", "-1");
+        $("#SearchStoreStatus").combobox("setValue", "-1");
+        $("#cbxQueryStudent").combobox("setValue", "@Guid.Empty.ToString()");
+    }
+    </script>
+<ul class="search">
+    <li>
+        <label style="width:60px">名称</label>
+        @Html.JValidateBox("txtQueryName").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">助记符</label>
+        @Html.JValidateBox("txtQueryInputStr").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">批次编号</label>
+        @Html.JValidateBox("txtQueryCode").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">笼位</label>
+        @Html.JValidateBox("txtQueryCageName").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">伦理编号</label>
+        @Html.JValidateBox("txtQueryEthicsNo").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">购置人</label>
+        @Html.JValidateBox("txtQueryOwnerName").SetWidth(150).SetHeight(18).SetValidateType(ValidateType.required).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">课题组成员</label>
+        @Html.JComboBox("cbxQueryStudent").SetWidth(152).SetData(ViewData["StudentJson"]).SetMutiSelect(true).ToMvcString()
+    </li>
+     <li>
+        <label style="width:60px">性别</label>
+        @Html.JComboBox("cbxQuerySex").SetEditable(false).SetWidth(155).SetData(ViewData["SearchSexJson"]).ToMvcString()
+    </li>
+    
+    <li>
+        <label style="width:60px">是否停用</label>
+        @Html.JComboBox("cbxQueryIsStop").SetEditable(false).SetWidth(155).SetData(ViewData["IsStopJson"]).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">品系名称</label>
+         @Html.DropDownList("SearchAnimalCategoryId", (IEnumerable<SelectListItem>)ViewData["SearchAnimalCategorySelectListItem"], new { style = "width:155px" })
+    </li>
+    <li>
+        <label style="width:60px">当前状态</label>
+        @Html.JComboBox("SearchStoreStatus").SetWidth(155).SetData(ViewData["SearchStoreStatusJson"]).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">状态</label>
+        @Html.JComboBox("SearchStatus").SetWidth(155).SetData(ViewData["SearchStatusJson"]).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnAnimalSearch", "查询").SetOnclick("doAnimalSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnAnimalReset", "清空").SetOnclick("doAnimalReset();").ToMvcString()
+        @Html.JLinkButton("btnAnimalClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

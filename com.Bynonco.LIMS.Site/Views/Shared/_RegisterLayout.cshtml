@@ -1,0 +1,50 @@
+﻿<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    @using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+    @{
+        var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+        var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+        var title = (ViewBag.Title == null ? "" : ViewBag.Title + "|") + orgName + (ViewData["SystemName"] == null ? "" : ViewData["SystemName"].ToString());
+        var customer = CustomerFactory.GetCustomer();
+        var customerHomeMenu = customer == null ? "Menu" : customer.GetHomeMenu();
+        var customerHomeFooter = customer == null ? "Footer" : customer.GetHomeFooter(orgXPath);
+    }
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <title>@title</title>
+    @Html.Partial("HomeJsCss")
+    @Html.Partial("GetIsAjax")
+    @RenderSection("ImportCssAndJs", false)
+    @Html.Partial("GetIsAjax")
+</head>
+<body>
+    <div class='body-top'>
+        <div class='body-inner'>
+            @Html.Partial("../Home/TopBox")
+        </div>
+    </div>
+    <div class='body-inner'>
+        @Html.Partial("../Home/Banner")
+        @if (!string.IsNullOrWhiteSpace(customerHomeMenu))
+        {
+            <div class='menu-box'>
+                @Html.Partial("../Home/Menu")
+            </div>
+        }
+        <div class="main-box">
+            <div class="main-box-inner">
+                <div class="main-box-left-xl">
+                    @RenderSection("MainLeft", true)
+                </div>
+                <div class="main-box-right-sl">
+                    @RenderSection("MainRight", true)
+                </div>
+                <div class='clear-both'></div>
+            </div>
+        </div>
+        <div class="footer">
+            @Html.Partial(customerHomeFooter)
+        </div>
+    </div>
+</body>
+</html>

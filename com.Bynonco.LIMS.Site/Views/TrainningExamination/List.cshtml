@@ -1,0 +1,65 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+
+    var trainningExaminationPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetTrainningExaminationPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbTrainningExaminationList")
+        .SetSortName("Name")
+        .SetHeight(550)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetPageSize(20)
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false);
+    if (trainningExaminationPrivilige.IsEnableEdit)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAddTrainningExamination();", IconCls = "icon-add", Id = "btnAddTrainningExamination", Text = "新增" });
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doEditTrainningExamination();", IconCls = "icon-edit", Id = "btnEditTrainningExamination", Text = "编辑" });
+        dataGrid.SetOnDblClickRow("doEditTrainningExamination(rowData.Id);");
+    }
+    if (trainningExaminationPrivilige.IsEnableDelete)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDeleteTrainningExamination();", IconCls = "icon-delete", Id = "btnDelTrainningExamination", Text = "删除" });
+        dataGrid.SetDeleteScript("doDeleteTrainningExamination('');");
+    }
+    if (trainningExaminationPrivilige.IsEnableSetMaterial)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSetMaterial();", IconCls = "icon-dictcode", Id = "btnSetMaterial", Text = "设置试卷资料" });
+    }
+    if (trainningExaminationPrivilige.IsEnableSetQuestion)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSetQuestion();", IconCls = "icon-Q", Id = "btnSetQuestion", Text = "设置试卷考题" });
+    }
+    if (trainningExaminationPrivilige.IsEnableViewMaterial)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doViewExaminationMaterial();", IconCls = "icon-eye", Id = "btnViewTrainningExaminationMaterial", Text = "查看试卷资料" });
+    }
+    if (trainningExaminationPrivilige.IsEnableViewQuestion)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doViewExaminationQuestion();", IconCls = "icon-eye", Id = "btnViewTrainningExaminationQuestion", Text = "查看试卷考题" });
+    }
+    
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doSearchTrainningExamination();", IconCls = "icon-reload", Id = "btnSearchTrainningExamination", Text = "刷新" });
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型编码", "TrainningTypeId").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所属类型", "BusinessTypeName").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("试卷所属", "BusinessName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("试卷类型", "TrainningTypeName").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否必考", "IsRequiredStr").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("资料数量", "MaterialCount").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("题目数量", "QuestionCount").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("题目总分", "TotalScore").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("考试时间", "TotalTimeSpend").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("通过类型", "PassTypeStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("通过条件", "PassStandardStr").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("最多考试次数", "MaxExaminationTime").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("最少阅读时间", "MinReadMaterialDateTime").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("随机考题数目", "RandomQuestionCount").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(60).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(700).SetAlign(Align.left));
+ }
+@(dataGrid.ToMvcString())

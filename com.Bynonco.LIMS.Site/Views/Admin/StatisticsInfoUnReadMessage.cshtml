@@ -1,0 +1,25 @@
+﻿@model com.Bynonco.LIMS.Model.Business.StatisticsInfo
+@if (Model != null && (Model.IsShowUnReadMessage || Model.IsShowUnReplyIssue))
+{
+    <p><span class="icon icon-mail">&nbsp;</span>信息</p>
+    <table class="edit-info admin-statistics">
+            @if (Model.IsShowUnReplyIssue)
+            {
+            <tr>
+                <td class='col-first'><span class="icon icon-globe" title='管理相关' style='margin-right: 0;'>&nbsp;</span></td>
+                <th><a href="#" onclick="doLoadUnReplyIssue();return false;">未回复反馈建议</a></th>
+                <td class="col-last"><a href="#" onclick="doLoadUnReplyIssue();return false;">@Model.UnReplyIssue</a></td>
+            </tr>
+            }
+        @if (Model.IsShowUnReadMessage)
+        {
+            <tr class='@(Model.IsUnReplyIssue ? "nofirst" : "")'>
+            <td class='col-first'><span class="icon icon-user" title='个人相关' style='margin-right: 0;'>&nbsp;</span></td>
+                    <th><a href="#" onclick="doLoadUnReadMessage();return false;">未阅读短信息</a></th>
+                    <td class="col-last">
+                        <a href="#" onclick="doLoadUnReadMessage();return false;">@Model.UnReadMessage</a>
+                    </td>
+            </tr>
+        }
+    </table>
+}

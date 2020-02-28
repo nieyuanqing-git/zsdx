@@ -1,0 +1,12 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    <div class="edit-box">
+        <form id="frmEquipmentEdit" action="#">
+            @Html.Partial("../Equipment/Basic")
+            @Html.Partial("../Equipment/BasicOperate")
+        </form>
+    </div>
+</div>

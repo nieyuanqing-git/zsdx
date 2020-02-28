@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateRepairQueryExpress() {
+        var queryExpression = "";
+        var repairName = $("#SearchRepairName").val().trim();
+        if (repairName != "") {
+            queryExpression = "(RepairName∽\"" + repairName.trim() + "\")";
+        }
+        var phoneNumber = $("#SearchPhoneNumber").val().trim();
+        if (phoneNumber != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "PhoneNumber∽\"" + phoneNumber.trim() + "\"";
+        }
+        return queryExpression;
+    }
+    function doReset() {
+        $("#SearchRepairName").val("");
+        $("#SearchPhoneNumber").val("");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>名称</label>
+        @Html.JValidateBox("SearchRepairName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>联系电话</label>
+        @Html.JValidateBox("SearchPhoneNumber").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>    
+    <li class="button">
+        @Html.JLinkButton("btnRepairSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnRepairReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnRepairClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+</ul>
+<div class="clear-both"></div>

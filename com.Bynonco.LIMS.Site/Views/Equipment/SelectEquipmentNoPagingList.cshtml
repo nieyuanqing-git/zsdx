@@ -1,0 +1,37 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "" : customer.GetLabOrganizationName();
+    var queryExpression = ViewData["QueryExpression"] == null ? "" : ViewData["QueryExpression"].ToString();
+    var dataGrid = Html.JDataGrid("tbSelectEquipmentNoPagingList")
+        .SetUrl(ViewData["Url"].ToString())
+        .AddQueryParam("queryExpression", queryExpression == null ? "" : queryExpression.ToString().Trim())
+        .SetPageSize(10)
+        .SetSortName("Name")
+        .SetSortOrder(SortOrder.desc)
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowRefreshButton(false)
+        .SetShowPrintButton(false)
+        .SetWidth(600)
+        .SetHeight(380)
+        .SetOnCheck("doOnSelectEquipmentNoPagingOnCheck(rowIndex,rowData);")
+        .SetOnUncheck("doOnSelectEquipmentNoPagingOnUncheck(rowIndex,rowData);")
+        .SetOnCheckAll("doOnSelectEquipmentNoPagingOnCheckAll(rows);")
+        .SetOnUncheckAll("doOnSelectEquipmentNoPagingOnUncheckAll(rows);")
+        .SetOnLoadSuccess("doInitSelectedEquipments();")
+        .SetShowSearchButton(false)
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("IsEnableSelectSampleSendTime", "IsEnableSelectSampleSendTime").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称", "Name").SetWidth(250).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("型号", "Model").SetWidth(150).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn(customerOrgName, "OrgName").SetWidth(300).SetAlign(Align.left))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("所在地点", "RoomName").SetWidth(300).SetAlign(Align.left));
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchZPanel();", IconCls = "icon-search", Id = "btnGridSearchZPanel", Text = "搜索" });
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowEquipmentSelectList();", IconCls = "icon-ok", Id = "btnShowSelect", Text = "显示选择" });
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doEquipmentSearch();", IconCls = "icon-reload", Id = "btnReload", Text = "显示全部" });
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doEquipmentEmptySlecet();", IconCls = "icon-delete", Id = "btnEquipmentEmptySlecet", Text = "清空选择" });
+ }
+ @(dataGrid.ToMvcString())

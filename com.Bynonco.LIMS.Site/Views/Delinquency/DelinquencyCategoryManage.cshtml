@@ -1,0 +1,83 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var delinquencyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDelinquencyPrivilige(User.Identity.Name);
+}
+<div>@Html.Partial("DelinquencyCategoryList")</div>    
+<div id="divDelinquencyCategoryDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditDelinquencyCategory(){
+        var selectedRow = $("#tbDelinquencyCategoryList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditDelinquencyCategory(selectedRow.Id);
+    }
+    function doAddOrEditDelinquencyCategory(id) {
+        var url = '@Url.Action("EditDelinquencyCategory","Delinquency")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divDelinquencyCategoryDialog").load(url, function (data) {
+            doDelinquencyCategoryDialog();
+        });
+        return false;
+    }
+    var delinquencyCategoryDialog;
+    function doDelinquencyCategoryDialog() {
+        if (delinquencyCategoryDialog) {
+            delinquencyCategoryDialog.dialog("destroy");
+        }
+        delinquencyCategoryDialog =  @Html.JDialog("divDelinquencyCategoryEdit").SetTitle("处罚种类信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("delinquencyCategoryDialog.dialog('close');return false;").SetModal(true).SetOkScript(delinquencyPrivilige.IsEnableSaveDelinquencyCategory ? "doSaveDelinquencyCategory();return false;" : "alter('无操作权限');").ToMvcString();
+    }
+    function doSaveDelinquencyCategory() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveDelinquencyCategory","Delinquency")',
+            data: $("#frmDelinquencyCategoryEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                delinquencyCategoryDialog.dialog('close');
+                doDelinquencyCategorySearch();
+            }
+        });
+    }
+    function doDeleteDelinquencyCategory(){
+        var selectedRows = $('#tbDelinquencyCategoryList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    if(selectedRows[i].IsBasic){
+                       var name = selectedRows[i].Name;
+                       $.messager.show({ title: '提示', msg: "不能删除" + name, showType: 'show' });
+                       return; 
+                    }
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteDelinquencyCategory", "Delinquency")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                             $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doDelinquencyCategorySearch();
+                    }
+                });
+            });
+        }
+    }
+     function doDelinquencyCategorySearch() {
+        $("#tbDelinquencyCategoryList").datagrid("reload");
+        return false;
+    }
+</script>

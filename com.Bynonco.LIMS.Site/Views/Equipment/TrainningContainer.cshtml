@@ -1,0 +1,12 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+ <div class="search-grid hide" style="width:280px">
+    <div class="search-inner-box">
+        @Html.Partial("../Equipment/TrainningSearch")
+    </div>
+</div>
+<div>@Html.Partial("../Equipment/TrainningList")</div>    
+<div>@Html.Partial("../Equipment/TrainningScriptContainer")</div>    

@@ -1,0 +1,33 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbUserEquipmentTimeList")
+    .SetUrl(Url.Action("GetGridUserEquipmentTimeList", "Equipment"))
+    .AddQueryParam("queryExpression",string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预留时间段", "WorkHoursStr").SetWidth(252).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("每周工作日", "WorkDaysStr").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户", "UserNames").SetWidth(200).SetSortable(false).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(1000).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddUserEquipmentTime);
+    if (equipmentPrivilige.IsEnableAddUserEquipmentTime)
+    {
+        dataGrid.SetAddScript("doAddOrEditUserEquipmentTime('');");
+    }
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditUserEquipmentTime);
+    if (equipmentPrivilige.IsEnableEditUserEquipmentTime)
+    {
+        dataGrid.SetEditScript("doEditUserEquipmentTime();");
+        dataGrid.SetOnDblClickRow("doAddOrEditUserEquipmentTime(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableSaveUserEquipmentTime);
+    if (equipmentPrivilige.IsEnableSaveUserEquipmentTime)
+    {
+        dataGrid.SetDeleteScript("doDeleteUserEquipmentTime();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

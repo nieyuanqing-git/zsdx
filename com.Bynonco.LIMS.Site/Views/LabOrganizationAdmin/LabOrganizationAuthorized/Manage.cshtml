@@ -1,0 +1,93 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var authorizedType = ViewData["AuthorizedType"] == null ? "0" : ViewData["AuthorizedType"].ToString();
+}
+<div>
+    @Html.Partial("../LabOrganizationAuthorized/List")
+</div>
+<div id="divLabOrganizationAuthorizedDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        $("#tbLabOrganizationAuthorizedList").datagrid("reload");
+        return false;
+    }
+    var labOrganizationAuthorizedDialog;
+    function doLabOrganizationAuthorizedDialog() {
+        if (labOrganizationAuthorizedDialog) {
+            labOrganizationAuthorizedDialog.dialog("destroy");
+        }
+        labOrganizationAuthorizedDialog =  @Html.JDialog("divLabOrganizationAuthorizedEdit").SetTitle("机构授权信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("labOrganizationAuthorizedDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveLabOrganizationAuthorized();").ToMvcString();
+    }
+    function doAddLabOrganizationAuthorized() {
+       doAddOrEditLabOrganizationAuthorized();
+    }
+    function doEditLabOrganizationAuthorized(id, authorizedBusinessType) {
+       if(!id || id.trim()==""){
+           var selectedLabOrganizationAuthorized = $("#tbLabOrganizationAuthorizedList").datagrid("getSelected");
+           if(!selectedLabOrganizationAuthorized || selectedLabOrganizationAuthorized.Id=="" || selectedLabOrganizationAuthorized.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择机构授权", showType: 'show' });
+              return false;
+           }
+           id = selectedLabOrganizationAuthorized.Id;
+           authorizedBusinessType = selectedLabOrganizationAuthorized.AuthorizedBusinessType;
+       }
+       doAddOrEditLabOrganizationAuthorized(id,authorizedBusinessType);
+    }
+    function doAddOrEditLabOrganizationAuthorized(id,authorizedBusinessType){
+        var url = '@Url.Action("Edit","LabOrganizationAuthorized")'+ "?AuthorizedType=" + '@(authorizedType)' + "&date=" + new Date().getMilliseconds();
+        if(id) url += "&AuthorizedBusinessId=" + id;
+        if(authorizedBusinessType != null) url += "&AuthorizedBusinessType=" + authorizedBusinessType;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divLabOrganizationAuthorizedDialog").load(url,function(){
+            doLabOrganizationAuthorizedDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveLabOrganizationAuthorized(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("Save","LabOrganizationAuthorized")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmLabOrganizationAuthorizedEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                labOrganizationAuthorizedDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteLabOrganizationAuthorized(id){
+        if(!id || id.trim() == ""){
+              var selectedLabOrganizationAuthorized = $("#tbLabOrganizationAuthorizedList").datagrid("getSelected");
+                if(!selectedLabOrganizationAuthorized || selectedLabOrganizationAuthorized.Id.trim() == "" || selectedLabOrganizationAuthorized.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedLabOrganizationAuthorized.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "LabOrganizationAuthorized")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id + "&AuthorizedType=" + '@(authorizedType)',
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+</script>

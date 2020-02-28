@@ -1,0 +1,13 @@
+﻿html{width:100%;height:100%;}
+body {background: url("Themes/blue/images/bg-login-body.jpg") repeat scroll left top transparent;width:100%;height:100%;}
+.login-box{height: 220px;margin: auto;padding: 170px 90px 80px;width: 554px; background: url("images/bg-login-box.png") no-repeat scroll left top transparent;}
+.login-box .left-box{float:left;width:250px;height:220px;}
+.login-box .left-box .logo-left img{padding-left:70px;padding-top:20px;}
+.login-box .right-box{float: left; height: 170px; padding-left: 10px; padding-top: 60px; width: 290px;}
+.login-box .right-box ul li{height: 35px;}
+.login-box .right-box ul li span.title{float:left; width:50px;line-height: 25px;}
+.login-box .right-box ul li .combo span{ line-height:normal;}
+.login-box .right-box ul li span.warning{float:left;width:240px;color:#CC5885;line-height: 25px;}
+.login-box .right-box ul li #IsRememberMe{margin-right:5px;}
+.login-box .right-box ul li a.btn-login{ background: url("images/btn-login.png") no-repeat scroll left 3px transparent; padding: 9px 32px; color:#FFF; font-weight:bold; _padding: 0px 32px;}
+.login-box .right-box ul li a.btn-login:hover{ color:#676566;}

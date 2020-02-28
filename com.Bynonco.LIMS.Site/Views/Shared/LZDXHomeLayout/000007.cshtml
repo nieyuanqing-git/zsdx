@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    @{
+        var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+        var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+        object routeCurrentXPathValue = new { XPath = orgXPath };
+        var title = orgName + (ViewData["SystemName"] == null ? "" : ViewData["SystemName"].ToString());
+    }
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <title>@title</title>
+    @Html.Partial("HomeJsCss")
+    @Html.Partial("GetIsAjax")
+    @RenderSection("ImportCssAndJs", false)
+<head>
+<body>
+    <div class='body-top'>
+        <div class='body-inner'>
+            @Html.Partial("../Home/TopBox")
+        </div>
+    </div>
+    <div class='body-inner'>
+        @Html.Partial("../Home/Banner")
+        <div class='menu-box'>
+            @Html.Partial("../Home/Menu")
+        </div>
+        <div class='main-box'>
+            <div class="main-box-inner">
+                <div class="main-box-left">
+                    @RenderSection("FirstLineRight", true)
+                    @RenderSection("SecondLineRight", true)
+                    @RenderSection("ThirdLineRight", false)
+                </div>
+                <div class="main-box-right-l" style='padding:0;width:780px;overflow:hidden;'>
+                    <div class='main-box-center background-box-200'>
+                        @RenderSection("FirstLineLeft", true)
+                    </div>
+                    <div class='main-box-right'>
+                        @RenderSection("FirstLineCenter", true)
+                    </div>
+                    <div class='main-box-center background-box-233'>
+                        @RenderSection("SecondLineLeft", true)
+                    </div>
+                    <div class='main-box-right'>
+                        @RenderSection("SecondLineCenter", true)
+                    </div>
+                    <div class="main-box-right-l background-box-753">
+                        @RenderSection("ThirdLineLeft", true)
+                        @RenderSection("ThirdLineCenter", true)
+                    </div>
+                    <div class='clear-both'></div>
+                </div>
+                <div class='clear-both'></div>
+            </div>
+        </div>
+         <div class="footer">
+            @Html.Partial("Footer")
+        </div>
+    </div>
+</body>
+</html>

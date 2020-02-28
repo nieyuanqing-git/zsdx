@@ -1,0 +1,55 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@{var entity = ViewData["ViewNMPUsedConfirmFeedBack"] != null ? (com.Bynonco.LIMS.Model.View.ViewNMPUsedConfirmFeedBack)ViewData["ViewNMPUsedConfirmFeedBack"] : null;}
+<div id="divNMPUsedConfirmFeedBack" style="overflow:hidden">
+    <form id="frmNMPUsedConfirmFeedBackEdit">
+    @Html.Hidden("Id", entity.Id.ToString())
+    @Html.Hidden("NMPUsedConfirmId", entity.NMPUsedConfirmId.ToString())
+     <table class="edit-table">
+        <tr>
+            <th>工位名称</th>
+            <td>
+                @entity.NMPName
+            </td>
+       </tr>
+       <tr>
+            <th>设备名称</th>
+            <td>
+                @entity.NMPEquipmentName
+            </td>
+       </tr>
+       <tr>
+            <th>使用者</th>
+            <td>
+                @entity.UserName
+            </td>
+       </tr>
+       <tr>
+           <th>使用开始时间</th>
+           <td>
+                @entity.BeginAtStr
+           </td>
+       </tr>
+       <tr>
+            <th>使用结束时间</th>
+            <td>
+                @entity.EndAtStr
+            </td>
+       </tr>
+       <tr>
+            <th>创建人</th>
+            <td>
+                @entity.CreatorName
+            </td>
+       </tr>
+       <tr>
+            <th>创建时间</th>
+            <td>
+                @entity.CreateTimeStr
+            </td>
+       </tr>
+       @Html.Partial("NMPUsedConfirmFeedBackForm")
+    </table>
+    </form>
+</div>

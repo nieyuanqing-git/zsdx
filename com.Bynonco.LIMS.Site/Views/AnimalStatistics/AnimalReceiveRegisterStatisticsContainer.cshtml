@@ -1,0 +1,27 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Partial("AnimalReceiveRegisterStatisticsSearch")
+<div id="divAnimalReceiveRegisterStatisticsContainer"></div>
+<div id="divAnimalReceiveRegisterStatisticsDialog" style="display:none;"></div>
+<script type="text/javascript">
+    function doAnimalReceiveRegisterStatisticsDetail() {
+        var beginDate = $("#beginDate").datebox("getValue");
+        var endDate = $("#endDate").datebox("getValue");
+        var url = '@Url.Action("AnimalReceiveRegisterStatisticsDetailContainer")' + "?time=" + new Date().getMilliseconds();
+        $("#divAnimalReceiveRegisterStatisticsContainer").load(url, { "beginDate": beginDate, "endDate": endDate }, function (data) {
+        });
+    }
+    var animalReceiveRegisterStatisticsDetailDialog;
+    function doShowAnimalReceiveRegisterStatisticsDetail(beginDate,endDate, ownerId, weightUnitId,unitPrice,birthday,sex,sourceId,qualifiedNo,passNo,remark,animalCategoryId) {
+        if(animalReceiveRegisterStatisticsDetailDialog) animalReceiveRegisterStatisticsDetailDialog.dialog('destroy');
+        var url = '@Url.Action("AnimalReceiveRegisterStatisticsDetailInfoContainer","AnimalStatistics")' + "?time=" + new Date().getMilliseconds().toString();
+        var data = {"beginDate":beginDate,"endDate":endDate,"ownerId":ownerId,"weightUnitId":weightUnitId,"unitPrice":unitPrice,"birthday":birthday,"sex":sex,"sourceId":sourceId,"qualifiedNo":qualifiedNo,"passNo":passNo,"remark":remark,"animalCategoryId":animalCategoryId};  
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAnimalReceiveRegisterStatisticsDialog").load(url,data,function () {
+            $.messager.progress('close');
+            animalReceiveRegisterStatisticsDetailDialog = @(Html.JDialog("divAnimalDetail").SetTitle("实验动物接收登记明细信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("animalReceiveRegisterStatisticsDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("animalReceiveRegisterStatisticsDetailDialog.dialog('close');return false;").ToMvcString());
+        });
+    }
+    $(function(){
+        doAnimalReceiveRegisterStatisticsDetail();
+    });
+</script>

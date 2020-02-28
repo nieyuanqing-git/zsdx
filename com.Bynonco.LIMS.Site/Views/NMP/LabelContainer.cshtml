@@ -1,0 +1,86 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+    var nmpPrivilige = Model != null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.Id);
+}
+@Html.Hidden("NMPId", Model.Id)
+<div>@Html.Partial("LabelList")</div>    
+<div id="divNMPLabelDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditNMPLabel(){
+        var selectedRow = $("#tbNMPLabelList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditNMPLabel(selectedRow.Id);
+    }
+    function doAddOrEditNMPLabel(id) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("EditLabel","NMP")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divNMPLabelDialog").load(url, function (data) {
+            doNMPLabelDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    var nmpLabelDialog;
+    function doNMPLabelDialog() {
+        if (nmpLabelDialog) {
+            nmpLabelDialog.dialog("destroy");
+        }
+        nmpLabelDialog =  @Html.JDialog("divNMPLabelEdit").SetTitle("用户标签信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("nmpLabelDialog.dialog('close');return false;").SetModal(true).SetOkScript( nmpPrivilige.IsEnableSaveLabel ? "doSaveNMPLabel();return false;" : "").ToMvcString();
+    }
+    function doSaveNMPLabel() {
+        var nmpId= $("#NMPId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveLabel","NMP")',
+            data: $("#frmNMPLabelEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&NMPId=" + nmpId,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                nmpLabelDialog.dialog('close');
+                doSearch();
+            }
+        });
+    }
+    function doDeleteLabel(){
+        var selectedRows = $('#tbNMPLabelList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteLabel","NMP")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                             $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doSearch();
+                    }
+                });
+            });
+        }
+    }
+    function doSearch() {
+        $("#tbNMPLabelList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbNMPLabelList").datagrid("reload");
+        return false;
+    }
+</script>

@@ -1,0 +1,50 @@
+﻿/*------------ banner-box ------------------------*/
+.banner-box{background: url("images/banner.jpg") no-repeat scroll left top #FFFFFF; height:323px;margin-top:25px;}
+
+/*------------ menu-box ------------------------*/
+.menu-box{background: url("images/bg-menu.gif") repeat-x scroll left top #FFFFFF;}
+a.fg-button:hover, a.fg-button.current,.fg-button-l {background-color: #00b401;color: #EEEEEE; }
+.menu-box .home-menu a.fg-button{margin:0;border-right: 1px solid #8dcd8e;border-left:1px solid #145315;}
+.menu-box .home-menu a.first{border-left:0;}
+.menu-box .home-menu a.last{border-right:0;}
+
+.ui-widget-content {background-color: #00b401;border: 1px solid #145315;}
+.fg-menu-container a, .fg-menu-container a:link,
+.fg-menu-container a:visited,
+.fg-menu-container a:active { border: 1px solid #00b401;}
+.fg-menu-container a.ui-state-hover{border: 1px solid #145315;background-color: #8dcd8e;}
+.fg-button-l .ui-icon {background: url("images/bg-menu-down.png") no-repeat scroll 0 0 transparent;}  
+.ui-state-active, .ui-widget-content .ui-state-active {background-color: #00b401;}
+
+.home-login-box {background: url("images/home-login-box.gif") no-repeat scroll 0 0 transparent;}  
+.main-box-left h2.title{background: url("images/bg-title-left.gif") no-repeat scroll left top transparent;color:#567354;}
+.main-box-left .home-login-box h2.title {background: none; padding-left: 40px;}
+.main-box-left-xl h2.title{background: url("images/bg-title-left-xl.gif") no-repeat scroll left top transparent;color:#567354;}
+.main-box-right-l h2.title{background: url("images/bg-title-right-l.gif") no-repeat scroll left top transparent;color:#567354;}
+.main-box-center h2.title{background: url("images/bg-title-center.gif") no-repeat scroll left top transparent;color:#567354;}
+.main-box-right-sl h2.title{background: url("images/bg-title-right-sl.gif") no-repeat scroll left top transparent;color:#567354;}
+.main-box-right h2.title{background: url("images/bg-title-right.gif") no-repeat scroll left top transparent;color:#567354;}
+.main-box-full h2.title{background: url("images/bg-title-full.gif") no-repeat scroll left top transparent;color:#567354;}
+.main-box-right-l .content-box p.parent-item,
+.main-box-full .content-box p.parent-item{background:url("images/bg-li-title-200.gif") no-repeat left top;}
+.main-box-left .content-box p.parent-item{background:url("images/bg-li-title-200.gif") no-repeat left top;}
+.main-box-right-l .home-search-box a.botton{background: url("images/home-search-botton.gif") no-repeat scroll 0 3px transparent;}
+.main-box-left h2.title-gray a.current,
+.main-box-center h2.title-gray a.current,
+.main-box-right h2.title-gray a.current{background: url("images/bg-title-current.gif") repeat-x scroll left top transparent;}
+
+
+.main-box-right .content-box{padding-left:20px;padding-right:10px;}
+.main-box-center .content-box ul.news-list li, .main-box-right .content-box ul.news-list li {width: 320px;}
+.main-box-center .content-box ul.news-list li.li-num, .main-box-right .content-box ul.news-list li.li-num {width: 310px;}
+
+.background-box-200{background: url("images/bg-box-200.gif") no-repeat scroll left 10px transparent;}
+.background-box-233{background: url("images/bg-box-233.gif") no-repeat scroll left 10px transparent;}
+.background-box-200 h2.title,
+.background-box-233 h2.title {background: none; padding-left: 40px;}
+
+.email-box {margin:10px 0;background: url("images/email-box.gif") no-repeat scroll left 10px transparent;}
+.email-box ul {font-size: 16px;line-height: 32px; margin-left: 125px; margin-top: 15px;}
+.email-box p,.email-box p a{font-size:13px;color:#830522;}
+
+.footer{background:url("images/bg-foot.gif") repeat-x scroll left top transparent}

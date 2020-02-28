@@ -1,0 +1,54 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateMaterialInputQueryExpress() {
+        var queryExpression = "";
+        var inputNum = $("#SearchInputNum").val().trim();
+        if (inputNum != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "InputNum∽\"" + inputNum + "\"";
+        }
+        var inusername = $("#InputUserName").val().trim();
+        if (inusername != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "InputUserName∽\"" + inusername + "\"";
+        }
+        var inputTimeStart = $("#InputTimeStart").datebox("getValue").trim();
+        if (inputTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "InputTime>\"" + inputTimeStart + "\"";
+        }
+        var inputTimeEnd = $("#InputTimeEnd").datebox("getValue").trim();
+        if (inputTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "InputTime<\"" + inputTimeEnd + "\"";
+        }
+        return queryExpression;
+    }
+    function doMaterialInputReset() {
+        $("#SearchInputNum").val("");
+      
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>进库单号</label>
+        @Html.JValidateBox("SearchInputNum").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>进库人</label>
+        @Html.JValidateBox("InputUserName").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>开始日期</label>
+        @Html.JDateTimePicker("InputTimeStart").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>结束日期</label>
+        @Html.JDateTimePicker("InputTimeEnd").SetWidth(150).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnMaterialInputSearch", "查询").SetOnclick("doMaterialInputSearch();doCloseSearch();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialInputReset", "清空").SetOnclick("doMaterialInputReset();return false;").ToMvcString()
+        @Html.JLinkButton("btnMaterialInputClose", "关闭").SetOnclick("doCloseSearch();return false;").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

@@ -1,0 +1,15 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../MaterialInput/Search")
+    </div>
+</div>
+<div>
+    @Html.Partial("../MaterialInput/List")
+</div>
+@Html.Partial("../MaterialInfo/SelectMaterialInfoNoPagingContainer")
+@Html.Partial("../MaterialInput/ScriptContainer")
+@Html.Partial("../MaterialPurchase/ScriptContainer")

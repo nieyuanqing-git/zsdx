@@ -1,0 +1,112 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div>
+    @Html.Partial("../MaterialCategory/List")
+</div>
+<div id="divMaterialCategoryDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        $('#tbMaterialCategoryList').treegrid('loadData', { total: 0, rows: [] });
+        $("#tbMaterialCategoryList").treegrid("reload");
+        return false;
+    }
+    var materialCategoryDialog;
+    function doMaterialCategoryDialog() {
+        if (materialCategoryDialog) {
+            materialCategoryDialog.dialog("destroy");
+        }
+        materialCategoryDialog =  @Html.JDialog("divMaterialCategoryEdit").SetTitle("耗材分类信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("materialCategoryDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveMaterialCategory();").ToMvcString();
+    }
+    function doAddOrEditMaterialCategory(id){
+         $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Edit","MaterialCategory")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divMaterialCategoryDialog").load(url,function(){
+            doMaterialCategoryDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doAddMaterialCategory(id) {
+       doAddOrEditMaterialCategory(id);
+    }
+    function doEditMaterialCategory(id) {
+       if(!id || id.trim()==""){
+           var selectedMaterialCategory = $("#tbMaterialCategoryList").treegrid("getSelected");
+           if(!selectedMaterialCategory || selectedMaterialCategory.Id=="" || selectedMaterialCategory.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg:"请选择耗材分类", showType: 'show' });
+              return false;
+           }
+           id = selectedMaterialCategory.Id;
+       }
+       doAddOrEditMaterialCategory(id);
+    }
+    function doSaveMaterialCategory(){
+        if($("#Name").val().trim() == ""){
+          $.messager.show({ title: '提示', msg:"名称为空", showType: 'show' });;
+          return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","MaterialCategory")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmMaterialCategoryEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                materialCategoryDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function doDeleteMaterialCategory(id){
+        if(!id || id.trim() == ""){
+              var selectedMaterialCategory = $("#tbMaterialCategoryList").treegrid("getSelected");
+                if(!selectedMaterialCategory || selectedMaterialCategory.Id.trim() == "" || selectedMaterialCategory.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedMaterialCategory.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "MaterialCategory")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+   function adjustXpath(xPath,compareTarget){
+        if(!xPath || xPath.trim()=="" || !compareTarget || compareTarget.trim()=="") return false;
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AdjustXPath", "MaterialCategory")' +  "?date=" + new Date().getMilliseconds(),
+            data: {"xPath":xPath,"compareTarget":compareTarget},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+            }
+        });
+        return false;
+   }
+</script>

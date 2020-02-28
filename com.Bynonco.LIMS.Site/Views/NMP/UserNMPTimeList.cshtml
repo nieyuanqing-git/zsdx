@@ -1,0 +1,33 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var nmpPrivilige = ViewData["NMPId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, new Guid(ViewData["NMPId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbUserNMPTimeList")
+    .SetUrl(Url.Action("GetGridUserNMPTimeList", "NMP"))
+    .AddQueryParam("queryExpression", string.Format("NMPId=\"{0}\"", ViewData["NMPId"] == null ? default(Guid).ToString() : ViewData["NMPId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("预留时间段", "WorkHoursStr").SetWidth(252).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("每周工作日", "WorkDaysStr").SetWidth(200).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户", "UserNames").SetWidth(200).SetSortable(false).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetWidth(1000).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(nmpPrivilige.IsEnableAddUserNMPTime);
+    if (nmpPrivilige.IsEnableAddUserNMPTime)
+    {
+        dataGrid.SetAddScript("doAddOrEditUserNMPTime('');");
+    }
+    dataGrid.SetShowEditButton(nmpPrivilige.IsEnableEditUserNMPTime);
+    if (nmpPrivilige.IsEnableEditUserNMPTime)
+    {
+        dataGrid.SetEditScript("doEditUserNMPTime();");
+        dataGrid.SetOnDblClickRow("doAddOrEditUserNMPTime(rowData.Id);");
+    }
+    dataGrid.SetShowDeleteButton(nmpPrivilige.IsEnableDeleteUserNMPTime);
+    if (nmpPrivilige.IsEnableDeleteUserNMPTime)
+    {
+        dataGrid.SetDeleteScript("doDeleteUserNMPTime();return false;");
+    }
+}
+@(dataGrid.ToMvcString()) 

@@ -1,0 +1,31 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimal
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divRegisterDeath"> 
+<form id="frmRegisterDeath" action="#">
+    <table id="tbSampleStatusEdit" class="edit-table">
+        <tr>
+            <th>死亡日期</th>
+            <td>@Html.JDateTimePicker("DieTimeForRegisterDeath").SetValue(Model == null ? "" : Model.DieTimeStr).SetWidth(210).ToMvcString()</td>
+        </tr>
+        <tr>
+            <th>死亡体重</th>
+            <td id="tdDieWeight">
+                @Html.JValidateBox("DieWeightForRegisterDeath").SetValue(Model == null ? "" : Model.DieWeightStr).SetWidth(100).SetValidateType(ValidateType.none).ToMvcString()
+                @Html.JComboBox("DieWeightUnitIdForRegisterDeath").SetData(ViewData["DieWeightUnitJson"]).AddClass("weightUint").SetWidth(95).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>是否消息通知</th>
+            <td>
+               @Html.CheckBox("IsNoticeForRegisterDeath",Model.IsNotice)
+            </td>
+        </tr>
+        <tr>
+            <th>处理情况</th>
+            <td>
+                @Html.TextArea("RemarkForRegisterDeath", Model == null ? "" : Model.RegisterDeathRemark, 3, 50, null)
+            </td>
+        </tr>
+    </table>
+  </form>
+</div>

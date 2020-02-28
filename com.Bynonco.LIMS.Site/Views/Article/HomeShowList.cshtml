@@ -1,0 +1,41 @@
+﻿@model IList<com.Bynonco.LIMS.Model.Article>
+@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model.Enum;
+
+@if (Model != null && Model.Count() > 0)
+{
+    var articleCategory = Model[0].ArticleCategory;
+    int subTitleLength = 58;
+    var titleCss = "title-left";
+    if (articleCategory.HomeLocationEnum.HasValue)
+    {
+        if (articleCategory.HomeLocationEnum.Value.ToString().IndexOf("Right") != -1)
+        {
+            subTitleLength = 24;
+            titleCss = "title-right";
+        }
+        else if (articleCategory.HomeLocationEnum.Value == ArticleCategoryHomeLocation.FirstLineLeft || articleCategory.HomeLocationEnum.Value == ArticleCategoryHomeLocation.FullLineLeft)
+        {
+            titleCss = "";
+        }
+    }
+    <h2 class='@titleCss'>@(articleCategory.Name)</h2>
+    if (articleCategory.HomeLocationEnum.HasValue && articleCategory.HomeLocationEnum.Value != ArticleCategoryHomeLocation.FirstLineLeft && articleCategory.HomeLocationEnum.Value != ArticleCategoryHomeLocation.FullLineLeft)
+    {
+        @: <div class='content-box'>
+    }
+    <ul class="news-list">
+        @foreach (var item in Model)
+        {
+            <li>
+                <a href='@Url.Action("Show", "Article", new { id = item.Id, ArticleCategoryId = item.ArticleCategoryId })' title="@item.Title">@(ShortcutStringUtility.GetSubString(item.Title, subTitleLength, ".."))</a>
+                <span>@item.PublishAt.Value.ToString("yy-MM-dd")</span>
+            </li>
+        }
+        <li class="more"><span><a href='@Url.Action("ShowList", "Article", new { ArticleCategoryId = articleCategory.Id })'><img src="@Url.Content("~/Content/images/more.jpg")" alt="" /></a></span></li>
+    </ul>
+    if (articleCategory.HomeLocationEnum.HasValue && articleCategory.HomeLocationEnum.Value != ArticleCategoryHomeLocation.FirstLineLeft && articleCategory.HomeLocationEnum.Value != ArticleCategoryHomeLocation.FullLineLeft)
+    {
+        @: </div>
+    }
+}

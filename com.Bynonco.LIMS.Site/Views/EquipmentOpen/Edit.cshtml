@@ -1,0 +1,51 @@
+﻿@model com.Bynonco.LIMS.Model.EquipmentUndergraduateOpen
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divEquipmentUndergraduateOpenEdit">
+    <form id="frmEquipmentUndergraduateOpenEdit" action="#">
+    <input id="Id" type="hidden" value="@(Model == null ? "": Model.Id.ToString())" name="Id">
+    <table class="edit-table"  style="width:385px;">
+        <tr>
+            <th>学期</th>
+            <td>
+                @(ViewData["SemesterName"] == null ? "" : ViewData["SemesterName"].ToString())
+                @Html.Hidden("SemesterId", ViewData["SemesterId"] == null ? "" : ViewData["SemesterId"].ToString())
+            </td>
+        </tr>
+        <tr>
+            <th>设备</th>
+            <td>
+                @if (Model == null || Model.Equipment == null)
+                {
+                    @(Html.TokenInput("EquipmentId")
+                        .SetUrl(Url.Action("GetUserManagementEquipmentListByKeyWord", "Equipment"))
+                        .SetSingle(true)
+                        .SetWidth(400)
+                        .ToMvcString())
+                }
+                else
+                {
+                    @Html.Hidden("EquipmentId", Model.EquipmentId)
+                    @Model.Equipment.Name
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>开放方式</th>
+            <td>
+                @(Html.JComboBox("OpenType")
+                        .SetEditable(false)
+                        .SetMutiSelect(true)
+                        .SetData(ViewData["EquipmentUndergraduateOpenTypeJson"])
+                        .SetWidth(400)
+                        .ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>其他开放方式</th>
+            <td>
+                @Html.JValidateBox("OtherOpenType").SetValue(Model == null ? "" : Model.OtherOpenType).SetWidth(395).ToMvcString()
+            </td>
+        </tr>
+    </table>
+    </form>
+</div> 

@@ -1,0 +1,42 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentExtendPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentExtendPrivilige(User.Identity.Name);
+    var url = ViewData["Url"] == null ? Url.Action("GetGridViewEquipmentExtendList", "EquipmentExtend") : ViewData["Url"].ToString();
+    var dataGrid = Html.JDataGrid("tbViewEquipmentExtendList")
+    .SetUrl(url)
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("CHNName")
+    .SetSortOrder(SortOrder.desc)
+    .SetMutiSelect(true)
+    .SetSingleSelect(false)
+    .SetShowPrintButton(false)
+    .SetShowSearchButton(true);
+    dataGrid.SetShowEditButton(equipmentExtendPrivilige.IsEnableEdit);
+    if(equipmentExtendPrivilige.IsEnableEdit)
+    {
+       dataGrid.SetEditScript("doEditEquipmentExtend('');");
+       dataGrid.SetOnDblClickRow("doEditEquipmentExtend(rowData.Id);");
+    }
+    if (equipmentExtendPrivilige.IsEnableDelete)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doBatchDelete();", IconCls = "icon-delete", Id = "btnBatchDelete", Text = "批量删除" });
+    }
+    if (equipmentExtendPrivilige.IsEnableImportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doImportExcel();", IconCls = "icon-import", Id = "btnImportExcel", Text = "导入" });
+    }
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("中文名称", "CHNName").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器别名", "Alias").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器型号规格", "Model").SetWidth(120).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("生产厂商", "Manufacturer").SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("购置日期", "PurchaseDateStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器联系人", "ContactPerson").SetWidth(120).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("电话", "Telephone").SetWidth(120).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("电子邮件", "Email").SetWidth(120).SetAlign(Align.left))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("仪器原值", "PriceRMB").SetWidth(120).SetAlign(Align.left))
+    .SetShowSearchButton(true)
+    .SetSearchScript("doShowSearch()");
+}
+@(dataGrid.ToMvcString()) 

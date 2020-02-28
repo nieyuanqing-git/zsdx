@@ -1,0 +1,61 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    function generateSubjectQueryExpression() {
+        var queryExpression = "";
+        var userName = $("#SearchName").val().trim();
+        if (userName != "") {
+            queryExpression = "Name∽\"" + userName.trim() + "\"";
+        }
+        var inputStr = $("#SearchInputStr").val().trim();
+        if (inputStr != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "InputStr∽\"" + inputStr + "\"";
+        }
+        var director = $("#SearchDirector").val().trim();
+        if (director != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "SubjectDirectorName∽\"" + director + "\"";
+        }
+        var status = $("#SearchStatus").combobox("getValue");
+        if (status != "" && status != "-1") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Status=\"" + status + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doReset() {
+        $("#SearchName").val("");
+        $("#SearchInputStr").val("");
+        $("#SearchDirector").val("");
+        $("#SearchStatus").combobox("setValue", "");
+        return false;
+    }
+</script>
+<ul class="search">
+    <li>
+        <label>名称</label>
+        @Html.JValidateBox("SearchName").SetWidth(150).ToMvcString()
+    </li>
+     <li>
+        <label>助记符</label>
+        @Html.JValidateBox("SearchInputStr").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>负责人</label>
+        @Html.JValidateBox("SearchDirector").SetWidth(150).ToMvcString()
+    </li>
+    <li>
+        <label>状态</label>
+        @(Html.JComboBox("SearchStatus")
+            .SetEditable(false)
+            .SetData(ViewData["SearchStatusJson"])
+            .SetWidth(155)
+            .ToMvcString())
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

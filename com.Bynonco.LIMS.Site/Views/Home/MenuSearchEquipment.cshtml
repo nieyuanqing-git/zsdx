@@ -1,0 +1,22 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@{
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+}
+<div class='search-input-box'>
+    <input type="text" id='menuSearchEquipmentName' placeholder="搜索仪器" style='float:left;'/>
+    <a href="#" onclick='doMenuSearchEquipment();return false;' class='fg-button ui-widget ui-state-default' style='padding: 0px 10px 0px 0; float: right; margin-right: 0px;' id='lnkMenuSearchEquipment'>搜&nbsp;索</a>
+    <div class='clear-both'></div>
+</div>
+<script type="text/javascript">
+    function doMenuSearchEquipment() {
+        if ($("#menuSearchEquipmentName").val().trim() != "") {
+            var url = '@Url.Action("ShowList", "Equipment", new { XPath = orgXPath })' + "&EquipmentName=" + $("#menuSearchEquipmentName").val().trim();
+            url = encodeURI(url);
+            location.href = url;
+        }
+        else {
+            $.messager.show({ title: '提示', msg: "请输入查询关键字", showType: 'show' });
+        }
+    }
+</script>

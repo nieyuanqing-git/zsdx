@@ -1,0 +1,126 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    int businessType = ViewData["BusinessType"] == null ? -1 : (int)ViewData["BusinessType"];
+}
+<div id="divLabOrganizationAuthorizedEdit" style="width:400px;">
+    <form id="frmLabOrganizationAuthorizedEdit" action="#">
+    <table class="edit-info">
+        <tr>
+            <th rowspan="4">授权类型</th>
+            <td id="tdBusinessOrganization">
+                <div class="float_l hide">
+                    @Html.RadioButton("BusinessType", ((int)LabOrganizationAuthorizedBusinessType.Organization).ToString(), businessType == (int)LabOrganizationAuthorizedBusinessType.Organization, new { @class = "BusinessType", @id = "BusinessTypeLabOrganization" })
+                    <label class="inner-title">组织机构</label>
+                </div>
+                <div class='pane-BusinessType float_l margin-l-10 @(businessType == (int)LabOrganizationAuthorizedBusinessType.Organization ? "" : "hide")'>
+                   @* @(Html.JComboTree("BusinessOrganizationId")
+                    .SetData(ViewData["BusinessOranizationJson"])
+                    .SetValue(ViewData["BusinessOrganizationId"] == null ? "" : ViewData["BusinessOrganizationId"].ToString())
+                    .SetOnLoadSuccess("setTimeout('doOnBusinessOrganizationLoadSuccess();', 500);")
+                    .SetMultiple(false)
+                    .SetWidth(200)
+                    .SetExpandAll(true)
+                    .SetOnChange("doOnOrganizationChange();")
+                    .ToMvcString())*@
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td id="tdBusinessWorkGroup">
+                <div class="float_l">
+                    @Html.RadioButton("BusinessType", ((int)LabOrganizationAuthorizedBusinessType.WorkGroup).ToString(), businessType == (int)LabOrganizationAuthorizedBusinessType.WorkGroup, new { @class = "BusinessType", @id = "BusinessTypeWorkGroup" })
+                    <label class="inner-title">角色</label>
+                </div>
+                <div class='pane-BusinessType float_l margin-l-10 @(businessType == (int)LabOrganizationAuthorizedBusinessType.WorkGroup ? "" : "hide")'>
+                    @(Html.JComboBox("BusinessWorkGroupId")
+                    .SetEditable(false)
+                    .SetData(ViewData["BusinessWorkGroupJson"])
+                    .SetOnLoadSuccess("setTimeout('doOnBusinessWorkGroupLoadSuccess();', 500);")
+                    .SetWidth(200)
+                    .ToMvcString())
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td id="tdBusinessSubject">
+                <div class="float_l">
+                    @Html.RadioButton("BusinessType", ((int)LabOrganizationAuthorizedBusinessType.Tag).ToString(), businessType == (int)LabOrganizationAuthorizedBusinessType.Tag, new { @class = "BusinessType", @id = "BusinessTypeTag" })
+                    <label class="inner-title">用户类型</label>
+                </div>
+                <div class='pane-BusinessType float_l margin-l-10 @(businessType == (int)LabOrganizationAuthorizedBusinessType.Tag ? "" : "hide")'>
+                   @(Html.JComboBox("BusinessTagId")
+                    .SetEditable(false)
+                    .SetData(ViewData["BusinessTagJson"])
+                    .SetOnLoadSuccess("setTimeout('doOnBusinessTagLoadSuccess();', 500);")
+                    .SetWidth(200)
+                    .ToMvcString())
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td id="tdBusinessUser">
+                <div class="float_l">
+                    @Html.RadioButton("BusinessType", ((int)LabOrganizationAuthorizedBusinessType.User).ToString(), businessType == (int)LabOrganizationAuthorizedBusinessType.User, new { @class = "BusinessType", @id = "BusinessTypeUser" })
+                    <label class="inner-title">个人用户</label>
+                </div>
+                <div class='pane-BusinessType float_l margin-l-10 @(businessType == (int)LabOrganizationAuthorizedBusinessType.User ? "" : "hide")'>
+                    @(Html.TokenInput("AuthorizedUserId")
+                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                    .SetSingle(true)
+                    .SetWidth(200)
+                    .SetPrePopulate(ViewData["BusinessrUserJson"] == null || string.IsNullOrWhiteSpace(ViewData["BusinessrUserJson"].ToString()) ? null : ViewData["BusinessrUserJson"].ToString())
+                    .ToMvcString())
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th id="tdAuthorizedType">所属分类</th>
+            <td>
+                @(Html.JComboBox("AuthorizedType")
+                    .SetEditable(false)
+                    .SetData(ViewData["LabOrganizationAuthorizedTypeJson"])
+                    .SetOnLoadSuccess("setTimeout('doOnAuthorizedTypeLoadSuccess();', 500);")
+                    .SetWidth(200)
+                    .ToMvcString())
+                
+            </td>
+        </tr>
+        <tr>
+            <th>授权机构</th>
+            <td>
+                 @(Html.JComboTree("SelectOrganizationIds")
+                    .SetData(ViewData["SelectOranizationJson"])
+                    //.SetOnLoadSuccess("setTimeout('doOnSelectOrganizationLoadSuccess();', 500);")
+                    .SetMultiple(true)
+                    .SetCascadeCheck(false)
+                    .SetWidth(300)
+                    .SetExpandAll(true)
+                    .ToMvcString())
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdBusinessUser ul.token-input-list-facebook").css("width", "200px");
+        $(".BusinessType").change(function () {
+            $(".pane-BusinessType").addClass("hide");
+            $(this).parent().siblings().removeClass("hide");
+        });
+    });
+    function doOnBusinessOrganizationLoadSuccess() {
+        $("#tdBusinessOrganization span input.combo-text.validatebox-text").val('@(ViewData["BusinessOrganizationName"] == null ? "" : ViewData["BusinessOrganizationName"].ToString())');
+    }
+    function doOnBusinessWorkGroupLoadSuccess() {
+        $("#tdBusinessWorkGroup span input.combo-text.validatebox-text").val('@(ViewData["BusinessWorkGroupName"] == null ? "" : ViewData["BusinessWorkGroupName"].ToString())');
+    }
+    function doOnBusinessTagLoadSuccess() {
+        $("#tdBusinessTag span input.combo-text.validatebox-text").val('@(ViewData["BusinessTagName"] == null ? "" : ViewData["BusinessTagName"].ToString())');
+    }
+    function doOnAuthorizedTypeLoadSuccess() {
+        $("#tdAuthorizedType span input.combo-text.validatebox-text").val('@(ViewData["AuthorizedTypeName"] == null ? "" : ViewData["AuthorizedTypeName"].ToString())');
+    }
+    
+</script>

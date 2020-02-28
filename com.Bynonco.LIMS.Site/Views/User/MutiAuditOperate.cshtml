@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var userPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUserPrivilige(User.Identity.Name);
+}
+<ul class="search">
+    @if (userPrivilige.IsEnableAudit)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnMutiAuditPass", UserStatus.AuditPass.ToCnName()).SetIconCls("icon-pass").SetOnclick("doMutiAuditPass();").ToMvcString()
+        </li>
+        <li style='float:none;'>
+            @Html.JLinkButton("btnMutiAuditReject", UserStatus.AuditReject.ToCnName()).SetIconCls("icon-reject").SetOnclick("doMutiAuditReject();").ToMvcString()
+        </li>
+    }
+    @if (userPrivilige.IsEnableSetInvalid)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnMutiAuditInvalid", UserStatus.Invalid.ToCnName()).SetIconCls("icon-invalid").SetOnclick("doMutiAuditInvalid();").ToMvcString()
+        </li>
+    }
+    @if (userPrivilige.IsEnableSetBlacklist)
+    {
+        <li style='float:none;'>
+            @Html.JLinkButton("btnMutiAuditInBlackList", UserStatus.InBlackList.ToCnName()).SetIconCls("icon-blacklist").SetOnclick("doMutiAuditInBlackList();").ToMvcString()
+        </li>
+    }
+    <li style='float:none; height:25px;'>
+        @Html.JLinkButton("btnMutiAuditClose", "关闭").SetIconCls("icon-cancel").SetOnclick("doCloseSearch();").ToMvcString()
+    </li>
+</ul>

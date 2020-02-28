@@ -1,0 +1,225 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Door/Search")
+    </div>
+</div>
+<div class="layout-center-left">
+    @Html.Partial("../LabOrganizationAdmin/List")
+</div>
+<div class="layout-center-right">
+    @Html.Partial("../Door/List")
+</div>
+<div class="clear-both"></div>
+
+<div id="divDoorDialog" style="display:none"></div>
+<div id="divUserDoorAuthorizationManageDialog" style="display:none"></div>
+<div id="divUserDoorContinuedAuthorizationManageDialog" style="display:none"></div>
+
+<script type="text/javascript">
+    function doDoorSearch(xpath) {
+        if(!xpath || xpath.trim()==""){
+           var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+           if(!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id=="" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+              return false;
+           }
+           xpath = selectedLabOrganizationAdmin.XPath;
+       }
+       var queryExpression = generateDoorQueryExpress();
+       queryExpression  += (queryExpression == "" ? "" : "*") + "OrgXPath→\"" + xpath  + "\"";
+       $("#tbDoorList").datagrid('loadData', { total: 0, rows: [] });
+       $("#tbDoorList").datagrid("load", { "queryExpression": queryExpression});
+    }
+    function doOnLabOrganizationAdminSelected(rowData){
+        doDoorSearch(rowData.XPath);
+    }
+
+    function doDeleteDoor(id) {
+        if (!id || id.trim() == "") {
+            var selectedDoor = $("#tbDoorList").datagrid("getSelected");
+            if (!selectedDoor || selectedDoor.Id.trim() == "" || selectedDoor.Id.isDefaultGuid()) {
+                $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+                return false;
+            }
+            id = selectedDoor.Id;
+        }
+        $.messager.confirm('提示', '是否删除该门禁以及相关门禁授权信息?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Door",new { date=DateTime.Now.Millisecond})',
+                data: { "id": id },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doDoorSearch();
+                }
+            });
+        });
+        return false;
+    }
+
+    var doorDialog;
+    function doDoorDialog() {
+        if (doorDialog) {
+            doorDialog.dialog("destroy");
+        }
+        doorDialog =  @Html.JDialog("divDoorEdit").SetTitle("门禁信息").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("doorDialog.dialog('destroy');return false;").SetCancelScript("doorDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveDoor();").ToMvcString();
+    }
+    function doAddOrEditDoor(id){
+        var url = '@Url.Action("Edit","Door")';
+        $("#divDoorDialog").load(url,{"id":id,"date":new Date().getMilliseconds()},function(){
+            doDoorDialog();
+        })
+        return false;
+    }
+    function doAddDoor(id) {
+       doAddOrEditDoor(id);
+    }
+    function doEditDoor(id) {
+       if(!id || id.trim()==""){
+           var selectedDoor = $("#tbDoorList").datagrid("getSelected");
+           if(!selectedDoor || selectedDoor.Id=="" || selectedDoor.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedDoor.Id;
+       }
+       doAddOrEditDoor(id);
+    }
+    function doSaveDoor(){
+        if($("#Name").val().trim() == ""){
+             $.messager.show({ title: '提示', msg: "名称为空", showType: 'show' });
+             return false;
+        }
+        if($("#DHCP").attr("checked")!="true" && $("#IP").val().trim() == ""){
+             $.messager.show({ title: '提示', msg: "IP为空", showType: 'show' });
+             return false;
+        }
+        if($("#DHCP").attr("checked")=="true" && $("#DHCPCode").val().trim() == ""){
+             $.messager.show({ title: '提示', msg: "唯一标识为空", showType: 'show' });
+             return false;
+        }
+        if($("#OrgId").combotree("getValue") == ""){
+             $.messager.show({ title: '提示', msg: "组织机构为空", showType: 'show' });
+             return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","Door",new { date=DateTime.Now.Millisecond})',
+            data: $("#frmDoorEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doorDialog.dialog('close');
+                $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                doDoorSearch();
+            }
+        });
+    }
+    var userDoorAuthorizationManageDialog;
+    function doUserDoorAuthorizationManageDialog() {
+        if (userDoorAuthorizationManageDialog) {
+            userDoorAuthorizationManageDialog.dialog("destroy");
+        }
+        userDoorAuthorizationManageDialog =  @Html.JDialog("divUserDoorAuthorizationManage").SetTitle("门禁授权管理").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("userDoorAuthorizationManageDialog.dialog('destroy');return false;").SetCancelScript("userDoorAuthorizationManageDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    
+    function doUserDoorAuthorizationManage(id) {
+       if(!id || id.trim()==""){
+           var selectedDoor = $("#tbDoorList").datagrid("getSelected");
+           if(!selectedDoor || selectedDoor.Id=="" || selectedDoor.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedDoor.Id;
+       }
+        var url = '@Url.Action("UserDoorAuthorizationManage", "Door")';
+        $("#divUserDoorAuthorizationManageDialog").load(url,{"DoorId":id,"date":new Date().getMilliseconds()},function(){
+            doUserDoorAuthorizationManageDialog();
+        })
+        return false;
+    }
+
+    var userDoorContinuedAuthorizationManageDialog;
+    function doUserDoorContinuedAuthorizationManageDialog() {
+        if (userDoorContinuedAuthorizationManageDialog) {
+            userDoorContinuedAuthorizationManageDialog.dialog("destroy");
+        }
+        userDoorContinuedAuthorizationManageDialog =  @Html.JDialog("divUserDoorContinuedAuthorizationManage").SetTitle("门禁周期性授权管理").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("userDoorContinuedAuthorizationManageDialog.dialog('destroy');return false;").SetCancelScript("userDoorContinuedAuthorizationManageDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).ToMvcString();
+    }
+    
+    function doUserDoorContinuedAuthorizationManage(id) {
+       if(!id || id.trim()==""){
+           var selectedDoor = $("#tbDoorList").datagrid("getSelected");
+           if(!selectedDoor || selectedDoor.Id=="" || selectedDoor.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedDoor.Id;
+       }
+        var url = '@Url.Action("UserDoorContinuedAuthorizationManage", "Door")';
+        $("#divUserDoorContinuedAuthorizationManageDialog").load(url,{"DoorId":id,"date":new Date().getMilliseconds()},function(){
+            doUserDoorContinuedAuthorizationManageDialog();
+        })
+        return false;
+    }
+    function doRemoteOpenDoor(id)
+    {
+        if(!id || id == "") {
+            $.messager.show({ title: '提示', msg: "找不到门禁Id", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否确认远程开门?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("RemoteOpen", "Door")',
+                data: "id=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && (msg.indexOf("出错") != -1)) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                }
+            });
+        });
+    }
+    function doUpdateOfflineRecord() {
+        var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+        if (!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id == "" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+            $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+            return false;
+        }
+        var id = selectedLabOrganizationAdmin.Id;
+        $.messager.confirm('提示', '是否确认通知服务器更新离线记录?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateOfflineRecord", "UserAuthorization")',
+                data: "LabOrganizationId=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+            });
+        });
+    }
+</script>

@@ -1,0 +1,70 @@
+﻿@model IList<com.Bynonco.LIMS.Model.EquipmentNotice>
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentNoticeReadList = ViewData["EquipmentNoticeReadList"] == null ? null : (List<EquipmentNoticeRead>)ViewData["EquipmentNoticeReadList"];
+}
+@if (Model != null && Model.Count() > 0)
+{
+    int i = 1;
+    <ul>
+    @foreach (var item in Model)
+    {
+        var isRead = false;
+        if (equipmentNoticeReadList != null && equipmentNoticeReadList.Count() > 0 && equipmentNoticeReadList.Where(p => p.EquipmentNoticeId == item.Id).Count() > 0)
+        {
+            isRead = true;
+        } 
+        <li style="line-height:25px;">
+            <a href="#" onclick="doReadNotice('@item.Id')" style="display:inline-block;width:420px">@(i + ". " + item.Title)</a>
+            <span>
+                @(item.IsMustReadBeforeAppointment ? (isRead ? "已读" : "未读") : "--")
+            </span>
+        </li>    
+        i++;
+    }
+    </ul>
+    <div id="divEquipmentNoticeReadDialog" style="display:none;"></div>
+    <script type="text/javascript">
+    var equipmentNoticeReadDialog;
+    function doEquipmentNoticeReadDialog() {
+        if (equipmentNoticeReadDialog) {
+            equipmentNoticeReadDialog.dialog("destroy");
+        }
+        equipmentNoticeReadDialog =  @Html.JDialog("divReadNotice").SetTitle("阅读公告").SetIconCls("icon-eye").SetAutoDialog(false).SetCancelScript("equipmentNoticeReadDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEquipmentNoticeRead();").ToMvcString();
+    }
+
+    function doReadNotice(id){
+        var url = '@Url.Action("ReadNotice","Equipment")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divEquipmentNoticeReadDialog").load(url,function(){
+            doEquipmentNoticeReadDialog();
+            $.messager.progress('close');
+        })
+        return false;
+    }
+    function doSaveEquipmentNoticeRead(){
+        if (!$("#IsReadNotice").attr("checked")) {
+            equipmentNoticeReadDialog.dialog('close');
+            return false;
+        }
+        var id = $("#EquipmentNoticeId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("SaveReadNotice","Equipment")' ,
+            data: "id=" + id +  "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                equipmentNoticeReadDialog.dialog('close');
+                doReLoadReadNoticeList();
+            }
+        });
+   }
+
+    </script>
+}

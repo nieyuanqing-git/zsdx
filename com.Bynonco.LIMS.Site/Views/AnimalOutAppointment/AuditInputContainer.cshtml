@@ -1,0 +1,83 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewAnimalOutAppointment
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var auditStatus = (com.Bynonco.LIMS.Model.Enum.AuditStatus)ViewData["AuditStatus"];
+    var enableOutQueryExpression = ViewData["EnableOutQueryExpression"].ToString();
+ }
+ @Html.Partial("../AnimalAppointment/AppointmentScriptContainer")
+<div id="divAuditAnimalOutAppointment" style="overflow:hidden;">
+    <script type="text/javascript">
+        var enableOutQueryExpression = '@enableOutQueryExpression'.replace(/\&quot;/g, "\"");
+    </script>
+    <div style="display:none"> @Html.Partial("../Animal/SelectAnimalNoPagingContainer")</div>
+    <form id="frmAuditAnimalOutAppointment" action="#">
+       <table class="edit-table" style="width:550px;">
+            <tr id="trEthicsAmount" style="display:none">
+                <th colspan="3">
+                    <span id="spanEthicsAmount"></span>
+                </th>
+            </tr>
+             <tr>
+                <th><span class="required">*</span>伦理编号</th>
+                <td>
+                    @Html.JComboBox("EthicsNo").SetData(ViewData["EthicsNoJson"]).SetDisabled(true).SetWidth(235).ToMvcString()
+                </td>
+            </tr>
+            <tr>
+                <th>品系</th>
+                <td>
+                    <span id="spanAnimalCategoryName">@Model.AnimalCategoryName</span>
+                </td>
+            </tr>
+            <tr>
+                <th>@Model.SexStr</th>
+            </tr>
+            <tr>
+                <th>申请数量</th>
+                <td>
+                    总数量:<span id="spanQuantity">@Model.Amount</span> &nbsp;&nbsp;&nbsp;
+                    ♂数量:<span id="spanMaleQuatity">@Model.MaleQuatity</span>
+                    ♀数量:<span id="spanFemaleQuatity">@Model.FemaleQuatity</span>
+                </td>
+            </tr>
+            <tr>
+                <th>取材地点</th>
+                <td>@Model.GetOutPlace</td>
+            </tr>
+            @if (auditStatus == com.Bynonco.LIMS.Model.Enum.AuditStatus.Passed)
+            {
+                
+                 <tr>
+                    <th><span class="required">*</span>动物取出时间</th>
+                    <td>@Html.JDateTimePicker("OutTime").SetValue(!Model.OutTime.HasValue ? DateTime.Now.ToString("yyyy-MM-dd") : Model.OutTimeStr).SetWidth(235).ToMvcString()</td>
+                 </tr>
+                 <tr>
+                    <th><span class="required">*</span>取材动物信息</th>
+                    <td id="tbAnimalIds" style="padding-left:2px">
+                        <div class="float_l">
+                            <div style="float:left;">@Html.TokenInput("AnimalIds").SetUrl("11").SetPrePopulate(ViewData["AnimalJson"] == null || string.IsNullOrWhiteSpace(ViewData["AnimalJson"].ToString()) ? null : ViewData["AnimalJson"].ToString()).ToMvcString()</div>
+                            <div style="float:left;">@Html.JLinkButton("btnSelectAnimal", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick(string.Format("doSelectAnimalDialog('AnimalIds',enableOutQueryExpression);return false;")).ToMvcString()</div>
+                            <div style="clear:both;"></div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <th>
+                    @if (auditStatus == com.Bynonco.LIMS.Model.Enum.AuditStatus.NotPassed)
+                    {
+                        <span class="required">*</span>
+                    }
+                    审核备注
+                </th>
+                <td>@Html.TextArea("AuditRemark", Model != null ? Model.AuditRemark : "", new { style = "font-weight:normal;font-size:12px;text-decoration:none;height:60px;width:500px;margin-right:5px;overflow-y:auto" })</td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        doOnGetOutAnimalCategoryChanged('@Model.AnimalCategoryId', '@Model.AnimalCategoryId', '@Model.Id', 'spanEthicsAmount', 'trEthicsAmount', 'EthicsNo', 'AnimalSpecifications', 'spanAnimalSpecifications');
+    });
+</script>

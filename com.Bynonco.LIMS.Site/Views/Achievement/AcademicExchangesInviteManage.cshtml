@@ -1,0 +1,14 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Achievement/AcademicExchangesInviteSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../Achievement/AcademicExchangesInviteList")
+</div>
+<div id="divAcademicExchangesDialog"></div>
+@Html.Partial("../Achievement/AcademicExchangesScript")

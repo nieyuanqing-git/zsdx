@@ -1,0 +1,62 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var user = (User)ViewData["User"];
+    var viewNMP = (com.Bynonco.LIMS.Model.View.ViewNMP)ViewData["ViewNMP"];
+    var customer = CustomerFactory.GetCustomer();
+    var appointmentInputSetting = (com.Bynonco.LIMS.Model.Business.AppointmentInputSetting)ViewData["AppointmentInputSetting"];
+ }
+ <script type="text/javascript">
+      function getSelectedSubjectProjectId() {return '';}
+      function doOnDataDictChangedCallBack(va) {}
+ </script>
+@Html.Partial("../Subject/LoadSubjectProjectScript")
+<style type="text/css">
+    #frmAppointmentUserRelativeInfo table tr th em{color:#FF0000; font-size:14px}
+</style>
+ <p><span class="icon icon-detail"></span>用户预约基本信息</p>
+<form id="frmAppointmentUserRelativeInfo">
+<table class='edit-info'>
+    <tr>
+        <th>
+            <span class="required">*</span>预约人
+        </th>
+        <td>@user.UserName</td>
+    </tr>
+    <tr>
+        <th>
+            <span class="required">*</span>课题组
+         </th>
+        <td>@Html.JComboBox("SubjectId").SetData(ViewData["SubjectJson"]).SetOnChange("doOnSubjectChanged(newValue, oldValue)").SetWidth(330).ToMvcString()</td>
+    </tr>
+    <tr>
+        <th>
+            @(ViewData["ProjectShowName"].ToString())
+         </th>
+        <td>@Html.JComboBox("SubjectProjectId").SetWidth(330).ToMvcString()</td>
+    </tr>
+
+    <tr>
+        <th>
+            @if (appointmentInputSetting.IsUseNatureRequired)
+            {
+                <span class="required">*</span>
+            }
+            使用性质
+        </th>
+        <td>@Html.JComboBox("UseNature").SetData(ViewData["UseNatureJson"]).SetWidth(330).ToMvcString()</td>
+    </tr>
+    <tr>
+        <th>
+            @if (appointmentInputSetting.IsExperimentContentRequired)
+            {
+                <span class="required">*</span>
+            }
+            实验内容
+        </th>
+        <td>@Html.TextArea("ExperimentationContent", "", new { rows = "6", cols = "70" })</td>
+    </tr>
+</table>
+
+</form>

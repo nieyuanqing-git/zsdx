@@ -1,0 +1,27 @@
+﻿@(Html.CheckBox(DayOfWeek.Sunday.ToString()))<label for="@(DayOfWeek.Sunday.ToString())">星期日</label>
+@(Html.CheckBox(DayOfWeek.Monday.ToString()))<label for="@(DayOfWeek.Monday.ToString())">星期一</label>
+@(Html.CheckBox(DayOfWeek.Tuesday.ToString()))<label for="@(DayOfWeek.Tuesday.ToString())">星期二</label>
+@(Html.CheckBox(DayOfWeek.Wednesday.ToString()))<label for="@(DayOfWeek.Wednesday.ToString())">星期三</label>
+@(Html.CheckBox(DayOfWeek.Thursday.ToString()))<label for="@(DayOfWeek.Thursday.ToString())">星期四</label>
+@(Html.CheckBox(DayOfWeek.Friday.ToString()))<label for="@(DayOfWeek.Friday.ToString())">星期五</label>
+@(Html.CheckBox(DayOfWeek.Saturday.ToString()))<label for="@(DayOfWeek.Saturday.ToString())">星期六</label>
+<script type="text/javascript">
+    function getWorkDays() {
+        var workDays = "";
+        var isSundayChecked = $("#Sunday").attr("checked") ? true : false;
+        var isMondayChecked = $("#Monday").attr("checked") ? true : false;
+        var isTuesdayChecked = $("#Tuesday").attr("checked") ? true : false;
+        var isWednesdayChecked = $("#Wednesday").attr("checked") ? true : false;
+        var isThursdayChecked = $("#Thursday").attr("checked") ? true : false;
+        var isFridayChecked = $("#Friday").attr("checked") ? true : false;
+        var isSaturdayChecked = $("#Saturday").attr("checked") ? true : false;
+        if (isSundayChecked) workDays += "Sunday";
+        if (isMondayChecked) workDays += workDays == "" ? "Monday" : "|" + "Monday";
+        if (isTuesdayChecked) workDays += workDays == "" ? "Tuesday" : "|" + "Tuesday";
+        if (isWednesdayChecked) workDays += workDays == "" ? "Wednesday" : "|" + "Wednesday";
+        if (isThursdayChecked) workDays += workDays == "" ? "Thursday" : "|" + "Thursday";
+        if (isFridayChecked) workDays += workDays == "" ? "Friday" : "|" + "Friday";
+        if (isSaturdayChecked) workDays += workDays == "" ? "Saturday" : "|" + "Saturday";
+        return workDays;
+    }
+</script>

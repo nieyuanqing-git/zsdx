@@ -1,0 +1,261 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewUserEquipmentPrivilige
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentId = Model == null ? "" : Model.EquipmentId.ToString();
+    var sampleItemId = Model == null ? "" : Model.SampleItemId.ToString();
+    var workGroupId = Model == null ? "" : Model.WorkGroupId.HasValue ? Model.WorkGroupId.ToString() : "";
+ }
+<script type="text/javascript">
+    var curSampleItemIds = "@sampleItemId";
+    var curdEquipmentIds = "@equipmentId";
+    var workGroupId = "@workGroupId";
+
+    function doEquipmentSelectedChanged() {
+        var equipments = $("#EquipmentIds").tokenInput("get");
+        var equipmentIds = "";
+        if (equipments && equipments.length > 0) {
+            for (var i = 0; i < equipments.length; i++) {
+                equipmentIds += equipmentIds == "" ? equipments[i].id : "," + equipments[i].id;
+            }
+        }
+        curSampleItemIds = "";
+        curdEquipmentIds = equipmentIds;
+        reloadSampleItems();
+    }
+
+    function doOnSampleItemLoadSuccess() {
+        $("#SampleItemIds").combobox("enable");
+        if (curSampleItemIds.trim() != "")
+            $("#SampleItemIds").combobox("setValue", curSampleItemIds);
+    }
+
+    function doOnSampleItemChanged(record) {
+        var selectdSampleItemIds = $("#SampleItemId").combobox("getValues");
+        curSampleItemIds = selectdSampleItemIds;
+    }
+
+    function doWorkGroupOnLoadSuccess() {
+        if (workGroupId.trim() != "")
+            $("#WorkGroupId").combobox("setValue", workGroupId);
+    }
+
+    function doWorkGroupSelectChanged(record) {
+        if (record) {
+            $("#UserIds").tokenInput("clear");
+        }
+    }
+    function doOnUserSelectChanged() {
+        var users = $("#UserIds").tokenInput("get");
+        if (users && users.length > 0) {
+            $("#WorkGroupId").combobox("clear");
+        }
+    }
+
+    function reloadSampleItems() {
+        if (curdEquipmentIds == "") { $('#SampleItemId').combobox("loadData", {}); return; }
+        var queryExpression = "";
+        var equipmentIds = curdEquipmentIds.split(",");
+        for (var i = 0; i < equipmentIds.length; i++) {
+            queryExpression += queryExpression == "" ? "EquipmentId=\"" + equipmentIds[i] + "\"" : "+EquipmentId=\"" + equipmentIds[i] + "\"";
+        }
+        var url = '@Url.Action("GetSampleItemList", "SampleItem")' + "?queryExpression=" + queryExpression + "&time=" + new Date().getMilliseconds();
+        $("#SampleItemIds").combobox("reload", url);
+        $("#SampleItemIds").combobox("disable");
+    }
+    function resetSampleItem() {
+        curSampleItemId = "";
+        $('#SampleItemIds').combobox("clear");
+    }
+    function selectAll() {
+        var checkBoxes = document.getElementById("divUserEquipmentPriviligeEdit").getElementsByTagName("input");
+        for (var i = 0; i < checkBoxes.length; i++) {
+            if (checkBoxes[i].type == "checkbox") {
+                checkBoxes[i].checked = true;
+            }
+        }
+    }
+    function unSelectAll() {
+        var checkBoxes = document.getElementById("divUserEquipmentPriviligeEdit").getElementsByTagName("input");
+        for (var i = 0; i < checkBoxes.length; i++) {
+            if (checkBoxes[i].type == "checkbox") {
+                checkBoxes[i].checked = false;
+            }
+        }
+    }
+</script>
+<div id="divUserEquipmentPriviligeEdit">
+<form id="frmUserEquipmentPrivilige" action="#">
+@Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+<table id="tbUserEquipmentPriviligeEdit" class="edit-table">
+    <tr>
+        <th>设备名称</th>
+        <td id="tdEquipmentIds" colspan="3" style="padding-left:3px">
+            @(Html.TokenInput("EquipmentIds")
+            .SetUrl(Url.Action("GetEquipmentListByKeyWord", "Equipment", new { time = DateTime.Now.Millisecond.ToString() }))
+            .SetPrePopulate(ViewData["EquipmentJson"] == null ? null : ViewData["EquipmentJson"].ToString())
+            .SetSingle(false).SetWidth(250).SetOnAdd("doEquipmentSelectedChanged();").SetOnDelete("doEquipmentSelectedChanged();").ToMvcString())
+        </td>
+    </tr>
+    <tr>
+        <th>项目名称</th>
+        <td colspan="3">
+            @(Html.JComboBox("SampleItemIds")
+            .SetWidth(525).SetTextField("Name")
+            .SetValueField("Id")
+            .SetOnSelect("doOnSampleItemChanged(record);")
+            .SetOnUnselect("doOnSampleItemChanged(record);")
+            .SetEditable(false)
+            .SetMutiSelect(true).
+            SetOnLoadSuccess("doOnSampleItemLoadSuccess();").ToMvcString())
+            <a href="javascript:void(0)" onclick="resetSampleItem();return false;">清空</a>
+        </td>
+    </tr>
+    <tr>
+        <th>用户名称</th>
+        <td id="tdUserId"  style="padding-left:3px">
+              @(Html.TokenInput("UserIds")
+              .SetUrl(Url.Action("GetUserListByKeyWord", "User", new { time = DateTime.Now.Millisecond.ToString() }))
+              .SetPrePopulate(ViewData["UserJson"] == null ? null : ViewData["UserJson"].ToString())
+              .SetSingle(false).SetWidth(250).SetOnAdd("doOnUserSelectChanged();").SetOnDelete("doOnUserSelectChanged();").ToMvcString())
+        </td>
+        <th>当前状态</th>
+        <td>
+            @(Html.JComboBox("Flag").SetData(ViewData["FlagJson"]).SetWidth(130).ToMvcString())
+        </td>
+    </tr>
+    <tr>
+         <th>工作组</th>
+        <td>
+            @(Html.JComboBox("WorkGroupId").SetData(ViewData["WorkGroupJson"]).SetWidth(247).SetOnSelect("doWorkGroupSelectChanged(record);").SetOnLoadSuccess("doWorkGroupOnLoadSuccess();").ToMvcString())
+        </td>
+        <th>是否停用</th>
+        <td>
+            @(Html.JComboBox("IsStop").SetData(ViewData["IsStopJson"]).SetWidth(130).ToMvcString())
+        </td>  
+     </tr>
+    <tr>
+        <th>下载结果</th>
+        <td>
+           @Html.CheckBox("IsEnableDownLoad")
+        </td>
+        <th>填申请单</th>
+        <td>
+            @Html.CheckBox("IsEnableApply")
+        </td>
+    </tr>
+    <tr>
+        <th>复制</th>
+        <td>
+             @Html.CheckBox("IsEnableCopy")
+        </td> 
+        <th>编辑</th>
+        <td>
+             @Html.CheckBox("IsEnableEdit")
+        </td> 
+    </tr>
+    <tr>
+        <th>审核</th>
+        <td>
+             @Html.CheckBox("IsEnableAudit")
+        </td> 
+        <th>撤消</th>
+        <td>
+             @Html.CheckBox("IsEnableCancel")
+        </td> 
+        
+    </tr>
+    <tr>
+        <th>确认收样</th>
+        <td>
+            @Html.CheckBox("IsEnableAccept")
+        </td>
+        <th>拒绝收样</th>
+        <td>
+            @Html.CheckBox("IsEnableRefuse")
+        </td>
+    </tr>
+    <tr>
+        <th>收费</th>
+        <td>
+            @Html.CheckBox("IsEnableCharge")
+        </td>
+        <th>测样</th>
+        <td>
+            @Html.CheckBox("IsEnableTest")
+        </td>
+    </tr>
+    <tr>
+        <th>分析结果</th>
+        <td>
+            @Html.CheckBox("IsEnableAnalysis")
+        </td>
+        <th>审核结果</th>
+        <td>
+            @Html.CheckBox("IsEnableAuditResult")
+        </td>
+    </tr>
+     <tr>
+        <th>发布结果</th>
+        <td>
+            @Html.CheckBox("IsEnableRelease")
+        </td>
+        <th>结果质疑</th>
+        <td>
+            @Html.CheckBox("IsEnableDoubts")
+        </td>
+        
+    </tr>
+   <tr>
+        <th>处理质疑</th>
+        <td>
+           @Html.CheckBox("IsEnableAuditDoubts")
+        </td>
+        <th>收样登记</th>
+        <td>
+           @Html.CheckBox("IsEnableRegister")
+        </td>
+   </tr>
+   <tr>
+        <th>查看信息</th>
+        <td>
+           @Html.CheckBox("IsEnableView")
+        </td>
+        <th>报告确认</th>
+        <td>
+           @Html.CheckBox("IsEnableReportConfirm")
+        </td>  
+    </tr>
+    <tr>
+        <th>登记状态</th>
+        <td>
+           @Html.CheckBox("IsEnableRegistStatus")
+        </td>
+        <th>敏感信息</th>
+        <td>
+           @Html.CheckBox("IsEnableLookSecretInfo")
+        </td>  
+    </tr>
+    <tr> 
+        <th>负责人</th>
+        <td colspan="3">
+           @Html.CheckBox("IsDirector")
+           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+           <a href="javascript:void(0)" onclick="selectAll();return false;">全选</a>&nbsp;
+           <a href="javascript:void(0)" onclick="unSelectAll();return false;">取消全选</a>
+        </td> </tr>
+     <tr>
+        <th>备注</th>
+        <td colspan="3">
+            @Html.TextArea("Remark",Model==null?"":Model.Remark, new { style = "font-size:12px;text-decoration:none;height:60px;width:525px" })
+        </td>
+     </tr>
+</table>
+</form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdEquipmentIds ul.token-input-list-facebook").css("width", "523px");
+        $("#tdUserId ul.token-input-list-facebook").css("width", "245px");
+        if (curdEquipmentIds != "") doEquipmentSelectedChanged();
+    })
+</script>

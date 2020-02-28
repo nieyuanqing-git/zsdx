@@ -1,0 +1,14 @@
+﻿<script type="text/javascript">
+    $(function () {
+        var tagController = '@(ViewContext.RouteData.Values["controller"].ToString())';
+        var tagAction = '@(ViewContext.RouteData.Values["action"].ToString())';
+        var controllerName = '@(ViewData["ParentControllerName"] == null ? "" : ViewData["ParentControllerName"].ToString().Trim())';
+        var actionName = '@(ViewData["ParentActionName"] == null ? "" : ViewData["ParentActionName"].ToString().Trim())';
+        var para = "&TagAction=" + tagAction + "&TagController=" + tagController;
+        var url = '@Url.Action("LayoutCenterBox","Admin")' + "?ControllerName=" + controllerName + "&ActionName=" + actionName + "&date=" + new Date().getMilliseconds();
+        url += para;
+        $("#layoutCenterBox").load(url, function () {
+            ajaxloadsuccess();
+        });
+    });
+</script>

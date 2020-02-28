@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isCostDeductOpenFund = ViewData["IsCostDeductOpenFund"] == null ? false : bool.Parse(ViewData["IsCostDeductOpenFund"].ToString());
+    var onloadSucessScript = string.Format("$('body div.panel div.panel-header div').last().text('扣费明细列表－付费人:' + '{0}');", ViewData["PayerName"]);
+    var dataGrid = Html.JDataGrid("tbPayerCloseViewCostDeductList")
+    .SetUrl(Url.Action("GetGridPayerCloseViewCostDeductList", "BalanceAccount") + "?balanceAccountId=" + ViewData["BalanceAccountId"].ToString())
+    .AddQueryParam("queryExpression","PayerId=\"" + ViewData["PayerId"].ToString()+ "\"")
+    .SetHeight(550)
+    .SetPageSize(10)
+    .SetMutiSelect(false)
+    .SetSortName("DeductAt")
+    .SetSortOrder(SortOrder.desc)
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("图片", "Icon").SetWidth(50).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("设备名称/名目/检测项目", "EquipmentNameStr").SetWidth(200).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("使用者", "UserName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("实收费(元)", "RealFeeStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扣费人", "CreaterName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扣费时间", "DeductAtStr").SetWidth(130).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扣费类型", "CostDeductTypeStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("支付方式", "PaymentMethodStr").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("付费人", "PayerName").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("真实币(元)", "RealCurrencyStr").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("奖励币(元)", "VirtualCurrencyStr").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("补贴币(元)", "OpenFundCurrencyStr").SetHidden(!isCostDeductOpenFund).SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("应收费(元)", "CalcFeeStr").SetWidth(60).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("状态", "HasClossingAccountStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("放置地点", "LabRoomName").SetWidth(300).SetAlign(Align.left))
+    .SetOnLoadSuccess(onloadSucessScript);
+}
+@(dataGrid.ToMvcString()) 

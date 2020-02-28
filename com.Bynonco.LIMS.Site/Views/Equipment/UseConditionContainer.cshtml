@@ -1,0 +1,100 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Hidden("EquipmentId", Model == null ? "" : Model.Id.ToString())
+<div>@Html.Partial("../Equipment/UserConditionList")</div>
+<div id="divEquipmentUseConditionDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditEquipmentUseCondition(id){
+        if(!id || id.trim()==""){
+           var selectedRow = $("#tbEquipmentUseConditionList").datagrid("getSelected");
+           if(!selectedRow || selectedRow.Id=="" || selectedRow.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要编辑的项", showType: 'show' });
+              return false;
+           }
+           id = selectedRow.Id;
+        }
+        doAddOrEditEquipmentUseCondition(id);
+    }
+    function doAddOrEditEquipmentUseCondition(id) {
+        var equipmentId = '@(ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString())'
+        var url = '@Url.Action("EditEquipmentUseCondition","Equipment")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        if(equipmentId != "") url += "&EquipmentId=" + equipmentId;
+        if((!id || id.trim()=="") && equipmentId == ""){
+            $.messager.show({ title: '提示', msg: "设备为空,无法新增设备运行参数", showType: 'show' });
+        }
+        else{
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $("#divEquipmentUseConditionDialog").load(url, function (data) {
+                doEquipmenUseConditionDialog();
+                $.messager.progress('close');
+            })
+        }
+        return false;
+    }
+    var equipmentUseConditionDialog;
+    function doEquipmenUseConditionDialog() {
+        if (equipmentUseConditionDialog) {
+            equipmentUseConditionDialog.dialog("destroy");
+        }
+        equipmentUseConditionDialog =  @Html.JDialog("divEquipmentUseConditionEdit").SetTitle("设备运行参数信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("equipmentUseConditionDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveEuipmentUseCondition();return false;").ToMvcString();
+    }
+    function doSaveEuipmentUseCondition() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveEquipmentUseCondition","Equipment")',
+            data: $("#frmEquipmentUseConditionEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                equipmentUseConditionDialog.dialog('close');
+                doSearch();
+            }
+        });
+    }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbEquipmentUseConditionList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDeleteEquipmentUseCondition(ids){
+         var deleteIds = !ids || ids.trim() == "" ? generateSelectedIds().toString() : ids;
+        if (deleteIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteEquipmentUseCondition","Equipment")',
+                data:{"date": new Date().getMilliseconds(),"Ids": deleteIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+    }
+    function doSearch() {
+        $("#tbEquipmentUseConditionList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbEquipmentUseConditionList").datagrid("load");
+        return false;
+    }
+</script>

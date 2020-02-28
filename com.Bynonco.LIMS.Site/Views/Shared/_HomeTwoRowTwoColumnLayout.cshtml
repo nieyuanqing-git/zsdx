@@ -1,0 +1,74 @@
+﻿@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    @{
+        var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+        var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+        object routeCurrentXPathValue = new { XPath = orgXPath };
+        var title = orgName + (ViewData["SystemName"] == null ? "" : ViewData["SystemName"].ToString());
+        IList<com.Bynonco.LIMS.Model.LabOrganization> labOrganizationList = ViewData["SubLabOrganizationList"] == null ? null : (IList<com.Bynonco.LIMS.Model.LabOrganization>)ViewData["SubLabOrganizationList"];
+        var isShowCollege = orgXPath == "000" && labOrganizationList != null && labOrganizationList.Count() > 0;
+        var customer = CustomerFactory.GetCustomer();
+        var isShowMemuOrganizationList = customer == null ? true : customer.GetIsShowMemuOrganizationList();
+    }
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <title>@title</title>
+    @Html.Partial("HomeJsCss")
+    @Html.Partial("GetIsAjax")
+    @RenderSection("ImportCssAndJs", false)
+</head>
+<body>
+    <div class='body-top'>
+        <div class='body-inner'>
+            @Html.Partial("../Home/TopBox")
+        </div>
+    </div>
+    <div class='body-inner'>
+        @Html.Partial("../Home/Banner")
+        <div class='menu-box'>
+            @if (isShowCollege && isShowMemuOrganizationList)
+            {
+                <div class='menu-left'>
+                    <a href="javascript:;">院级仪器共享平台<span class='menu-down'></span></a>
+                </div>
+                <div class='menu-right'>
+                    @Html.Partial("../Home/Menu")
+                </div>
+                <div class='clear-both'></div>
+            }
+            else
+            {
+                @Html.Partial("../Home/Menu")
+            }
+        </div>
+
+        <div class='main-box'>
+            <div class="main-box-inner">
+                <div class="main-box-first-line">
+                   <div  class="main-box-first-line-left">
+                        @RenderSection("MainFirstLineLeft", true)
+                   </div>
+                   <div  class="main-box-first-line-right">
+                        @RenderSection("MainFirstLineRight", true)
+                   </div>    
+                </div>
+                <div class='clear-both'></div>
+                <div class="main-box-second-line">
+                   <div  class="main-box-second-line-left">
+                        @RenderSection("MainSecondLineLeft", true)
+                   </div>
+                   <div  class="main-box-second-line-right">
+                        @RenderSection("MainSecondLineRight", true)
+                   </div>
+                </div>
+                <div class='clear-both'></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            @Html.Partial("Footer")
+        </div>
+    </div>
+</body>
+</html>

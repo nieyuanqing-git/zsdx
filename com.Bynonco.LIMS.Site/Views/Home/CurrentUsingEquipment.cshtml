@@ -1,0 +1,109 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var currentUsingEquipmentList = ViewData["CurrentUsingEquipmentList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewCurrentUsingEquipment>)ViewData["CurrentUsingEquipmentList"];
+    var hotEquipmentList = ViewData["HotEquipmentList"] == null ? null : (List<com.Bynonco.LIMS.Model.View.ViewEquipmentTotal>)ViewData["HotEquipmentList"];
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    List<Guid> equipmentIdList = new List<Guid>();
+}
+<h2 class='title'>
+    <span>正在使用的设备</span>
+    <a href='@Url.Action("ShowList", "Equipment", routeCurrentXPathValue)' class='more'>更多>></a>
+</h2>
+<div class="content-box content-box-153">
+    @if ((currentUsingEquipmentList != null && currentUsingEquipmentList.Count() > 0) || (hotEquipmentList != null && hotEquipmentList.Count() > 0))
+    {
+    <script type="text/javascript">
+        $(function () {
+            $.jcarousel.windowLoaded();
+            jQuery('.first-and-second-carousel').jcarousel({
+                auto: 2,
+                scroll: 1,
+                animation: 1000,
+                wrap: 'circular',
+                itemFallbackDimension: 124
+            });
+        });
+        function doShowDetailInfo(equipmentId, equipmentName) {
+            location.href = '@Url.Action("Show", "Equipment", routeCurrentXPathValue)' + '&Id=' + equipmentId;
+            return false;
+        }
+    </script>
+    <ul class="first-and-second-carousel jcarousel-skin-tango">
+    @if ((currentUsingEquipmentList != null && currentUsingEquipmentList.Count() > 0))
+    {
+        foreach (var item in currentUsingEquipmentList)
+        {
+            if (equipmentIdList.Contains(item.EquipmentId)) { continue; }
+            equipmentIdList.Add(item.EquipmentId);
+            var cutName = ShortcutStringUtility.GetSubString(item.EquipmentName, 12, "..");
+            <li>
+                <a href="javascript:;" title='@item.EquipmentName' onclick="doShowDetailInfo('@item.EquipmentId.ToString()','@item.EquipmentName');return false;">
+                    <img alt="@item.EquipmentName" src='@item.IconPath' width="118" height="110" onclick="doShowDetailInfo('@item.EquipmentId.ToString()','@item.EquipmentName)');" style="border:1px solid #CCC;padding:1px;"/>
+                </a>
+                <a href="javascript:;" title='@item.EquipmentName' onclick="doShowDetailInfo('@item.EquipmentId.ToString()','@item.EquipmentName');return false;">
+                    <img id="imgLoding@(item.EquipmentId)" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" class="hide" />
+                    @cutName
+                </a>
+                <script type="text/javascript">
+                    $(function () {
+                        GetEquipmentCurStatusInfo('@item.EquipmentId', '@cutName');
+                    });
+                </script>
+            </li>
+        }
+    }
+    @if (hotEquipmentList != null && hotEquipmentList.Count() > 0)
+    {
+        foreach (var item in hotEquipmentList)
+        {
+            if (equipmentIdList.Contains(item.Id)) { continue; }
+            equipmentIdList.Add(item.Id);
+            if (equipmentIdList.Count() > 15) { break; }
+            var cutName = ShortcutStringUtility.GetSubString(item.EquipmentName, 12, "..");
+            <li>
+                <a href="javascript:;" title='@item.EquipmentName' onclick="doShowDetailInfo('@item.Id.ToString()','@item.EquipmentName');return false;">
+                    <img alt="@item.EquipmentName" src='@item.IconPath' width="118" height="110" onclick="doShowDetailInfo('@item.Id.ToString()','@item.EquipmentName)');" style="border:1px solid #CCC;padding:1px;"/>
+                </a>
+                <a href="javascript:;" title='@item.EquipmentName' onclick="doShowDetailInfo('@item.Id.ToString()','@item.EquipmentName');return false;">
+                    <img id="imgLoding@(item.Id)" src="/JqueryPlugin/JqueryEasyUI/themes/gray/images/tree_loading.gif" class="hide" />
+                    @cutName
+                </a>
+                <script type="text/javascript">
+                    $(function () {
+                        GetEquipmentCurStatusInfo('@item.Id', '@cutName');
+                    });
+                </script>
+            </li>
+        }
+    }
+    </ul>
+    }
+</div>
+<script type="text/javascript">
+    function GetEquipmentCurStatusInfo(equipmentId,cutName) {
+        if (!equipmentId || equipmentId.trim() == "") {
+            return false;
+        }
+        var imgLoding = $("#imgLoding" + equipmentId);
+        if (imgLoding.length > 0) imgLoding.removeClass("hide");
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("GetEquipmentCurStatusInfo", "Equipment")',
+            data: "Id=" + equipmentId + "&date=" + new Date().getMilliseconds(),
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                    if (imgLoding.length > 0) {
+                        var obj = imgLoding.parent();
+                        obj.empty();
+                        obj.append(data.EquipmentStatusIcon);
+                        obj.append(cutName);
+                    }
+                }
+            }
+        });
+    }
+
+</script>

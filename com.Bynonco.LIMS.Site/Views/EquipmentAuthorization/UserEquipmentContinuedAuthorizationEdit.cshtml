@@ -1,0 +1,179 @@
+﻿@model com.Bynonco.LIMS.Model.UserEquipmentContinuedAuthorization
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var equipmentName = ViewData["EquipmentName"] == null ? "" : ViewData["EquipmentName"].ToString();
+    var userId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString();
+    var userName = ViewData["UserName"] == null ? "" : ViewData["UserName"].ToString();
+}
+<div id="divUserEquipmentContinuedAuthorizationEdit">
+ <form id="frmUserEquipmentContinuedAuthorizationEdit" action="#">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    <table id="tdUserEquipmentContinuedAuthorizationEdit" class="edit-table"  style="width:640px;">
+         <tr>
+            <th>设备</th>
+            <td style='@(equipmentId== "" ? "padding:0;border:0;": "")'>
+                @if (equipmentId == "")
+                {
+                    <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>
+                                @(Html.TokenInput("EquipmentId")
+                                    .SetUrl(Url.Action("GetAuthorizationEquipmentListByKeyWord", "Equipment"))
+                                    .SetSingle(false)
+                                    .SetWidth(400)
+                                    .ToMvcString())
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnSelectEquipment", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectAuthorizationEquipment();return false;").ToMvcString()
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnCleanEquipment", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanEquipment();return false;").ToMvcString()
+                            </td>
+                        </tr>
+                    </table>
+                }
+                else
+                {
+                    <div style="padding-left:2px">
+                        @Html.Hidden("EquipmentId", equipmentId)
+                        @equipmentName
+                    </div>
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>用户</th>
+            <td style='@(userId == "" ? "padding:0;border:0;" : "")'>
+                @if (userId == "")
+                {
+                     <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>
+                                @(Html.TokenInput("UserId")
+                                    .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                                    .SetSingle(false)
+                                    .SetWidth(400)
+                                    .ToMvcString())
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnSelectUser", "选择").SetIconCls("icon-search").SetPlain(true).SetOnclick("doSelectAuthorizationUser();return false;").ToMvcString()
+                            </td>
+                            <td style='width:70px;text-align:center;border:0;'>
+                               @Html.JLinkButton("btnCleanUser", "清空").SetIconCls("icon-delete").SetPlain(true).SetOnclick("doCleanUser();return false;").ToMvcString()
+                            </td>
+                        </tr>
+                    </table>
+                }
+                else
+                {
+                    <div style="padding-left:2px">
+                        @Html.Hidden("UserId", userId)
+                        @userName
+                    </div>
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>年份</th>
+            <td>
+                @(Html.JComboBox("StartYear")
+                .SetData(ViewData["StartYearJson"])
+                .SetWidth(60).SetRequired(false).ToMvcString())
+                ～
+                 @(Html.JComboBox("EndYear")
+                .SetData(ViewData["EndYearJson"])
+                .SetWidth(60).SetRequired(false).ToMvcString())
+            </td>
+        </tr>
+       <tr>
+            <th>月份</th>
+            <td>
+                 @(Html.JComboBox("Month")
+                .SetData(ViewData["MonthJson"])
+                .SetMutiSelect(true)
+                .SetWidth(525).SetRequired(false).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>星期</th>
+            <td>
+                 @(Html.JComboBox("Week")
+                .SetData(ViewData["WeekJson"])
+                .SetMutiSelect(true)
+                .SetWidth(525).SetRequired(false).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>时间</th>
+            <td>
+                 @(Html.JComboBox("StartTimeHour")
+                .SetData(ViewData["StartTimeHourJson"])
+                .SetWidth(40).SetRequired(false).ToMvcString()):
+                @(Html.JComboBox("StartTimeMinutes")
+                .SetData(ViewData["StartTimeMinutesJson"])
+                .SetWidth(40).SetRequired(false).ToMvcString())
+                ～
+                 @(Html.JComboBox("EndTimeHour")
+                .SetData(ViewData["EndTimeHourJson"])
+                .SetWidth(40).SetRequired(false).ToMvcString()):
+                @(Html.JComboBox("EndTimeMinutes")
+                .SetData(ViewData["EndTimeMinutesJson"])
+                .SetWidth(40).SetRequired(false).ToMvcString())
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td>
+                @Html.TextArea("AuthorizationNote", Model == null ? "" : Model.AuthorizationNote, new { style = "font-size:12px;text-decoration:none;height:60px;width:520px;margin-right:5px;" })
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+<div style="display:none">@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")</div>
+<div style="display:none">@Html.Partial("../User/SelectUserNoPagingContainer")</div>
+<script type="text/javascript">
+    function doCleanEquipment() {
+        $("#frmUserEquipmentContinuedAuthorizationEdit #EquipmentId").tokenInput("clear");
+    }
+    function getSelectedEquipmentsCallBack(selectedEquipmentNames, selectedEquipmentIds, selectedEquipmentJsonArray) {
+
+        $("#frmUserEquipmentContinuedAuthorizationEdit #EquipmentId").tokenInput("clear");
+        if (selectedEquipmentIds != "") {
+            var selectedEquipmentIdsArray = selectedEquipmentIds.split(",");
+            var selectedEquipmentNamesArray = selectedEquipmentNames.split(",");
+            if (!selectedEquipmentIdsArray || selectedEquipmentIdsArray.length == 0 || !selectedEquipmentNamesArray || selectedEquipmentNamesArray.length == 0) return;
+            for (var i = 0; i < selectedEquipmentIdsArray.length && i < selectedEquipmentNamesArray.length; i++) {
+                $("#EquipmentId").tokenInput("add", { id: selectedEquipmentIdsArray[i], text: selectedEquipmentNamesArray[i] });
+            }
+        }
+    }
+    function doSelectAuthorizationEquipment() {
+        doSelectEquipmentDialog('EquipmentId', { "SelectEquipmentMode": '@((int)com.Bynonco.LIMS.Model.Enum.SelectEquipmentMode.AuthorizationEquipment)' });
+        return false;
+    }
+
+    function doCleanUser() {
+        $("#frmUserEquipmentContinuedAuthorizationEdit #UserId").tokenInput("clear");
+    }
+    function getSelectedUserCallBack(selectedUserNames, selectedUserIds) {
+
+        $("#frmUserEquipmentContinuedAuthorizationEdit #UserId").tokenInput("clear");
+        if (selectedUserIds != "") {
+            var selectedUserIdsArray = selectedUserIds.split(",");
+            var selectedUserNamesArray = selectedUserNames.split(",");
+            if (!selectedUserIdsArray || selectedUserIdsArray.length == 0 || !selectedUserNamesArray || selectedUserNamesArray.length == 0) return;
+            for (var i = 0; i < selectedUserIdsArray.length && i < selectedUserNamesArray.length; i++) {
+                $("#frmUserEquipmentContinuedAuthorizationEdit #UserId").tokenInput("add", { id: selectedUserIdsArray[i], text: selectedUserNamesArray[i] });
+            }
+        }
+    }
+    function doSelectAuthorizationUser() {
+        doSelectUserDialog('UserId');
+        return false;
+    }
+</script>
+
+
+

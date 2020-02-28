@@ -1,0 +1,25 @@
+﻿@model IList<com.Bynonco.LIMS.Model.Article>
+    @using com.Bynonco.LIMS.Utility;
+    @{
+        var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+        var subTitleLength = ViewData["SubTitleLength"] == null ? 40 : Int32.Parse(ViewData["SubTitleLength"].ToString());
+    }
+    <ul class="news-list">
+        @if (ViewData["IsNeedLoginHomeActiceView"] != null && Convert.ToBoolean(ViewData["IsNeedLoginHomeActiceView"]))
+        {
+            <li style="line-height:180px;text-align:center;height:100%;background: none;">
+                请登录后查看
+            </li>
+        }
+        else
+        {
+            foreach (var item in Model)
+            {
+                <li>
+                    <a href='@Url.Action("Show", "Article", new { id = item.Id, ArticleCategoryId = item.ArticleCategoryId, XPath = orgXPath })' title="@item.Title">@(ShortcutStringUtility.GetSubString(item.Title, subTitleLength, ".."))</a>
+                    <span>@item.PublishAt.Value.ToString("yyyy.MM.dd")</span>
+                </li>
+            }
+        }
+    </ul>
+

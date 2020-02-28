@@ -1,0 +1,87 @@
+﻿@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = "~/Views/Shared/BJLGDXHomeLayout/000000.cshtml";
+    ViewBag.Title = "首页";
+    var orgName = ViewData["OrgName"] == null ? "" : ViewData["OrgName"].ToString();
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    IList<com.Bynonco.LIMS.Model.LabOrganization> labOrganizationList = ViewData["SubLabOrganizationList"] == null ? null : (IList<com.Bynonco.LIMS.Model.LabOrganization>)ViewData["SubLabOrganizationList"];
+}
+@section ImportCssAndJs
+{
+    <script type="text/javascript">
+        $(function () {
+            $(".tag-title").mouseover(function () {
+                $(this).siblings().removeClass("current");
+                $(this).siblings(".more").addClass("hide");
+                $(this).parent().next().find(".tag-box").addClass("hide");
+                var id = $(this).attr("id");
+                var moreId = id.replace("tag", "more");
+                var boxId = id.replace("tag", "box");
+                $(this).addClass("current");
+                $("#" + moreId).removeClass("hide");
+                $("#" + boxId).removeClass("hide");
+                return false;
+            });
+        });
+    </script>
+}
+@section FirstLineLeft
+{
+    <div class='background-box-left' style='background-position:top;'>
+    @{ViewData["SubTitleLength"] = 30;}
+    @Html.Partial("../Home/Article", ArticleCategoryHomeLocation.FirstLineLeft)
+    </div>
+}
+@section FirstLineCenter
+{
+    @{ViewData["SubTitleLength"] = 60;}
+    @Html.Partial("../Home/Article", ArticleCategoryHomeLocation.FirstLineCenter)
+}
+@section FirstLineRight
+{
+    <div class="home-login-box">
+        @Html.Partial("../Account/HomeLoginContainer")
+    </div>
+}
+
+@section SecondLineLeft
+{
+    <div class='background-box-left' style='padding-top:10px;'>
+        @Html.Partial("../Home/BJLGDXHotEquipment")
+    </div>
+}
+@section SecondLineCenter
+{
+    @{ViewData["SubTitleLength"] = 60;}
+    @Html.Partial("../Home/Article", ArticleCategoryHomeLocation.SecondLineCenter)
+}
+@section SecondLineRight
+{
+    <div class='background-box-right' style='padding-top:10px;'>
+        @{ViewData["SubTitleLength"] = 30;}
+        @Html.Partial("../Home/Article", ArticleCategoryHomeLocation.SecondLineRight)
+    </div>
+}
+
+@section ThirdLineLeft
+{
+    <div class="background-box-left" style='padding-top:10px;'>
+        @Html.Partial("../Home/FriendLink")
+    </div>
+}
+@section ThirdLineCenter
+{
+    @{ViewData["SubTitleLength"] = 60;}
+    @Html.Partial("../Home/Article", ArticleCategoryHomeLocation.ThirdLineCenter)
+}
+@section ThirdLineRight
+{
+    <div class="background-box-right" style='padding-top:10px;'>
+    @{ViewData["SubTitleLength"] = 30;}
+     @Html.Partial("../Home/Article", ArticleCategoryHomeLocation.ThirdLineRight)
+    </div>
+}
+@section FourthLineFull
+{
+    @Html.Partial("../Home/CurrentUsingEquipment")
+}

@@ -1,0 +1,72 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divUserWorkGroup" style="width:300px;height:450px;"> 
+    @(Html.JTree("ulUserWorkGroupList")
+        .SetUrl(Url.Action("GetTreeGridWorkGroupList", "WorkGroup"))
+        .SetCheckBox(true)
+        .SetExpandAll(true)
+        .ToMvcString()
+    )
+    @Html.Hidden("UserId")
+
+    <script type="text/javascript">
+        function doUserWorkGroupReset() {
+            $('#ulUserWorkGroupList').tree('reload');
+            return true;
+        }
+
+        function doSetUserWorkGroup(id) {
+            if (id != null && id.trim() != "") {
+                $("#UserId").val(id);
+                $.ajax({
+                    url: '@Url.Action("GetWorkGroupByUserId","User")',
+                    data: "id=" + id,
+                    cache: false,
+                    success: function (data) {
+                        var array = data.split(','); 
+                        for (var i = 0; i < array.length; i++) {
+                            var node = $('#ulUserWorkGroupList').tree('find', array[i]);
+                            if (node) {
+                                if ($('#ulUserWorkGroupList').tree('isLeaf', node.target))
+                                    $('#ulUserWorkGroupList').tree('check', node.target);
+                            }
+                        }
+                    }
+                });
+            }
+            else {
+                $("#UserId").val("");
+            }
+            return true;
+        }
+
+        function doUserWorkGroupSave() {
+            var ids = '';
+            var nodesCheck = $('#ulUserWorkGroupList').tree('getChecked');
+            for (var i = 0; i < nodesCheck.length; i++) {
+                if (!nodesCheck[i].id.isDefaultGuid()) {
+                    if (ids != '') ids += ',';
+                    ids += nodesCheck[i].id;
+                }
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveUserWorkGroup","User")',
+                data: "ids=" + ids + "&UserId=" + $("#UserId").val() + "&date=" + new Date(),
+                success: function (msg) {
+                    try{
+                        if(userWorkGroupDialog)
+                            userWorkGroupDialog.dialog('close');
+                    }
+                    catch(e){}
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    else
+                        $.messager.show({ title: '提示', msg: "保存成功", showType: 'show' });
+                }
+            });
+            return false;
+        }
+    </script>
+</div>

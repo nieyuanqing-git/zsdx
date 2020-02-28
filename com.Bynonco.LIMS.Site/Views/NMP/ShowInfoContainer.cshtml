@@ -1,0 +1,11 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+<div class="info-pannel">
+    @Html.Hidden("Id", Model == null ? "" : Model.Id.ToString())
+    @Html.Partial("../NMP/ShowTopInfo")
+    @Html.Partial("../NMP/ShowDetailTag")
+</div>
+@Html.Partial("../NMP/ScriptContainer")  
+@Html.Partial("../NMP/PaginationListScripts")
+
+

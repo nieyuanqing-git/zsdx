@@ -1,0 +1,191 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../Camera/Search")
+    </div>
+</div>
+<div class="x-panel-grid hide"  style='width:450px;'>
+    <div class="search-inner-box">
+        @Html.Partial("../Camera/Help_AEBELL")
+    </div>
+</div>
+<div class="layout-center-left">
+    @Html.Partial("../LabOrganizationAdmin/List")
+</div>
+<div class="layout-center-right">
+    @Html.Partial("../Camera/List")
+</div>
+<div class="clear-both"></div>
+
+<div id="divCameraDialog" style="display:none;"></div>
+<div id="divCameraPlayDialog" style="display:none;"></div>
+<div id="divCameraVideoRecordDialog" style="display:none;"></div>
+<div id="divCameraHelpDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch(xpath) {
+        if(!xpath || xpath.trim()==""){
+           var selectedLabOrganizationAdmin = $("#tbLabOrganizationAdminList").treegrid("getSelected");
+           if(!selectedLabOrganizationAdmin || selectedLabOrganizationAdmin.Id=="" || selectedLabOrganizationAdmin.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择组织机构操作", showType: 'show' });
+              return false;
+           }
+           xpath = selectedLabOrganizationAdmin.XPath;
+       }
+       var queryExpression = generateQueryExpress();
+       queryExpression  += (queryExpression == "" ? "" : "*") + "RoomXPath→\"" + xpath  + "\"";
+       $("#tbCameraList").datagrid('loadData', { total: 0, rows: [] });
+       $("#tbCameraList").datagrid("load", { "queryExpression": queryExpression});
+    }
+    function doOnLabOrganizationAdminSelected(rowData){
+        doSearch(rowData.XPath);
+    }
+    var cameraDialog;
+    function doCameraDialog() {
+        if (cameraDialog) {
+            cameraDialog.dialog("destroy");
+        }
+        cameraDialog =  @Html.JDialog("divCameraEdit").SetTitle("摄像头信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("cameraDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveCamera();").SetOnClose("cameraDialog.dialog('destroy');return false;").ToMvcString();
+    }
+    function doAddOrEditCamera(id){
+        var url = '@Url.Action("Edit","Camera")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divCameraDialog").load(url,function(){
+            $.messager.progress('close');
+            doCameraDialog();
+        })
+        return false;
+    }
+    function doAddCamera() {
+       doAddOrEditCamera('');
+    }
+    function doEditCamera(id) {
+       if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg:"请选择摄像头", showType: 'show' });
+            return false;
+       }
+       doAddOrEditCamera(id);
+    }
+    function doSaveCamera(){
+        if ($("#Name").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入摄像头名称", showType: 'show' });
+            return false;
+        }
+        if ($("#IP").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入摄像头IP", showType: 'show' });
+            return false;
+        }
+        if ($("#Port").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入摄像头端口", showType: 'show' });
+            return false;
+        }
+        if ($("#SN").val().trim() == "") {
+            $.messager.show({ title: '提示', msg:"请输入机身编码", showType: 'show' });
+            return false;
+        }
+        if ($("#RoomId").combotree("getValue").trim() == "" ) {
+            $.messager.show({ title: '提示', msg:"请输入所在房间", showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","Camera")' +  "?date=" + new Date().getMilliseconds(),
+            data: $("#frmCameraEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                    return false;
+                }
+                cameraDialog.dialog('close');
+                doSearch();
+            }
+        });
+   }
+   function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbCameraList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+   function doDeleteCamera(ids){
+        var delIds = ids == null || ids.trim() == "" ? generateSelectedIds().toString(): ids;
+        if (delIds == null || delIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的的摄像头", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("Delete", "Camera")'+ "?date=" + new Date().getMilliseconds(),
+                data: { "ids": delIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+    function doCameraPlay(ids){
+        var playIds = ids == null || ids.trim() == "" ? generateSelectedIds().toString(): ids;
+        if (playIds == null || playIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要监控的摄像头", showType: 'show' });
+            return false;
+        }
+        var screenWidth =window.screen.width ;
+        var url = '@Url.Action("PlayContainer", "Camera")'+ "?ids=" + playIds + "&ScreenWidth=" + screenWidth + "&date=" + new Date().getMilliseconds();
+        window.open(url,'_blank');
+        return false;
+    }
+
+    var cameraVideoRecordDialog;
+    function doCameraVideoRecordDialog() {
+        if (cameraVideoRecordDialog) {
+            cameraVideoRecordDialog.dialog("destroy");
+        }
+        cameraVideoRecordDialog =  @Html.JDialog("divVideoRecordManage").SetTitle("监控记录信息").SetIconCls("icon-note").SetAutoDialog(false).SetCancelScript("cameraVideoRecordDialog.dialog('close');return false;").SetModal(true).SetShowOkButton(false).SetOnClose("cameraVideoRecordDialog.dialog('destroy');return false;").ToMvcString();
+    }
+    function doCameraVideoRecord(id){
+        if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg:"请选择摄像头", showType: 'show' });
+            return false;
+       }
+        var url = '@Url.Action("VideoRecordManage","Camera")'+ "?CameraId=" + id + "&IsPopDialog=true&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divCameraVideoRecordDialog").load(url,function(){
+            $.messager.progress('close');
+            doCameraVideoRecordDialog();
+        })
+        return false;
+    }
+
+    var viewCameraHelpDialog;
+    function doViewCameraHelpDialog() {
+        if (viewCameraHelpDialog) {
+            viewCameraHelpDialog.dialog("destroy");
+        }
+        viewCameraHelpDialog = @Html.JDialog("divCameraHelp").SetTitle("美电贝尔网络客户端说明").SetIconCls("icon-help").SetAutoDialog(false).SetShowOkButton(false).SetCancelScript("viewCameraHelpDialog.dialog('destroy');return false;").SetModal(true).ToMvcString();
+    }
+    function doViewCameraHelp(){
+         var url = '@Url.Action("Help","Camera")';
+        $("#divCameraHelpDialog").load(url,function(){
+            doViewCameraHelpDialog();
+        })
+        return false;
+    }
+</script>
+ 

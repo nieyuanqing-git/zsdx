@@ -1,0 +1,20 @@
+﻿@model com.Bynonco.LIMS.Model.User
+@{
+    Layout = ViewBag.Layout;
+}
+@Html.Hidden("SelectEquipmentMode", ViewData["SelectEquipmentMode"].ToString())
+ <div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../UserEquipment/Search")
+    </div>
+</div>
+<div class="x-panel-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../UserEquipment/Add")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../UserEquipment/List")
+    @Html.Partial("../UserEquipment/ScriptContainer")
+</div>
+@Html.Partial("../Equipment/SelectEquipmentNoPagingContainer")

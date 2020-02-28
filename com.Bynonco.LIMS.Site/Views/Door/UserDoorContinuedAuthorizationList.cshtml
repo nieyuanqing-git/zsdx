@@ -1,0 +1,41 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var doorPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDoorPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbUserDoorContinuedAuthorizationList")
+        .SetUrl(Url.Action("GetGridViewUserDoorContinuedAuthorizationList", "Door", new { DoorId = ViewData["DoorId"] == null ? "" : ViewData["DoorId"].ToString(), UserId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString() }))
+        .SetMutiSelect(true)
+        .SetSingleSelect(false)
+        .SetHeight(550)
+        .SetPageSize(15)
+        .SetShowPrintButton(false)
+        .SetShowRefreshButton(false);
+    dataGrid.SetShowAddButton(false);
+    dataGrid.SetShowEditButton(false);
+    if (doorPrivilige.IsEnableContinuedAuthorizationEdit)
+    {
+        dataGrid.SetAddScript("doAddUserDoorContinuedAuthorization('');");
+    }
+    dataGrid.SetShowDeleteButton(false);
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("门禁名称", "DoorName").SetWidth(100).SetAlign(Align.left));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("用户名称", "UserName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("卡号", "CardStr").SetWidth(100).SetAlign(Align.center));
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("导师", "TutorName").SetWidth(70).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("时间", "TimeStr").SetWidth(100).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("星期", "WeekStr").SetWidth(100).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("月份", "MonthStr").SetWidth(150).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("年份", "YearStr").SetWidth(90).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("授权人", "AuthorizerName").SetWidth(70).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("授权时间", "AuthorizationTimeStr").SetWidth(110).SetAlign(Align.center).SetSortable(false));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "AuthorizationNote").SetWidth(300).SetAlign(Align.left).SetSortable(false));
+    dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchYPanel();", IconCls = "icon-search", Id = "btnGridSearchYPanel", Text = "搜索" });
+    if (doorPrivilige.IsEnableContinuedAuthorizationEdit)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doAddUserDoorContinuedAuthorization('');", IconCls = "icon-add", Id = "btnAddUserDoorAuthorization", Text = "新增" });
+    }
+    if (doorPrivilige.IsEnableContinuedAuthorizationDelete)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doDeleteUserDoorContinuedAuthorization();", IconCls = "icon-cancel", Id = "btnDeleteUserDoorAuthorization", Text = "删除" });
+    }
+ }
+@(dataGrid.ToMvcString())

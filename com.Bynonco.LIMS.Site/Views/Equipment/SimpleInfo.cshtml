@@ -1,0 +1,77 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipment
+@using com.Bynonco.LIMS.Utility;
+<div id="divEquipmentSimpleInfo" style="width:620px;height:450px;overflow-x:hidden;overflow-y:auto">
+    <table class="edit-table" style="width:100%; height:100%">
+        <tr>
+            <th>仪器名称</th>
+            <td>
+                 <span id="EquipmentName">@Model.Name</span>
+            </td>
+        </tr>
+            <tr>
+            <th>仪器型号</th>
+            <td>
+                <span id="EquipmentDepartmentNumber">@Model.Model</span>
+            </td>
+        </tr>
+        <tr>
+            <th>所属单位</th>
+            <td>
+                <span>@Model.OrgName</span>
+            </td>
+        </tr>
+        <tr>
+            <th>放置地点</th>
+            <td>
+                 <span>@Model.LabRoomName</span>
+            </td>
+        </tr>
+        <tr>
+            <th>管理人员</th>
+            <td>
+                <span id="EquipmentAdminName">
+                    @(Model.Equipment.Directors == null ? "" : string.Join(",", Model.Equipment.Directors.Select(p=>p.User.UserName)))
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th>联系电话</th>
+            <td>
+                <span id="EquipmentAdminLinkTelNo">@Model.LinkTelNo</span>
+            </td>
+        </tr>
+        <tr>
+            <th>仪器规格</th>
+            <td>
+                <span id="EquipmentSpecification">
+                    @Model.Specifications
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th>技术指标</th>
+            <td>
+                <span id="EquipmentQualification">
+                    @Model.Qualification
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th>适用范围</th>
+            <td>
+                <span id="EquipmentScopeOfApplication">
+                    @Model.ScopeOfApplication 
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th >仪器描述</th>
+            <td>
+                <span id="EquipmentDescription">
+                    @Model.DesOptions
+                </span>
+            </td>
+        </tr>
+        
+    </table>
+</div>

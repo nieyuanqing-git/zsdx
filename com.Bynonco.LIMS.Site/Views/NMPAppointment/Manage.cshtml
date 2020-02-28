@@ -1,0 +1,116 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="z-panel-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../NMPAppointment/ExportDetailFilter")
+    </div>
+</div>
+ <div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../NMPAppointment/AppointmentStatisticSearch")
+    </div>
+</div>
+<div>@Html.Partial("../NMPAppointment/AppointmentStatistics")</div>
+<div style="clear:both"></div>
+<div>@Html.Partial("../NMPAppointment/AppointmentStatisticList")</div>
+<div id="divNMPAppointmentSearchDialog" style="display:none"></div>
+<div id="divAddNMPAppointmentDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doAppointmentStatisticsSearch(){
+        var newQueryExpression = generateAppointmentStatisticsQueryExpression();
+        $("#tbNMPAppointmentTotalList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbNMPAppointmentTotalList").datagrid("load", { "queryExpression": newQueryExpression.trim() });
+    }
+    function doSearchAppointmentByTotalType(nmpEquipmentId, totalType) {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divNMPAppointmentSearchDialog").load('@Url.Action("AppointmentSearchContainer", "NMPAppointment")', { "nmpEquipmentId":nmpEquipmentId,"totalType": totalType }, function () {
+            $.messager.progress('close');
+            doShowAppointmentSearchDialog();
+        });
+    }
+    var addNMPAppointmentDialog;
+    function doAddNMPAppointment() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divAddNMPAppointmentDialog").load('@Url.Action("AddAppointment","NMPAppointment")', function () {
+            if (addNMPAppointmentDialog) {
+                addNMPAppointmentDialog.dialog("destroy");
+            }
+            $.messager.progress('close');
+            addNMPAppointmentDialog = @Html.JDialog("divAddNMPAppointment").SetTitle("新增工位预约").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("addNMPAppointmentDialog.dialog('close');return false;").SetModal(true).SetOkScript("doRedirectToAppointment();return false;").ToMvcString();
+        });
+    }
+    function doExportExcelTotal() {
+        var newQueryExpression = generateAppointmentStatisticsQueryExpression();
+        var url = '@Url.Action("ExportExcelTotal", "NMPAppointment")' + "?queryExpression=" + newQueryExpression.trim() + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+
+    function doShowExportDetailFilter() {
+        var jqObj = $("#btnExportExcelDetail");
+        var offset = jqObj.offset();
+        var right = offset.left + jqObj.width();
+        var down = offset.top + jqObj.height();
+        $(".z-panel-grid").removeClass("hide");
+        if (jqObj.parents(".dialog-content").length > 0) {
+            $(".z-panel-grid").css("left", "10px");
+            $(".z-panel-grid").css("top", "55px");
+        }
+        else {
+            $(".z-panel-grid").css("left", offset.left);
+            $(".z-panel-grid").css("top", down);
+        }
+    }
+    function doCloseExport() {
+        $(".z-panel-grid").addClass("hide");
+        return false;
+    }
+    function doExportExcelDetail() {
+        var queryUrl = "";
+        var beginTimeStart = $("#ExportBeginTimeStart").datebox("getValue").trim();
+        if (beginTimeStart != "") {
+            queryUrl += (queryUrl == "" ? "?" : "&") + "BeginTimeStart=" + beginTimeStart;
+        }
+        var beginTimeEnd = $("#ExportBeginTimeEnd").datebox("getValue").trim();
+        if (beginTimeEnd != "") {
+            queryUrl += (queryUrl == "" ? "?" : "&") + "BeginTimeEnd=" + beginTimeEnd;
+        }
+        var appointmentStatusList = [];
+        var appointmentStatusSelects = $("#ExportAppointmentStatus").combobox("getValues");
+        if (appointmentStatusSelects && appointmentStatusSelects.length > 0) {
+            for (var i = 0; i < appointmentStatusSelects.length; i++) {
+                appointmentStatusList.push(appointmentStatusSelects[i]);
+            }
+        }
+        if (appointmentStatusList != null) {
+            queryUrl += (queryUrl == "" ? "?" : "&") + "StatusList=" + appointmentStatusList;
+        }
+        var exportType = $("#ExportType").combobox("getValue").trim();
+        if (exportType != "") {
+            queryUrl += (queryUrl == "" ? "?" : "&") + "ExportType=" + exportType;
+        }
+        var nmpEquipmentIdList = generateSelectedNMPEquipmentIds();
+        if(nmpEquipmentIdList == null || nmpEquipmentIdList == "")
+        {
+            $.messager.show({ title: '提示', msg: "请选择要导出的工位设备", showType: 'show' });
+            return false;
+        }
+        else{
+            queryUrl += (queryUrl == "" ? "?" : "&") + "NMPEquipmentIdList=" + nmpEquipmentIdList;
+        }
+        var url = '@Url.Action("ExportExcelDetail","NMPAppointment")' + queryUrl;
+        window.open(url, '_blank');
+    }
+
+    function generateSelectedNMPEquipmentIds() {
+        var ids = [];
+        var rows = $("#tbNMPAppointmentTotalList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].NMPEquipmentId);
+            }
+        }
+        return ids;
+    }
+</script>

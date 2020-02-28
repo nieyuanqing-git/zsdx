@@ -1,0 +1,238 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+<div class="layout-center-full">
+    @Html.Partial("../WorkGroup/List")
+</div>
+<div id="divViewWorkGropDialog" style="display:none;"></div>
+<div id="divWorkGroupDialog" style="display:none"></div>
+<div id="divWorkGroupPowerDialog" style="display:none"></div>
+<div id="divWorkGroupHelpDialog" style="display:none"></div>
+<div id="divWorkGroupUserListDialog" style="display:none"></div>
+
+<script type="text/javascript">
+    function doSearch() {
+        $("#tbWorkGroupList").datagrid("reload");
+    }  
+    var viewWorkGroupDialog;
+    function doViewWorkGroupDialog() {
+        if (viewWorkGroupDialog) {
+            viewWorkGroupDialog.dialog("destroy");
+        }
+        viewWorkGroupDialog = @Html.JDialog("divWorkGroupView").SetTitle("查看工作组信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("viewWorkGroupDialog.dialog('close');return false;").SetModal(true).ToMvcString();
+    }
+
+    function doViewWorkGroupUserList()
+    {
+        var selectedWorkGroups = $("#tbWorkGroupList").datagrid("getSelections");
+            if(!selectedWorkGroups || selectedWorkGroups.length==0){
+                $.messager.alert('提示', '请选择要查看的项', 'warning');
+                return;
+            }
+            id = selectedWorkGroups[0].Id;
+            $("#divWorkGroupUserListDialog").datagrid('loadData', { total: 0, rows: [] });
+            $("#divWorkGroupUserListDialog").load('@Url.Action("WorkGroupUserList", "WorkGroup")', { "WorkGroupId": id}, function () {
+                doShowWorkGroupUserListDialog();
+            });
+    }
+    
+    var workGroupUserListDialog;
+    function doShowWorkGroupUserListDialog()
+    {
+         if (workGroupUserListDialog) {
+            workGroupUserListDialog.dialog("destroy");
+        }
+        workGroupUserListDialog = @(Html.JDialog("GetViewWorkGroupUserList").SetTitle("查看成员").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("workGroupUserListDialog.dialog('close');return false;").SetModal(true).SetOkScript("workGroupUserListDialog.dialog('close');return false;").SetTitle("查看成员").SetIconCls("icon-save").SetAutoDialog(false).ToMvcString());
+        $("div.panel-title").text("查看成员");
+    }
+
+    function doViewWorkGroup(){
+        var selectedWorkGroups = $("#tbWorkGroupList").datagrid("getSelections");
+        if(!selectedWorkGroups || selectedWorkGroups.length==0){
+            $.messager.alert('提示', '请选择要查看的项', 'warning');
+            return;
+        }
+        var id = selectedWorkGroups[0].Id;
+        var url = '@Url.Action("ViewWorkGroup","WorkGroup")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divViewWorkGropDialog").load(url,function(){
+            doViewWorkGroupDialog();
+            setWorkGroupPowerById(id);
+        })
+        return false;
+    }
+
+    function setWorkGroupPowerById (id) {
+        if (id != "") {
+            $('#ulViewWorkGroupModuleList').tree({
+                checkbox: false,
+                url: '@Url.Action("GetTreeGridWorkGroupPowerByGroupId", "WorkGroup")' + "?Id=" + id
+            });
+            $('#ulViewWorkGroupModuleList').tree('expandAll');
+            return true;
+        }
+    }
+    //----------------------- 工作组编辑 ----------------------//
+    var workGroupDialog;
+    function doWorkGroupDialog() {
+        if (workGroupDialog) {
+            workGroupDialog.dialog("destroy");
+        }
+        workGroupDialog =  @Html.JDialog("divWorkGroupEdit").SetTitle("工作组信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("workGroupDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSaveWorkGroup();").ToMvcString();
+    }
+    function doAddOrEditWorkGroup(id){
+        var url = '@Url.Action("Edit","WorkGroup")'+ "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divWorkGroupDialog").load(url,function(){
+            doWorkGroupDialog();
+        })
+        return false;
+    }
+    function doAddWorkGroup(id) {
+       doAddOrEditWorkGroup(id);
+    }
+    function doEditWorkGroup(id) {
+       if(!id || id.trim()==""){
+           var selectedWorkGroup = $("#tbWorkGroupList").datagrid("getSelected");
+           if(!selectedWorkGroup || selectedWorkGroup.Id=="" || selectedWorkGroup.Id.isDefaultGuid()) {
+              $.messager.alert('提示', '请选择工作组', 'warning');
+              return false;
+           }
+           id = selectedWorkGroup.Id;
+       }
+       doAddOrEditWorkGroup(id);
+    }
+    function doSaveWorkGroup() {
+        if ($("#Name").val().trim() == "") {
+            $.messager.alert('提示', '请输入名称', 'warning');
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save", "WorkGroup")',
+            data: $("#frmWorkGroupEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.alert('提示', msg, 'warning');
+                    return false;
+                }
+                workGroupDialog.dialog('close');
+                doSearch();
+            }
+        });
+        return false;
+    }
+    function doDeleteWorkGroup(id) {
+        if (id == null || id.trim() == "") {
+            var selectedWorkGroups = $("#tbWorkGroupList").datagrid("getSelections");
+            if(!selectedWorkGroups || selectedWorkGroups.length==0){
+                $.messager.alert('提示', '请选择要删除的项', 'warning');
+                return;
+            }
+            id = selectedWorkGroups[0].Id;
+        }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","WorkGroup")',
+                data: "id=" + id + "&date=" + new Date().getMilliseconds(),
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.alert('提示', msg, 'warning');
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+    //----------------------- End 工作组编辑 ----------------------//
+    //----------------------- 权限 ----------------------//
+    var powerDialog;
+    function doPowerDialog() {
+        if (powerDialog) {
+            powerDialog.dialog("destroy");
+        }
+        powerDialog =  @Html.JDialog("divPower").SetTitle("权限管理").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("powerDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSavePower();").ToMvcString();
+    }
+    function doSetPower(id) {
+        if(!id || id.trim()==""){
+            var selectedWorkGroups = $("#tbWorkGroupList").datagrid("getSelections");
+            if(!selectedWorkGroups || selectedWorkGroups.length==0){
+                $.messager.alert('提示', '请选择要设置权限的项', 'warning');
+                return;
+            }
+            id = selectedWorkGroups[0].Id;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("Power","WorkGroup")'+ "?WorkGroupId=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divWorkGroupPowerDialog").load(url,function(){
+            doPowerDialog();
+            $.messager.progress('close');
+        });
+        return false;
+    }
+   
+    function doSavePower(){
+        var ids = '';
+        $("#ulPowerList").find('.nodecheck.tree-checkbox2').each(function () {
+            var id = $(this).attr("id").replace("chk","");
+            var isNoRuleLimit = $(this).parent().children(".IsNoRuleLimit.tree-checkbox1").length > 0 ? 1 : 0;
+            var isUserOrgLimit = $(this).parent().children(".IsUserOrgLimit.tree-checkbox1").length > 0 ? 1 : 0;
+            var isEquipmentOrgLimit = $(this).parent().children(".IsEquipmentOrgLimit.tree-checkbox1").length > 0 ? 1 : 0;
+            var isNMPOrgLimit = $(this).parent().children(".IsNMPOrgLimit.tree-checkbox1").length > 0 ? 1 : 0;
+            if (!id.isDefaultGuid()) {
+                if (ids != '') ids += ',';
+                ids += id + "∽" + isNoRuleLimit + "∽" + isUserOrgLimit + "∽" + isEquipmentOrgLimit + "∽" + isNMPOrgLimit;
+            }
+        });
+        $("#ulPowerList").find('.nodecheck.tree-checkbox1').each(function () {
+           var id = $(this).attr("id").replace("chk","");
+            var isNoRuleLimit = $(this).parent().children(".IsNoRuleLimit.tree-checkbox1").length > 0 ? 1 : 0;
+            var isUserOrgLimit = $(this).parent().children(".IsUserOrgLimit.tree-checkbox1").length > 0 ? 1 : 0;
+            var isEquipmentOrgLimit = $(this).parent().children(".IsEquipmentOrgLimit.tree-checkbox1").length > 0 ? 1 : 0;
+            var isNMPOrgLimit = $(this).parent().children(".IsNMPOrgLimit.tree-checkbox1").length > 0 ? 1 : 0;
+            if (!id.isDefaultGuid()) {
+                if (ids != '') ids += ',';
+                ids += id + "∽" + isNoRuleLimit + "∽" + isUserOrgLimit + "∽" + isEquipmentOrgLimit + "∽" + isNMPOrgLimit;
+            }
+        });
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("SaveWorkGroupPower","WorkGroup")',
+            data: "ids=" + ids + "&WorkGroupId=" + $("#WorkGroupId").val() + "&date=" + new Date(),
+            success: function (msg) {
+                $.messager.progress('close');
+                powerDialog.dialog('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '警告', msg: msg, showType: 'show' });
+                    return false;
+                }
+                $.messager.show({ title: '警告', msg: "权限设置成功", showType: 'show' });
+            }
+        });
+        return false;
+   } 
+    //----------------------- End 权限 ----------------------//
+
+    var viewWorkGroupHelpDialog;
+    function doViewWorkGroupHelpDialog() {
+        if (viewWorkGroupHelpDialog) {
+            viewWorkGroupHelpDialog.dialog("destroy");
+        }
+        viewWorkGroupHelpDialog = @Html.JDialog("divWorkGroupHelp").SetTitle("权限帮助说明").SetIconCls("icon-help").SetAutoDialog(false).SetShowOkButton(false).SetCancelScript("viewWorkGroupHelpDialog.dialog('destroy');return false;").SetModal(true).ToMvcString();
+    }
+    function doViewWorkGroupHelp(){
+         var url = '@Url.Action("Help","WorkGroup")';
+        $("#divWorkGroupHelpDialog").load(url,function(){
+            doViewWorkGroupHelpDialog();
+        })
+        return false;
+    }
+</script>

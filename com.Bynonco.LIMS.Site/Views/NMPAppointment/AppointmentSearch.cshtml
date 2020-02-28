@@ -1,0 +1,89 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.IBLL;
+@using com.Bynonco.LIMS.BLL;
+<script type="text/javascript">
+    function generateAppointmentTotalQueryExpression() {
+        var queryExpression = "";
+        var nmpEquipmentName = $("#SearchNMPEquipmentName").val().trim();
+        if (nmpEquipmentName != "") {
+            queryExpression = "NMPEquipmentName∽\"" + nmpEquipmentName + "\"";
+        }
+        var nmpName = $("#SearchNMPName").val().trim();
+        if (nmpName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "NMPName∽\"" + nmpName + "\"";
+        }
+        var labRoomXPath = $("#SearchLabRoomXPath").val().trim();
+        if (labRoomXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "NMPRoomXPath→\"" + labRoomXPath + "\"";
+        }
+        var userName = $("#SearchUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "UserName∽\"" + userName + "\"";
+        }
+        var appointmentBeginTime = $("#SearchAppointmentBeginTime").datebox("getValue").trim();
+        if (appointmentBeginTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "BeginTime>\"" + appointmentBeginTime + " 00:00:00" + "\"";
+        }
+        var appointmentEndTime = $("#SearchAppointmentEndTime").datebox("getValue").trim();
+        if (appointmentEndTime != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EndTime<\"" + appointmentEndTime + " 23:59:59" + "\"";
+        }
+        return queryExpression;
+    }
+    function getAppointmentSearchLabRoomXPath(element) {
+        $("#SearchLabRoomXPath").val("");
+        var labRoomId = element.value;
+        if (labRoomId != "" && !labRoomId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById", "LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: labRoomId }, function (data) {
+                if (data && data != "")
+                    $("#SearchLabRoomXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    function doResetPopSearch() {
+        $("#SearchNMPEquipmentName").val("");
+        $("#SearchNMPName").val("");
+        $("#SearchLabRoomId").val("@Guid.Empty.ToString()");
+        $("#SearchLabRoomXPath").val("");
+        $("#SearchUserName").val("");
+        $("#SearchAppointmentBeginTime").datebox("setValue", "");
+        $("#SearchAppointmentEndTime").datebox("setValue", "");
+        return false;
+    }
+</script>
+    <ul class="search">
+        <li>
+            <label>工位名称</label>
+            @Html.JValidateBox("SearchNMPName").SetWidth(150).ToMvcString()
+        </li>
+        <li>
+            <label>设备名称</label>
+            @Html.JValidateBox("SearchNMPEquipmentName").SetWidth(150).ToMvcString()
+        </li>
+         <li>
+            <label>放置地点</label>
+            @Html.DropDownList("SearchLabRoomId", (IEnumerable<SelectListItem>)ViewData["SearchLabRoomSelectListItem"], new { style = "width:155px;", onchange = "getAppointmentSearchLabRoomXPath(this);" })
+            @Html.Hidden("SearchLabRoomXPath")
+        </li>
+        <li>
+            <label>使用者</label>
+            @Html.JValidateBox("SearchUserName").SetWidth(150).ToMvcString()
+        </li>
+        <li>
+            <label>开始时间</label>
+            @Html.JDateTimePicker("SearchAppointmentBeginTime").SetWidth(155).ToMvcString()
+        </li>
+        <li>
+            <label>结束时间</label>
+            @Html.JDateTimePicker("SearchAppointmentEndTime").SetWidth(155).ToMvcString()
+        </li>
+        <li class="button">
+            @Html.JLinkButton("btnNMPAppointmentTotalSearch", "查询").SetOnclick("doNMPAppointmentSearch();doClosePopSearch();").ToMvcString()
+            @Html.JLinkButton("btnNMPAppointmentTotalReset", "清空").SetOnclick("doResetPopSearch();").ToMvcString()
+            @Html.JLinkButton("btnNMPAppointmentTotalClose", "关闭").SetOnclick("doClosePopSearch();").ToMvcString()
+            <div class="clear-both"></div>
+        </li>
+        <div class="clear-both"></div>
+    </ul>
+<div class="clear-both"></div>

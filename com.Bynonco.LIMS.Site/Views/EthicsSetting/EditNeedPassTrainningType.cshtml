@@ -1,0 +1,21 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<div id="divEditNeedPassTrainningType">
+    <table class="edit-table">
+        <tr>
+            <th> <span class="required">*</span>考试类型</th>
+            <td id="tdTrainningTypeId">
+                @(Html.TokenInput("TrainningTypeId")
+                .SetUrl(Url.Action("GetTrainningTypeByKeyWord", "TrainningType"))
+                .SetPrePopulate(ViewData["TrainningTypeJson"] == null ? null : ViewData["TrainningTypeJson"].ToString())
+                .SetSingle(true)
+                .ToMvcString())
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#tdTrainningTypeId ul.token-input-list-facebook").css("width", "302px");
+        $("#tdTrainningTypeId ul.token-input-list-facebook").css("width", "302px");
+    });
+</script>

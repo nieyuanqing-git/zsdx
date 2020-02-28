@@ -1,0 +1,128 @@
+﻿@model com.Bynonco.LIMS.Model.MaterialInput
+@using com.Bynonco.LIMS.Model.View; 
+@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    var materialInputItemList = ViewData["ViewMaterialInputItemList"] == null ? null : (List<ViewMaterialInputItem>)ViewData["ViewMaterialInputItemList"];
+    var materialPurchaseId = ViewData["MaterialPurchaseId"] == null ? "" : ViewData["MaterialPurchaseId"].ToString();
+    materialPurchaseId = Model == null || !Model.MaterialPurchaseId.HasValue ? materialPurchaseId : Model.MaterialPurchaseId.Value.ToString();
+}
+<div id="divMaterialInputEdit">
+ <form id="frmMaterialInputEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    @Html.Hidden("MaterialPurchaseId", materialPurchaseId)
+    <table id="tdMaterialInputEdit" class="edit-table"  style="width:730px;height:auto">
+        <tr>
+            <th><span class="required">* </span>进库单号</th>
+            <td>
+                @Html.JValidateBox("InputNum").SetValue(Model == null ? DateTime.Now.ToString("yyyyMMddHHmmssfff") : Model.InputNum).SetWidth(200).ToMvcString()
+            </td>
+            <th>采购单号</th>
+            <td>
+            @(Model == null || string.IsNullOrWhiteSpace(Model.PurchaseNum) ? ViewData["PurchaseNum"] == null ? "(非采购入库)" : ViewData["PurchaseNum"].ToString() : Model.PurchaseNum)
+            @if (materialPurchaseId != "")
+            {
+                @Html.JLinkButton("btnViewMaterialPurchaseInfo" + materialPurchaseId, "").SetIconCls("icon-search").SetPlain(true).SetOnclick("doViewMaterialPurchaseInfo('" + materialPurchaseId + "');return false;").ToMvcString()
+            }
+            </td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>进库人</th>
+            <td id="tdInputUser">
+                @(Html.TokenInput("InputUserId")
+                .SetUrl(Url.Action("GetUserListByKeyWord", "User"))
+                .SetPrePopulate(ViewData["InputUserJson"] == null || string.IsNullOrWhiteSpace(ViewData["InputUserJson"].ToString()) ? null : ViewData["InputUserJson"].ToString())
+                .SetSingle(true)
+                .SetWidth(200)
+                .ToMvcString())
+            </td>
+            <th><span class="required">* </span>进库时间</th>
+            <td>
+                @Html.JDateTimePicker("InputTime").SetValue(Model == null ? DateTime.Now.ToString("yyyy-MM-dd") : Model.InputTime.ToString("yyyy-MM-dd")).SetWidth(205).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>备注</th>
+            <td colspan='3'>@Html.TextArea("Remark", Model == null ? "" : Model.Remark, new { style = "width:96%;height:80px" })</td>
+        </tr>
+        <tr>
+            <th><span class="required">* </span>进库项目</th>
+            <td colspan="3">
+                <div class='@(materialPurchaseId != "" ? "hide" : "")'>
+                    @Html.JLinkButton("btnSelectMaterialInfo", "新增").SetDisabled(materialPurchaseId != "").SetIconCls("icon-add").SetPlain(true).SetOnclick("doSelectMaterialInputMaterialInfo();return false;").ToMvcString()
+                </div>
+                @Html.Hidden("MaterialInfoIds", Model == null ? (ViewData["MaterialInputItemIds"] == null ? "" : ViewData["MaterialInputItemIds"].ToString()) : Model.MaterialInputItemIds)
+                <table id="tbMaterialInputItemList" cellpadding="0" cellspacing="0" border="0" class="edit-table">
+                    <tr>
+                        <th style='width:30px;'></th>
+                        <th >名称</th>
+                        <th style='width:50px;'>单位</th>
+                        <th style='width:80px;'>库存量</th>
+                        <th style='width:80px;'>报警值</th>
+                        <th style='width:80px;' class='@(materialPurchaseId == "" ? "hide" : "")'>采购量</th>
+                        <th style='width:100px;'><span class="required">* </span>进库量</th>
+                    </tr>
+                    @if (materialInputItemList != null && materialInputItemList.Count() > 0)
+                    {
+                        foreach (var item in materialInputItemList)
+                        {
+                            @Html.Partial("../MaterialInput/ItemEdit", item)
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 
+
+
+<script type="text/javascript">
+    $(function() {
+        $("#tdInputUser ul.token-input-list-facebook").css("width", "205px");
+    });
+
+    function getSelectedMaterialInfosCallBack(selectedMaterialInfoNames, selectedMaterialInfoIds, selectedMaterialInfoJsonArray) {
+        //$("#MaterialInfoIds").val('');
+        if (selectedMaterialInfoIds != "") {
+            var selectedMaterialInfoIdsArray = selectedMaterialInfoIds.split(",");
+            var selectedMaterialInfoNamesArray = selectedMaterialInfoNames.split(",");
+            if (!selectedMaterialInfoIdsArray || selectedMaterialInfoIdsArray.length == 0 || !selectedMaterialInfoNamesArray || selectedMaterialInfoNamesArray.length == 0) return;
+            for (var i = 0; i < selectedMaterialInfoIdsArray.length && i < selectedMaterialInfoNamesArray.length; i++) {
+                var materialInfoIds = $("#MaterialInfoIds").val();
+                if (materialInfoIds.indexOf(selectedMaterialInfoIdsArray[i]) < 0) {
+                    materialInfoIds += (materialInfoIds == "" ? "" : ",") + selectedMaterialInfoIdsArray[i];
+                    $("#MaterialInfoIds").val(materialInfoIds);
+                    doAddMaterialInputItem(selectedMaterialInfoIdsArray[i]);
+                }
+            }
+        }
+    }
+
+    function doSelectMaterialInputMaterialInfo() {
+        doSelectMaterialInfoDialog('MaterialInfoIds', { "SelectMaterialInfoMode": '@((int) com.Bynonco.LIMS.Model.Enum.SelectMaterialInfoMode.ManagementMaterialInfo)' });
+        return false;
+    }
+    function doAddMaterialInputItem(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        if ($("#Id_" + materialInfoId).length > 0) return;
+        var dataMaterialInput = "";
+        if($("#Id").val() != "") dataMaterialInput = "&materialInput=" + $("#Id").val();
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("GetViewMaterialInputItem","MaterialInput")',
+            data: { "materialInfoId": materialInfoId ,"materialInputId": $("#Id").val()},
+            success: function (data) {
+                $("#tbMaterialInputItemList").append(data);
+                return false;
+            }
+        });
+        return false;
+    }
+    function doRemoveMaterialInputItem(materialInfoId) {
+        if (!materialInfoId || materialInfoId == "") return;
+        $("#tr_" + materialInfoId).remove();
+        var materialInfoIds = $("#MaterialInfoIds").val();
+        materialInfoIds = materialInfoIds.replace("," + materialInfoId, "").replace(materialInfoId + ",", "").replace(materialInfoId, ",")
+        $("#MaterialInfoIds").val(materialInfoIds);
+    }
+</script>

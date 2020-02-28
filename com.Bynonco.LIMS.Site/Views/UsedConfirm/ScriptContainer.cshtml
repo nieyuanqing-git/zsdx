@@ -1,0 +1,165 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var usedConfirmPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetUsedConfirmPrivilige(User.Identity.Name);
+    var equipmentId = ViewData["equipmentId"] == null ? "" : ViewData["equipmentId"].ToString();
+    var costDeductType = ViewData["CostDeductType"] == null ? "" : ViewData["CostDeductType"].ToString();
+    var userId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString();
+    var startAt = ViewData["StartAt"] == null ? "" : ViewData["StartAt"].ToString();
+    var endAt = ViewData["EndAt"] == null ? "" : ViewData["EndAt"].ToString(); 
+ }
+@Html.Partial("../SampleManage/SampleApplyScriptContainer")
+@Html.Partial("../UsedConfirm/UsedConfirmFeedBackScriptContainer")
+@Html.Partial("../UsedConfirm/ChangeUserScriptContianer")
+<div id="divViewUsedConfirmDetailDialog" style="display:none"></div>
+<div id="divEditUsedConfirmDialog"  style="display:none"></div>
+<div id="divUseControlSettingDialog"  style="display:none"></div>
+<style type="text/css">
+.edit-box p {
+    border-bottom: 1px dotted #A0A0A0;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 30px;
+}
+.edit-box .icon {
+    height: 16px;
+    line-height: 16px;
+    margin-right: 5px;
+    padding-bottom: 2px;
+    padding-right: 16px;
+    width: 16px;
+}
+</style>
+<script type="text/javascript">
+    var viewUsedConfirmDetailDialog;
+    function doViewUsedConfirmDetail(id, appointmentId, sampleApplyId) {
+        //使用记录
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = '@Url.Action("ViewUsedConfirmDetail","UsedConfirm")';
+        if (sampleApplyId == "") {
+            if(viewUsedConfirmDetailDialog){
+                viewUsedConfirmDetailDialog.dialog("destroy");
+            }
+            $("#divViewUsedConfirmDetailDialog").load(url, { "id": id, "time": new Date().getMilliseconds() }, function () {
+                $.messager.progress('close');
+                viewUsedConfirmDetailDialog = @(Html.JDialog("divUsedConfirmDetail").SetTitle("使用记录详细信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("viewUsedConfirmDetailDialog.dialog('close');return false;").SetModal(true).SetOkScript("viewUsedConfirmDetailDialog.dialog('close');return false;").ToMvcString());
+            });
+        }
+        else{//送样
+            url = '@Url.Action("ViewUsedConfirmDetail","UsedConfirm")';
+        }
+    } 
+    var editUsedConfirmDialog;
+    function doEditUsedConfirm(id){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        var url = (id!=""?'@Url.Action("EditUsedConfirm","UsedConfirm")':'@Url.Action("AddUsedConfirm","UsedConfirm")');
+        
+        if(editUsedConfirmDialog){
+            editUsedConfirmDialog.dialog("destroy");
+        }
+        $("#divEditUsedConfirmDialog").load(url + "?time=" + new Date().getMilliseconds(),{ "id": id}, function (data) {
+            $.messager.progress('close');
+            editUsedConfirmDialog = @(Html.JDialog("divUsedConfirmEdit")
+                                     .SetTitle("使用记录信息")
+                                     .AddButton(new ToolBarButton() { Handler = "doChargeUsedConfirm(editUsedConfirmDialog);return false;", Id = "btnChargeUsedConfirm", Text = "扣费", IconCls = "icon-yen",Disabled = !usedConfirmPrivilige.IsEnableDirectCostDeduct })
+                                     .AddButton(new ToolBarButton() { Handler = "doSaveUsedConfirm(editUsedConfirmDialog);return false;", Id = "btnSaveUsedConfirm", Text = "保存", IconCls = "icon-ok" ,Disabled = !usedConfirmPrivilige.IsEnableSaveUsedConfirm})
+                                     .SetIconCls("icon-save")
+                                     .SetAutoDialog(false)
+                                     .SetShowOkButton(false)
+                                     .SetCancelScript("editUsedConfirmDialog.dialog('close');return false;")
+                                     .SetModal(true).ToMvcString());
+           $("#divUsedConfirmEdit").parent().children(".window-header").children(".panel-title").text(id.trim() == "" ? "新增使用记录信息" : "编辑使用记录信息");
+        });
+    }
+    function doDeleteUsedConfirm(id){
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteUsedConfirm","UsedConfirm")',
+                    data:{"ids":id},
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && (msg.indexOf("出错") != -1)) {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        if (typeof (doDeleteUsedConfirmCallBack) == 'function') doDeleteUsedConfirmCallBack();
+                    }
+                });
+        });
+    }
+    function doBatchDeleteUsedConfirm(gridName){
+        var selectedUsedConfirms = $("#" + gridName).datagrid("getSelections");
+        if(!selectedUsedConfirms || selectedUsedConfirms.length == 0){
+             $.messager.show({ title: '提示', msg:"请选择要删除的项" , showType: 'show' });
+             return;
+        }
+        var length = selectedUsedConfirms.length;
+        var selectedIds = "";
+        for(var i = 0;i < length; i++){
+            selectedIds += selectedIds == "" ? selectedUsedConfirms[i].Id : "," + selectedUsedConfirms[i].Id;
+        }
+        doDeleteUsedConfirm(selectedIds);
+    }
+
+    var useControlSettingDialog;
+    function doUseControlSettingDialog() {
+        if (useControlSettingDialog) {
+            useControlSettingDialog.dialog("destroy");
+        }
+        useControlSettingDialog =  @(Html.JDialog("divUseControlSetting")
+        .SetTitle("设备使用控制")
+        .SetIconCls("icon-save")
+        .SetAutoDialog(false)
+        .SetModal(true)
+        .SetShowOkButton(false)
+        .SetShowCancelButton(false)
+        .SetOnClose("useControlSettingDialog.dialog('destroy');return false;")
+        .AddButton(new ToolBarButton() { Handler = "doSaveUseControlSetting();return false;", Id = "toolBtnSaveUseControlSetting", Text = "保存", IconCls = "icon-save",Disabled = false })
+        .AddButton(new ToolBarButton() { Handler = "useControlSettingDialog.dialog('destroy');return false;", Id = "toolBtnCloseUseControlSetting", Text = "关闭", IconCls = "icon-cancel",Disabled = false })
+        .ToMvcString());
+    }
+    function doUseControlSetting(id) {
+       if(!id || id.trim()==""){
+            $.messager.show({ title: '提示', msg:"请选择设备", showType: 'show' });
+            return false;
+       }
+       var url = '@Url.Action("UseControlSettingContrainer","Equipment")'+ "?id=" + id + "&isPop=true&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $("#divUseControlSettingDialog").load(url,function(){
+            $.messager.progress('close');
+            doUseControlSettingDialog();
+        })
+        return false;
+    }
+    function doExportUsedConfirmUseConditionList(funGenerateUnDeductUsedConfirmQueryExpression,isCostDeductUsedConfirm){
+        var newQueryExpression = funGenerateUnDeductUsedConfirmQueryExpression();
+        var url = '@Url.Action("UsedConfirmUseConditionExportExcel", "UsedConfirm")' + "?queryExpression=" + newQueryExpression.trim() + "&isCostDeductUsedConfirm=" + isCostDeductUsedConfirm + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+    function doUsedConfirmExportExcel() {    
+        var url = '@Url.Action("UsedConfirmStatisticsExportExcel","UsedConfirm")' + "?EquipmentId=" + '@equipmentId';
+        window.open(url, '_blank');
+    }
+    function doCostDeductDetailExportExcel()
+    {   
+        //var url = '@Url.Action("CostDeductDetailStatisticsExportExcel","CostDeduct")' + "?equipmentId=" + '@equipmentId'+ "&costDeductType=" + '@costDeductType'+ "&userId=" + '@userId'+ "&startAt=" + '@startAt'+ "&endAt=" + '@endAt';
+        var url = '@Url.Action("CostDeductDetailStatisticsExportExcel","CostDeduct")' + "?queryExpression=" + encodeURIComponent('@(ViewData["queryExpression"] == null ? "" : ViewData["queryExpression"].ToString().Trim())');
+        window.open(url, '_blank');
+    }
+    function doCostDeductGroupDetailExportExcel()
+    {   
+        //var url = '@Url.Action("CostDeductGroupDetailStatisticsExportExcel","Statistics")' + "?equipmentId=" + '@equipmentId'+ "&costDeductType=" + '@costDeductType'+ "&userId=" + '@userId'+ "&startAt=" + '@startAt'+ "&endAt=" + '@endAt';
+        var url = '@Url.Action("CostDeductGroupDetailStatisticsExportExcel","Statistics",new{queryExpression=(ViewData["queryExpression"] == null ? "" : ViewData["queryExpression"].ToString().Trim())})';
+        window.open(url, '_blank');
+    }
+
+    function doExpertSampleStatisticsDetail()
+    {
+        var url = '@Url.Action("ExpertSampleStatisticsDetail","Statistics")' + "?equipmentId=" + '@equipmentId'+ "&costDeductType=" + '@costDeductType'+ "&userId=" + '@userId'+ "&startAt=" + '@startAt'+ "&endAt=" + '@endAt';
+        window.open(url, '_blank');
+    }
+</script>
+
+

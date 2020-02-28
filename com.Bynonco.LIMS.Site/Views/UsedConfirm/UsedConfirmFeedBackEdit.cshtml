@@ -1,0 +1,49 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@using com.Bynonco.LIMS.Model;
+@{var entity = ViewData["ViewUsedConfirmFeedBack"] != null ? (com.Bynonco.LIMS.Model.View.ViewUsedConfirmFeedBack)ViewData["ViewUsedConfirmFeedBack"] : null;}
+<div id="divUsedConfirmFeedBack" style="overflow:hidden">
+    <form id="frmUsedConfirmFeedBackEdit">
+    @Html.Hidden("Id", entity.Id.ToString())
+    @Html.Hidden("UsedConfirmId", entity.UsedConfirmId.ToString())
+     <table class="edit-table">
+       <tr>
+            <th>设备名称</th>
+            <td>
+                @entity.EquipmentName
+            </td>
+       </tr>
+       <tr>
+            <th>使用者</th>
+            <td>
+                @entity.UserName
+            </td>
+       </tr>
+       <tr>
+           <th>使用开始时间</th>
+           <td>
+                @entity.BeginAtStr
+           </td>
+       </tr>
+       <tr>
+            <th>使用结束时间</th>
+            <td>
+                @entity.EndAtStr
+            </td>
+       </tr>
+       <tr>
+            <th>创建人</th>
+            <td>
+                @entity.CreatorName
+            </td>
+       </tr>
+       <tr>
+            <th>创建时间</th>
+            <td>
+                @entity.CreateTimeStr
+            </td>
+       </tr>
+       @Html.Partial("UsedConfirmFeedBackForm")
+    </table>
+    </form>
+</div>

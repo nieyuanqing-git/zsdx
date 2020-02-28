@@ -1,0 +1,35 @@
+﻿@using com.Bynonco.LIMS.Utility;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var friendlyLinkList = ViewData["FriendlyLink"] == null ? null : (List<com.Bynonco.LIMS.Model.DictCode>)ViewData["FriendlyLink"];
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+    object routeCurrentXPathValue = new { XPath = orgXPath };
+    var customer = CustomerFactory.GetCustomer();
+    var isMainPageChangeToMore = customer == null ? false : customer.GetIsMainPageChangeToMore();
+}
+<h2 class='title'>
+    <span>友情链接</span>
+    @if (isMainPageChangeToMore)
+    {
+       <a href="@Url.Action("FriendlyLinkList", "Home", routeCurrentXPathValue)"  class="more" >more>></a>
+    }
+    else
+    {
+        <a href="@Url.Action("FriendlyLinkList", "Home", routeCurrentXPathValue)"  class="more">更多>></a>
+    }
+</h2>
+<div class="content-box content-box-153">
+    <ul class="news-list">
+    @if (friendlyLinkList != null && friendlyLinkList.Count() > 0)
+    {
+        foreach (var item in friendlyLinkList)
+        {
+            var cutName = ShortcutStringUtility.GetSubString(item.Name, 30, "..");
+            <li><a href='@item.Value' title='@item.Name' target="_blank" >@cutName</a></li>
+        }
+    }
+    </ul>
+</div>
+
+
+

@@ -1,0 +1,85 @@
+﻿@{
+    var equipmentPrivilige = User.Identity.IsAuthenticated ? com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) : null;
+    var isHome = ViewData["IsHome"] != null && (bool)ViewData["IsHome"] ? true : false;
+    var isManage = ViewData["IsManage"] != null ? (bool)ViewData["IsManage"] : false;
+    var isUnLoadEquipmentFirst = ViewData["IsUnLoadEquipmentFirst"] == null ? false : bool.Parse(ViewData["IsUnLoadEquipmentFirst"].ToString());
+    var isHidListShowType = ViewData["HidListShowType"] != null ? (bool)ViewData["HidListShowType"] : false;
+    var isHidIpSort = ViewData["HidIpSort"] != null ? (bool)ViewData["HidIpSort"] : false;
+}
+<div class="panel-header" style='@(isHome ? "background:none;" : "")'>
+    <div class="menu-type">
+        <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnShowIcon" hidefocus="true" onclick="doShowIcon();return false;">
+            <span class="l-btn-left"><span class="l-btn-text icon-icon-menu icon-icon-menu-current" style="padding-left: 20px;">大图</span></span>
+        </a>
+        @if (!isHidListShowType)
+        {
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnShowList" hidefocus="true" onclick="doShowList();return false;">
+                <span class="l-btn-left"><span class="l-btn-text icon-list-menu" style="padding-left: 20px;">列表</span></span>
+            </a>
+        }
+        @if (!isHome && !isUnLoadEquipmentFirst)
+        {
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnGridSearch" hidefocus="true" onclick="doShowSearch();;return false;">
+                <span class="l-btn-left"><span class="l-btn-text icon-search" style="padding-left: 20px;">搜索</span></span>
+            </a>
+        }
+        @if (equipmentPrivilige != null && equipmentPrivilige.IsEnableAdd && !isHome)
+        {
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnAdd" hidefocus="true" onclick="doAddOrEditEquipment('');return false;">
+                <span class="l-btn-left"><span class="l-btn-text icon-add" style="padding-left: 20px;">新增</span></span>
+            </a>
+        }
+        @if (equipmentPrivilige != null && equipmentPrivilige.IsEnableExportExcel && !isHome)
+        {
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnExport" hidefocus="true" onclick="doExportExcel();return false;">
+                <span class="l-btn-left"><span class="l-btn-text icon-export" style="padding-left: 20px;">导出</span></span>
+            </a>
+        }
+        @*        @if (!isHome)
+            {
+                <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnIsOpen" hidefocus="true" onclick="doShowIsOpen();return false;">
+                    <span class="l-btn-left">
+                    <span class="l-btn-text icon-checked" style="padding-left: 20px;">已开放</span></span>
+                </a>
+                <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnIsManage" hidefocus="true" onclick="doShowIsManage();return false;">
+                    <span class="l-btn-left">
+                    <span class="l-btn-text icon-checked" style="padding-left: 20px;">我管理的设备</span></span>
+                </a>
+            }*@
+        @if (!isHome)
+        {
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnIsOpen" hidefocus="true" onclick="doShowIsOpen();return false;">
+                <span class="l-btn-left">
+                    <span class="l-btn-text icon-checked" style="padding-left: 20px;">已开放</span>
+                </span>
+            </a>
+            <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnIsManage" hidefocus="true" onclick="doShowIsManage();return false;">
+                <span class="l-btn-left">
+                    <span class='l-btn-text icon-checked @(!isManage ? "show-all" : "show-admin-eq")' style="padding-left: 20px;">@(isManage ? "我管理的设备" : "显示全部")</span>
+                </span>
+            </a>
+        }
+    </div>
+    <div class="sort-pannel">
+        @*<div class="sort-item datagrid-sort-asc" sortname="Name">
+                <span>使用量</span><span class="datagrid-sort-icon">&nbsp;</span>
+            </div>
+            <div class="sort-item datagrid-sort-asc" sortname="Name">
+                <span>关注度</span><span class="datagrid-sort-icon">&nbsp;</span>
+            </div>*@
+        @if (!isHidIpSort)
+        {
+            <div class="sort-item datagrid-sort-asc" sortname="IP" style='display:@(isHidIpSort?"none":"")'>
+                <span>IP地址</span><span class="datagrid-sort-icon">&nbsp;</span>
+            </div>
+        }
+        <div class="sort-item datagrid-sort-asc" sortname="Model">
+            <span>型号</span><span class="datagrid-sort-icon">&nbsp;</span>
+        </div>
+        <div class="sort-item current datagrid-sort-asc" sortname="Name">
+            <span>名称</span><span class="datagrid-sort-icon">&nbsp;</span>
+        </div>
+        <div class="clear-both"></div>
+    </div>
+    <div class="clear-both"></div>
+</div>

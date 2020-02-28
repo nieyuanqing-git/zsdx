@@ -1,0 +1,92 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+<script type="text/javascript">
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var articleCategorysQueryExpress = $("#hidArticleCategoryQueryExpress").val().trim();
+        if (articleCategorysQueryExpress != "") {
+            queryExpression = articleCategorysQueryExpress;
+        }
+        var author = $("#SearchAuthor").val().trim();
+        if (author != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "Author=\"" + author + "\"";
+        }
+        var publishAtStart = $("#SearchPublishAtStart").datebox("getValue").trim();
+        if (publishAtStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "PublishAt>\"" + publishAtStart + "\"";
+        }
+        var publishAtEnd = $("#SearchPublishAtEnd").datebox("getValue").trim();
+        if (publishAtEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "PublishAt<\"" + publishAtEnd + " 23:59:59\"";
+        }
+        var publisherName = $("#SearchPublisherName").val().trim();
+        if (publisherName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "PublisherName∽\"" + publisherName + "\"";
+        }
+        return queryExpression;
+    }
+
+    function getChildArticleCategorysId() {
+        $("#hidArticleCategoryQueryExpress").val("");
+        var articleCategoryId = $("#SearchArticleCategoryId").combotree("getValue");
+        if (articleCategoryId != "" && !articleCategoryId.isDefaultGuid()) {
+            $.post('@Url.Action("GetChildArticleCategorysIdById","ArticleCategory")', { id:articleCategoryId,date:new Date().getMilliseconds()}, function (data) {
+                if (data != "")
+                    $("#hidArticleCategoryQueryExpress").val(data);
+            });
+        }
+    }
+    function doReset() {
+        $("#SearchArticleCategoryId").combotree("setValue", "");
+        $("#SearchAuthor").val("");
+        $("#SearchPublishAtStart").datebox("setValue", "");
+        $("#SearchPublishAtEnd").datebox("setValue", "");
+        $("#SearchPublisherName").val("");
+        return false;
+    }
+</script>
+
+<ul class="search">
+    <li>
+        <label>文章分类</label>
+        @(Html.JComboTree("SearchArticleCategoryId")
+                .SetData(ViewData["ArticleCategoryJson"])
+                .SetMultiple(false)
+                .SetWidth(203)
+                .SetExpandAll(true)
+                .SetOnChange("getChildArticleCategorysId()")
+                .ToMvcString())
+       @Html.Hidden("hidArticleCategoryQueryExpress")
+    </li>
+    <li>
+        <label>作者</label>
+        @Html.JValidateBox("SearchAuthor").SetWidth(200).ToMvcString()
+    </li>
+    <li>
+        <label>发布人</label>
+        @Html.JValidateBox("SearchPublisherName").SetWidth(200).ToMvcString()
+
+    </li>
+    <li>
+        <label>发布时间</label>
+
+        @Html.JDateTimePicker("SearchPublishAtStart").SetWidth(90).ToMvcString()
+        ～
+        @Html.JDateTimePicker("SearchPublishAtEnd").SetWidth(90).ToMvcString()
+
+    </li>
+    <li class="button">
+
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>
+<script type="text/javascript">
+    $(function () {
+        $("#liUserId ul.token-input-list-facebook").css("width", "198px");
+    });
+</script>

@@ -1,0 +1,13 @@
+﻿@model com.Bynonco.LIMS.Model.LabOrganization
+@{
+    ViewData["LabOrganizationId"] = Model == null ? "" : Model.Id.ToString();       
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../UserExamination/LabOrganizationExaminationSearch")
+    </div>
+</div>
+<div class="layout-center-full">
+    @Html.Partial("../UserExamination/LabOrganizationExaminationList")
+</div>
+@Html.Partial("../UserExamination/ScriptContainer")

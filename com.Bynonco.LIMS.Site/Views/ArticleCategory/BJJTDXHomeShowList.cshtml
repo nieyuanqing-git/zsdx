@@ -1,0 +1,48 @@
+﻿@{
+    var articleCategoryList = ViewData["ArticleCategoryList"] == null ? null : (List<com.Bynonco.LIMS.Model.ArticleCategory>)ViewData["ArticleCategoryList"];
+    var articleCategoryContentList = ViewData["ArticleCategoryContentList"] == null ? null : (List<com.Bynonco.LIMS.Model.ArticleCategory>)ViewData["ArticleCategoryContentList"];
+    var currentCategoryId = ViewData["CurrentCategoryId"] == null ? Guid.Empty : new Guid(ViewData["CurrentCategoryId"].ToString());
+    var orgXPath = ViewData["OrgXPath"] == null || ViewData["OrgXPath"] == "" ? "000" : ViewData["OrgXPath"].ToString();
+}
+<h2 class="title"><span>平台介绍</span></h2>
+<div class="content-box">
+    <ul class="news-list style1-list solid-list width-210 bold-list" >
+        @if (articleCategoryContentList != null && articleCategoryContentList.Count() > 0)
+        {
+            var categoryNames = "";
+            int i = 0;
+            foreach (var item in articleCategoryContentList)
+            {
+                if (categoryNames.IndexOf(item.Name + ",") != -1) { continue; }
+                categoryNames += item.Name + ",";
+                object routeArticleCategoryValues = new { ArticleCategoryId = item.Id, XPath = orgXPath };
+                var itemLink = Url.Action("ShowByArticleCategoryId", "Article", routeArticleCategoryValues);
+                <li class="@(item.Id == currentCategoryId ? "current" : "") @(item.XPath.Length > 3 ? " child-list" : "") @(i == articleCategoryContentList.Count() - 1 ? " last" : "")">
+                    <a href="@itemLink">@item.Name</a>
+                </li>
+                i++;
+            }
+        } 
+    </ul>
+</div>
+<h2 class="title"><span>业界动态</span></h2>
+<div class="content-box">
+    <ul class="news-list style1-list solid-list width-210 bold-list" >
+        @if (articleCategoryList != null && articleCategoryList.Count() > 0)
+        {
+            var categoryNames = "";
+            int i = 0;
+            foreach (var item in articleCategoryList)
+            {
+                if (categoryNames.IndexOf(item.Name + ",") != -1) { continue; }
+                categoryNames += item.Name + ",";
+                object routeArticleCategoryValues = new { ArticleCategoryId = item.Id, XPath = orgXPath };
+                var itemLink = Url.Action("ShowList", "Article", routeArticleCategoryValues);
+                <li class="@(item.Id == currentCategoryId ? "current" : "") @(item.XPath.Length > 3 ? " child-list" : "") @(i == articleCategoryList.Count() - 1 ? " last" : "")">
+                    <a href="@itemLink">@item.Name</a>
+                </li>
+                i++;
+            }
+        } 
+    </ul>
+</div>

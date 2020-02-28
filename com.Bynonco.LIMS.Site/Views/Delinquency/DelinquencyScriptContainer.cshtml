@@ -1,0 +1,142 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{var delinquencyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetDelinquencyPrivilige(User.Identity.Name);}
+<div id="divDelinquencyConfirmDialog" style="display:none"></div>
+<div id="divPunishConfirmDialog" style="display:none"></div>
+<div id="divRepealConfirmDialog" style="display:none"></div>
+<div id="divBatchExecResultDialog" style="display:none"></div>
+<div id="divMessage" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateDelinquencyConfirmQueryExpress();
+        $("#tbDelinquencyConfirmList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbDelinquencyConfirmList").datagrid("load", { "queryExpression": queryExpression});
+        return false;
+    }
+    function doAddOrEditDelinquencyConfirm(id) {
+        var url = '@Url.Action("AddDelinquencyConfirm","Delinquency")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $("#divDelinquencyConfirmDialog").load(url, function (data) {
+            doDelinquencyConfirmDialog();
+        });
+        return false;
+    }
+    var delinquencyConfirmDialog;
+    function doDelinquencyConfirmDialog() {
+        if (delinquencyConfirmDialog) {
+            delinquencyConfirmDialog.dialog("destroy");
+        }
+        delinquencyConfirmDialog =  @Html.JDialog("divDelinquencyConfirmEdit").SetTitle("登记不良行为").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("delinquencyConfirmDialog.dialog('close');return false;").SetModal(true).SetOkScript(delinquencyPrivilige.IsEnableSaveDelinquencyCategory ? "doSaveDelinquencyConfirm();return false;" : "alter('无操作权限');").ToMvcString();
+    }
+    function doSaveDelinquencyConfirm() {
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveDelinquencyConfirm","Delinquency")',
+            data: $("#frmDelinquencyConfirmEdit").serialize() + "&date=" + new Date().getMilliseconds(),
+            success: function (msg) {
+                $.messager.progress('close');
+                try
+                {
+                    if (msg && msg.indexOf("出错") != -1 && msg.length >= 2 && msg.substr(0,2) == "出错") {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                    }
+                }
+                catch(e){}
+                delinquencyConfirmDialog.dialog('close');
+                doDelinquencyConfirmSearch();
+                if(msg && msg!=""){
+                    $("#divPunishConfirmDialog").html(msg);
+                    doShowPunishConfirmDialog();
+                }
+            }
+        });
+    }
+    function doDeleteDelinquencyConfirm(id){
+        $.messager.confirm('提示', '确认撤消?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteDelinquencyConfirm", "Delinquency")',
+                data:{"date": new Date().getMilliseconds(),"id": id },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    try
+                    {
+                         if (msg && msg.indexOf("出错") != -1 && msg.length >= 2 && msg.substr(0,2) == "出错") {
+                            $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                         }
+                    }
+                    catch(e){}
+                    doDelinquencyConfirmSearch();
+                    if(msg && msg!=""){
+                        $("#divRepealConfirmDialog").html(msg);
+                        doShowRepealConfirmDialog();
+                    }
+                }
+            });
+        });
+    }
+    function generateSelectedIds() {
+        var ids = [];
+        var rows = $("#tbDelinquencyConfirmList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids.toString();
+    }
+    var batchExecResultDialog;
+    function showBatchExecResult(result){
+        if(batchExecResultDialog) batchExecResultDialog.dialog('close');
+        $("#divBatchExecResultDialog").html(result);
+        batchExecResultDialog = @(Html.JDialog("divBatchExecResult").SetTitle("批量操作结果").SetAutoDialog(false).SetOkScript("batchExecResultDialog.dialog('close');").SetCancelScript("batchExecResultDialog.dialog('close');").SetIconCls("icon-pass").ToMvcString());
+    }
+    function doBatchDeleteDelinquencyConfirm(){
+        var ids = generateSelectedIds();
+        if(ids==""){
+            $.messager.show({ title: '提示', msg: '请选择要操作的项', showType: 'show' });
+            return ;
+        }
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("BatchDeleteDelinquencyConfirm", "Delinquency")',//BatchStopPunish
+            data: {"ids":ids},
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doDelinquencyConfirmSearch();
+                showBatchExecResult(msg);
+            }
+        });
+    }
+    function doPunishConfirmCallBack(){
+        doDelinquencyConfirmSearch();
+    }
+    function doRepealConfirmCallBack(){
+        doDelinquencyConfirmSearch();
+    }
+    function doDelinquencyConfirmSearch() {
+        $("#tbDelinquencyConfirmList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbDelinquencyConfirmList").datagrid("load", {"time":new Date().getMilliseconds() });
+    }
+    var messageDialog;
+    function doSendMessage(id)
+    {
+        if(messageDialog)messageDialog.dialog("destroy");
+        var url = '@Url.Action("DelinquencyMessageNotice","Delinquency")' + "?id=" + id + "&date=" + new Date().getMilliseconds();
+        $.messager.progress({ title: '提示', msg: '正在请求数据,请稍候……' });
+        $("#divMessage").load(url,function(data){
+            messageDialog = @(Html.JDialog("divSendMessage").SetTitle("发送信息").SetIconCls("icon-sendemail").SetAutoDialog(false).SetModal(true).SetOkScript("doSendEmail();if(typeof(sendMailSuccedCallBack)=='function'){sendMailSuccedCallBack();}").SetCancelScript("messageDialog.dialog('close');if(typeof(sendMailSuccedCallBack)=='function'){sendMailSuccedCallBack();}").ToMvcString()); 
+            $.messager.progress('close');
+            return;
+        });
+        $.messager.progress('close');
+    }
+</script>

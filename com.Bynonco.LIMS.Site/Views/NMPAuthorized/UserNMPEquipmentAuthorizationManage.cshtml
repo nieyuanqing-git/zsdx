@@ -1,0 +1,139 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var isPopDialog = ViewData["IsPopDialog"] == null ? false : bool.Parse(ViewData["IsPopDialog"].ToString());
+    var equipmentId = ViewData["EquipmentId"] == null ? "" : ViewData["EquipmentId"].ToString();
+    var userId = ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString();
+}
+<div id='divUserNMPEquipmentAuthorizationManage' style='@(isPopDialog ? "width:800px;" : "")'>
+    @Html.Partial("../NMPAuthorized/UserNMPEquipmentAuthorizationList")                                       
+</div>
+<div id="divUserNMPEquipmentAuthorizationDialog" style="display:none"></div>
+
+<script type="text/javascript">
+    function generateUserNMPEquipmentAuthorizationSelectedIds() {
+        var ids = [];
+        var rows = $("#tbUserNMPEquipmentAuthorizationList").datagrid("getSelections");
+        if (rows && rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].Id);
+            }
+        }
+        return ids;
+    }
+    function doDeleteUserNMPEquipmentAuthorization(ids) {
+        var delIds = ids == null || ids.trim() == "" ? generateUserNMPEquipmentAuthorizationSelectedIds().toString(): ids;
+        if (delIds == null || delIds == "") {
+            $.messager.show({ title: '提示', msg: "请选择要删除的项", showType: 'show' });
+            return false;
+        }
+        $.messager.confirm('提示', '是否删除该设备授权信息?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UserNMPEquipmentAuthorizationDelete", "EquipmentAuthorization",new { date=DateTime.Now.Millisecond})',
+                data: { "ids": delIds },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    SearchUserNMPEquipmentAuthorization();
+                }
+            });
+        });
+        return false;
+    }
+
+    var UserNMPEquipmentAuthorizationDialog;
+    function doUserNMPEquipmentAuthorizationDialog() {
+        if (UserNMPEquipmentAuthorizationDialog) {
+            UserNMPEquipmentAuthorizationDialog.dialog("destroy");
+        }
+        UserNMPEquipmentAuthorizationDialog =  @Html.JDialog("divUserNMPEquipmentAuthorizationEdit").SetTitle("设备授权信息").SetIconCls("icon-save").SetAutoDialog(false).SetOnClose("UserNMPEquipmentAuthorizationDialog.dialog('destroy');return false;").SetCancelScript("UserNMPEquipmentAuthorizationDialog.dialog('close');return false;").SetModal(true).SetOkScript("doCheckUserNMPEquipmentAuthorization();").ToMvcString();
+    }
+    function doAddOrEditUserNMPEquipmentAuthorization(id){
+        var nmpEquipmentId = '@(ViewData["NMPEquipmentId"]==null? "" :ViewData["NMPEquipmentId"].ToString())';
+        var userId = '@(ViewData["UserId"] == null ? "" : ViewData["UserId"].ToString())';
+        var url = '@Url.Action("UserNMPEquipmentAuthorizationEdit","NMPAuthorized")';
+        $("#divUserNMPEquipmentAuthorizationDialog").load(url,{"id":id,"NMPEquipmentId":nmpEquipmentId,"UserId":userId,"date":new Date().getMilliseconds()},function(){
+            doUserNMPEquipmentAuthorizationDialog();
+        })
+        return false;
+    }
+    function doAddUserNMPEquipmentAuthorization(id) {
+       doAddOrEditUserNMPEquipmentAuthorization(id);
+    }
+    function doEditUserNMPEquipmentAuthorization(id) {
+       if(!id || id.trim()==""){
+              $.messager.show({ title: '提示', msg: "请选择要编辑的项", showType: 'show' });
+              return false;
+       }
+       doAddOrEditUserNMPEquipmentAuthorization(id);
+    }
+
+    function doCheckUserNMPEquipmentAuthorization() {
+        if($("#frmUserNMPEquipmentAuthorizationEdit #UserId").val().trim()== ""){
+             $.messager.show({ title: '提示', msg: "用户为空", showType: 'show' });
+             return false;
+        }
+        if( $("#frmUserNMPEquipmentAuthorizationEdit #nmpEquipmentId").val().trim() == ""){
+             $.messager.show({ title: '提示', msg: "设备为空", showType: 'show' });
+             return false;
+        }
+        if ($("#StartDate").datebox("getValue").trim() == "") {
+            $.messager.show({ title: '警告', msg: '开始时间为空', showType: 'show' });
+            return false;
+        }
+        if ($("#EndDate").datebox("getValue").trim() == "") {
+            $.messager.show({ title: '警告', msg: '结束时间为空', showType: 'show' });
+            return false;
+        }
+        var url = '@Url.Action("CheckUserNMPEquipmentAuthorization","NMPAuthorized")';
+         $.ajax({
+            type: "Post",
+            url: '@Url.Action("CheckUserNMPEquipmentAuthorization","NMPAuthorized",new { date=DateTime.Now.Millisecond})',
+            data: $("#frmUserNMPEquipmentAuthorizationEdit").serialize(),
+            success: function (msg) {
+                if (msg && msg.indexOf("出错,") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                else if (msg != "true" && msg != "") {
+                    $.messager.confirm('提示', '所选授权时间段有冲突，已有预约或授权:<br /><br /><br />' + msg + '<br />是否继续保存?', function (r) {
+                        if (!r) return;
+                        doSaveUserNMPEquipmentAuthorization();
+                    });
+                }
+                else {
+                   doSaveUserNMPEquipmentAuthorization();
+                }
+            }
+        });
+    }
+
+    function doSaveUserNMPEquipmentAuthorization(){
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("UserNMPEquipmentAuthorizationSave","NMPAuthorized",new { date=DateTime.Now.Millisecond})',
+            data: $("#frmUserNMPEquipmentAuthorizationEdit").serialize(),
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                UserNMPEquipmentAuthorizationDialog.dialog('close');
+                SearchUserNMPEquipmentAuthorization();
+            }
+        });
+    }
+    function SearchUserNMPEquipmentAuthorization()
+    {
+        var queryExpression = "";
+        $("#tbUserNMPEquipmentAuthorizationList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbUserNMPEquipmentAuthorizationList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+</script>

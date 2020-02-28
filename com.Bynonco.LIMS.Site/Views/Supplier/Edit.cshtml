@@ -1,0 +1,53 @@
+﻿@model com.Bynonco.LIMS.Model.Supplier
+@using com.Bynonco.JqueryEasyUI.Core; 
+<div id="divSupplierEdit">
+ <form id="frmSupplierEdit" action="#">
+    @Html.Hidden("Id",Model == null ? "": Model.Id.ToString())
+    <table id="tdSupplierEdit" class="edit-table"  style="width:500px;">
+        <tr>
+            <th><span class="required">* </span>名称</th>
+            <td colspan='4'>
+                @Html.JValidateBox("Name").SetValue(Model == null ? "" : Model.Name).SetWidth(350).ToMvcString()
+            </td>
+        </tr>
+       
+        <tr>
+            <th>地址</th>
+            <td colspan='2'>
+                @Html.JValidateBox("Address").SetValue(Model == null ? "" : Model.Address).SetWidth(250).ToMvcString()
+            </td>
+            <th>邮编</th>
+            <td>
+                @Html.JValidateBox("Postcode").SetValue(Model == null ? "" : Model.Postcode).SetWidth(50).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>固话</th>
+            <td>
+                @Html.JValidateBox("Telephone").SetValue(Model == null ? "" : Model.Telephone).SetWidth(130).ToMvcString()
+            </td>
+            <th>传真</th>
+            <td colspan='2'>
+                @Html.JValidateBox("Fax").SetValue(Model == null ? "" : Model.Fax).SetWidth(130).ToMvcString()
+            </td>
+            
+        </tr>
+         <tr>
+            <th>联系人</th>
+            <td>
+                @Html.JValidateBox("Linkman").SetValue(Model == null ? "" : Model.Linkman).SetWidth(130).ToMvcString()
+            </td>
+            <th>手机</th>
+            <td colspan='2'>
+                @Html.JValidateBox("MobilePhone").SetValue(Model == null ? "" : Model.MobilePhone).SetWidth(130).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>邮箱</th>
+            <td colspan='4'>
+                @Html.JValidateBox("Email").SetValue(Model == null ? "" : Model.Email).SetWidth(350).ToMvcString()
+            </td>
+        </tr>
+    </table>
+  </form>
+</div> 

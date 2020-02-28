@@ -1,0 +1,121 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+<script type="text/javascript">
+    var userId = '@(ViewData["LoginUserId"].ToString())';
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var sampleNo = $("#txtQuerySampleNo").val().trim();
+        if (sampleNo != "") {
+            queryExpression += "SampleNo∽\"" + sampleNo + "\"";
+        }
+
+        var sampleItemId = $("#txtQuerySampleItemId").val();
+        if (sampleItemId.trim() != "") {
+            queryExpression += queryExpression == "" ? "SampleItemId=\"" + sampleItemId.trim() + "\"" : "*SampleItemId=\"" + sampleItemId.trim() + "\"";
+        }
+
+        var selectedStudent = $("#cbxQueryStudent").combobox("getValues");
+        var selectedStudentIds = selectedStudent.toString().split(",");
+        if (selectedStudentIds.length > 1 || (selectedStudentIds[0].trim() != "" && selectedStudentIds[0].trim() != "@(Guid.Empty.ToString())" && selectedStudentIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedStudentIds.length; i++) {
+                if (selectedStudentIds[i].trim() == "" || selectedStudentIds[i].trim() == "@(Guid.Empty.ToString())") { index++; continue; }
+                var queryExpressionTemp =  "("+"ApplicantId=\"" + selectedStudentIds[i] + "\"" + "+" + "ReportObtainerId=\"" + selectedStudentIds[i] + "\"" + "+" + "CreatorId=\"" + selectedStudentIds[i] + "\"" +")";
+                queryExpression += (i == index ? queryExpressionTemp : "*" + queryExpressionTemp);
+            }
+            queryExpression += ")";
+        }
+
+        var selectedSampleApplyStatus = $("#cbxQuerySampleApplyStatus").combobox("getValues");
+        var selectedSampleApplyStatusIds = selectedSampleApplyStatus.toString().split(",");
+        if (selectedSampleApplyStatusIds.length > 1 || (selectedSampleApplyStatusIds[0].trim() != "" && selectedSampleApplyStatusIds[0].trim() != "-1" && selectedSampleStatusIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedSampleApplyStatusIds.length; i++) {
+                if (selectedSampleApplyStatusIds[i].trim() == "" || selectedSampleApplyStatusIds[i].trim() == "-1") { index++; continue; }
+                queryExpression += (i == index ? "Status=\"" + selectedSampleApplyStatusIds[i] + "\"" : "+Status=\"" + selectedSampleApplyStatusIds[i] + "\"");
+            }
+            queryExpression += ")";
+        }
+
+        var selectedChargeStatuses = $("#cbxQueryChargeStatus").combobox("getValues");
+        var selectedChargeStatusIds = selectedChargeStatuses.toString().split(",");
+        if (selectedChargeStatusIds.length > 1 || (selectedChargeStatusIds[0].trim() != "-1" && selectedChargeStatusIds[0].trim() != "" && selectedChargeStatusIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedChargeStatusIds.length; i++) {
+                if (selectedChargeStatusIds[i].trim() == "-1" || selectedChargeStatusIds[i].trim() == "") { index++; continue; }
+                queryExpression += (i == index ? "ChargeStatus=" + selectedChargeStatusIds[i] : "+ChargeStatus=" + selectedChargeStatusIds[i]);
+            }
+            queryExpression += ")";
+        }
+
+        var beginDate = $("#dtpQueryBeginDate").datebox("getValue");
+        if (beginDate.trim() != "") {
+            beginDate = beginDate.trim() + " 00:00:00";
+            queryExpression += queryExpression == "" ? "ApplyDate>\"" + beginDate.trim() + "\"" : "*ApplyDate>\"" + beginDate.trim() + "\"";
+        }
+        var endDate = $("#dtpQueryEndDate").datebox("getValue");
+        if (endDate.trim() != "") {
+            endDate = endDate.trim() + " 23:59:59"
+            queryExpression += queryExpression == "" ? "ApplyDate<\"" + endDate.trim() + "\"" : "*ApplyDate<\"" + endDate.trim() + "\"";
+        }
+        return queryExpression;
+    }
+
+    function doQueryReset() {
+        $("#txtQuerySampleNo").val("");
+        $("#txtQuerySampleItemId").tokenInput("clear");
+        $("#txtQuerySampleItemName").val("");
+        $("#dtpQueryBeginDate").datebox("setValue", "")
+        $("#dtpQueryEndDate").datebox("setValue", "");
+        $("#cbxQuerySampleApplyStatus").combobox("setValue", "-1");
+        $("#cbxQueryChargeStatus").combobox("setValue", "-1");
+        $("#cbxQueryStudent").combobox("setValue", "@Guid.Empty.ToString()");
+        return false;
+    }
+    function doSetPersionalQuery() {
+        $("#cbxQueryStudent").combobox("setValue", userId);
+    }
+    function doSetSubejctExperimenterQuery(){
+        $("#cbxQueryStudent").combobox("setValue", "@(Guid.Empty.ToString())");
+    }
+</script>
+<ul class="search">
+    <li>
+        <label style="width:60px">样品编号</label>
+        @Html.JValidateBox("txtQuerySampleNo").SetHeight(20).SetWidth(146).ToMvcString()
+    </li>
+    <li class="li-tokenInput">
+        <label style="width:60px">项目名称</label>
+        <div style="padding-left:4px;float:left">@Html.TokenInput("txtQuerySampleItemId").SetUrl(Url.Action("GetSampleItemListByKeyWord", "SampleItem")).SetSingle(true).ToMvcString()</div>
+    </li>
+    <li>
+        <label style="width:60px">课题组成员</label>
+        @Html.JComboBox("cbxQueryStudent").SetWidth(152).SetData(ViewData["StudentJson"]).SetMutiSelect(true).ToMvcString()
+    </li>
+    <li>
+        <label style="width:60px">当前状态</label>
+        @Html.JComboBox("cbxQuerySampleApplyStatus").SetWidth(152).SetData(ViewData["SampleStatusJson"]).SetMutiSelect(true).ToMvcString()
+    </li>
+     <li>
+        <label style="width:60px">收费状态</label>
+        @Html.JComboBox("cbxQueryChargeStatus").SetWidth(152).SetData(ViewData["ChargeStatusJson"]).SetMutiSelect(true).ToMvcString()
+    </li>
+     <li>
+        <label style="width:60px">开始日期</label>
+        @Html.JDateTimePicker("dtpQueryBeginDate").SetWidth(152).ToMvcString()
+    </li>
+     <li>
+        <label style="width:60px">结束日期</label>
+        @Html.JDateTimePicker("dtpQueryEndDate").SetWidth(152).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doQueryReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

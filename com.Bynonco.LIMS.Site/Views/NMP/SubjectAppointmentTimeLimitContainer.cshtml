@@ -1,0 +1,84 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewNMP
+@using com.Bynonco.JqueryEasyUI.Core;
+@Html.Hidden("NMPId", Model == null ? "" : Model.Id.ToString())
+@{
+    var nmpPrivilige = Model != null ?
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name) :
+            com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetNMPPrivilige(User.Identity.Name, Model.Id);}
+<div>@Html.Partial("SubjectAppointmentTimeLimitList")</div>    
+<div id="divSubjectAppointmentTimeLimitDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doEditSubjectAppointmentTimeLimit(){
+        var selectedRow = $("#tbSubjectAppointmentTimeLimitList").datagrid("getSelected");
+        if(!selectedRow){
+            $.messager.show({ title: '警告', msg: "请选择要编辑的项", showType: 'show' });
+            return false;
+        }
+        if(selectedRow) doAddOrEditSubjectAppointmentTimeLimit(selectedRow.Id);
+    }
+    function doAddOrEditSubjectAppointmentTimeLimit(id) {
+        
+        var nmpId= $("#NMPId").val();
+        var url = '@Url.Action("EditSubjectAppointmentTimeLimit","NMP")' + "?id=" + id + "&date=" + new Date().getMilliseconds() + "&NMPId=" + nmpId;
+        $("#divSubjectAppointmentTimeLimitDialog").load(url, function (data) {
+            doSubjectAppointmentTimeLimitDialog();
+        });
+        return false;
+    }
+    var subjectAppointmentTimeLimitDialog;
+    function doSubjectAppointmentTimeLimitDialog() {
+        if (subjectAppointmentTimeLimitDialog) {
+            subjectAppointmentTimeLimitDialog.dialog("destroy");
+        }
+        subjectAppointmentTimeLimitDialog =  @(Html.JDialog("divSubjectAppointmentTimeLimitEdit").SetTitle("课题组预约限制信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("subjectAppointmentTimeLimitDialog.dialog('destroy');return false;").SetModal(true).SetOkScript(nmpPrivilige.IsEnableSaveSubjectAppointmentTimeLimit ? "doSaveSubjectAppointmentTimeLimit();return false;" : "alter('无操作权限');").ToMvcString());
+    }
+    function doSaveSubjectAppointmentTimeLimit() {
+        var nmpId= $("#NMPId").val();
+        $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveSubjectAppointmentTimeLimit","NMP")',
+            data: $("#frmSubjectAppointmentTimeLimitEdit").serialize() + "&date=" + new Date().getMilliseconds() + "&NMPId=" + nmpId ,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") != -1) {
+                     $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                subjectAppointmentTimeLimitDialog.dialog('destroy');
+                doSubjectAppointmentTimeLimitSearch();
+            }
+        });
+    }
+    function doDeleteSubjectAppointmentTimeLimit(){
+        var selectedRows = $('#tbSubjectAppointmentTimeLimitList').datagrid("getSelections");
+        var ids = "";
+        if(selectedRows && selectedRows.length > 0){
+            $.messager.confirm('提示', '确认删除?', function (r) {
+                if (!r) return;
+                for(var i = 0;i < selectedRows.length;i++){
+                    ids += ids == "" ? selectedRows[i].Id : "," + selectedRows[i].Id;
+                }
+                $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteSubjectAppointmentTimeLimit","NMP")',
+                    data:{"date": new Date().getMilliseconds(),"Ids": ids },
+                    success: function (msg) {
+                        $.messager.progress('close');
+                        if (msg && msg.indexOf("出错") != -1) {
+                             $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                            return false;
+                        }
+                        doSubjectAppointmentTimeLimitSearch();
+                    }
+                });
+            });
+        }
+    }
+    function doSubjectAppointmentTimeLimitSearch() {
+        $("#tbSubjectAppointmentTimeLimitList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSubjectAppointmentTimeLimitList").datagrid("reload");
+        return false;
+    }
+</script>

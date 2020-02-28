@@ -1,0 +1,33 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var WaterControlPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetWaterControlPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbWaterControlCostList")
+       .SetUrl(Url.Action("GetGridWaterControlCostList", "WaterControl"))
+       .SetHeight(650)
+       .SetSortName("DATETIMEStr")
+       .SetSortOrder(SortOrder.desc)
+       .SetPageSize(20)
+       .SetMutiSelect(false)
+       .SetSingleSelect(true)
+       .SetShowPrintButton(false)
+       .SetShowSearchButton(true)
+       .SetSearchScript("doShowSearch();");
+    //dataGrid.SetOnDblClickRow("doViewWaterControlCost(rowData.UserName);");
+    
+    dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetSortable(false).SetHidden(true));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("姓名", "UserName").SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("手机号码", "PhoneNumber").SetWidth(150).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扣费金额", "CONSUMESUM").SetWidth(120).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扣费时间", "DATETIMEStr").SetWidth(200).SetAlign(Align.left));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("卡内余额", "LEFTSUM").SetWidth(80).SetAlign(Align.center));
+    dataGrid.AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("扣费终端机", "WINNAME").SetWidth(80).SetAlign(Align.center));
+    if (WaterControlPrivilige.IsEnableWaterControlCostListExportExcel)
+    {
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doExportExcel();", IconCls = "icon-export", Id = "btnExportExcel", Text = "导出" });
+    }
+    if (WaterControlPrivilige.IsEnableWaterControlCostListExportExcel)
+    {
+        dataGrid.SetExpertScript("doExportExcel();");
+    }
+ }
+@(dataGrid.ToMvcString())

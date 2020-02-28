@@ -1,0 +1,45 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core; 
+@{
+    ViewBag.Title = "面向本科生开放仪器设备";
+    Layout = "~/Views/Shared/_OneColumnLayout.cshtml";
+}
+@section ImportCssAndJs
+{
+    <style type="text/css">
+        .home-search-box{padding:15px 0 0 0;}
+        .home-search-box a.botton{background: url("/content/home/images/home-search-botton.gif") no-repeat scroll 0 3px transparent;margin-left:10px;border: 0 none; color: #FFFFFF;cursor: pointer;font-size: 14px;font-weight: bold;padding: 10px 17px;}
+        .home-search-box a.search-more{margin-left:10px;border: 0 none; cursor: pointer;font-size: 14px;font-weight: bold;}
+        .home-search-box input.search-input{background:url("/content/home/images/icon-search-27.gif") no-repeat left top #FFF;height: 27px;padding-left: 40px;width: 510px;}
+        .home-search-box .search-hot-box{padding:5px 5px 0;}
+        .home-search-box .search-hot-box .search-title{font-weight:bold;margin-right:5px;}
+        .home-search-box .search-hot-box a{margin-right:5px;}
+        .home-search-box .textinp{border:1px solid #ccc;}
+    </style>
+    <script type="text/javascript">
+        function tosearch() {
+            var queryExpression='';
+            var equipmentName = $("#SearchEquipmentName").val().trim();
+            if (equipmentName != "") {
+                queryExpression = "EquipmentName∽\"" + equipmentName.trim() + "\"";
+            }
+            $('#tbEquipmentUndergraduateOpenList').datagrid('loadData', { total: 0, rows: [] });
+            $('#tbEquipmentUndergraduateOpenList').datagrid('options').queryParams = { "queryExpression": queryExpression };
+            $('#tbEquipmentUndergraduateOpenList').datagrid('reload');
+        }
+    </script>
+}
+@section MainFull
+{
+    <h2 class="title" style='text-align:center;'>
+        面向本科生开放的大型精密贵重仪器设备目录(@(ViewData["SemesterName"] == null ? "" : ViewData["SemesterName"].ToString()))
+    </h2>
+    <div class="home-search-box">
+          <div>
+            <input type="text" value="" class="easyui-validatebox textinp validatebox-text search-input" placeholder="仪器名称" id="SearchEquipmentName" /> 
+            <a class="botton" href="#" onclick="tosearch();return false;">搜  索</a>
+        </div>
+    </div>
+    <div class="content-box ">
+        @Html.Partial("../EquipmentOpen/ShowOpenList")
+    </div>
+}

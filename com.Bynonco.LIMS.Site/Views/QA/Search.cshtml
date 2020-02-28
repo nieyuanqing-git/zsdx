@@ -1,0 +1,83 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+
+<script type="text/javascript">
+    function getSearchOrganizationXPath(element) {
+        $("#SearchOrganizationXPath").val("");
+        var organizationId = element.value;
+        if (organizationId != "" && !organizationId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: organizationId }, function (data) {
+                if (data && data != "")
+                    $("#SearchOrganizationXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+    function generateQueryExpress() {
+        var queryExpression = "";
+        var status = $("#SearchStatus").combobox("getValue");
+        if ($.trim(status) != "-1" && $.trim(status) != "") {
+            queryExpression ="Status=\""+ status+"\"";
+        }
+        var organizationXPath = $("#SearchOrganizationXPath").val().trim();
+        if (organizationXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "OrgXPath→" + organizationXPath;
+        }
+        var createTimeStart = $("#SearchCreateTimeStart").datebox("getValue").trim();
+        if (createTimeStart != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime>\"" + createTimeStart + "\"";
+        }
+        var createTimeEnd = $("#SearchCreateTimeEnd").datebox("getValue").trim();
+        if (createTimeEnd != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "CreateTime<\"" + createTimeEnd + "\"";
+        }
+        var userName = $("#SearchQuestionUserName").val().trim();
+        if (userName != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "QuestionUserName∽\"" + userName + "\"";
+        }
+        return queryExpression;
+    }
+    function doReset() {
+        $("#SearchStatus").combobox("setValue", "");
+        $("#SearchOrganizationId").val('@Guid.Empty.ToString()');
+        $("#SearchOrganizationXPath").val("");
+        $("#SearchQuestionUserName").val("");
+        $("#SearchCreateTimeStart").datebox("setValue", "");
+        $("#SearchCreateTimeEnd").datebox("setValue", "");
+        return false;
+    }
+</script>
+
+<ul class="search">
+    <li>
+         <label>状态</label>
+         @(Html.JComboBox("SearchStatus")
+                .SetEditable(false)
+                .SetData(ViewData["StatusJson"])
+                .SetWidth(155).ToMvcString())
+    </li>
+    <li>
+        <label>组织机构</label>
+        @Html.DropDownList("SearchOrganizationId", (IEnumerable<SelectListItem>)ViewData["SearchOrganizationSelectListItem"], new { style = "width:155px", onchange = "getSearchOrganizationXPath(this);" })
+        @Html.Hidden("SearchOrganizationXPath")
+    </li>
+    <li>
+        <label>提问者</label>
+        @Html.JValidateBox("SearchQuestionUserName").SetWidth(150).SetHeight(18).ToMvcString()
+    </li>
+    <li>
+        <label>提问时间</label>
+        @Html.JDateTimePicker("SearchCreateTimeStart").SetWidth(155).ToMvcString()
+    </li>
+    <li>
+        <label>结束时间</label>
+        @Html.JDateTimePicker("SearchCreateTimeEnd").SetWidth(155).ToMvcString()
+    </li>
+    <li class="button">
+        @Html.JLinkButton("btnSearch", "查询").SetOnclick("doSearch();doCloseSearch();").ToMvcString()
+        @Html.JLinkButton("btnReset", "清空").SetOnclick("doReset();").ToMvcString()
+        @Html.JLinkButton("btnClose", "关闭").SetOnclick("doCloseSearch();").ToMvcString()
+        <div class="clear-both"></div>
+    </li>
+    <div class="clear-both"></div>
+</ul>
+<div class="clear-both"></div>

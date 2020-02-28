@@ -1,0 +1,231 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEthicsApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@{var ethicsSetting = (com.Bynonco.LIMS.Model.Business.EthicsSetting)ViewData["EthicsSetting"];}
+<div id="divEthicsApplyDetail" style="height:550px; width:600px; overflow-x:hidden;">
+    <h5>1.申请单审核</h5>
+     <table class="edit-table" style="width:100%">
+        <tr>
+             <th>
+               状态
+            </th>
+            <td>
+                 @System.Web.Mvc.MvcHtmlString.Create(Model.StatusStr)
+            </td>
+             <th>
+               审核人
+            </th>
+            <td>
+                 @Model.AuditorName
+            </td> 
+        </tr>
+        <tr>
+            <th>
+               审核时间
+            </th>
+            <td>
+                @Model.AuditTimeStr
+            </td>
+             <th>
+               审核备注
+            </th>
+            <td>
+                 @Model.AuditRemark
+            </td> 
+        </tr>
+        <tr>
+            <th>
+               伦理编号
+            </th>
+            <td colspan="3">
+                @Model.EthicsNo
+            </td>
+            
+        </tr>
+    </table>
+    <h5>2.项目信息</h5>
+    <table class="edit-table" style="width:100%">
+        <tr>
+            <th>
+                实验名称
+            </th>
+            <td>
+              @Model.ProjectName
+            </td>
+             <th>
+               项目来源
+            </th>
+            <td>
+                @Model.ProjectSourceName
+            </td>
+        </tr>
+    </table>
+    <h5>3.项目负责人情况</h5>
+    <table class="edit-table" style="width:100%">
+        <tr>
+            <th>
+               姓名
+            </th>
+            <td>
+                @Model.ApplicantName
+            </td>
+            <th>
+               技术职称
+            </th>
+            <td>
+                @Model.ApplicantTitle
+            </td>
+        </tr>
+        <tr>
+            <th>
+               电话
+            </th>
+            <td>
+               @Model.ApplicantTelNo
+            </td>
+             <th>
+               Email
+            </th>
+            <td>
+              @Model.ApplicantEmail
+            </td>
+        </tr>
+    </table>
+    <h5>4.环境设施许可证号</h5>
+    <table class="edit-table" style="width:100%">
+        <tr>
+            <th>
+               环境设施许可证号
+            </th>
+            <td colspan="3">
+                @Model.EnviromentAllowedNo
+            </td>
+        </tr>
+    </table>
+    <h5>5.拟进动物情况</h5>
+        
+        @if (Model.EthicsApply != null && Model.EthicsApply.EthicsApplyAnimalDatas != null && Model.EthicsApply.EthicsApplyAnimalDatas.Count > 0)
+        {
+            var index=0;
+            foreach (var ethicsApplyAnimalData in Model.EthicsApply.EthicsApplyAnimalDatas)
+            {
+                index++;
+                <table class="edit-table" style="width:100%">
+                    <tr>
+                        <th>
+                           动物来源
+                        </th>
+                        <td>
+                            @ethicsApplyAnimalData.AnimalSource.Name
+                        </td>
+                        <th>
+                           品种品系
+                        </th>
+                        <td>
+                            @ethicsApplyAnimalData.AnimalCategory.Name
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                           级别
+                        </th>
+                        <td>
+                           @ethicsApplyAnimalData.AnimalGrade.Name
+                        </td>
+                         <th>
+                           规格
+                        </th>
+                        <td>
+                            @ethicsApplyAnimalData.AnimalSpecifications
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                           申请数量（只）
+                        </th>
+                        <td>
+                            总数:@ethicsApplyAnimalData.AnimalAmout &nbsp&nbsp
+                            ♂：@ethicsApplyAnimalData.MaleAnimalAmount 只 &nbsp&nbsp
+                            ♀：@ethicsApplyAnimalData.FeMaleAnimalAmount 只
+                        </td>
+                         <th>
+                           允许数量（只）
+                        </th>
+                        <td>
+                            总数:@ethicsApplyAnimalData.AllowQuatity &nbsp&nbsp
+                            ♂：@ethicsApplyAnimalData.AllowMaleQuatity 只 &nbsp&nbsp
+                            ♀：@ethicsApplyAnimalData.AllowFemaleQuatity 只
+                        </td>
+                    </tr>
+                </table>
+                <div style="height:10px"></div>
+            }
+        }
+    <table class="edit-table" style="width:100%">
+        <tr>
+            <th>
+               申请日期
+            </th>
+            <td>
+                @Model.ApplyTimeStr
+            </td>
+            <th>
+               进驻日期
+            </th>
+            <td>
+                @Model.EnteringDateStr
+            </td>
+        </tr>
+        <tr>
+            <th>
+               结束日期
+            </th>
+            <td colspan="3">
+                @Model.EnteringDateStr
+            </td>
+        </tr>
+    </table>
+    <h5>6.实验目的要点,包括实验方法、观测指标、实验结束后处死动物的方法等</h5>
+    <div style="padding-left:10px">
+        <p>@Model.Remark</p>
+    </div>
+    <h5>7.动物实验人员信息</h5>
+    @if (Model.EthicsApply != null && Model.EthicsApply.AnimalExperimenters != null && Model.EthicsApply.AnimalExperimenters.Count > 0)
+    {
+         <table class="edit-table" style="width:100%">
+            @foreach (var animalExperimenter in Model.EthicsApply.AnimalExperimenters)
+            {
+                <tr>
+                    <th>姓名</th>
+                    <td>@animalExperimenter.Name</td>
+                    <th>技术职称</th>
+                    <td>@animalExperimenter.Title</td>
+                </tr>
+                <tr>
+                    
+                </tr>
+                <tr>
+                    <th>电话</th>
+                    <td>@animalExperimenter.TelNo</td>
+                     <th>动物使用培训证号</th>
+                    <td>@animalExperimenter.UseAnimalTranningNo</td>
+                </tr>
+                <tr>
+                    <th>工作内容</th>
+                    <td colspan="3">@animalExperimenter.WorkContent</td>
+                </tr>
+            }
+         </table>
+    }
+    <div style="display:none;">
+        @if (ethicsSetting.ShowLinksWhenApplyPass != null && ethicsSetting.ShowLinksWhenApplyPass.Count > 0)
+        {
+            <h5>8.入室规章制度</h5>
+            <ul>
+                @foreach (var showLinkWhenApplyPass in ethicsSetting.ShowLinksWhenApplyPass)
+                {
+                    <li style="padding-top:10px; margin-left:50px; text-decoration:underline;"><a target="_blank" href='@(showLinkWhenApplyPass.Value)'>@(showLinkWhenApplyPass.Key)</a></li>
+                }
+            </ul>
+        }
+   </div>
+</div>

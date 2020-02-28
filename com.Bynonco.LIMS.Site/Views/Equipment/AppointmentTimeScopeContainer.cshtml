@@ -1,0 +1,43 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{var equipmentTimeAppointmemtMode = (com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode)ViewData["EquipmentTimeAppointmemtMode"];}
+<script type="text/javascript">
+    function doInitComboData(id) {
+        setTimeout(function () {
+            var val = $("#" + id).combobox("getValue");
+            if (val && val != "") {
+                $("#" + id).combobox("setText", val);
+            }
+        }, 100);
+    }
+</script>
+<table class='@(equipmentTimeAppointmemtMode== com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.DragableCalendar?"edit-table":"")' style='margin-bottom:1px;@(equipmentTimeAppointmemtMode== com.Bynonco.LIMS.Model.Business.EquipmentTimeAppointmemtMode.DragableCalendar?"width:100%;":"")'>
+    <tr>
+        <th style="color:#555555;"><span class="required">*</span>起始时间</th>
+        <td id="tdAppointmentBeginAt">
+            <span  class="date">@(Html.JDateTimePicker("BeginAt").SetValue(ViewData["BeginDate"] == null ? DateTime.Now.ToString("yyyy-MM-dd") : ViewData["BeginDate"].ToString()).SetWidth(121).ToMvcString())</span>
+            <span class="time">@(Html.JComboBox("BeginAtHour").SetOnLoadSuccess("doInitComboData('BeginAtHour');").SetEditable(false).SetWidth(40).SetData(ViewData["BeginAtHourJson"]).AddClass("time-fix").ToMvcString())</span><span>时</span>
+            <span class="time">@(Html.JComboBox("BeginAtMinute").SetOnLoadSuccess("doInitComboData('BeginAtMinute');").SetEditable(false).SetWidth(40).SetData(ViewData["BeginAtMinuteJson"]).AddClass("time-fix").ToMvcString())</span><span>分</span>
+        </td>
+    </tr>
+    <tr>
+        <th style="color:#555555;"><span class="required">*</span>结束时间</th>
+        <td id="tdAppointmentEndAt">
+            <span class="date">@(Html.JDateTimePicker("EndAt").SetValue(ViewData["EndDate"] == null ? DateTime.Now.ToString("yyyy-MM-dd") : ViewData["EndDate"].ToString()).SetWidth(121).ToMvcString())</span>
+            <span class="time">@(Html.JComboBox("EndAtHour").SetOnLoadSuccess("doInitComboData('EndAtHour');").SetEditable(false).SetWidth(40).SetData(ViewData["EndAtHourJson"]).AddClass("time-fix").ToMvcString())</span><span>时</span>
+            <span class="time">@(Html.JComboBox("EndAtMinute").SetOnLoadSuccess("doInitComboData('EndAtMinute');").SetEditable(false).SetWidth(40).SetData(ViewData["EndAtMinuteJson"]).AddClass("time-fix").ToMvcString())</span><span>分</span>
+        </td>
+    </tr>
+</table>
+<script type="text/javascript">
+    function getTimeScope() {
+        var beginDateStr = $("#BeginAt").datebox("getValue");
+        var endDateStr = $("#EndAt").datebox("getValue");
+        var beginHour = $("#BeginAtHour").combobox("getValue");
+        var beginMinute = $("#BeginAtMinute").combobox("getValue");
+        var endHour = $("#EndAtHour").combobox("getValue");
+        var endMinute = $("#EndAtMinute").combobox("getValue");
+        var beginTime = beginDateStr + " " + beginHour + ":" + beginMinute;
+        var endTime = endDateStr + " " + endHour + ":" + endMinute;
+        return { "beginTime": beginTime, "endTime": endTime };
+    }
+</script>

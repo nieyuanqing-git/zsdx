@@ -1,0 +1,97 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    Layout = ViewBag.Layout;
+}
+ <div class="search-grid hide">
+    <div class="search-inner-box">
+        @Html.Partial("../PowerOperation/Search")
+    </div>
+</div>
+<div class="layout-center-full">
+     @Html.Partial("../PowerOperation/List")
+</div>
+<div id="divPowerOperationDialog" style="display:none"></div>
+<script type="text/javascript">
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbPowerOperationList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbPowerOperationList").datagrid("load", { "queryExpression": queryExpression.trim() });
+    }
+    var powerOperationDialog;
+    function doPowerOperationDialog() {
+        if (powerOperationDialog) {
+            powerOperationDialog.dialog("destroy");
+        }
+        powerOperationDialog =  @Html.JDialog("divPowerOperationEdit").SetTitle("开关记录信息").SetIconCls("icon-save").SetAutoDialog(false).SetCancelScript("powerOperationDialog.dialog('close');return false;").SetModal(true).SetOkScript("doSavePowerOperation();").ToMvcString();
+    }
+    function doEditPowerOperation(id) {
+       if(!id || id.trim()==""){
+           var selectedPowerOperation = $("#tbPowerOperationList").datagrid("getSelected");
+           if(!selectedPowerOperation || selectedPowerOperation.Id=="" || selectedPowerOperation.Id.isDefaultGuid()) {
+              $.messager.show({ title: '提示', msg: "请选择要操作项", showType: 'show' });
+              return false;
+           }
+           id = selectedPowerOperation.Id;
+       }
+       var url = '@Url.Action("Edit","PowerOperation")';
+        $("#divPowerOperationDialog").load(url,{"id":id,"date":new Date().getMilliseconds()},function(){
+            doPowerOperationDialog();
+        })
+    }
+    function doSavePowerOperation(){
+        if($("#OperationTime").val().trim() == ""){
+             $.messager.show({ title: '提示', msg: "操作时间为空", showType: 'show' });
+             return false;
+        }
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Save","PowerOperation",new { date=DateTime.Now.Millisecond})',
+            data: $("#frmPowerOperationEdit").serialize(),
+            success: function (msg) {
+                if (msg && msg.indexOf("出错") != -1) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                powerOperationDialog.dialog('close');
+                doSearch();
+            }
+        });
+    }
+    function doDeletePowerOperation(id){
+        if(!id || id.trim() == ""){
+              var selectedPowerOperation = $("#tbPowerOperationList").datagrid("getSelected");
+                if(!selectedPowerOperation || selectedPowerOperation.Id.trim() == "" || selectedPowerOperation.Id.isDefaultGuid()){
+                    $.messager.show({ title: '提示', msg:"请选择要删除的项", showType: 'show' });
+                    return false;
+                }
+                id = selectedPowerOperation.Id;
+         }
+        $.messager.confirm('提示', '确认删除?', function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在提交请求,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "PowerOperation")'+ "?date=" + new Date().getMilliseconds(),
+                data: "id=" + id ,
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg:msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                }
+            });
+        });
+        return false;
+   }
+
+   function doPowerOperationExportExcel() {
+        $.messager.confirm('提示', '开关记录数据量较大,建议您加上时间限制。是否继续导出?', function (r) {
+            if (!r) return;
+            var queryExpression = generateQueryExpress();
+            var url = '@Url.Action("ExportExcel","PowerOperation")' + "?queryExpression=" + queryExpression;
+            window.open(url, '_blank');
+        });
+    }
+</script>

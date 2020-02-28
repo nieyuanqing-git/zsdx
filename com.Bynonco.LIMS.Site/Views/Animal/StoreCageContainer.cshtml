@@ -1,0 +1,149 @@
+﻿@model com.Bynonco.LIMS.Model.AnimalCage
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    var animalList = ViewData["AnimalList"] != null ? (IList<com.Bynonco.LIMS.Model.Animal>)ViewData["AnimalList"] : null;
+    var isMutiSelect = (bool)ViewData["IsEnableMutiSelect"];
+    var curCageId = (Guid?)ViewData["CurAnimalCageId"];
+    int? cageRowNo = (int?)ViewData["AnimalCageRowNo"];
+    int? cageColNo = (int?)ViewData["AnimalCageColNo"];
+    int count = Model.RowCnt * Model.ColCnt;
+    int freeCount = count - (animalList == null ? 0 : animalList.Count);
+    int busyCount = count - freeCount;
+    
+}
+<style type="text/css">
+    #tbAnimalCageItems{border-collapse:collapse;}
+    #tbAnimalCageItems tr th{border:1px solid #ccc;text-align:center;padding:2px;width:50px;}
+    #tbAnimalCageItems tr td{border:1px solid #ccc;width:50px;padding:2px; line-height:22px}
+    .busy{background-color:red}
+    .free{background-color:green}
+    .selected{background-color:Gray}
+</style>
+<div id="divAnimalCageContainerTip"  style="margin-top:5px; margin-left:100px; margin-bottom:5px; clear:both;">
+    <ul>
+        <li style="float:left; text-align:center; height:30px; width:150px; background-color:Blue;margin: 0; line-height:30px; color:White;">可饲养动物总数:@(count)</li>
+        <li style="float:left; text-align:center; height:30px; width:80px; background-color:Green;margin: 0; line-height:30px; color:White;">空闲:@(freeCount)</li>
+        <li style="float:left; text-align:center; height:30px; width:80px; background-color:Red; margin: 0;line-height:30px;color:White;">占用:@(busyCount)</li>
+        <li style="float:left; text-align:center; height:30px; width:80px; background-color:Gray;margin: 0;line-height:30px;color:White;">已选</li>
+    </ul>
+</div>
+<div style="padding-top:5px; clear:both">
+   <table id="tbAnimalCageItems" class="book"  style="width:100%">
+        <tr>
+            <th style="padding-bottom:0px;width:80px;height:23px;background:transparent url(../../JqueryPlugin/JqueryEasyUI/themes/default/images/datagrid_header_bg.gif) scroll 0 0">行号/列号</th>
+            @for (var i = 1; i <= Model.ColCnt; i++)
+            {
+                <td style="padding-bottom:0px;color:#555555;text-align:center;background:transparent url(../../JqueryPlugin/JqueryEasyUI/themes/default/images/datagrid_header_bg.gif) repeat scroll 0 0">
+                    @i
+                </td>
+            }
+        </tr>
+        @for (var j = 1; j <= Model.RowCnt; j++)
+        {
+                <tr id="tr_@(j.ToString())">
+                <td style="text-align:center;color:#555555;width:60px;">
+                    @j
+                </td>
+                @for (var i = 1; i <= Model.ColCnt; i++)
+                {
+                    com.Bynonco.LIMS.Model.Animal animalFind = null;
+                    if (animalList != null && animalList.Count > 0)
+                    {
+                        animalFind = animalList.FirstOrDefault(p => p.AnimalCageColNo == i && p.AnimalCageRowNo == j);
+                    }
+                    var className = animalFind != null ? "busy" : "free";
+                    if (animalFind == null && curCageId.HasValue && cageRowNo.HasValue && cageColNo.HasValue && cageRowNo.Value == j && cageColNo.Value == i && curCageId.Value == Model.Id)
+                    {
+                        className = "selected";
+                    }
+                    <td class="@className" title='@(j.ToString()+"-" + i.ToString())'  onclick="doOnCageSelected(this);return false;" style="text-align:left;color:#555555;width:100px;" 
+                        cageId="@Model.Id" cageName="@Model.Name" cageCode='@Model.Code' cageRowNo="@j" cageColNo="@i" 
+                        frameId="@(Model.AnimalFrame != null ? Model.AnimalFrame.Id.ToString() : "")" frameName='@(Model.AnimalFrame != null ? Model.AnimalFrame.Name : "")' frameRowNo="@(Model.FrameRowNo != null ? Model.FrameRowNo.Value.ToString() : "")" frameColNo="@(Model.FrameColNo != null ? Model.FrameColNo.Value.ToString() : "")"  
+                        labRoomName = @(Model.LabRoom.Name)
+                    >
+                    @if (animalFind != null)
+                    {
+                        <span><a id='@animalFind.Id' style="color:White;" href="javascript:void(0);" class="animal">@(animalFind.Name + "(" + ((com.Bynonco.LIMS.Model.Enum.AnimalStatus)animalFind.Status).ToCnName() + "," + ((com.Bynonco.LIMS.Model.Enum.AnimalStoreStatus)animalFind.StoreStatus).ToCnName() + ")")</a></span>
+                    }
+                    </td>
+                }
+            </tr>
+        }
+    </table>
+</div>
+<script type="text/javascript">
+    var isMutiSelect = '@(isMutiSelect.ToString().ToLower())';
+    function doOnCageSelected(tdEelement) {
+        if (isMutiSelect != "true") {
+            $("#tbAnimalCageItems tr td.selected").attr("class", "free");
+        }
+        var className = tdEelement.className;
+        switch (className.toString().toLowerCase()) {
+            case "free":
+                tdEelement.className = "selected";
+                break;
+            case "selected":
+                tdEelement.className = "free";
+                break;
+        }
+        return false;
+    }
+    function getSelectedCages() {
+        var selectedCageInfos = "";
+        var selectedCages = $("#tbAnimalCageItems tr td.selected");
+        if (selectedCages.length > 0) {
+            selectedCages.each(function () {
+                var selectedCageInfo = $(this).attr("cageId")+ "," + $(this).attr("cageName") + "," + $(this).attr("cageCode") + "," + $(this).attr("cageRowNo") + "," + $(this).attr("cageColNo") + "," +
+                                       $(this).attr("frameId") + "," + $(this).attr("frameName") + "," + $(this).attr("frameRowNo") + "," + $(this).attr("frameColNo") + "," +
+                                       $(this).attr("labRoomName");
+                selectedCageInfos += selectedCageInfos == "" ? selectedCageInfo : ";" + selectedCageInfo;
+            });
+        }
+        return selectedCageInfos;
+    }
+    function doOnFinishCageSelected(animalStorePosDialog) {
+        var selectedCageIds = [];
+        var selectedCageCodes = [];
+        var selectedCageNames = [];
+        var selectedCageRowNos = [];
+        var selectedCageColNos = [];
+
+        var selectedFrameIds = [];
+        var selectedFrameNames = [];
+        var selectedFrameRowNos = [];
+        var selectedFrameColNos = [];
+
+        var selectedLabRoomNames = [];
+
+        var selectedCages = getSelectedCages();
+        if (selectedCages != "") {
+            var selectedCageArray = selectedCages.split(";");
+            for (var i = 0; i < selectedCageArray.length; i++) {
+                var selectedCageInfoSegs = selectedCageArray[i].split(",");
+ 
+                selectedCageIds.push(selectedCageInfoSegs[0]);
+                selectedCageNames.push(selectedCageInfoSegs[1]);
+                selectedCageCodes.push(selectedCageInfoSegs[2]);
+                selectedCageRowNos.push(selectedCageInfoSegs[3]);
+                selectedCageColNos.push(selectedCageInfoSegs[4]);
+
+                selectedFrameIds.push(selectedCageInfoSegs[5]);
+                selectedFrameNames.push(selectedCageInfoSegs[6]);
+                selectedFrameRowNos.push(selectedCageInfoSegs[7]);
+                selectedFrameColNos.push(selectedCageInfoSegs[8]);
+
+                selectedLabRoomNames.push(selectedCageInfoSegs[9]);
+
+            }
+        }
+        if (typeof (doOnFinishCageSelectedCallBack) == 'function') {
+            doOnFinishCageSelectedCallBack(selectedCageIds, selectedCageNames, selectedCageCodes, selectedCageRowNos, selectedCageColNos,selectedFrameIds ,selectedFrameNames,selectedFrameRowNos,selectedFrameColNos,selectedLabRoomNames,animalStorePosDialog);
+        }
+    }
+    $(function () {
+        var elements = $("#tbAnimalCageItems tr td.busy a");
+        elements.each(function () {
+            Tipped.create(this, '@Url.Action("Detail","Animal")' + "?time" + new Date().getMilliseconds(), { ajax: { data: { id: $(this).attr("id") }, type: 'get' }, skin: 'light', hook: 'topleft' });
+        });
+    });
+</script>

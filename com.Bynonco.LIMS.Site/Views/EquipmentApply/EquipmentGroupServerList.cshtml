@@ -1,0 +1,29 @@
+﻿@model com.Bynonco.LIMS.Model.View.ViewEquipmentApply
+@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL;
+@{
+    var equipmentApplyPrivilige = com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentApplyPrivilige(User.Identity.Name);
+    var dataGrid = Html.JDataGrid("tbEquipmentGroupServerList")
+    .AddQueryParam("equipmentApplyId", Model != null ? Model.Id.ToString() : "")
+    .SetUrl(Url.Action("GetEquipmentGroupServerList", "EquipmentApply"))
+    .SetWidth(680)
+    .SetHeight(350)
+    .SetPageSize(10)
+    .SetSortName("Name")
+    .SetSortOrder(SortOrder.desc)
+    .SetPagination(false)
+    .SetShowAddButton(true)
+    .SetShowAddButton(equipmentApplyPrivilige.IsEnableAddEquipmentGroupServer)
+    .SetAddScript("doAddEquipmentGroupServer();")
+    .SetDeleteScript("doDeleteEquipmentGroupServer();")
+    .SetShowDeleteButton(equipmentApplyPrivilige.IsEnableDeleteEquipmentGroupServer);
+     dataGrid.AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "EquipmentGroupServerType").SetSortable(false).SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编辑", "EditOperate").SetWidth(50).SetSortable(false).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("姓名", "Name").SetWidth(80).SetSortable(false).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("职称", "Title").SetWidth(110).SetSortable(false).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "EquipmentGroupServerTypeStr").SetSortable(false).SetWidth(100).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("电话", "TelPhoneNo").SetWidth(130).SetSortable(false).SetAlign(Align.center))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("Email", "Email").SetWidth(148).SetSortable(false).SetAlign(Align.center));
+ }
+@(dataGrid.ToMvcString()) 

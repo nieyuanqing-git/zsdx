@@ -1,0 +1,31 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var cameraId = ViewData["CameraId"] == null ? "" : ViewData["CameraId"].ToString();
+    var relationId = ViewData["RelationId"] == null ? "" : ViewData["RelationId"].ToString();
+    var dataGrid = Html.JDataGrid("tbCameraVideoRecordList")
+        .SetUrl(Url.Action("GetGridCameraVideoRecordList", "Camera"))
+        .AddQueryParam("CameraId", cameraId)
+        .AddQueryParam("RelationId", relationId)
+        .SetHeight(610)
+        .SetPageSize(20)
+        .SetMutiSelect(false)
+        .SetSingleSelect(true)
+        .SetShowPrintButton(false)
+        .SetShowSearchButton(false)
+        .SetShowAddButton(false)
+        .SetShowEditButton(false)
+        .SetShowDeleteButton(false)
+        .SetShowRefreshButton(false)
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("摄像头", "CameraName").SetWidth(120).SetHidden(!string.IsNullOrWhiteSpace(cameraId)).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("被监控对象", "RelationName").SetWidth(150).SetHidden(!string.IsNullOrWhiteSpace(relationId)).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("类型", "RelationTypeStr").SetWidth(50).SetHidden(!string.IsNullOrWhiteSpace(relationId)).SetAlign(Align.left))
+        .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("文件名", "FileName").SetWidth(180).SetAlign(Align.left).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("录像时间", "CreateTimeStr").SetWidth(130).SetAlign(Align.center).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("视频长度", "VideoLength").SetWidth(60).SetAlign(Align.center).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("大小", "FileSize").SetWidth(60).SetAlign(Align.center).SetSortable(false))
+        .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("下载", "DownloadOperate").SetWidth(70).SetAlign(Align.center).SetSortable(false));
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doShowSearchZPanel();", IconCls = "icon-search", Id = "btnGridSearchZPanel", Text = "搜索" });
+        dataGrid.AddToolBarButton(new ToolBarButton() { Disabled = false, Handler = "doReloadCameraVideoRecordList();", IconCls = "icon-reload", Id = "btnReload", Text = "刷新" });
+}
+@(dataGrid.ToMvcString())

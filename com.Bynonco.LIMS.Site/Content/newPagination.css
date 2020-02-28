@@ -1,0 +1,14 @@
+﻿
+.datagrid-pager {background: none repeat scroll 0 0 #FFF;}
+.pagination-first {background: url("images/pagination_first.gif") no-repeat scroll 0 0 transparent;}
+.pagination-prev {background: url("images/pagination_prev.gif") no-repeat scroll 0 0 transparent;}
+.pagination-next {background: url("images/pagination_next.gif") no-repeat scroll 0 0 transparent;}
+.pagination-last {background: url("images/pagination_last.gif") no-repeat scroll 0 0 transparent;}
+.pagination-load {background: url("images/pagination_load.png") no-repeat scroll 0 0 transparent;}
+.pagination table {float: right;}
+.pagination-info {float: left; padding-right: 0px; padding-left: 5px;}
+
+.pagination .page-nums span.current{ background-color: #3096d6; color:#FFF;}
+a.no-bg-btn {background: none;padding: 4px;}
+a.no-bg-btn span.l-btn-left{background: none;padding: 2px 0;}
+a.no-bg-btn span span.l-btn-text {background: none;border: 1px solid #AAAAAA;padding:1px 5px;}

@@ -1,0 +1,34 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@{
+    var equipmentPrivilige = ViewData["EquipmentId"] == null ?
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name) :
+        com.Bynonco.LIMS.BLL.Business.Privilige.PriviligeFactory.GetEquipmentPrivilige(User.Identity.Name, new Guid(ViewData["EquipmentId"].ToString()));
+    var dataGrid = Html.JDataGrid("tbEquipmentAddtionChargeItemList")
+    .SetUrl(Url.Action("GetGridEquipmentAdditionChargeItemList", "Equipment"))
+    .AddQueryParam("queryExpression", string.Format("EquipmentId=\"{0}\"", ViewData["EquipmentId"] == null ? default(Guid).ToString() : ViewData["EquipmentId"].ToString()))
+    .SetHeight(650)
+    .SetPageSize(20)
+    .SetSortName("Name")
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("编码", "Id").SetHidden(true))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("名称", "Name").SetWidth(252).SetAlign(Align.left))
+    .AddFrozenColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("价格(元)", "StandardPrice").SetWidth(100).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("是否停用", "IsStopStr").SetWidth(80).SetAlign(Align.center))
+    .AddColum(new com.Bynonco.JqueryEasyUI.Core.DataGridColumn("备注", "Remark").SetSortable(false).SetWidth(800).SetAlign(Align.left));
+    dataGrid.SetShowAddButton(equipmentPrivilige.IsEnableAddAddtionChargeItem);
+    dataGrid.SetShowEditButton(equipmentPrivilige.IsEnableEditAddtionChargeItem);
+    dataGrid.SetShowDeleteButton(equipmentPrivilige.IsEnableDeleteAddtionChargeItem);
+    if (equipmentPrivilige.IsEnableAddAddtionChargeItem)
+    {
+        dataGrid.SetAddScript("doAddOrEditAdditionChargeItem('');");
+    }
+    if (equipmentPrivilige.IsEnableEditAddtionChargeItem)
+    {
+        dataGrid.SetEditScript("doEditAdditionChargeItem();");
+        dataGrid.SetOnDblClickRow("doAddOrEditAdditionChargeItem(rowData.Id);");
+    }
+    if (equipmentPrivilige.IsEnableDeleteAddtionChargeItem)
+    {
+        dataGrid.SetDeleteScript("doDeleteAdditionChargeItem();");
+    }
+}
+@(dataGrid.ToMvcString()) 

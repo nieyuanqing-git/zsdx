@@ -1,0 +1,220 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.Model.Enum;
+@{
+    Layout = ViewBag.Layout;
+    var sampleRoleStr = ViewData["SampleRoleStr"];
+    var userPriviliges = ViewData["UserPriviligesJson"];
+    var sendMailMode = ViewData["SendMailMode"].ToString();
+}
+<div class="search-grid hide">
+    <div class="search-inner-box">@Html.Partial("../SampleManage/SampleApplySearch")</div>
+</div>
+<script type="text/javascript">
+    var sendMailMode = "@sendMailMode";
+    var sampleRoleStr = "@sampleRoleStr";
+    function doSearch() {
+        var queryExpression = generateQueryExpress();
+        $("#tbSampleUnTestList").datagrid('loadData', { total: 0, rows: [] });
+        $("#tbSampleUnTestList").datagrid("load", { "queryExpression": queryExpression.trim(),"time":new Date().getMilliseconds() });
+        return false;
+    }
+
+    function doBeginHandle(id) {
+        return doTestOperate(id, '@Url.Action("BeginHandle","SampleManage")'+ "?time=" + new Date().getMilliseconds(),"是否确认进行前处理?");
+        return false;
+    }
+
+    function doEndHandle(id) {
+        return doTestOperate(id, '@Url.Action("EndHandle","SampleManage")'+ "?time=" + new Date().getMilliseconds(),"是否确认结束前处理?");
+        return false;
+    }
+
+    function doBeginTest(id) {
+        var url = '@Url.Action("BeginTest","SampleManage")'+ "?time=" + new Date().getMilliseconds();
+        doTestOperate(id, url, "是否确认开始测试?");
+        return false;
+    }
+    var sampleApplyId = "";
+    function doEndTest(id) {
+        $.messager.confirm('提示', "是否确认结束测试?", function (r) {
+            if (!r) return;
+            sampleApplyId = id;
+            $.messager.progress({ title: '提示', msg: '正在处理,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("EndTest","SampleManage")'+ "?time=" + new Date().getMilliseconds(),
+                data: { "sampleRoleStr": sampleRoleStr, "id": id, "remark": "" },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if ( msg && msg!="" && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                        
+                    }
+                    doFinishedQuatityInput(id);
+                    doSearch();
+                }
+            });
+        });
+        return false;
+    }
+   
+    function doTestOperate(id, url, tip) {
+        $.messager.confirm('提示', tip, function (r) {
+            if (!r) return;
+            $.messager.progress({ title: '提示', msg: '正在处理,请稍候……' });
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: { "sampleRoleStr": sampleRoleStr, "id": id, "remark": "" },
+                success: function (msg) {
+                    $.messager.progress('close');
+                    if (msg && msg.indexOf("出错") != -1) {
+                        $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                        return false;
+                    }
+                    doSearch();
+                    if (sendMailMode.toString() == "@((int)SendMailMode.Manual)" &&　msg.indexOf(",")==-1) {
+                        doSendMessage(msg);
+                    }
+                }
+            });
+        });
+        return false;
+    }
+    var testRecordDialog;
+    function doShowTestRecord(id) {
+        if(testRecordDialog) testRecordDialog.dialog("destroy");
+        $.messager.progress({ title: '提示', msg: '正在处理,请稍候……' });
+        $("#divTestRecord").load('@Url.Action("SampleTestRecordContainer","SampleManage")' + "?sampleApplyid=" + id + "&time=" + new Date().getMilliseconds(),function(){
+            testRecordDialog = @Html.JDialog("divSampleTestRecordList").SetTitle("样品操作日志记录").SetIconCls("icon-save").SetAutoDialog(false).SetModal(true).SetShowCancelButton(false).SetShowOkButton(false).SetShowOkButton(false).SetShowCancelButton(false).ToMvcString();
+            $.messager.progress('close');
+        });
+    }
+   var testRecordEditDialog;
+   function doEditTestRecord(id) {
+        if(testRecordEditDialog) testRecordEditDialog.dialog("destroy");
+        $.messager.progress({ title: '提示', msg: '正在处理,请稍候……' });
+        $("#divTestRecordEdit").load('@Url.Action("SampleTestRecordEdit","SampleManage")' + "?sampleApplyid=" + id + "&time=" + new Date().getMilliseconds(),function(){
+            testRecordEditDialog = @Html.JDialog("divSampleTestRecordEdit").SetTitle("编辑测试记录信息").SetIconCls("icon-save").SetAutoDialog(false).SetModal(true).SetCancelScript("doCancelSaveTestRecord(id);return false;").SetOkScript("doSaveTestRecord(id);return false;").ToMvcString();
+            $.messager.progress('close');
+        });
+   }
+   function doSaveTestRecord(id){
+        $.messager.progress({ title: '提示', msg: '正在处理,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SampleTestRecordSave","SampleManage")'+ "?time=" + new Date().getMilliseconds(),
+            data: $("#frmSampleTestRecordEdit").serialize() + "&sampleApplyId=" + id,
+            success: function (msg) {
+                $.messager.progress('close');
+                if (msg && msg.indexOf("出错") >= 0) {
+                    $.messager.show({ title: '提示', msg: msg, showType: 'show' });
+                    return false;
+                }
+                doSearch();
+                testRecordEditDialog.dialog('close');
+                if(sendMailMode.toString() == "@((int)SendMailMode.Manual)" && msg &&　msg.indexOf(",")==-1){
+                    doSendMessage(msg);
+                }
+            }
+        });
+   }
+   function doCancelSaveTestRecord(id){
+        testRecordEditDialog.dialog('close');
+        if(sendMailMode.toString() == "@((int)SendMailMode.Manual)"){
+            doSendMessage(id);
+        }
+        return false;
+   }
+   function generateSelectedSampleApplyIds() {
+        return generateSelectedSampleApplyIdsByDataGridId("tbSampleUnTestList");
+   }
+   function doBatchTest(testOption){
+        var errorMsg = "";
+        var url = "";
+        var showResultFunction;
+        switch(testOption){
+            case "beginHandle":
+                url = '@Url.Action("BatchBeginHandle","SampleManage")';
+                errorMsg = "请选择要开始前处理的项";
+                showResultFunction = showBatchBeginHandleResult;
+                break;
+            case "endHandle":
+                url = '@Url.Action("BatchEndHandle","SampleManage")';
+                errorMsg = "请选择要结束前处理的项";
+                showResultFunction = showBatchEndHandleResult;
+                break;
+            case "beginTest":
+                url = '@Url.Action("BatchBeginTest","SampleManage")';
+                errorMsg = "请选择要开始测试的项";
+                showResultFunction = showBatchBeginTestResult;
+                break;
+            case "endTest":
+                url = '@Url.Action("BatchEndTest","SampleManage")';
+                errorMsg = "请选择要结束测试的项";
+                showResultFunction = showBatchEndTestResult;
+                break;
+        }
+        var ids = generateSelectedSampleApplyIds();
+        if(ids == ""){
+            $.messager.show({ title: '提示', msg: errorMsg, showType: 'show' });
+            return false;
+        }
+        $.messager.progress({ title: '提示', msg: '正在处理,请稍候……' });
+        $.ajax({
+            type: "POST",
+            url:url + "?time=" + new Date().getMilliseconds(),
+            data: { "sampleRoleStr": sampleRoleStr, "ids": ids},
+            success: function (msg) {
+                $.messager.progress('close');
+                $("#divBatchTestRelativeResult").html(msg);
+                setTimeout(showResultFunction,100);
+                doSearch();
+            }
+        });
+   }
+   function doBatchBeginHandle(){
+       doBatchTest("beginHandle");
+   }
+   var batchBeginHandleResultDialog;
+   function showBatchBeginHandleResult(){
+        batchBeginHandleResultDialog = @(Html.JDialog("divBatchOperateResult").SetTitle("批量开始前处理结果").SetIconCls("icon-tip").SetAutoDialog(false).SetOkScript("batchBeginHandleResultDialog.dialog('close');return false;").SetCancelScript("batchBeginHandleResultDialog.dialog('close');return false;").SetModal(true).ToMvcString());
+   }
+
+   function doBatchEndHandle(){
+       doBatchTest("endHandle");
+   }
+   var batchEndHandleResultDialog;
+   function showBatchEndHandleResult(){
+        batchEndHandleResultDialog = @(Html.JDialog("divBatchOperateResult").SetTitle("批量结束前处理结果").SetIconCls("icon-tip").SetAutoDialog(false).SetOkScript("batchEndHandleResultDialog.dialog('close');return false;").SetCancelScript("batchEndHandleResultDialog.dialog('close');return false;").SetModal(true).ToMvcString());
+   }
+
+   function doBatchBeginTest(){
+       doBatchTest("beginTest");
+   }
+   var batchBeginTestResultDialog;
+   function showBatchBeginTestResult(){
+        batchBeginTestResultDialog = @(Html.JDialog("divBatchOperateResult").SetTitle("批量开始测试结果").SetIconCls("icon-tip").SetAutoDialog(false).SetOkScript("batchBeginTestResultDialog.dialog('close');return false;").SetCancelScript("batchBeginTestResultDialog.dialog('close');return false;").SetModal(true).ToMvcString());
+   }
+
+   function doBatchEndTest(){
+       doBatchTest("endTest");
+   }
+   var batchEndTestResultDialog;
+   function showBatchEndTestResult(){
+        batchEndTestResultDialog = @(Html.JDialog("divBatchOperateResult").SetTitle("批量结束测试结果").SetIconCls("icon-tip").SetAutoDialog(false).SetOkScript("batchEndTestResultDialog.dialog('close');return false;").SetCancelScript("batchEndTestResultDialog.dialog('close');return false;").SetModal(true).ToMvcString());
+   }
+    function doExport(sampleRoleStr){
+        var queryExpression = generateQueryExpress();
+        var sortColumn = $("#tbSampleUnTestList").datagrid("options").sortName;
+        var order = $("#tbSampleUnTestList").datagrid("options").sortOrder;
+        var url = '@Url.Action("ExportSampleApplyTestList", "SampleManage")'  + "?queryExpression=" + queryExpression.trim() + "&sampleRoleStr=" + sampleRoleStr + "&sort=" + sortColumn + "&order=" + order  + "&time=" + new Date().getMilliseconds();
+        window.open(url, '_blank');
+    }
+</script>
+<div>@Html.Partial("../SampleManage/SampleApplyUnTestList")</div>
+<div style="display:none">@Html.Partial("../SampleManage/SampleApplyScriptContainer")</div>
+<div style="display:none" id="divTestRecord"></div>
+<div style="display:none" id="divTestRecordEdit" ></div>
+<div style="display:none" id="divBatchTestRelativeResult" ></div>

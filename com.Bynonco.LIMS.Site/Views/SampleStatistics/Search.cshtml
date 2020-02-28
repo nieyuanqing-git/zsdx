@@ -1,0 +1,204 @@
+﻿@using com.Bynonco.JqueryEasyUI.Core;
+@using com.Bynonco.LIMS.BLL.Business.Customer.Factory;
+@{
+    var customer = CustomerFactory.GetCustomer();
+    var customerOrgName = customer == null ? "所属单位" : customer.GetLabOrganizationName();
+}
+<style type="text/css">
+    #tbSampleSampleStatisticsSearch td{font-weight:normal;line-height:20px;}
+    #tbSampleSampleStatisticsSearch th{font-weight:normal;line-height:20px;text-align:center}
+</style>
+<div class="panel-header">
+    <div class="menu-type">
+       <a href="javascript:void(0)" style="margin-left:5px;" class="l-btn l-btn-plain" id="btnGridSearch" hidefocus="true" onclick="return false;">
+           <span class="l-btn-left">
+                <span class="l-btn-text icon-search" style="padding-left: 20px;">搜索</span>
+           </span>
+       </a>
+    </div>
+    <div style="padding-top:38px">
+        <table id="tbSampleSampleStatisticsSearch" style="border-collapse: collapse; margin-top:5px">
+        <tr>
+           <th>设备名称</th>
+            <td>
+                @Html.TextBox("txtQueryEquipmentName", "", new { style = "width:95px;height:18px"})
+            </td>
+            <th>项目名称</th>
+             <td>
+                @Html.TextBox("txtQuerySampleItemName", "", new { style = "width:95px;height:18px" })
+            </td>
+            <th>申请人</th>
+            <td>
+                @Html.TextBox("txtQueryApplicantName", "", new { style = "width:95px;height:18px"})
+            </td>
+            <th>申请日期</th>
+            <td>
+                @Html.JDateTimePicker("dtpQueryApplyBeginDate").SetWidth(80).ToMvcString()
+                ～
+                @Html.JDateTimePicker("dtpQueryApplyEndDate").SetWidth(80).ToMvcString()
+            </td>
+            <td rowspan="3">
+                @Html.JLinkButton("btnSampleTotalSearch", "查询").SetOnclick("doSampleTotalSearch();").ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>当前状态</th>
+            <td>
+                @Html.JComboBox("cbxQuerySampleStatus").SetData(ViewData["SampleStatusJson"]).SetMutiSelect(true).SetWidth(100).ToMvcString()
+            </td>
+            <th>收费状态</th>
+            <td> 
+                @Html.JComboBox("cbxQueryChargeStatus").SetWidth(100).SetData(ViewData["ChargeStatusJson"]).SetEditable(false).SetMutiSelect(true).ToMvcString()
+            </td>
+            <th>测试人</th>
+            <td>
+                 @Html.TextBox("txtQueryTesterName", "", new { style = "width:95px;height:18px"})
+            </td>
+            <th>测试日期</th>
+            <td>
+                @Html.JDateTimePicker("dtpQueryTestBeginDate").SetWidth(80).ToMvcString()
+                ～
+                @Html.JDateTimePicker("dtpQueryTestEndDate").SetWidth(80).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>导师姓名</th>
+            <td>@Html.TextBox("txtQuerySubjectDirectorName", "", new { style = "width:95px;height:18px" })</td>
+            <th>业务类型</th>
+            <td>
+                @Html.JComboBox("cbxSampleType").SetData(ViewData["SampleTypeJson"]).SetMutiSelect(true).SetWidth(100).ToMvcString()
+            </td>
+            <th>送样单号</th>
+            <td>@Html.TextBox("txtQuerySampleNo", "", new { style = "width:95px;height:18px" })</td>
+             <th>审核日期</th>
+            <td>
+                @Html.JDateTimePicker("dtpQueryAuditBeginDate").SetWidth(80).ToMvcString()
+                ～
+                @Html.JDateTimePicker("dtpQueryAuditEndDate").SetWidth(80).ToMvcString()
+            </td>
+        </tr>
+        <tr>
+            <th>使用性质</th>
+            <td>@Html.JComboBox("cbxQueryUseNature").SetData(ViewData["UseNatureJson"]).SetMutiSelect(false).SetWidth(100).ToMvcString()</td>
+            <th>@customerOrgName</th>
+            <td colspan='5'>
+                @Html.DropDownList("SearchOrganizationId", (IEnumerable<SelectListItem>)ViewData["SearchEquipmentOrganizationSelectListItem"], new { style = "width:250px", onchange = "getSearchOrganizationXPath(this);" })
+                @Html.Hidden("SearchOrganizationXPath")
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div class="clear-both"></div>
+</div>
+<script type="text/javascript">
+    function generateSampleTotalQueryExpress() {
+        var queryExpression = "";
+        var equipmentName = $("#txtQueryEquipmentName").val().trim();
+        if (equipmentName != "") {
+            queryExpression = "EquipmentName∽\"" + equipmentName + "\""
+        }
+        var sampleItemName = $("#txtQuerySampleItemName").val().trim();
+        if (sampleItemName != "") {
+            queryExpression += (queryExpression == "" ? "SampleItemName∽\"" + sampleItemName + "\"" : "*SampleItemName∽\"" + sampleItemName + "\"");
+        }
+        var applicantName = $("#txtQueryApplicantName").val().trim();
+        if (applicantName != "") {
+            queryExpression += (queryExpression == "" ? "ApplicantName∽\"" + applicantName + "\"" : "*ApplicantName∽\"" + applicantName + "\"");
+        }
+        var testerName = $("#txtQueryTesterName").val().trim();
+        if (testerName != "") {
+            queryExpression += (queryExpression == "" ? "TesterName∽\"" + testerName + "\"" : "*TesterName∽\"" + testerName + "\"");
+        }
+        var selectedSampleStatus = $("#cbxQuerySampleStatus").combobox("getValues");
+        var selectedSampleStatusIds = selectedSampleStatus.toString().split(",");
+        if (selectedSampleStatusIds.length > 1 || (selectedSampleStatusIds[0].trim() != "-1" && selectedSampleStatusIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedSampleStatusIds.length; i++) {
+                if (selectedSampleStatusIds[i].trim() == "-1") { index++; continue; }
+                queryExpression += (i == index ? "Status=\"" + selectedSampleStatusIds[i] + "\"" : "+Status=\"" + selectedSampleStatusIds[i] + "\"");
+            }
+            queryExpression += ")";
+        }
+
+        var selectedSampleType = $("#cbxSampleType").combobox("getValues");
+        var selectedSampleTypeIds = selectedSampleType.toString().split(",");
+        if (selectedSampleTypeIds.length > 1 || (selectedSampleTypeIds[0].trim() != "-1" && selectedSampleTypeIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedSampleTypeIds.length; i++) {
+                if (selectedSampleTypeIds[i].trim() == "-1") { index++; continue; }
+                queryExpression += (i == index ? "IsOuter=" + (selectedSampleTypeIds[i] == 0 ? "false" : "true") : "+IsOuter=" + (selectedSampleTypeIds[i] == 0 ? "false" : "true"));
+            }
+            queryExpression += ")";
+        }
+        var selectedUseNature = $("#cbxQueryUseNature").combobox("getValue");
+        if (selectedUseNature != "-1") {
+            queryExpression += (queryExpression == "" ? "UseNature=" + selectedUseNature : "*UseNature=" + selectedUseNature);
+        }
+        var selectedChargeStatuses = $("#cbxQueryChargeStatus").combobox("getValues");
+        var selectedChargeStatusIds = selectedChargeStatuses.toString().split(",");
+        if (selectedChargeStatusIds.length > 1 || (selectedChargeStatusIds[0].trim() != "-1" && selectedChargeStatusIds.length == 1)) {
+            var index = 0;
+            queryExpression += queryExpression == "" ? "(" : "*(";
+            for (var i = 0; i < selectedChargeStatusIds.length; i++) {
+                if (selectedChargeStatusIds[i].trim() == "-1") { index++; continue; }
+                queryExpression += (i == index ? "ChargeStatus=" + selectedChargeStatusIds[i] : "+ChargeStatus=" + selectedChargeStatusIds[i]);
+            }
+            queryExpression += ")";
+        }
+
+        var applyBeginDate = $("#dtpQueryApplyBeginDate").datebox("getValue").trim();
+        if (applyBeginDate != "") {
+            applyBeginDate = applyBeginDate + " 00:00:00";
+            queryExpression += queryExpression == "" ? "ApplyDate>\"" + applyBeginDate + "\"" : "*ApplyDate>\"" + applyBeginDate + "\"";
+        }
+        var applyEndDate = $("#dtpQueryApplyEndDate").datebox("getValue").trim();
+        if (applyEndDate != "") {
+            applyEndDate = applyEndDate + " 23:59:59"
+            queryExpression += queryExpression == "" ? "ApplyDate<\"" + applyEndDate + "\"" : "*ApplyDate<\"" + applyEndDate + "\"";
+        }
+
+        var testBeginDate = $("#dtpQueryTestBeginDate").datebox("getValue").trim();
+        if (testBeginDate != "") {
+            testBeginDate = testBeginDate + " 00:00:00";
+            queryExpression += queryExpression == "" ? "TestBeginTime>\"" + testBeginDate + "\"" : "*TestBeginTime>\"" + testBeginDate + "\"";
+        }
+        var testEndDate = $("#dtpQueryTestEndDate").datebox("getValue").trim();
+        if (testEndDate != "") {
+            testEndDate = testEndDate + " 23:59:59"
+            queryExpression += queryExpression == "" ? "TestEndTime<\"" + testEndDate + "\"" : "*TestEndTime<\"" + testEndDate + "\"";
+        }
+        var subjectDirectorName = $("#txtQuerySubjectDirectorName").val().trim();
+        if (subjectDirectorName != "") {
+            queryExpression += queryExpression = "" ? "*SubjectDirectorName∽\"" + subjectDirectorName + "\"" : "SubjectDirectorName∽\"" + subjectDirectorName + "\"";
+        }
+        var auditEndDate = $("#dtpQueryAuditEndDate").datebox("getValue").trim();
+        if (auditEndDate != "") {
+            auditEndDate = auditEndDate + " 23:59:59"
+            queryExpression += queryExpression == "" ? "(PassDate<\"" + auditEndDate + "\"+RefuseDate<\"" + auditEndDate + "\")" : "*(PassDate<\"" + auditEndDate + "\"+RefuseDate<\"" + auditEndDate + "\")";
+        }
+        var auditBeginDate = $("#dtpQueryAuditBeginDate").datebox("getValue").trim();
+        if (auditBeginDate != "") {
+            auditBeginDate = auditBeginDate + " 00:00:00";
+            queryExpression += queryExpression == "" ? "(PassDate>\"" + auditBeginDate + "\"+RefuseDate>\"" + auditBeginDate + "\")" : "*(PassDate>\"" + auditBeginDate + "\"+RefuseDate>\"" + auditBeginDate + "\")";
+        }
+        var organizationXPath = $("#SearchOrganizationXPath").val().trim();
+        if (organizationXPath != "") {
+            queryExpression += (queryExpression == "" ? "" : "*") + "EquipmentOrgXPath→" + organizationXPath;
+        }
+        return queryExpression;
+    }
+
+    function getSearchOrganizationXPath(element) {
+        $("#SearchOrganizationXPath").val("");
+        var organizationId = element.value;
+        if (organizationId != "" && !organizationId.isDefaultGuid()) {
+            var urlGetLabOrganizationById = '@Url.Action("GetLabOrganizationById","LabOrganization")';
+            $.post(urlGetLabOrganizationById, { id: organizationId }, function (data) {
+                if (data && data != "")
+                    $("#SearchOrganizationXPath").val(data.XPath);
+            }, 'json');
+        }
+    }
+</script>

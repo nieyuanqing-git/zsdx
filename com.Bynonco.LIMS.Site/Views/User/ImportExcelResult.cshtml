@@ -1,0 +1,73 @@
+﻿@model IList<com.Bynonco.LIMS.Model.SchoolUser>
+<style type="text/css">
+    .edit-table td{text-align:center;}
+    #divImportExcelResult{padding-bottom:10px;overflow-y:auto;}
+</style>
+@if (Model != null && Model.Count() > 0)
+{
+    var susuccee = Model.Where(p => p.IsHandled).Count();
+    var error = Model.Where(p => !p.IsHandled).Count();
+    var total = Model.Count();
+    <p>导入结果: 成功[@(susuccee)],  失败[@(error)], 总共[@(total)]</p>
+    <table border='1' cellpadding='0' cellspacing='0' class="edit-table" style='width:1409px;'>
+        <tr>
+            <th>序号</th>
+            <th>状态</th>
+            <th>登陆名</th>
+            <th>姓名</th>
+            <th>性别</th>	
+            <th>电话号码</th>	
+            <th>邮件</th>
+            <th>年级</th>
+            <th>证件类型</th>	
+            <th>证件号码</th>	
+            <th>机构名称</th>
+            <th>用户身份</th>
+            <th>用户类型</th>
+            <th>职称</th>
+            <th>专业</th>
+            <th>研究方向</th>
+            <th>导师名称</th>
+            <th>导师登陆名或证件号</th>
+        </tr>
+    @for (int i = 0; i < Model.Count(); i++)
+    {
+        var item = Model[i];
+        <tr>
+            <td>@(i+1)</td>
+            <td style='@(item.IsHandled ? "" : "color:red")'>
+                @(item.IsHandled ? "成功" : "失败") 
+            </td>
+            <td>@(item.LoginName)</td>
+            <td>@(item.Name)</td>
+            <td>@(item.Sex.HasValue ? (item.Sex.Value==1 ? "男": "女") : "")</td>
+            <td>@(item.PhoneNumber)</td>
+            <td>@(item.Email)</td>
+            <td>@(item.Grade)</td>
+            <td>@(item.CertificateType)</td>
+            <td>@(item.IdentityCardNo)</td>
+            <td>@(item.OrganizationName)</td>
+            <td>@(!item.UserType.HasValue ? "" : item.UserType.Value == 2 ? "学生" : (item.UserType.Value == 4 ? "导师" : ""))</td>
+            <td>@(item.TagName)</td>
+            <td>@(item.Jobtitle)</td>
+            <td>@(item.Speciality)</td>
+            <td>@(item.ResearchDirection)</td>
+            <td>@(item.TutorName)</td>
+            <td>@(item.TutorIdentityCardNo)</td>
+        </tr>
+    }
+    </table>
+    <script type="text/javascript">
+        $(function () {
+            $("#divImportExcelResult").removeAttr("height");
+            var t_height = $("#divImportExcelResult").height();
+            if (t_height > 500) {
+                $("#divImportExcelResult").attr("height", "500px");
+            }
+        });
+    </script>
+}
+else
+{
+    <p>无法找到任何可导入的用户信息</p>
+}
